@@ -1,0 +1,94 @@
+<html>
+<head>
+        <title>Drag & Drop test</title>
+		<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="jquery.ui.all.js"></script>
+		<script type="text/javascript" src="jquery-ui-1.8.5.custom.min.js"></script>
+		<script type="text/javascript" src="jquery.ui.core.js"></script>
+		<link rel="stylesheet" type="text/css" href="styles/jquery-ui-.custom.css">
+        <style type="text/css">
+		div.drop{
+			position: absolute;
+			left: 10px; 
+			top: 150px; 
+		}
+		.demo ul{
+			list-style-type: none; 
+			margin: 0; 
+			padding: 0; 
+			margin-bottom: 10px; 
+		}
+		.demo li{ 
+			margin: 5px; 
+			padding: 5px;
+			width: 175px; 
+			height: 25px;
+			border: 1px solid #ffffff;
+			color: #363636; 
+			z-index: 1;
+		}
+		li.invisible{
+			width: 1px;
+			height: 1px; 
+			z-index: 0;
+		}
+		li.drag1{
+			background: #A9A9A9 url('images/forward.png') 5% 95% no-repeat; 
+		}
+		li.drag2{
+			background: #A9A9A9 url('images/left.png') 5% 95% no-repeat; 
+		}
+		li.drag3{
+			background: #A9A9A9 url('images/right.png') 5% 95% no-repeat; 
+		}
+        </style>
+</head>
+<body>
+	<script>
+	$(function() {
+		var maxx = 185;
+		var miny = 0;
+		$( "#sortable" ).sortable({
+			revert: false,
+			beforeStop: function(event, ui){
+				if (ui.position.left > maxx || ui.position.top < miny)
+					ui.item.remove();
+			}
+		});
+		$( "#drag1" ).draggable({
+			connectToSortable: "#sortable",
+			helper: "clone",
+			revert: "invalid"
+		});
+		$( "#drag2" ).draggable({
+			connectToSortable: "#sortable",
+			helper: "clone",
+			revert: "invalid"
+		});
+		$( "#drag3" ).draggable({
+			connectToSortable: "#sortable",
+			helper: "clone",
+			revert: "invalid"
+		});
+		$( "ul, li" ).disableSelection();
+	});
+	</script>
+	<div class = "demo">
+		<div class = "drag">
+			<ul>
+				<li id = "drag1" class = "drag1"><span style = "margin-left: 40px;">Прямо</span></li>
+				<li id = "drag2" class = "drag2"><span style = "margin-left: 40px;">Налево</span></li>
+				<li id = "drag3" class = "drag3"><span style = "margin-left: 40px;">Направо</span></li>
+			</ul>
+		</div>
+
+		<div class = "drop">		
+			<hr><br>
+			Укажите последовательность действий
+			<ul id = "sortable">
+				<li class = "invisible"></li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>
