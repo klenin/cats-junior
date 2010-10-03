@@ -1,4 +1,5 @@
 <html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <head>
         <title>Drag & Drop test</title>
 		<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
@@ -12,13 +13,13 @@
 			left: 10px; 
 			top: 150px; 
 		}
-		.demo ul{
+		.comands ul{
 			list-style-type: none; 
 			margin: 0; 
 			padding: 0; 
 			margin-bottom: 10px; 
 		}
-		.demo li{ 
+		.comands li{ 
 			margin: 5px; 
 			padding: 5px;
 			width: 175px; 
@@ -32,22 +33,116 @@
 			height: 1px; 
 			z-index: 0;
 		}
-		li.drag1{
+		li.forward{
 			background: #A9A9A9 url('images/forward.png') 5% 95% no-repeat; 
 		}
-		li.drag2{
+		li.left{
 			background: #A9A9A9 url('images/left.png') 5% 95% no-repeat; 
 		}
-		li.drag3{
+		li.right{
 			background: #A9A9A9 url('images/right.png') 5% 95% no-repeat; 
+		}
+		td.wall{
+			background-image: url('images/wall.jpg'); 
+			width: 15px;
+			height: 15px;
+		}
+		td.floor{
+			background-image: url('images/floor.jpg'); 
+			width: 60px;
+			height: 60px;
+		}
+		div.field{
+			position: absolute;
+			left: 500px; 
+			top: 10px; 
+		}
+		div.up{
+			background: url('images/hero_up.png') 50% 50% no-repeat; 
+			width: 60px;
+			height: 60px;
+			z-index: 2;
+		}
+		div.down{
+			background: url('images/hero_down.png') 50% 50% no-repeat; 
+			width: 60px;
+			height: 60px;
+			z-index: 2;
+		}
+		div.left{
+			background: url('images/hero_left.png') 50% 50% no-repeat; 
+			width: 60px;
+			height: 60px;
+			z-index: 2;
+		}
+		div.right{
+			background: url('images/hero_right.png') 50% 50% no-repeat; 
+			width: 60px;
+			height: 60px;
+			z-index: 2;
+		}
+		div.btn{
+			position: absolute;
+			left: 200px; 
+			top: 10px; 
 		}
         </style>
 </head>
 <body>
+	<div class = "comands">
+		<div class = "drag">
+			<ul>
+				<li id = "forward" class = "forward"><span style = "margin-left: 40px;">п÷я─я▐п╪п╬</span></li>
+				<li id = "left" class = "left"><span style = "margin-left: 40px;">п²п╟п╩п╣п╡п╬</span></li>
+				<li id = "right" class = "right"><span style = "margin-left: 40px;">п²п╟п©я─п╟п╡п╬</span></li>
+			</ul>
+		</div>
+
+		<div class = "drop">		
+			<hr><br>
+			пёп╨п╟п╤п╦я┌п╣ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄п╫п╬я│я┌я▄ п╢п╣п╧я│я┌п╡п╦п╧
+			<ul id = "sortable">
+				<li class = "invisible"></li>
+			</ul>
+		</div>
+	</div>
 	<script>
-	$(function() {
-		var maxx = 185;
-		var miny = 0;
+		const map = new Array(10);
+		var cur_x = 0;
+		var cur_y = 1;
+		var cur_dir = "right";
+		map[0] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
+		map[1] = new Array('.','.','.', '.', '.', '.', '.', '.', '.', '#');
+		map[2] = new Array('#','#','#', '#', '#', '#', '#', '#', '.', '#');
+		map[3] = new Array('#','.','.', '.', '.', '.', '.', '#', '.', '#');
+		map[4] = new Array('#','.','#', '#', '#', '#', '.', '#', '.', '#');
+		map[5] = new Array('#','.','#', '.', '#', '#', '.', '#', '.', '#');
+		map[6] = new Array('#','.','#', '.', '.', '.', '.', '#', '.', '#');
+		map[7] = new Array('#','.','#', '#', '#', '#', '#', '#', '.', '#');
+		map[8] = new Array('#','.','.', '.', '.', '.', '.', '.', '.', '#');
+		map[9] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
+		document.write("<div class = 'field'>");
+		document.writeln("<table border = '0''>");
+		for (var i = 0; i < map.length; ++i)
+		{
+			document.writeln("<tr>");
+			for (var j = 0; j < map[i].length; ++j)
+			{
+				map[i][j] == '.'  ? document.writeln("<td class = 'floor' id = '"+(i * 100 + j)+"'>") : document.writeln("<td class = 'wall' id = '"+(i * 100 + j)+"'>");
+				document.writeln("</td>");
+			}
+			document.writeln("</tr>");
+		}
+		document.writeln("</table>");
+		document.writeln("</div>");
+	</script>
+	<script>
+	$(document).ready(function() {
+		const maxx = 185;
+		const miny = 0;
+		var s = "#" + (cur_y * 100 + cur_x);
+		$(s).append("<div class = '" + cur_dir + "'></div>");
+		var divs = new Array("forward", "left", "right");
 		$( "#sortable" ).sortable({
 			revert: false,
 			beforeStop: function(event, ui){
@@ -55,40 +150,133 @@
 					ui.item.remove();
 			}
 		});
-		$( "#drag1" ).draggable({
+		for (var i = 0; i < 3; ++i)
+		{
+			$("#" + divs[i]).draggable({
 			connectToSortable: "#sortable",
 			helper: "clone",
 			revert: "invalid"
-		});
-		$( "#drag2" ).draggable({
-			connectToSortable: "#sortable",
-			helper: "clone",
-			revert: "invalid"
-		});
-		$( "#drag3" ).draggable({
-			connectToSortable: "#sortable",
-			helper: "clone",
-			revert: "invalid"
-		});
+			});
+		}
 		$( "ul, li" ).disableSelection();
+		document.btn_form.btn_play.onclick = function()
+		{
+			s = "#" + (cur_y * 100 + cur_x);
+			$(s).empty();
+			cur_x = 0;
+			cur_y = 1;
+			cur_dir = "right";
+			var s = "#" + (cur_y * 100 + cur_x);
+			$(s).append("<div class = '" + cur_dir + "'></div>");
+			var result = $('#sortable').sortable('toArray');
+			var dx = 0;
+			var dy = 0;
+			var i = 0;
+			function loop(i)
+			{
+				var x = cur_x;
+				var y = cur_y;
+				if (result[i] == "forward")
+				{
+					switch(cur_dir)
+					{
+						case "down":
+						{
+							dx = 0;
+							dy = 1;
+							break;
+						}
+						case "up":
+						{
+							dx = 0;
+							dy = -1;
+							break;
+						}
+						case "left":
+						{
+							dx = -1;
+							dy = 0;
+							break;
+						}
+						case "right":
+						{
+							dx = 1;
+							dy = 0;
+							break;
+						}
+					}
+					if (cur_x + dx >= 0 && cur_x + dx < map[0].length && cur_y + dy >= 0 && cur_y < map.length)
+					{
+						if (map[cur_y + dy][cur_x + dx] == '.')
+						{
+							cur_x += dx;
+							cur_y += dy;
+						}
+						else
+						{
+							alert("пёя┌п╨п╫я┐п╩п╦я│я▄ п╡ я│я┌п╣п╫п╨я┐");
+							i = result.length;
+							return;
+						}
+					}
+					else
+					{
+						alert("п▓я▀я┘п╬п╢ п╥п╟ пЁя─п╟п╫п╦я├я▀ п╩п╟п╠п╦я─п╦п╫я┌п╟");
+						i = result.length;
+						return;
+					}
+				}
+				if (result[i] == "left")
+				{
+					switch(cur_dir)
+					{
+						case "down":
+							cur_dir = "right";
+							break;
+						case "up":
+							cur_dir = "left";
+							break;
+						case "right":
+							cur_dir = "up";
+							break;
+						case "left":
+							cur_dir = "down";
+							break;
+					}
+				}
+				if (result[i] == "right")
+				{
+					switch(cur_dir)
+					{
+						case "down":
+							cur_dir = "left";
+							break;
+						case "up":
+							cur_dir = "right";
+							break;
+						case "right":
+							cur_dir = "down";
+							break;
+						case "left":
+							cur_dir = "up";
+							break;
+					}
+				}
+				s = "#" + (y * 100 + x);
+				$(s).empty();
+				s = "#" + (cur_y * 100 + cur_x);
+				$(s).append("<div class = '" + cur_dir+"'></div>");
+				setTimeout(function() {if (++i < result.length) loop(i)}, 300);
+			}
+			loop(i);
+		}
+		
 	});
 	</script>
-	<div class = "demo">
-		<div class = "drag">
-			<ul>
-				<li id = "drag1" class = "drag1"><span style = "margin-left: 40px;">Прямо</span></li>
-				<li id = "drag2" class = "drag2"><span style = "margin-left: 40px;">Налево</span></li>
-				<li id = "drag3" class = "drag3"><span style = "margin-left: 40px;">Направо</span></li>
-			</ul>
-		</div>
-
-		<div class = "drop">		
-			<hr><br>
-			Укажите последовательность действий
-			<ul id = "sortable">
-				<li class = "invisible"></li>
-			</ul>
-		</div>
+	<div class = "btn">
+		<form name = "btn_form">
+			<input type = "button" name = "btn_play" value = "play" ></input>
+		</form>
 	</div>
 </body>
 </html>
