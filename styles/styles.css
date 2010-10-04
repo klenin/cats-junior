@@ -1,0 +1,87 @@
+div.drop{
+	position: absolute;
+	left: 10px; 
+	top: 150px; 
+}
+.comands ul{
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+	margin-bottom: 10px; 
+}
+.comands li{ 
+	margin: 5px; 
+	padding: 5px;
+	width: 175px; 
+	height: 25px;
+	border: 1px solid #ffffff;
+	color: #363636; 
+	z-index: 1;
+}
+li.invisible{
+	width: 1px;
+	height: 1px; 
+	z-index: 0;
+}
+li.forward{
+	background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; 
+}
+li.forward1{
+	background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; 
+}
+li.left{
+	background: #A9A9A9 url('../images/left.png') 5% 95% no-repeat; 
+}
+li.right{
+	background: #A9A9A9 url('../images/right.png') 5% 95% no-repeat; 
+}
+li.left1{
+	background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat; 
+}
+li.right1{
+	background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; 
+}
+td.wall{
+	background-image: url('../images/wall.jpg'); 
+	width: 60px;
+	height: 60px;
+}
+td.floor{
+	background-image: url('../images/floor.jpg'); 
+	width: 60px;
+	height: 60px;
+}
+div.field{
+	position: absolute;
+	left: 500px; 
+	top: 10px; 
+}
+div.up{
+	background: url('../images/hero_up.png') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
+div.down{
+	background: url('../images/hero_down.png') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
+div.left{
+	background: url('../images/hero_left.png') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
+div.right{
+	background: url('../images/hero_right.png') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
+div.btn{
+	position: absolute;
+	left: 200px; 
+	top: 10px; 
+}
