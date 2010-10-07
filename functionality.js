@@ -4,6 +4,7 @@
 	var cur_dir = "right";
 	var cur_i = 0;
 	var speed = 300;
+	var pause = false;
 	map[0] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
 	map[1] = new Array('.','.','.', '.', '.', '.', '.', '.', '.', '#');
 	map[2] = new Array('#','#','#', '#', '#', '#', '#', '#', '.', '#');
@@ -129,15 +130,12 @@
 			}
 		}
 		function play(cnt){
-			var result = $('#sortable').sortable('toArray');
-			if (!cnt)
-				cnt = result.length;
-			if (result[cur_i] == "")
-				++cur_i;
-			var dx = 0;
-			var dy = 0;
-			var i = cur_i;
 			function loop(i){
+				if (pause){
+					pause = false;
+					cur_i = i - 1;
+					return;
+				}
 				if (i > cur_i && speed != 0){
 					var t = commands.children[i - 1];
 					t.className = classNames[t.className];
@@ -167,32 +165,40 @@
 				}
 				else{
 					if (++i <cnt) loop(i); else cur_i = i - 1;
-				}
-				
+				}	
 			}
+			var result = $('#sortable').sortable('toArray');
+			if (!cnt)
+				cnt = result.length;
+			if (result[cur_i] == "")
+				++cur_i;
+			var dx = 0;
+			var dy = 0;
+			var i = cur_i;
 			$("#sortable").sortable( "disable" );
 			loop(i);
 			$("#sortable").sortable( "enable" );
 		}
 		document.btn_form.btn_play.onclick = function(){
 			setDefault();
-			play();
+			setTimeout(function() { play(); }, speed);
 		}
 		document.btn_form.btn_continue.onclick = function(){
 			++cur_i;
 			clearClasses();
-			play();
+			setTimeout(function() { play(); }, speed);
 		}
 		document.btn_form.btn_clear.onclick = function(){
 			setDefault();
 			$('#sortable').empty();
 		}
 		document.btn_form.btn_stop.onclick = function(){
+			pause = true;
+			clearClasses();
 			setDefault();
-			
 		}
 		document.btn_form.btn_pause.onclick = function(){
-			
+			pause = true;
 		}
 		document.btn_form.btn_next.onclick = function(){
 			if (cur_i + 1 < $("#sortable").sortable('toArray').length)
@@ -207,7 +213,9 @@
 			}
 		}
 		document.btn_form.btn_prev.onclick = function(){
-			if (cur_i > 0){
+			if(cur_i == 0 || cur_list[cur_i - 1] == "")
+				setDefault();
+			else if (cur_i > 0){
 				var t = cur_i;
 				setDefault(true);
 				var s = speed;
