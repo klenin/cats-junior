@@ -60,6 +60,8 @@
 		const commands = document.body.children[3].children[1].children[2];
 		const maxx = 185;
 		const miny = 0;
+		var console = document.getElementById("console");
+		console.value = "";
 		var s = "#" + (cur_y * 100 + cur_x);
 		$(s).append("<div class = '" + cur_dir + "'></div>");
 		var divs = new Array("forward", "left", "right");
@@ -113,6 +115,8 @@
 			}
 		}
 		function setDefault(f){
+			pause = false;
+			console.value = "";
 			var s = '#' + (cur_y * 100 + cur_x);
 			$(s).empty();
 			cur_x = 0;
@@ -151,9 +155,9 @@
 						cur_y += dy;
 					}
 					else
-						alert('Уткнулись в стенку');
+						console.value +=  "Шаг " + (cur_list[0] == "" ? i : i + 1) + ": Уткнулись в стенку \n";
 				else
-					alert('Выход за границы лабиринта');
+					console.value += "Шаг " + i + ": Выход за границу лабиринта \n";
 				if (!(speed == 0 && (i + 1) < cnt)){
 					s = '#' + (y * 100 + x);
 					$(s).empty();

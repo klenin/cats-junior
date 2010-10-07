@@ -85,3 +85,8 @@ div.btn{
 	left: 200px; 
 	top: 10px; 
 }
+div.cons_div{
+	position: absolute;
+	left: 500px; 
+	top: 650px; 
+}
