@@ -5,6 +5,7 @@
 	var cur_i = 0;
 	var speed = 300;
 	var pause = false;
+	var stopped = false;
 	map[0] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
 	map[1] = new Array('.','.','.', '.', '.', '.', '.', '.', '.', '#');
 	map[2] = new Array('#','#','#', '#', '#', '#', '#', '#', '.', '#');
@@ -23,6 +24,7 @@
 		"right ui-draggable": "right1 ui-draggable",
 		"right1 ui-draggable": "right ui-draggable"
 		};
+	const classes = new Array ("forward", "left", "right", "forward1", "left1", "right1");
 	const changeDir = {
 		"forward":{
 			"up": {dx: 0, dy: -1, cur_dir: "up"},
@@ -57,7 +59,6 @@
 	document.writeln("</table>");
 	document.writeln("</div>");
 	$(document).ready(function(){
-		const commands = document.body.children[3].children[1].children[2];
 		const maxx = 185;
 		const miny = 0;
 		var console = document.getElementById("console");
@@ -87,10 +88,22 @@
 			});
 		}
 		$( "ul, li" ).disableSelection();
+		function changeClass(elem){
+			if (!elem || elem.classList[0] == "invisible")
+				return false;
+			elem.className = classNames[elem.className];
+		}
+		function isChangedClass(elem){
+			if (!elem || elem.classList[0] == "invisible")
+				return false;
+			if (elem.classList[0][elem.classList[0].length - 1] == "1")
+				return true;
+			return false;
+		}
 		function updated(){
 			var arr = $("#sortable").sortable('toArray');
-			cur_cmd_class = commands.children[cur_i].classList[0];
-			if (arr.length < cur_list.length || cur_cmd_class[cur_cmd_class.length - 1] != "1")	{
+			var el = $("#sortable").children();
+			if (arr.length < cur_list.length ||  !isChangedClass(el[cur_list[0] == "" ? cur_i : cur_i + 1])){
 				setDefault();
 				clearClasses();
 				cur_list = arr;
@@ -108,24 +121,24 @@
 			}
 		}
 		function clearClasses(){
-			for (i = 0; i < commands.childElementCount; ++i){
-				cur_cmd_class = commands.children[i].classList[0];
-				if (cur_cmd_class[cur_cmd_class.length - 1] == "1")
-					commands.children[i].className = classNames[commands.children[i].className];
+			var el = $("#sortable").children();
+			for (var i = 0; i < el.length; ++i){
+				if (isChangedClass(el[i]))
+					changeClass(el[i]);
 			}
 		}
 		function setDefault(f){
 			pause = false;
+			stopped = false;
 			console.value = "";
 			var s = '#' + (cur_y * 100 + cur_x);
 			$(s).empty();
 			cur_x = 0;
 			cur_y = 1;
 			cur_dir = 'right';
-			if (commands.childElementCount > cur_i){
-				var t = commands.children[cur_i];
-				if (t.classList[0][t.classList[0].length - 1] == "1")
-					t.className = classNames[t.className];
+			if (cur_list.length > cur_i){
+				var el = $("#sortable").children();
+				changeClass(el[cur_list[0] == "" ? cur_i : cur_i + 1]);
 			}
 			cur_i = 0;
 			if (!f){
@@ -140,9 +153,15 @@
 					cur_i = i - 1;
 					return;
 				}
+				if (stopped){
+					stopped = false;
+					cur_i = i - 1;
+					setDefault();
+					return;
+				}
 				if (i > cur_i && speed != 0){
-					var t = commands.children[i - 1];
-					t.className = classNames[t.className];
+					var el = $("#sortable").children();
+					changeClass(el[cur_list[0] == "" ? i - 1 : i]);
 				}
 				var x = cur_x;
 				var y = cur_y;
@@ -163,8 +182,8 @@
 					$(s).empty();
 					s = '#' + (cur_y * 100 + cur_x);
 					$(s).append('<div class = "' + cur_dir+'"></div>');
-					var t = commands.children[i];
-					t.className = classNames[t.className];
+					var el = $("#sortable").children();
+					changeClass(el[cur_list[0] == "" ? i : i + 1]);
 					setTimeout(function() { if (++i <cnt) loop(i); else cur_i = i - 1;}, speed);
 				}
 				else{
@@ -188,18 +207,19 @@
 			setTimeout(function() { play(); }, speed);
 		}
 		document.btn_form.btn_continue.onclick = function(){
-			++cur_i;
-			clearClasses();
-			setTimeout(function() { play(); }, speed);
+			if (cur_i + 1 < cur_list.length)
+			{
+				++cur_i;
+				clearClasses();
+				setTimeout(function() { play(); }, speed);
+			}
 		}
 		document.btn_form.btn_clear.onclick = function(){
 			setDefault();
 			$('#sortable').empty();
 		}
 		document.btn_form.btn_stop.onclick = function(){
-			pause = true;
-			clearClasses();
-			setDefault();
+			stopped = true;
 		}
 		document.btn_form.btn_pause.onclick = function(){
 			pause = true;
@@ -207,10 +227,9 @@
 		document.btn_form.btn_next.onclick = function(){
 			if (cur_i + 1 < $("#sortable").sortable('toArray').length)
 			{
-				if (commands.childElementCount > cur_i){
-					var t = commands.children[cur_i];
-					if (t.classList[0][t.classList[0].length - 1] == "1")
-						t.className = classNames[t.className];
+				if (cur_list.length > cur_i){
+					var el = $("#sortable").children();
+					changeClass(el[cur_list[0] == "" ? cur_i : cur_i + 1]);
 				}
 				++cur_i;
 				play(1);
