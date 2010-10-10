@@ -90,6 +90,12 @@ div.cons_div{
 	left: 1080px; 
 	top: 10px; 
 }
+div.star{
+	background: url('../images/StarAqua.ico') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
 input.play{
 	background: url('../images/play.png'); 
 	border:medium none;
