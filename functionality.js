@@ -1,21 +1,22 @@
-﻿	const map = new Array(10);
-	var cur_x = 0;
+﻿	var cur_x = 0;
 	var cur_y = 1;
 	var cur_dir = "right";
 	var cur_i = 0;
 	var speed = 300;
 	var pause = false;
 	var stopped = false;
-	map[0] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
-	map[1] = new Array('.','.','.', '.', '.', '.', '.', '.', '.', '#');
-	map[2] = new Array('#','#','#', '#', '#', '#', '#', '#', '.', '#');
-	map[3] = new Array('#','.','.', '.', '.', '.', '.', '#', '.', '#');
-	map[4] = new Array('#','.','#', '#', '#', '#', '.', '#', '.', '#');
-	map[5] = new Array('#','.','#', '.', '#', '#', '.', '#', '.', '#');
-	map[6] = new Array('#','.','#', '.', '.', '.', '.', '#', '.', '#');
-	map[7] = new Array('#','.','#', '#', '#', '#', '#', '#', '.', '#');
-	map[8] = new Array('#','.','.', '.', '.', '.', '.', '.', '.', '#');
-	map[9] = new Array('#','#','#', '#', '#', '#', '#', '#', '#', '#');
+	var playing = false;
+	var map /*= [['#','#','#', '#', '#', '#', '#', '#', '#', '#'], 
+				['.','.','.', '.', '.', '.', '.', '.', '.', '#'],
+				['#','#','#', '#', '#', '#', '#', '#', '.', '#'],
+				['#','.','.', '.', '.', '.', '.', '#', '.', '#'],
+				['#','.','#', '#', '#', '#', '.', '#', '.', '#'],
+				['#','.','#', '.', '#', '#', '.', '#', '.', '#'],
+				['#','.','#', '.', '.', '.', '.', '#', '.', '#'],
+				['#','.','#', '#', '#', '#', '#', '#', '.', '#'],
+				['#','.','.', '.', '.', '.', '.', '.', '.', '#'],
+				['#','#','#', '#', '#', '#', '#', '#', '#', '#']
+			   ]*/;
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
 		"forward1 ui-draggable": "forward ui-draggable",
@@ -46,6 +47,14 @@
 			
 		}
 	}
+	$.ajax({
+		async: false,
+		dataType : "json",
+		url: 'tests/01.json',
+		success: function(data) {
+			map = data.tst;
+		}
+	});
 	document.write("<div class = 'field'>");
 	document.writeln("<table border = '0''>");
 	for (var i = 0; i < map.length; ++i){
@@ -71,11 +80,9 @@
 			beforeStop: function(event, ui){
 				if (ui.position.left > maxx || ui.position.top < miny)
 					ui.item.remove();
+				updated();
 			},
 			cursor: 'move',
-		});
-		$( "#sortable" ).bind( "sortupdate", function(event, ui) {
-			updated();
 		});
 		var cur_list = $("#sortable").sortable('toArray');
 		for (var i = 0; i < 3; ++i)
@@ -88,6 +95,19 @@
 			});
 		}
 		$( "ul, li" ).disableSelection();
+		function enableButtons(){
+			document.btn_form.btn_play.disabled = false;
+			document.btn_form.btn_next.disabled = false;
+			document.btn_form.btn_prev.disabled = false;
+			document.btn_form.btn_fast.disabled = false;
+			
+		}
+		function disableButtons(){
+			document.btn_form.btn_play.disabled = true;
+			document.btn_form.btn_next.disabled = true;
+			document.btn_form.btn_prev.disabled = true;
+			document.btn_form.btn_fast.disabled = true;
+		}
 		function changeClass(elem){
 			if (!elem || elem.classList[0] == "invisible")
 				return false;
@@ -128,18 +148,19 @@
 			}
 		}
 		function setDefault(f){
+			enableButtons();
 			pause = false;
-			stopped = false;
 			console.value = "";
 			var s = '#' + (cur_y * 100 + cur_x);
 			$(s).empty();
 			cur_x = 0;
 			cur_y = 1;
 			cur_dir = 'right';
-			if (cur_list.length > cur_i){
+			if (!stopped && cur_list.length > cur_i){
 				var el = $("#sortable").children();
 				changeClass(el[cur_list[0] == "" ? cur_i : cur_i + 1]);
 			}
+			stopped = false;
 			cur_i = 0;
 			if (!f){
 				s = "#" + (cur_y * 100 + cur_x);
@@ -184,12 +205,27 @@
 					$(s).append('<div class = "' + cur_dir+'"></div>');
 					var el = $("#sortable").children();
 					changeClass(el[cur_list[0] == "" ? i : i + 1]);
-					setTimeout(function() { if (++i <cnt) loop(i); else cur_i = i - 1;}, speed);
+					setTimeout(function() { 
+						if (++i <cnt) loop(i); 
+						else {
+							cur_i = i - 1; 
+							playing = false;
+							enableButtons();
+						}
+						}, speed);
 				}
 				else{
-					if (++i <cnt) loop(i); else cur_i = i - 1;
+					if (++i <cnt)
+						loop(i); 
+					else {
+						cur_i = i - 1; 
+						playing = false;
+						enableButtons();
+					}
 				}	
 			}
+			disableButtons();
+			playing = true;
 			var result = $('#sortable').sortable('toArray');
 			if (!cnt)
 				cnt = result.length;
@@ -202,17 +238,21 @@
 			loop(i);
 			$("#sortable").sortable( "enable" );
 		}
-		document.btn_form.btn_play.onclick = function(){
-			setDefault();
-			setTimeout(function() { play(); }, speed);
-		}
-		document.btn_form.btn_continue.onclick = function(){
-			if (cur_i + 1 < cur_list.length)
-			{
+		function callPlay(s){
+			disableButtons();
+			if (cur_i + 1 < cur_list.length){
 				++cur_i;
 				clearClasses();
-				setTimeout(function() { play(); }, speed);
 			}
+			else
+				setDefault();
+			setTimeout(function() { play(); }, s);
+		}
+		document.btn_form.btn_play.onclick = function(){
+			callPlay(300);
+		}
+		document.btn_form.btn_fast.onclick = function(){
+			callPlay(100);
 		}
 		document.btn_form.btn_clear.onclick = function(){
 			setDefault();
@@ -220,13 +260,18 @@
 		}
 		document.btn_form.btn_stop.onclick = function(){
 			stopped = true;
+			if (!playing){
+				setDefault();
+				clearClasses();
+			}
 		}
 		document.btn_form.btn_pause.onclick = function(){
 			pause = true;
+			enableButtons();
 		}
 		document.btn_form.btn_next.onclick = function(){
-			if (cur_i + 1 < $("#sortable").sortable('toArray').length)
-			{
+			disableButtons();
+			if (cur_i + 1 < $("#sortable").sortable('toArray').length){
 				if (cur_list.length > cur_i){
 					var el = $("#sortable").children();
 					changeClass(el[cur_list[0] == "" ? cur_i : cur_i + 1]);
@@ -234,8 +279,11 @@
 				++cur_i;
 				play(1);
 			}
+			else
+				enableButtons();			
 		}
 		document.btn_form.btn_prev.onclick = function(){
+			disableButtons();
 			if(cur_i == 0 || cur_list[cur_i - 1] == "")
 				setDefault();
 			else if (cur_i > 0){

@@ -31,19 +31,18 @@
 	
 	<div class = "btn">
 		<form name = "btn_form">
-			<input type = "button" name = "btn_clear" value = "clear" ></input>
-			<input type = "button" name = "btn_play" value = "play" ></input>
-			<input type = "button" name = "btn_continue" value = "continue" ></input> <br>
-			<input type = "button" name = "btn_pause" value = "pause" ></input>
-			<input type = "button" name = "btn_stop" value = "stop" ></input>
-			<input type = "button" name = "btn_next" value = "next" ></input> <br>
-			<input type = "button" name = "btn_prev" value = "prev" ></input>
-			<input type = "checkbox" name = "chck_fast" value = "fast" onclick = "speed = this.checked ? 100 : 300">Fast</input>
+			<input type = "button" class = "clear" name = "btn_clear"></input>
+			<input type = "button" class = "play" name = "btn_play"></input>
+			<input type = "button" class = "pause" name = "btn_pause"></input>
+			<input type = "button" class = "stop" name = "btn_stop"></input>
+			<input type = "button" class = "next" name = "btn_next"></input> <br>
+			<input type = "button" class = "prev" name = "btn_prev"></input>
+			<input type = "button" class = "fast" name = "btn_fast"></input>
 		</form>
 	</div>
 	<div class = "cons_div">
 		<form name = "cons_form">
-			<textarea rows="7" cols="77" name="console" id = "console" readonly disabled ></textarea>
+			<textarea rows="37" cols="20" name="console" id = "console" class = "console" disabled readonly></textarea>
 		</form>
 	</div>
 </body>

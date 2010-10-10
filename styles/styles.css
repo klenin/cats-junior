@@ -53,7 +53,7 @@ td.floor{
 }
 div.field{
 	position: absolute;
-	left: 500px; 
+	left: 430px; 
 	top: 10px; 
 }
 div.up{
@@ -82,11 +82,70 @@ div.right{
 }
 div.btn{
 	position: absolute;
-	left: 200px; 
+	left: 220px; 
 	top: 10px; 
 }
 div.cons_div{
 	position: absolute;
-	left: 500px; 
-	top: 650px; 
+	left: 1080px; 
+	top: 10px; 
+}
+input.play{
+	background: url('../images/play.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+input.stop{
+	background: url('../images/stop.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+input.pause{
+	background: url('../images/pause.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+input.prev{
+	background: url('../images/prev.png');
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;	
+	width: 36;
+	height: 36;
+}
+input.next{
+	background: url('../images/next.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+input.fast{
+	background: url('../images/fast.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+input.clear{
+	background: url('../images/clear.png'); 
+	border:medium none;
+	margin:0;
+	padding:0 0 4px;
+	width: 36;
+	height: 36;
+}
+textarea.console{
+	background-color: #FFFFFF; 
 }
