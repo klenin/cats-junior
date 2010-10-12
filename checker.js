@@ -1,5 +1,19 @@
 ﻿	function checkCell(i){
 		life += problem.d_life;
+		for (var k = 0; k < element.cleaner.length; ++k){
+			if (element.cleaner[k].x == cur_x && element.cleaner[k].y == cur_y)
+				for (var l = 0; l < element.cleaned[k].length; ++l){
+					s = '#' + (cur_y * 100 + cur_x);
+					$(s).empty();
+					var y = element.cleaned[k][l].y;
+					var x = element.cleaned[k][l].x
+					s = '#' + (y * 100 + x);
+					$(s).empty();
+					$(s).addClass("floor");
+					$("#cons").append("Шаг " + (cur_list[0] == "" ? i : i + 1) + ": Открыли ячейку с координатами " + x + ", " + y + "\n");
+					cur_map[y][x] = '.';
+				}
+		}
 		for (var k = 0; k < element.list.length; ++k){
 			if (cur_map[cur_y][cur_x] == element.list[k]){
 				++element.cur_count[k];

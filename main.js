@@ -14,7 +14,7 @@
 		$(s).append("<div class = '" + cur_dir + "'></div>");
 		for (var k = 0; k < element.style.length; ++k){
 			s = "#" + (element.coord.y[k] * 100 + element.coord.x[k]);
-			$(s).append("<div class = '" + element.style[k] + "'></div>");
+			$(s).prepend("<div class = '" + element.style[k] + "'></div>");
 		}
 		var divs = new Array("forward", "left", "right");
 		$( "#sortable" ).sortable({

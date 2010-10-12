@@ -15,6 +15,10 @@
 				element["do"] = data.elements["do"].slice();
 				element.pnts = data.elements.pnts.slice();
 				element.d_life = data.elements.d_life.slice();
+				element.cleaner = data.elements.cleaner.slice();
+				for (var i = 0; i < data.elements.cleaned.length; ++i){
+					element.cleaned[i] =  data.elements.cleaned[i].slice();
+				}
 			}
 		});
 	}

@@ -36,7 +36,9 @@
 		},
 		"do": [],
 		"pnts": [],
-		"d_life" : []
+		"d_life" : [],
+		"cleaner": [],
+		"cleaned": []
 	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
