@@ -1,15 +1,47 @@
 div.drop{
 	position: absolute;
 	left: 10px; 
-	top: 150px; 
+	top: 190px; 
+}
+div.cons_div{
+	position: absolute;
+	left: 1080px; 
+	top: 50px; 
+}
+div.btn{
+	position: absolute;
+	left: 220px; 
+	top: 50px; 
+}
+div.field{
+	position: absolute;
+	left: 430px; 
+	top:50px; 
 }
 .comands ul{
 	list-style-type: none; 
 	margin: 0; 
 	padding: 0; 
 	margin-bottom: 10px; 
+	position: absolute;
+	top: 50px;
 }
 .comands li{ 
+	margin: 5px; 
+	padding: 5px;
+	width: 175px; 
+	height: 25px;
+	border: 1px solid #ffffff;
+	color: #363636; 
+	z-index: 1;
+}
+.drop ul{
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+	margin-bottom: 10px; 
+}
+.drop li{ 
 	margin: 5px; 
 	padding: 5px;
 	width: 175px; 
@@ -51,11 +83,6 @@ td.floor{
 	width: 60px;
 	height: 60px;
 }
-div.field{
-	position: absolute;
-	left: 430px; 
-	top: 10px; 
-}
 div.up{
 	background: url('../images/hero_up.png') 50% 50% no-repeat; 
 	width: 60px;
@@ -79,16 +106,6 @@ div.right{
 	width: 60px;
 	height: 60px;
 	z-index: 2;
-}
-div.btn{
-	position: absolute;
-	left: 220px; 
-	top: 10px; 
-}
-div.cons_div{
-	position: absolute;
-	left: 1080px; 
-	top: 10px; 
 }
 div.star{
 	background: url('../images/StarAqua.ico') 50% 50% no-repeat; 

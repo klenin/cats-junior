@@ -6,20 +6,25 @@
         <script type="text/javascript" src="jquery.ui.all.js"></script>
 		<script type="text/javascript" src="jquery-ui-1.8.5.custom.min.js"></script>
 		<script type="text/javascript" src="jquery.ui.core.js"></script>
-		<script type="text/javascript" src="functionality.js"></script>
+		<script type="text/javascript" src="declaration.js"></script>
+		<script type="text/javascript" src="checker.js"></script>
+		<script type="text/javascript" src="functions.js"></script>
+		<script type="text/javascript" src="main.js"></script>
 		<link rel="stylesheet" type="text/css" href="styles/jquery-ui-.custom.css">
 		<link rel="stylesheet" type="text/css" href="styles/styles.css">
 </head>
 <body>
+	<div class = "statement" id = "statement">
+	</div>
 	<div class = "comands">
 		<div class = "drag">
-			<ul>
+			<ul id = "comands">
 				<li id = "forward" class = "forward"><span style = "margin-left: 40px;">Прямо</span></li>
 				<li id = "left" class = "left"><span style = "margin-left: 40px;">Налево</span></li>
 				<li id = "right" class = "right"><span style = "margin-left: 40px;">Направо</span></li>
 			</ul>
 		</div>
-
+	</div>
 		<div class = "drop">		
 			<hr><br>
 			Укажите последовательность действий
@@ -27,7 +32,7 @@
 				<li class = "invisible"></li>
 			</ul>
 		</div>
-	</div>
+	
 	
 	<div class = "btn">
 		<form name = "btn_form">
@@ -42,7 +47,7 @@
 	</div>
 	<div class = "cons_div">
 		<form name = "cons_form">
-			<textarea rows="37" cols="20" name="console" id = "console" class = "console" disabled readonly></textarea>
+			<textarea rows="37" cols="20" name="cons" id = "cons" class = "cons" disabled readonly></textarea>
 		</form>
 	</div>
 </body>

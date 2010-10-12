@@ -1,0 +1,19 @@
+﻿{
+	"name": "Собери все звездочки",
+	"statement": "Требуется собрать все звездочки на поле",
+	"testsNum": 1,
+	"commands": ["forward", "left", "right"],
+	"start_life": 1,
+	"d_life": 0,
+	"start_pnts": 0,
+	"finish_elem": 0,
+	"elements":{
+		"list": ["*"],
+		"count": [2],
+		"styles": ["star"],
+		"names": ["звезда"],
+		"do": ["e"],
+		"pnts": [0],
+		"d_life": [0]
+	}
+}
