@@ -8,20 +8,10 @@
 				problem.statement = data.statement;
 				problem.testsNum = data.testsNum;
 				problem.commands = data.commands.slice();
-				var symbols = data.spec_symbols;
-				for (var i = 0; i < symbols.length; ++i){
-					spec_symbols.list.push(symbols[i].symbol);
-					spec_symbols.style_list.push(symbols[i].style);
-					spec_symbols.count.push(symbols[i].count);
-					spec_symbols.names.push(symbols[i].name);
-					spec_symbols["do"].push(symbols[i]["do"]);
-					spec_symbols.points.push(symbols[i].points);
-					spec_symbols.d_life.push(symbols[i].d_life);
-				}
-				problem.cleaner = data.cleaner.slice();
-				for (var i = 0; i < data.cleaned.length; ++i){
-					problem.cleaned[i] =  data.cleaned[i].slice();
-				}
+				problem.start_life = data.start_life;
+				problem.d_life = data.d_life;
+				problem.start_pnts = data.start_pnts;
+				problem.finish_symb = data.finish_symb;
 			}
 		});
 	}
@@ -32,6 +22,38 @@
 			url: 'problems/01/tests/' + i +'.json',
 			success: function(data) {
 				map = data.map.slice();
+				var tmp = data.spec_symbols;
+				for (var i = 0; i < tmp.length; ++i){
+					spec_symbols.list.push(tmp[i].symbol);
+					spec_symbols.style_list.push(tmp[i].style);
+					spec_symbols.count.push(tmp[i].count);
+					spec_symbols.names.push(tmp[i].name);
+					spec_symbols["do"].push(tmp[i]["do"]);
+					spec_symbols.points.push(tmp[i].points);
+					spec_symbols.d_life.push(tmp[i].d_life);
+				}
+				problem.cleaner = data.cleaner.slice();
+				for (var i = 0; i < data.cleaned.length; ++i)
+					problem.cleaned[i] =  data.cleaned[i].slice();
+				if (data.commands)
+					problem.commands = data.commands.slice();
+				if (data.start_life)
+					problem.start_life = data.start_life;
+				if (data.d_life)
+					problem.d_life = data.d_life;
+				if (data.start_pnts)
+					problem.start_pnts = data.start_pnts;
+				if (data.finish_symb)
+					problem.finish_symb = data.finish_symb;
+				tmp = data.moving_elements;
+				for (var i = 0; i < tmp.length; ++i){
+					moving_elems.style.push(tmp[i].style);
+					moving_elems.path.push(tmp[i].path.slice());
+					moving_elems.looped.push(tmp[i].looped);
+					moving_elems.die.push(tmp[i].die);
+					map[tmp[i].path[0].y, tmp[i].path[0].x] = m_elem_id;
+					moving_elems.symbol.push(m_elem_id++);
+				}
 			}
 		});
 	}
@@ -133,6 +155,12 @@
 				$(s).append("<div class = '" + spec_symbols.style[k] + "'></div>");
 			}
 			spec_symbols.cur_count[k] = 0;
+		}
+		for (var k = 0; k < moving_elems.symbol.length; ++k){
+			s = "#" + (moving_elems.path[k][cur_i].y * 100 + moving_elems.path[cur_i][0].x);
+			$(s).empty();
+			s = "#" + (moving_elems.path[k][0].y * 100 + moving_elems.path[k][0].x);
+			$(s).prepend("<div class = '" + moving_elems.style[k] + "'></div>");
 		}
 		for (var k = 0; k < problem.cleaner.length; ++k){
 			for (var l = 0; l < problem.cleaned[k].length; ++l){

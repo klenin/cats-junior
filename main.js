@@ -16,6 +16,10 @@
 			s = "#" + (spec_symbols.coord.y[k] * 100 + spec_symbols.coord.x[k]);
 			$(s).prepend("<div class = '" + spec_symbols.style[k] + "'></div>");
 		}
+		for (var k = 0; k < moving_elems.symbol.length; ++k){
+			s = "#" + (moving_elems.path[k][0].y * 100 + moving_elems.path[k][0].x);
+			$(s).prepend("<div class = '" + moving_elems.style[k] + "'></div>");
+		}
 		var divs = new Array("forward", "left", "right");
 		$( "#sortable" ).sortable({
 			revert: false,

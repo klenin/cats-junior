@@ -16,6 +16,36 @@
 					cur_map[y][x] = '.';
 				}
 		}
+		for (var k = 0; k < moving_elems.symbols.length; ++k){
+			if (cur_i + 1 >= moving_elems.path[k].length && !moving_elems.looped[k])
+				continue;
+			var x = moving_elems.path[k][cur_i].x;
+			var y = moving_elems.path[k][cur_i].y;
+			cur_map[y][x] = map[y][x];
+			s = "#" + (y * 100 + x);
+			$(s).empty();
+			if (cur_map[y][x] != "." && cur_map[y][x] != "#")
+				for (var i = 0; i < spec_symbols.list.length; ++i)
+					if (spec_symbols.list[i] == cur_map[y][x]){
+						s = "#" + (y * 100 + x);
+						$(s).empty();
+						$(s).append("<div class = '" + spec_symbols.style[i] + "'></div>");
+					}
+			var i = (cur_i + 1) % moving_elems.path[k].length;
+			x = moving_elems.path[k][i].x;
+			y = moving_elems.path[k][i].y;
+			if (cur_map[y][x] == "#")
+				alert("Движущийся объект уткнулся в стенку");
+			$(s).append("<div class = '" + moving_elems.style[k] + "'></div>");
+		}
+		if (cur_map[cur_y][cur_x][0] >= '0' && cur_map[cur_y][cur_x][0] <= '9'){
+			if (moving_elems.die[cur_map[cur_y][cur_x]]){
+				$("#cons").append("Вас съели \n");
+				return false;
+			}
+			life += moving_elems.d_life[cur_map[cur_y][cur_x]];
+			pnts += moving_elems.points[cur_map[cur_y][cur_x]];
+		}
 		for (var k = 0; k < spec_symbols.list.length; ++k){
 			if (cur_map[cur_y][cur_x] == spec_symbols.list[k]){
 				++spec_symbols.cur_count[k];

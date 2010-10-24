@@ -12,6 +12,7 @@
 	var cur_list = [];
 	var life;
 	var pnts;
+	var m_elem_id = 0;
 	var problem = {
 		"name": "",
 		"statement": "",
@@ -20,7 +21,7 @@
 		"start_life": NaN,
 		"d_life": NaN,
 		"start_pnts": NaN,
-		"finish_elem": NaN,
+		"finish_symb": NaN,
 		"cleaner": [],
 		"cleaned": []	
 	};
@@ -39,6 +40,16 @@
 		"do": [],
 		"points": [],
 		"d_life" : [],
+	};
+	var moving_elems = {
+		"symbol": [],
+		"style": [],
+		"path": [],
+		"looped": [],
+		"cur_coord": [],
+		"d_life":[],
+		"points":[],
+		"die":[],
 	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",

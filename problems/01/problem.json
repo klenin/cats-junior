@@ -6,19 +6,5 @@
 	"start_life": 1,
 	"d_life": 0,
 	"start_pnts": 0,
-	"finish_elem": 0,
-	"spec_symbols": [
-		{
-			"symbol": "*",
-			"count": 2,
-			"style": "star",
-			"name": "звезда",
-			"do": "eat",
-			"points": 0,
-			"d_life": 0,
-			
-		}
-	],
-	"cleaner": [{"x": 1, "y": 1}],
-	"cleaned": [[{"x": 9, "y": 1}]],
+	"finish_symb": 0,
 }
