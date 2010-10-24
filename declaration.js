@@ -20,25 +20,25 @@
 		"start_life": NaN,
 		"d_life": NaN,
 		"start_pnts": NaN,
-		"finish_elem": NaN		
+		"finish_elem": NaN,
+		"cleaner": [],
+		"cleaned": []	
 	};
-	var element = {
+	var spec_symbols = {
 		"list": [],
 		"names": [],
 		"style_list": [],
 		"count":[],
 		"cur_count":[],
-		"elem": [],
+		"symb": [],
 		"style":[],
 		"coord": {
 			"x": [],
 			"y": []
 		},
 		"do": [],
-		"pnts": [],
+		"points": [],
 		"d_life" : [],
-		"cleaner": [],
-		"cleaned": []
 	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",

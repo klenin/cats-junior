@@ -8,16 +8,19 @@
 				problem.statement = data.statement;
 				problem.testsNum = data.testsNum;
 				problem.commands = data.commands.slice();
-				element.list = data.elements.list.slice();
-				element.style_list = data.elements.styles.slice();
-				element.count = data.elements.count.slice();
-				element.names = data.elements.names.slice();
-				element["do"] = data.elements["do"].slice();
-				element.pnts = data.elements.pnts.slice();
-				element.d_life = data.elements.d_life.slice();
-				element.cleaner = data.elements.cleaner.slice();
-				for (var i = 0; i < data.elements.cleaned.length; ++i){
-					element.cleaned[i] =  data.elements.cleaned[i].slice();
+				var symbols = data.spec_symbols;
+				for (var i = 0; i < symbols.length; ++i){
+					spec_symbols.list.push(symbols[i].symbol);
+					spec_symbols.style_list.push(symbols[i].style);
+					spec_symbols.count.push(symbols[i].count);
+					spec_symbols.names.push(symbols[i].name);
+					spec_symbols["do"].push(symbols[i]["do"]);
+					spec_symbols.points.push(symbols[i].points);
+					spec_symbols.d_life.push(symbols[i].d_life);
+				}
+				problem.cleaner = data.cleaner.slice();
+				for (var i = 0; i < data.cleaned.length; ++i){
+					problem.cleaned[i] =  data.cleaned[i].slice();
 				}
 			}
 		});
@@ -51,13 +54,13 @@
 					start_x = j;
 					start_y = i;
 				}
-				for (var k = 0; k < element.list.length; ++k){
-					if (cur_map[i][j] == element.list[k]){
-						element.coord.x.push(j);
-						element.coord.y.push(i);
-						element.style.push(element.style_list[k]);
-						element.cur_count[k] = 0;
-						element.elem.push(element.list[k]);
+				for (var k = 0; k < spec_symbols.list.length; ++k){
+					if (cur_map[i][j] == spec_symbols.list[k]){
+						spec_symbols.coord.x.push(j);
+						spec_symbols.coord.y.push(i);
+						spec_symbols.style.push(spec_symbols.style_list[k]);
+						spec_symbols.cur_count[k] = 0;
+						spec_symbols.symb.push(spec_symbols.list[k]);
 						break;
 					}
 				}
@@ -102,7 +105,7 @@
 	function updated(){
 		var arr = $("#sortable").sortable('toArray');
 		var el = $("#sortable").children();
-		if (arr.length < cur_list.length ||  !isChangedClass(el[cur_list[0] == "" ? cur_i : cur_i + 1])){
+		if (arr.length < cur_list.length ||  !isChangedClass(el[cur_i])){
 			setDefault();
 			clearClasses();
 			cur_list = arr;
@@ -123,13 +126,21 @@
 		enableButtons();
 		var s = '#' + (cur_y * 100 + cur_x);
 		$(s).empty();
-		for (var k = 0; k < element.coord.x.length; ++k){
-			if (cur_map[element.coord.y[k]][element.coord.x[k]] == '.'){
-				s = "#" + (element.coord.y[k] * 100 + element.coord.x[k]);
+		for (var k = 0; k < spec_symbols.coord.x.length; ++k){
+			if (cur_map[spec_symbols.coord.y[k]][spec_symbols.coord.x[k]] == '.'){
+				s = "#" + (spec_symbols.coord.y[k] * 100 + spec_symbols.coord.x[k]);
 				$(s).empty();
-				$(s).append("<div class = '" + element.style[k] + "'></div>");
+				$(s).append("<div class = '" + spec_symbols.style[k] + "'></div>");
 			}
-			element.cur_count[k] = 0;
+			spec_symbols.cur_count[k] = 0;
+		}
+		for (var k = 0; k < problem.cleaner.length; ++k){
+			for (var l = 0; l < problem.cleaned[k].length; ++l){
+				var y = problem.cleaned[k][l].y;
+				var x = problem.cleaned[k][l].x
+				s = '#' + (y * 100 + x);
+				$(s).removeClass('floor');
+			}
 		}
 		copyMap();
 		pause = false;
@@ -139,7 +150,7 @@
 		cur_y = start_y;
 		if (!stopped && cur_list.length > cur_i){
 			var el = $("#sortable").children();
-			changeClass(el[cur_list[0] == "" ? cur_i : cur_i + 1]);
+			changeClass(el[cur_i]);
 		}
 		stopped = false;
 		cur_i = 0;
@@ -163,7 +174,7 @@
 			}
 			if (i > cur_i && speed != 0){
 				var el = $("#sortable").children();
-				changeClass(el[cur_list[0] == "" ? i - 1 : i]);
+				changeClass(el[i - 1]);
 			}
 			var x = cur_x;
 			var y = cur_y;
@@ -175,17 +186,20 @@
 					cur_x += dx;
 					cur_y += dy;
 				}
-				else
-					$("#cons").append("Шаг " + (cur_list[0] == "" ? i : i + 1) + ": Уткнулись в стенку \n");
+				else{
+						$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
+						var s = '#' + (cur_y * 100 + cur_x);
+						$(s).effect("highlight", {}, 300);
+					}
 			else
-				$("#cons").append("Шаг " + (cur_list[0] == "" ? i : i + 1) + ": Выход за границу лабиринта \n");
+				$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
 			if (!(checkCell(i) && speed == 0 && (i + 1) < cnt)){
 				s = '#' + (y * 100 + x);
 				$(s).empty();
 				s = '#' + (cur_y * 100 + cur_x);
 				$(s).append('<div class = "' + cur_dir+'"></div>');
 				var el = $("#sortable").children();
-				changeClass(el[cur_list[0] == "" ? i : i + 1]);
+				changeClass(el[i]);
 				setTimeout(function() { 
 					if (++i <cnt) loop(i); 
 					else {
