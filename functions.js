@@ -4,14 +4,16 @@
 			dataType : "json",
 			url: 'problems/02/problem.json',
 			success: function(data) {
-				problem.name = data.name;
-				problem.statement = data.statement;
-				problem.testsNum = data.testsNum;
-				problem.commands = data.commands.slice();
-				problem.start_life = data.start_life;
-				problem.d_life = data.d_life;
-				problem.start_pnts = data.start_pnts;
-				problem.finish_symb = data.finish_symb;
+				with (problem){
+					name = data.name;
+					statement = data.statement;
+					testsNum = data.testsNum;
+					commands = data.commands.slice();
+					start_life = data.start_life;
+					d_life = data.d_life;
+					start_pnts = data.start_pnts;
+					finish_symb = data.finish_symb;
+				}
 			}
 		});
 	}
@@ -24,35 +26,41 @@
 				map = data.map.slice();
 				var tmp = data.spec_symbols;
 				for (var i = 0; i < tmp.length; ++i){
-					spec_symbols.list.push(tmp[i].symbol);
-					spec_symbols.style_list.push(tmp[i].style);
-					spec_symbols.count.push(tmp[i].count);
-					spec_symbols.names.push(tmp[i].name);
+					with (spec_symbols){
+						list.push(tmp[i].symbol);
+						style_list.push(tmp[i].style);
+						count.push(tmp[i].count);
+						names.push(tmp[i].name);
+						points.push(tmp[i].points);
+						d_life.push(tmp[i].d_life);
+					}
 					spec_symbols["do"].push(tmp[i]["do"]);
-					spec_symbols.points.push(tmp[i].points);
-					spec_symbols.d_life.push(tmp[i].d_life);
 				}
-				problem.cleaner = data.cleaner.slice();
-				for (var i = 0; i < data.cleaned.length; ++i)
-					problem.cleaned[i] =  data.cleaned[i].slice();
-				if (data.commands)
-					problem.commands = data.commands.slice();
-				if (data.start_life)
-					problem.start_life = data.start_life;
-				if (data.d_life)
-					problem.d_life = data.d_life;
-				if (data.start_pnts)
-					problem.start_pnts = data.start_pnts;
-				if (data.finish_symb)
-					problem.finish_symb = data.finish_symb;
+				with (problem){
+					cleaner = data.cleaner.slice();
+					for (var i = 0; i < data.cleaned.length; ++i)
+						cleaned[i] =  data.cleaned[i].slice();
+					if (data.commands)
+						commands = data.commands.slice();
+					if (data.start_life)
+						start_life = data.start_life;
+					if (data.d_life)
+						d_life = data.d_life;
+					if (data.start_pnts)
+						start_pnts = data.start_pnts;
+					if (data.finish_symb)
+						finish_symb = data.finish_symb;
+				}
 				tmp = data.moving_elements;
 				for (var i = 0; i < tmp.length; ++i){
-					moving_elems.style.push(tmp[i].style);
-					moving_elems.path.push(tmp[i].path.slice());
-					moving_elems.looped.push(tmp[i].looped);
-					moving_elems.die.push(tmp[i].die);
+					with (moving_elems){
+						style.push(tmp[i].style);
+						path.push(tmp[i].path.slice());
+						looped.push(tmp[i].looped);
+						die.push(tmp[i].die);
+						symbol.push(m_elem_id++);
+					}
 					map[tmp[i].path[0].y, tmp[i].path[0].x] = m_elem_id;
-					moving_elems.symbol.push(m_elem_id++);
 				}
 			}
 		});
@@ -76,16 +84,17 @@
 					start_x = j;
 					start_y = i;
 				}
-				for (var k = 0; k < spec_symbols.list.length; ++k){
-					if (cur_map[i][j] == spec_symbols.list[k]){
-						spec_symbols.coord.x.push(j);
-						spec_symbols.coord.y.push(i);
-						spec_symbols.style.push(spec_symbols.style_list[k]);
-						spec_symbols.cur_count[k] = 0;
-						spec_symbols.symb.push(spec_symbols.list[k]);
-						break;
+				with (spec_symbols)
+					for (var k = 0; k < list.length; ++k){
+						if (cur_map[i][j] == list[k]){
+							coord.x.push(j);
+							coord.y.push(i);
+							style.push(style_list[k]);
+							cur_count[k] = 0;
+							symb.push(list[k]);
+							break;
+						}
 					}
-				}
 				document.writeln("</td>");
 			}
 			document.writeln("</tr>");
@@ -94,16 +103,20 @@
 		document.writeln("</div>");
 	}
 	function enableButtons(){
-		document.btn_form.btn_play.disabled = false;
-		document.btn_form.btn_next.disabled = false;
-		document.btn_form.btn_prev.disabled = false;
-		document.btn_form.btn_fast.disabled = false;
+		with (document.btn_form){
+			btn_play.disabled = false;
+			btn_next.disabled = false;
+			btn_prev.disabled = false;
+			btn_fast.disabled = false;
+		}
 	}
 	function disableButtons(){
-		document.btn_form.btn_play.disabled = true;
-		document.btn_form.btn_next.disabled = true;
-		document.btn_form.btn_prev.disabled = true;
-		document.btn_form.btn_fast.disabled = true;
+		with (document.btn_form){
+			btn_play.disabled = true;
+			btn_next.disabled = true;
+			btn_prev.disabled = true;
+			btn_fast.disabled = true;
+		}
 	}
 	function changeClass(elem){
 		if (!elem || elem.classList[0] == "invisible")
@@ -131,14 +144,12 @@
 			setDefault();
 			clearClasses();
 			cur_list = arr;
-			return;
 		}
 		else {
 			for (var i = 0; i < cur_i; ++i){
 				if (cur_list[i] != arr[i]){
 					setDefault();
-					cur_list = arr;
-					return;
+					break;
 				}
 			}
 			cur_list = arr;
@@ -191,81 +202,64 @@
 			$(s).append("<div class = '" + cur_dir + "'></div>");
 		}
 	}
-	function play(cnt){
-		function loop(i){
-			if (pause){
+	function loop(i, cnt){
+		var result = $('#sortable').sortable('toArray');
+		if (pause || stopped){
+			if (pause)
 				pause = false;
-				cur_i = i - 1;
-				return;
-			}
-			if (stopped){
+			else{
 				stopped = false;
-				cur_i = i - 1;
 				setDefault();
-				return;
 			}
-			if (i > cur_i && speed != 0){
-				var el = $("#sortable").children();
-				changeClass(el[i - 1]);
-			}
-			var x = cur_x;
-			var y = cur_y;
-			dx = changeDir[result[i]][cur_dir]["dx"];
-			dy = changeDir[result[i]][cur_dir]["dy"];
-			cur_dir = changeDir[result[i]][cur_dir]["cur_dir"];
-			if (checkCell(i)){
-				if (cur_x + dx >= 0 && cur_x + dx < cur_map[0].length && cur_y + dy >= 0 && cur_y < cur_map.length)
-					if (cur_map[cur_y + dy][cur_x + dx] != '#'){
-						cur_x += dx;
-						cur_y += dy;
-					}
-					else{
-							$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
-							var s = '#' + (cur_y * 100 + cur_x);
-							$(s).effect("highlight", {}, 300);
-						}
-				else
-					$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
-				if (!(speed == 0 && (i + 1) < cnt)){
-					s = '#' + (y * 100 + x);
-					$(s).empty();
-					s = '#' + (cur_y * 100 + cur_x);
-					$(s).append('<div class = "' + cur_dir+'"></div>');
-					var el = $("#sortable").children();
-					changeClass(el[i]);
-					setTimeout(function() { 
-						if (++i <cnt) loop(i); 
-						else {
-							cur_i = i - 1; 
-							playing = false;
-							enableButtons();
-						}
-						}, speed);
+			cur_i = i - 1;
+			return;
+		}
+		if (i > cur_i && speed != 0){
+			var el = $("#sortable").children();
+			changeClass(el[i - 1]);
+		}
+		var x = cur_x;
+		var y = cur_y;
+		dx = changeDir[result[i]][cur_dir].dx;
+		dy = changeDir[result[i]][cur_dir].dy;
+		cur_dir = changeDir[result[i]][cur_dir].cur_dir;
+		var checked = checkCell(i);
+		if (checked)
+			if (cur_x + dx >= 0 && cur_x + dx < cur_map[0].length && cur_y + dy >= 0 && cur_y < cur_map.length)
+				if (cur_map[cur_y + dy][cur_x + dx] != '#'){
+					cur_x += dx;
+					cur_y += dy;
 				}
 				else{
-					if (++i <cnt)
-						loop(i); 
-					else {
-						cur_i = i - 1; 
-						playing = false;
-						enableButtons();
+						$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
+						var s = '#' + (cur_y * 100 + cur_x);
+						$(s).effect("highlight", {}, 300);
 					}
-				}	
+			else
+				$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
+		if (!(speed == 0 && (i + 1) < cnt)){
+			if (checked){
+				s = '#' + (y * 100 + x);
+				$(s).empty();
+				s = '#' + (cur_y * 100 + cur_x);
+				$(s).append('<div class = "' + cur_dir+'"></div>');
 			}
-			else{
-				var el = $("#sortable").children();
-				changeClass(el[i]);
-				setTimeout(function() { 
-					if (++i <cnt) loop(i); 
-					else {
-						cur_i = i - 1; 
-						playing = false;
-						enableButtons();
-					}
-					}, speed);
-			}
-			
+			var el = $("#sortable").children();
+			changeClass(el[i]);
+			setTimeout("nextStep(" + i + ", " + cnt + ")", speed);
 		}
+		else
+			nextStep(i, cnt);
+	}
+	function nextStep(i, cnt){
+		if (++i <cnt) loop(i, cnt); 
+		else {
+			cur_i = i - 1; 
+			playing = false;
+			enableButtons();
+		}
+	}
+	function play(cnt){
 		disableButtons();
 		playing = true;
 		var result = $('#sortable').sortable('toArray');
@@ -273,10 +267,7 @@
 			cnt = result.length;
 		if (result[cur_i] == "")
 			++cur_i;
-		dx = 0;
-		dy = 0;
-		var i = cur_i;
 		$("#sortable").sortable( "disable" );
-		loop(i);
+		loop(cur_i, cnt);
 		$("#sortable").sortable( "enable" );
 	}
