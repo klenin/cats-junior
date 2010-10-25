@@ -2,7 +2,7 @@
 		$.ajax({
 			async: false,
 			dataType : "json",
-			url: 'problems/01/problem.json',
+			url: 'problems/02/problem.json',
 			success: function(data) {
 				problem.name = data.name;
 				problem.statement = data.statement;
@@ -19,7 +19,7 @@
 		$.ajax({
 			async: false,
 			dataType : "json",
-			url: 'problems/01/tests/' + i +'.json',
+			url: 'problems/02/tests/' + i +'.json',
 			success: function(data) {
 				map = data.map.slice();
 				var tmp = data.spec_symbols;
@@ -134,7 +134,7 @@
 			return;
 		}
 		else {
-			for (var i = 0; i < cur_list.length; ++i){
+			for (var i = 0; i < cur_i; ++i){
 				if (cur_list[i] != arr[i]){
 					setDefault();
 					cur_list = arr;
@@ -148,12 +148,16 @@
 		enableButtons();
 		var s = '#' + (cur_y * 100 + cur_x);
 		$(s).empty();
-		for (var k = 0; k < spec_symbols.coord.x.length; ++k){
-			if (cur_map[spec_symbols.coord.y[k]][spec_symbols.coord.x[k]] == '.'){
-				s = "#" + (spec_symbols.coord.y[k] * 100 + spec_symbols.coord.x[k]);
+		for (var i = 0; i < cur_map.length; ++i){
+			for (var j = 0; j < cur_map[i].length; ++j){
+				s = '#' + (i * 100 + j);
 				$(s).empty();
-				$(s).append("<div class = '" + spec_symbols.style[k] + "'></div>");
 			}
+		}
+		for (var k = 0; k < spec_symbols.coord.x.length; ++k){
+			s = "#" + (spec_symbols.coord.y[k] * 100 + spec_symbols.coord.x[k]);
+			$(s).empty();
+			$(s).append("<div class = '" + spec_symbols.style[k] + "'></div>");
 			spec_symbols.cur_count[k] = 0;
 		}
 		for (var k = 0; k < moving_elems.symbol.length; ++k){
@@ -209,23 +213,46 @@
 			dx = changeDir[result[i]][cur_dir]["dx"];
 			dy = changeDir[result[i]][cur_dir]["dy"];
 			cur_dir = changeDir[result[i]][cur_dir]["cur_dir"];
-			if (cur_x + dx >= 0 && cur_x + dx < cur_map[0].length && cur_y + dy >= 0 && cur_y < cur_map.length)
-				if (cur_map[cur_y + dy][cur_x + dx] != '#'){
-					cur_x += dx;
-					cur_y += dy;
+			if (checkCell(i)){
+				if (cur_x + dx >= 0 && cur_x + dx < cur_map[0].length && cur_y + dy >= 0 && cur_y < cur_map.length)
+					if (cur_map[cur_y + dy][cur_x + dx] != '#'){
+						cur_x += dx;
+						cur_y += dy;
+					}
+					else{
+							$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
+							var s = '#' + (cur_y * 100 + cur_x);
+							$(s).effect("highlight", {}, 300);
+						}
+				else
+					$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
+				if (!(speed == 0 && (i + 1) < cnt)){
+					s = '#' + (y * 100 + x);
+					$(s).empty();
+					s = '#' + (cur_y * 100 + cur_x);
+					$(s).append('<div class = "' + cur_dir+'"></div>');
+					var el = $("#sortable").children();
+					changeClass(el[i]);
+					setTimeout(function() { 
+						if (++i <cnt) loop(i); 
+						else {
+							cur_i = i - 1; 
+							playing = false;
+							enableButtons();
+						}
+						}, speed);
 				}
 				else{
-						$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
-						var s = '#' + (cur_y * 100 + cur_x);
-						$(s).effect("highlight", {}, 300);
+					if (++i <cnt)
+						loop(i); 
+					else {
+						cur_i = i - 1; 
+						playing = false;
+						enableButtons();
 					}
-			else
-				$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
-			if (!(checkCell(i) && speed == 0 && (i + 1) < cnt)){
-				s = '#' + (y * 100 + x);
-				$(s).empty();
-				s = '#' + (cur_y * 100 + cur_x);
-				$(s).append('<div class = "' + cur_dir+'"></div>');
+				}	
+			}
+			else{
 				var el = $("#sortable").children();
 				changeClass(el[i]);
 				setTimeout(function() { 
@@ -237,15 +264,7 @@
 					}
 					}, speed);
 			}
-			else{
-				if (++i <cnt)
-					loop(i); 
-				else {
-					cur_i = i - 1; 
-					playing = false;
-					enableButtons();
-				}
-			}	
+			
 		}
 		disableButtons();
 		playing = true;
@@ -254,8 +273,8 @@
 			cnt = result.length;
 		if (result[cur_i] == "")
 			++cur_i;
-		var dx = 0;
-		var dy = 0;
+		dx = 0;
+		dy = 0;
 		var i = cur_i;
 		$("#sortable").sortable( "disable" );
 		loop(i);

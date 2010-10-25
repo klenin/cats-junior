@@ -13,6 +13,8 @@
 	var life;
 	var pnts;
 	var m_elem_id = 0;
+	var dx = 0;
+	var dy = 0;
 	var problem = {
 		"name": "",
 		"statement": "",
