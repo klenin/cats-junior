@@ -119,6 +119,12 @@ div.box{
 	height: 60px;
 	z-index: 2;
 }
+div.monster{
+	background: url('../images/SeaMonster.png') 50% 50% no-repeat; 
+	width: 60px;
+	height: 60px;
+	z-index: 2;
+}
 input.play{
 	background: url('../images/play.png'); 
 	border:medium none;

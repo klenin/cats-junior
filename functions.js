@@ -2,7 +2,7 @@
 		$.ajax({
 			async: false,
 			dataType : "json",
-			url: 'problems/02/problem.json',
+			url: 'problems/03/problem.json',
 			success: function(data) {
 				with (problem){
 					name = data.name;
@@ -21,7 +21,7 @@
 		$.ajax({
 			async: false,
 			dataType : "json",
-			url: 'problems/02/tests/' + i +'.json',
+			url: 'problems/03/tests/' + i +'.json',
 			success: function(data) {
 				map = data.map.slice();
 				var tmp = data.spec_symbols;
@@ -55,7 +55,10 @@
 				for (var i = 0; i < tmp.length; ++i){
 					with (moving_elems){
 						style.push(tmp[i].style);
-						path.push(tmp[i].path.slice());
+						path[i] = [];
+						for (var j = 0; j < tmp[i].path.length; ++j){
+							path[i].push(tmp[i].path[j]);
+						}
 						looped.push(tmp[i].looped);
 						die.push(tmp[i].die);
 						symbol.push(m_elem_id++);
