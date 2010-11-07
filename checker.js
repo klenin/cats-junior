@@ -19,30 +19,37 @@
 				}
 		}
 		for (var k = 0; k < moving_elems.symbol.length; ++k){
-			if (cur_i + 1 >= moving_elems.path[k].length && !moving_elems.looped[k])
+			if (cur_i >= moving_elems.path[k].length && !moving_elems.looped[k])
 				continue;
-			var x = moving_elems.path[k][cur_i].x;
-			var y = moving_elems.path[k][cur_i].y;
+			var j = (i - 1) % moving_elems.path[k].length;
+			var x = moving_elems.path[k][j].x;
+			var y = moving_elems.path[k][j].y;
 			cur_map[y][x] = map[y][x];
 			s = "#" + (y * 100 + x);
 			$(s).empty();
 			if (cur_map[y][x] != "." && cur_map[y][x] != "#")
-				for (var i = 0; i < spec_symbols.list.length; ++i)
-					if (spec_symbols.list[i] == cur_map[y][x]){
+				for (var j = 0; j < spec_symbols.list.length; ++j)
+					if (spec_symbols.list[j] == cur_map[y][x]){
 						s = "#" + (y * 100 + x);
 						$(s).empty();
-						$(s).append("<div class = '" + spec_symbols.style[i] + "'></div>");
+						$(s).append("<div class = '" + spec_symbols.style_list[j] + "'></div>");
 					}
-			var i = (cur_i + 1) % moving_elems.path[k].length;
-			x = moving_elems.path[k][i].x;
-			y = moving_elems.path[k][i].y;
+			j = i % moving_elems.path[k].length;
+			x = moving_elems.path[k][j].x;
+			y = moving_elems.path[k][j].y;
+			cur_map[y][x] = k + "";
 			if (cur_map[y][x] == "#")
 				alert("Движущийся объект уткнулся в стенку");
+			s = "#" + (y * 100 + x);
+			$(s).empty();
 			$(s).append("<div class = '" + moving_elems.style[k] + "'></div>");
 		}
 		if (cur_map[c_y][c_x][0] >= '0' && cur_map[c_y][c_x][0] <= '9'){
 			if (moving_elems.die[cur_map[c_y][c_x]]){
-				$("#cons").append("Вас съели \n");
+				$("#cons").append("Вас съели. Попробуйте снова \n");
+				s = "#" + (cur_y * 100 + cur_x);
+				$(s).empty();
+				dead = true;
 				return false;
 			}
 			life += moving_elems.d_life[cur_map[c_y][c_x]];
@@ -82,6 +89,7 @@
 		}
 		if (life == 0){
 			$("#cons").append("Количество жизней = 0. Попробуйте снова \n");
+			dead = true;
 			return false;
 		}
 		return true;

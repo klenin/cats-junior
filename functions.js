@@ -160,6 +160,7 @@
 	}
 	function setDefault(f){
 		enableButtons();
+		dead = false;
 		var s = '#' + (cur_y * 100 + cur_x);
 		$(s).empty();
 		for (var i = 0; i < cur_map.length; ++i){
@@ -175,7 +176,7 @@
 			spec_symbols.cur_count[k] = 0;
 		}
 		for (var k = 0; k < moving_elems.symbol.length; ++k){
-			s = "#" + (moving_elems.path[k][cur_i].y * 100 + moving_elems.path[cur_i][0].x);
+			s = "#" + (moving_elems.path[k][cur_i % moving_elems.symbol.length].y * 100 + moving_elems.path[cur_i % moving_elems.symbol.length][0].x);
 			$(s).empty();
 			s = "#" + (moving_elems.path[k][0].y * 100 + moving_elems.path[k][0].x);
 			$(s).prepend("<div class = '" + moving_elems.style[k] + "'></div>");
@@ -206,6 +207,8 @@
 		}
 	}
 	function loop(i, cnt){
+		if (dead)
+			return;
 		var result = $('#sortable').sortable('toArray');
 		if (pause || stopped){
 			if (pause)
@@ -227,6 +230,8 @@
 		dy = changeDir[result[i]][cur_dir].dy;
 		cur_dir = changeDir[result[i]][cur_dir].cur_dir;
 		var checked = checkCell(i);
+		if (dead)
+			return;
 		if (checked)
 			if (cur_x + dx >= 0 && cur_x + dx < cur_map[0].length && cur_y + dy >= 0 && cur_y < cur_map.length)
 				if (cur_map[cur_y + dy][cur_x + dx] != '#'){
@@ -255,6 +260,8 @@
 			nextStep(i, cnt);
 	}
 	function nextStep(i, cnt){
+		if (dead)
+			return;
 		if (++i <cnt) loop(i, cnt); 
 		else {
 			cur_i = i - 1; 
@@ -263,6 +270,8 @@
 		}
 	}
 	function play(cnt){
+		if (dead)
+			return;
 		disableButtons();
 		playing = true;
 		var result = $('#sortable').sortable('toArray');

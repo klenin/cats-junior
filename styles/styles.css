@@ -1,7 +1,7 @@
 div.drop{
 	position: absolute;
 	left: 10px; 
-	top: 190px; 
+	top: 220px; 
 }
 div.cons_div{
 	position: absolute;
@@ -72,6 +72,12 @@ li.left1{
 }
 li.right1{
 	background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; 
+}
+li.wait{
+	background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; 
+}
+li.wait1{
+	background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; 
 }
 td.wall{
 	background-image: url('../images/wall.jpg'); 

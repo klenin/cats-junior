@@ -20,7 +20,7 @@
 			s = "#" + (moving_elems.path[k][0].y * 100 + moving_elems.path[k][0].x);
 			$(s).prepend("<div class = '" + moving_elems.style[k] + "'></div>");
 		}
-		var divs = new Array("forward", "left", "right");
+		var divs = problem.commands;
 		$( "#sortable" ).sortable({
 			revert: false,
 			beforeStop: function(event, ui){
@@ -31,7 +31,7 @@
 			cursor: 'move',
 		});
 		cur_list = $("#sortable").sortable('toArray');
-		for (var i = 0; i < 3; ++i)
+		for (var i = 0; i < divs.length; ++i)
 		{
 			$("#" + divs[i]).draggable({
 				connectToSortable: '#sortable',
@@ -42,7 +42,7 @@
 		}
 		$( "ul, li" ).disableSelection();
 		function callPlay(s){
-			if ($("#sortable").sortable('toArray').length == 1)
+			if ($("#sortable").sortable('toArray').length == 1 || dead)
 				return;
 			disableButtons();
 			if (cur_i + 1 < $("#sortable").sortable('toArray').length){
