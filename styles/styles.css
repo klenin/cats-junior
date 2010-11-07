@@ -5,17 +5,17 @@ div.drop{
 }
 div.cons_div{
 	position: absolute;
-	left: 1080px; 
+	left: 1030px; 
 	top: 50px; 
 }
 div.btn{
 	position: absolute;
-	left: 220px; 
+	left: 175px; 
 	top: 50px; 
 }
 div.field{
 	position: absolute;
-	left: 430px; 
+	left: 380px; 
 	top:50px; 
 }
 .comands ul{
@@ -29,7 +29,7 @@ div.field{
 .comands li{ 
 	margin: 5px; 
 	padding: 5px;
-	width: 175px; 
+	width: 140px; 
 	height: 25px;
 	border: 1px solid #ffffff;
 	color: #363636; 
@@ -44,7 +44,7 @@ div.field{
 .drop li{ 
 	margin: 5px; 
 	padding: 5px;
-	width: 175px; 
+	width: 140px; 
 	height: 25px;
 	border: 1px solid #ffffff;
 	color: #363636; 
@@ -185,6 +185,11 @@ input.clear{
 	margin:0;
 	padding:0 0 4px;
 	width: 36;
+	height: 36;
+}
+input.submit{
+	background: url('../images/submit.png'); 
+	width: 190;
 	height: 36;
 }
 textarea.console{

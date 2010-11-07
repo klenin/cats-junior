@@ -102,4 +102,12 @@
 				speed = s;
 			}
 		}
+		document.cons_form.submit.onclick = function(){
+			$.ajax({
+				async: false,
+				dataType : 'jsonp',
+				url: 'http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1?callback=?',
+				cache: false
+			});
+		}
 	});
