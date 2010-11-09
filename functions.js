@@ -63,7 +63,7 @@
 						die.push(tmp[i].die);
 						symbol.push(m_elem_id++);
 					}
-					map[tmp[i].path[0].y, tmp[i].path[0].x] = m_elem_id;
+					map[tmp[i].path[0].y][tmp[i].path[0].x] = m_elem_id + "";
 				}
 			}
 		});

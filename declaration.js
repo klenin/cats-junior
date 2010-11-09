@@ -16,6 +16,12 @@
 	var m_elem_id = 0;
 	var dx = 0;
 	var dy = 0;
+	var cid = 765271;
+	var sid;
+	var cur_user;
+	//var cur_user_id;
+	var cur_problem;
+	var cur_problem_id;
 	var problem = {
 		"name": "",
 		"statement": "",

@@ -102,12 +102,106 @@
 				speed = s;
 			}
 		}
-		document.cons_form.submit.onclick = function(){
+
+		function callScript(url, callback){
 			$.ajax({
 				async: false,
-				dataType : 'jsonp',
-				url: 'http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1?callback=?',
-				cache: false
+				dataType : "json",
+				url: 'script.php',
+				data: 'url='+ url,
+				success: function(data) {
+					callback(data);
+				}
 			});
+		}
+		function chooseUser(){
+			callScript('http://imcs.dvgu.ru/cats/main.pl?f=users;sid='+sid+';cid='+cid+';json=1;', function(data){
+				var users = {"login":[], "name":[],};
+				for (var i = 0; i < data.length; ++i){
+					if (data[i].ooc == 1)
+						continue;
+					users.login.push(data[i].login);
+					users.name.push(data[i].name);
+				}
+				var str = '<p>Выберите свое имя из списка</p>'
+				for (var i = 0; i < users.login.length; ++i){
+					str += '<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users.name[i] + '" ' + (i == 0 ? 'checked': '') + ' class="radioinput" />';
+					str += '<label for="user_name_' + i + '">' + users.name[i] + '</label><br>';
+				}
+				cur_user = openprompt(str);
+			});
+		}
+		function chooseProblem(){
+			/*callScript('http://imcs.dvgu.ru/cats/main.pl?f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
+				var problems = {"id":[], "name":[],};
+				for (var i = 0; i < data.problems.length; ++i){
+					problems.id.push(data.problems[i].id);
+					problems.name.push(data.problems[i].name);
+				}
+				var str = '<p>Выберите задачу</p>'
+				for (var i = 0; i < problems.id.length; ++i){
+					str += '<input type="radio" name="problem_name" id="problem_name_' + problems.id[i] + '" value="' + problems.name[i] + '" class="radioinput" />';
+					str += '<label for="problem_name_' + problems.id[i] + '">' + problems.name[i] + '</label><br>';
+				}
+				cur_problem = openprompt(str);});*/
+			$.ajax({
+				async: false,
+				dataType : "json",
+				url: 'main-12.pl',
+				success: function(data) {
+					var problems = {"id":[], "name":[],};
+					for (var i = 0; i < data.problems.length; ++i){
+						problems.id.push(data.problems[i].id);
+						problems.name.push(data.problems[i].name);
+					}
+					var str = '<p>Выберите задачу</p>'
+					for (var i = 0; i < problems.id.length; ++i){
+						str += '<input type="radio" name="problem_name" id="problem_name_' + problems.id[i] + '" value="' + problems.name[i] + '" ' + (i == 0 ? 'checked': '') + ' class="radioinput" />';
+						str += '<label for="problem_name_' + problems.id[i] + '">' + problems.name[i] + '</label><br>';
+					}
+					cur_problem = openprompt(str);
+				}
+			});
+			
+		}
+		function openprompt(str){
+			var temp = {
+				state0 : {
+					html:str,
+					buttons: { Ok: 1, Cancel: 0 },
+					focus: 0,
+					submit:function(v,m,f){
+						if(v == 0)
+							$.prompt.close()
+						else 
+							return true;
+						return false; 
+					}
+				}
+			}	
+			$.prompt(temp,{
+					callback: function(v,m,f){
+						$.each(f,function(i,obj){
+							return obj;
+						});	
+					}
+				});
+		}
+		document.cons_form.submit.onclick = function(){
+			callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1;', function(data){
+				if (data.status == "ok")
+					sid = data.sid;
+				else
+					alert("Ошибка подключения к серверу. Попробуйте снова");
+			});
+			chooseProblem();
+			chooseUser();
+			var result = "";
+			var cur_list = $("#sortable").sortable("toArray");
+			for (var i = 1; i < cur_list.length - 1; ++i)
+				result += "id" + i + "=" + cur_list[i] + "&";
+			if (cur_list.length > 1)
+				result += "id" + (cur_list.length - 1) + "=" + cur_list[cur_list.length - 1];
+	
 		}
 	});

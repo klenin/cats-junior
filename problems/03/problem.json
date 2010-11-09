@@ -2,7 +2,7 @@
 	"name": "Собери все звездочки",
 	"statement": "Требуется собрать все звездочки на поле",
 	"testsNum": 1,
-	"commands": ["forward", "left", "right"],
+	"commands": ["forward", "left", "right", "wait"],
 	"start_life": 1,
 	"d_life": 0,
 	"start_pnts": 0,
