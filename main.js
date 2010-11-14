@@ -1,118 +1,84 @@
-﻿	getProblemStatement();
-	getTest("01");
-	copyMap();
-	fillLabyrinth();
-	$(document).ready(function(){
-		document.title = problem.name;
-		$("#statement").append(problem.statement);
-		cur_dir = start_dir;
-		cur_x = start_x;
-		cur_y = start_y;
-		life = problem.start_life;
-		pnts = problem.start_points;
-		var s = "#" + (cur_y * 100 + cur_x);
-		$(s).append("<div class = '" + cur_dir + "'></div>");
-		for (var k = 0; k < spec_symbols.style.length; ++k){
-			s = "#" + (spec_symbols.coord.y[k] * 100 + spec_symbols.coord.x[k]);
-			$(s).prepend("<div class = '" + spec_symbols.style[k] + "'></div>");
+﻿	$(document).ready(function(){
+		$("#tabs").tabs();
+		fillTabs();
+		$("#tabs").tabs();
+		document.title = "";
+		curDir = startDir;
+		//curX = problems[curProblem].start_x;
+		//curY = problems[curProblem].start_y;
+		life = problems[curProblem].start_life;
+		pnts = problems[curProblem].start_points;
+		var s = "#" + (curProblem* 10000 + curY * 100 + curX);
+		$(s).append("<div class = '" + curDir + "'></div>");
+		for (var k = 0; k < specSymbols[curProblem].style.length; ++k){
+			s = "#" + (curProblem* 10000 + specSymbols[curProblem].coord.y[k] * 100 + specSymbols[curProblem].coord.x[k]);
+			$(s).prepend("<div class = '" + specSymbols[curProblem].style[k] + "'></div>");
 		}
-		for (var k = 0; k < moving_elems.symbol.length; ++k){
-			s = "#" + (moving_elems.path[k][0].y * 100 + moving_elems.path[k][0].x);
-			$(s).prepend("<div class = '" + moving_elems.style[k] + "'></div>");
-		}
-		var divs = problem.commands;
-		$( "#sortable" ).sortable({
-			revert: false,
-			beforeStop: function(event, ui){
-				if (ui.position.left > maxx || ui.position.top < miny)
-					ui.item.remove();
-				updated();
-			},
-			cursor: 'move',
-		});
-		cur_list = $("#sortable").sortable('toArray');
-		for (var i = 0; i < divs.length; ++i)
-		{
-			$("#" + divs[i]).draggable({
-				connectToSortable: '#sortable',
-				helper: 'clone',
-				revert: 'invalid',
-				cursor: 'default',
-			});
+		for (var k = 0; k < specSymbols[curProblem].symbol.length; ++k){
+			s = "#" + (curProblem* 10000 + specSymbols[curProblem].path[k][0].y * 100 + specSymbols[curProblem].path[k][0].x);
+			$(s).prepend("<div class = '" + specSymbols[curProblem].style[k] + "'></div>");
 		}
 		$( "ul, li" ).disableSelection();
 		function callPlay(s){
-			if ($("#sortable").sortable('toArray').length == 1 || dead)
+			if ($("#sortable" + curProblem).sortable('toArray').length == 1 || dead)
 				return;
 			disableButtons();
-			if (cur_i + 1 < $("#sortable").sortable('toArray').length){
-				++cur_i;
+			if (curI + 1 < $("#sortable" + curProblem).sortable('toArray').length){
+				++curI;
 				clearClasses();
 			}
 			else
 				setDefault();
 			setTimeout(function() { play(); }, s);
 		}
-		document.btn_form.btn_play.onclick = function(){
+		playClick = function(){
 			callPlay(300);
 		}
-		document.btn_form.btn_fast.onclick = function(){
+		fastClick = function(){
 			callPlay(100);
 		}
-		document.btn_form.btn_clear.onclick = function(){
+		clearClick = function(){
 			setDefault();
-			$('#sortable').children(":gt(0)").remove();
+			$('#sortable' + curProblem).children(":gt(0)").remove();
 		}
-		document.btn_form.btn_stop.onclick = function(){
+		stopClick = function(){
 			stopped = true;
 			if (!playing){
 				setDefault();
 				clearClasses();
 			}
 		}
-		document.btn_form.btn_pause.onclick = function(){
+		pauseClick = function(){
 			pause = true;
 			enableButtons();
 		}
-		document.btn_form.btn_next.onclick = function(){
-			if ($("#sortable").sortable('toArray').length == 1)
+		nextClick = function(){
+			if ($("#sortable" + curProblem).sortable('toArray').length == 1)
 				return;
 			disableButtons();
-			if (cur_i + 1 < $("#sortable").sortable('toArray').length){
-				if (cur_list.length > cur_i){
-					var el = $("#sortable").children();
-					changeClass(el[cur_i]);
+			if (curI + 1 < $("#sortable" + curProblem).sortable('toArray').length){
+				if (curList.length > curI){
+					var el = $("#sortable" + curProblem).children();
+					changeClass(el[curI]);
 				}
-				++cur_i;
+				++curI;
 				play(1);
 			}
 			else
 				enableButtons();			
 		}
-		document.btn_form.btn_prev.onclick = function(){
+		prevClick = function(){
 			disableButtons();
-			if(cur_i == 0 || cur_list[cur_i - 1] == "")
+			if(curI == 0 || curList[curI - 1] == "")
 				setDefault();
-			else if (cur_i > 0){
-				var t = cur_i;
+			else if (curI > 0){
+				var t = curI;
 				setDefault(true);
 				var s = speed;
 				speed = 0;
 				play(t);
 				speed = s;
 			}
-		}
-
-		function callScript(url, callback){
-			$.ajax({
-				async: false,
-				dataType : "json",
-				url: 'script.php',
-				data: 'url='+ url,
-				success: function(data) {
-					callback(data);
-				}
-			});
 		}
 		function chooseUser(){
 			callScript('http://imcs.dvgu.ru/cats/main.pl?f=users;sid='+sid+';cid='+cid+';json=1;', function(data){
@@ -132,7 +98,7 @@
 			});
 		}
 		function chooseProblem(){
-			/*callScript('http://imcs.dvgu.ru/cats/main.pl?f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
+			callScript('http://imcs.dvgu.ru/cats/main.pl?f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
 				var problems = {"id":[], "name":[],};
 				for (var i = 0; i < data.problems.length; ++i){
 					problems.id.push(data.problems[i].id);
@@ -143,8 +109,8 @@
 					str += '<input type="radio" name="problem_name" id="problem_name_' + problems.id[i] + '" value="' + problems.name[i] + '" class="radioinput" />';
 					str += '<label for="problem_name_' + problems.id[i] + '">' + problems.name[i] + '</label><br>';
 				}
-				cur_problem = openprompt(str);});*/
-			$.ajax({
+				curProblem = openprompt(str);});
+			/*$.ajax({
 				async: false,
 				dataType : "json",
 				url: 'main-12.pl',
@@ -159,10 +125,9 @@
 						str += '<input type="radio" name="problem_name" id="problem_name_' + problems.id[i] + '" value="' + problems.name[i] + '" ' + (i == 0 ? 'checked': '') + ' class="radioinput" />';
 						str += '<label for="problem_name_' + problems.id[i] + '">' + problems.name[i] + '</label><br>';
 					}
-					cur_problem = openprompt(str);
+					curProblem = openprompt(str);
 				}
-			});
-			
+			});*/			
 		}
 		function openprompt(str){
 			var temp = {
@@ -187,7 +152,7 @@
 					}
 				});
 		}
-		document.cons_form.submit.onclick = function(){
+		submitClick = function(){
 			callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1;', function(data){
 				if (data.status == "ok")
 					sid = data.sid;
@@ -197,11 +162,11 @@
 			chooseProblem();
 			chooseUser();
 			var result = "";
-			var cur_list = $("#sortable").sortable("toArray");
-			for (var i = 1; i < cur_list.length - 1; ++i)
-				result += "id" + i + "=" + cur_list[i] + "&";
-			if (cur_list.length > 1)
-				result += "id" + (cur_list.length - 1) + "=" + cur_list[cur_list.length - 1];
+			var curList = $("#sortable" + curProblem).sortable("toArray");
+			for (var i = 1; i < curList.length - 1; ++i)
+				result += "id" + i + "=" + curList[i] + "&";
+			if (curList.length > 1)
+				result += "id" + (curList.length - 1) + "=" + curList[curList.length - 1];
 	
 		}
 	});

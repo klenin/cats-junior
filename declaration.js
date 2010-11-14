@@ -1,65 +1,28 @@
-﻿	var cur_i = 0;
+﻿	var curI = 0;
 	var speed = 300;
 	var pause = false;
 	var stopped = false;
 	var playing = false;
 	var dead = false;
-	var cur_map = new Array();
-	var start_dir;
-	var map;
-	var cur_dir;
-	var cur_x;
-	var cur_y;
-	var cur_list = [];
+	var curMap = [];
+	var startDir = "right";
+	var map = [];
+	var curDir;
+	var curX = 0;
+	var curY = 1;
+	var curList = [];
 	var life;
 	var pnts;
-	var m_elem_id = 0;
+	var mElemId = 0;
 	var dx = 0;
 	var dy = 0;
+	var curProblem = 0;
+	var problems = [];
+	var specSymbols = [];
+	var movingElems = [];
+	var problemsList = [];
 	var cid = 765271;
 	var sid;
-	var cur_user;
-	//var cur_user_id;
-	var cur_problem;
-	var cur_problem_id;
-	var problem = {
-		"name": "",
-		"statement": "",
-		"testsNum": 0,
-		"commands": [],
-		"start_life": NaN,
-		"d_life": NaN,
-		"start_pnts": NaN,
-		"finish_symb": NaN,
-		"cleaner": [],
-		"cleaned": []	
-	};
-	var spec_symbols = {
-		"list": [],
-		"names": [],
-		"style_list": [],
-		"count":[],
-		"cur_count":[],
-		"symb": [],
-		"style":[],
-		"coord": {
-			"x": [],
-			"y": []
-		},
-		"do": [],
-		"points": [],
-		"d_life" : [],
-	};
-	var moving_elems = {
-		"symbol": [],
-		"style": [],
-		"path": [],
-		"looped": [],
-		"cur_coord": [],
-		"d_life":[],
-		"points":[],
-		"die":[],
-	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
 		"forward1 ui-draggable": "forward ui-draggable",
@@ -73,32 +36,32 @@
 	const classes = new Array ("forward", "left", "right", "wait", "forward1", "left1", "right1", "wait1");
 	const changeDir = {
 		"forward":{
-			"up": {dx: 0, dy: -1, cur_dir: "up"},
-			"down": {dx: 0, dy: 1, cur_dir: "down"},
-			"left":{dx: -1, dy: 0, cur_dir: "left"},
-			"right": {dx: 1, dy: 0, cur_dir: "right"},
-			"wait": {dx: 0, dy: 0, cur_dir: "forward"},
+			"up": {dx: 0, dy: -1, curDir: "up"},
+			"down": {dx: 0, dy: 1, curDir: "down"},
+			"left":{dx: -1, dy: 0, curDir: "left"},
+			"right": {dx: 1, dy: 0, curDir: "right"},
+			"wait": {dx: 0, dy: 0, curDir: "forward"},
 		},
 		"left":{
-			"up": {dx: 0, dy: 0, cur_dir: "left"},
-			"down": {dx: 0, dy: 0, cur_dir: "right"},
-			"left":{dx: 0, dy: 0, cur_dir: "down"},
-			"right": {dx: 0, dy: 0, cur_dir: "up"},
-			"wait": {dx: -1, dy: 0, cur_dir: "left"},
+			"up": {dx: 0, dy: 0, curDir: "left"},
+			"down": {dx: 0, dy: 0, curDir: "right"},
+			"left":{dx: 0, dy: 0, curDir: "down"},
+			"right": {dx: 0, dy: 0, curDir: "up"},
+			"wait": {dx: -1, dy: 0, curDir: "left"},
 		},
 		"right":{
-			"up": {dx: 0, dy: 0, cur_dir: "right"},
-			"down": {dx: 0, dy: 0, cur_dir: "left"},
-			"left":{dx: 0, dy: 0, cur_dir: "up"},
-			"right": {dx: 0, dy: 0, cur_dir: "down"},
-			"wait": {dx: 1, dy: 0, cur_dir: "right"},
+			"up": {dx: 0, dy: 0, curDir: "right"},
+			"down": {dx: 0, dy: 0, curDir: "left"},
+			"left":{dx: 0, dy: 0, curDir: "up"},
+			"right": {dx: 0, dy: 0, curDir: "down"},
+			"wait": {dx: 1, dy: 0, curDir: "right"},
 		}, 
 		"wait":{
-			"up": {dx: 0, dy: 0, cur_dir: "up"},
-			"down": {dx: 0, dy: 0, cur_dir: "down"},
-			"left":{dx: 0, dy: 0, cur_dir: "left"},
-			"right": {dx: 0, dy: 0, cur_dir: "right"},
-			"wait": {dx: 0, dy: 0, cur_dir: "wait"},
+			"up": {dx: 0, dy: 0, curDir: "up"},
+			"down": {dx: 0, dy: 0, curDir: "down"},
+			"left":{dx: 0, dy: 0, curDir: "left"},
+			"right": {dx: 0, dy: 0, curDir: "right"},
+			"wait": {dx: 0, dy: 0, curDir: "wait"},
 		},
 		
 	}
