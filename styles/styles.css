@@ -37,6 +37,10 @@ div.field{
 	left: 380px; 
 	top:100px; 
 }
+div.submit_div{
+	position:absolute;
+	top: 900px;
+}
 li.invisible{
 	width: 1px;
 	height: 1px; 
@@ -63,7 +67,8 @@ li.forward1{
 	border: 1px solid #ffffff;
 	color: #363636; 
 	z-index: 1;
-	background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; 
+	background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat;
+	
 }
 li.left{
 	list-style-type: none; 
@@ -243,7 +248,7 @@ input.submit{
 	background: url('../images/submit.png'); 
 	width: 190;
 	height: 36;
-	top: 1500;
+	top: -500px;
 }
 textarea.cons{
 	background-color: #FFFFFF; 

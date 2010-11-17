@@ -7,16 +7,16 @@
 		}
 	}
 	function fillLabyrinth1(l){
-		$("#field" + l).append("<table border = '0''>")
+		$("#field" + l).append("<table border = '0'' id = 'table_field" + l + "'>")
 		for (var i = 0; i < curMap[l].length; ++i){
-			$("#field" + l).append("<tr>");
+			$("#table_field" + l).append("<tr id = 'tr_field" + (l * 1000 + i) + "'>");
 			for (var j = 0; j < curMap[l][i].length; ++j){
-				curMap[l][i][j] == '#'  ? $("#field" + l).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"'>") : 
-										$("#field" + l).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"'>");
+				curMap[l][i][j] == '#'  ? $("#tr_field" + (l * 1000 + i)).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"'>") : 
+										$("#tr_field" + (l * 1000 + i)).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"'>");
 				if (curMap[l][i][j] == "R" || curMap[l][i][j] == "L" || curMap[l][i][j] == "U" || curMap[l][i][j] == "D"){
-					startDir = dirs[curMap[l][i][j]];
-					start_x = j;
-					start_y = i;
+					startDir[l] = dirs[curMap[l][i][j]];
+					startX[l] = j;
+					startY[l] = i;
 				}
 				for (var k = 0; k < specSymbols[l].list.length; ++k){
 					if (curMap[l][i][j] == specSymbols[l].list[k]){
@@ -28,9 +28,9 @@
 						break;
 					}
 				}
-				$("#field" + l).append("</td>");
+				$("#tr_field" + (l * 1000 + i)).append("</td>");
 			}
-			$("#field" + l).append("</tr>");
+			$("#table_field" + l).append("</tr>");
 		}
 		$("#field" + l).append("</table>");
 	}
@@ -132,6 +132,43 @@
 			}
 		});
 	}
+	function chooseUser(){
+		var user = $("input:checked");
+		$("#ui-tabs-0").empty();
+		$("#ui-tabs-0").append('<p>Текущий пользователь:</p>');
+		name = user[0].defaultValue;
+		for (var i = 0; i < users.login.length; ++i){
+			if (name == users.name[i])
+				login = users.login[i];
+		}
+		$("#ui-tabs-0").append('<p>' + user[0].defaultValue +'</p>');
+		$("#ui-tabs-0").append('<input type = "button" name="changeUser" id = "changeUser" class = "submit" onClick = changeUser()></input>');
+		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+			if (data.status == "ok")
+				sid = data.sid;
+			else
+				alert("Ошибка подключения к серверу. Попробуйте снова");
+		});
+	}
+	function changeUser(){
+		callScript('http://imcs.dvgu.ru/cats/main.pl?f=users;sid='+sid+';cid='+cid+';json=1;', function(data){
+				users.login = [];
+				users.name = [];
+				for (var i = 0; i < data.length; ++i){
+					if (data[i].ooc == 1)
+						continue;
+					users.login.push(data[i].login);
+					users.name.push(data[i].name);
+				}
+				$("#ui-tabs-0").empty();
+				$("#ui-tabs-0").append('<p>Выберите свое имя из списка</p>');
+				$("#ui-tabs-0").append('<form name = "userList" id = "userList">');
+				for (var i = 0; i < users.login.length; ++i)
+					$("#userList").append('<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users.name[i] + '" ' + (i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' + users.name[i] + '</label><br>');
+				$("#userList").append('<input type = "button" name="userNameSubmit" id = "userNameSubmit" class = "submit" onClick = chooseUser()></input>');
+				$("#ui-tabs-0").append('</form>');
+			});
+	}
 	function fillTabs(){
 		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1;', function(data){
 				if (data.status == "ok")
@@ -139,6 +176,8 @@
 				else
 					alert("Ошибка подключения к серверу. Попробуйте снова");
 			});
+		$("#tabs").tabs("add", "#ui-tabs-0", "Выбор пользователя" );
+		changeUser();
 		callScript('http://imcs.dvgu.ru/cats/main.pl?f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
 			for (var i = 0; i < 3/*data.problems.length*/; ++i){
 				getProblemStatement(i);
@@ -150,10 +189,13 @@
 				$("#ui-tabs-" + (i + 1)*2).append('<div class = "comands" id = "comands' + i + '">');
 				$("#comands" + i).append('<div class = "drag" id = "drag' + i + '">');
 				$("#drag" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">');
-				$("#ul_comands" + i).append('<li id = "forward' + i + '" class = "forward"><span style = "margin-left: 40px;">Прямо</span></li>');
-				$("#ul_comands" + i).append('<li id = "left' + i + '" class = "left"><span style = "margin-left: 40px;">Налево</span></li>');
-				$("#ul_comands" + i).append('<li id = "right' + i + '" class = "right"><span style = "margin-left: 40px;">Направо</span></li>');
-				$("#ul_comands" + i).append('<li id = "wait' + i + '" class = "wait"><span style = "margin-left: 40px;">Ждать</span></li>');
+				var divs = problems[i].commands;
+				for (var j = 0; j < divs.length; ++j){
+					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
+					/*$("#ul_comands" + i).append('<li id = "left' + i + '" class = "left"><span style = "margin-left: 40px;">Налево</span></li>');
+					$("#ul_comands" + i).append('<li id = "right' + i + '" class = "right"><span style = "margin-left: 40px;">Направо</span></li>');
+					$("#ul_comands" + i).append('<li id = "wait' + i + '" class = "wait"><span style = "margin-left: 40px;">Ждать</span></li>');*/
+				}
 				$("#drag" + i).append('</ul>');
 				$("#comands" + i).append('</div>');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
@@ -161,32 +203,34 @@
 				$("#drop" + i).append('<hr><br>');
 				$("#drop" + i).append('Укажите последовательность действий');
 				$("#drop" + i).append('<ul id = "sortable' + i + '">');
-				$("#sortable" + i).append('<li class = "invisible"></li>');
+				$("#sortable" + i).append('<li class = "invisible" id = "invisible' + i + '"></li>');
 				$("#drop" + i).append('</ul>');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
 				$("#ui-tabs-" + (i + 1)*2).append('<div class = "btn" id = "btn' + i + '">');
 				$("#btn" + i).append('<form name = "btn_form' + i + '" id = "btn_form' + i +'">');
-				$("#btn_form" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" onClick = "clearClick"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "play" name = "btn_play' + i + '" onClick = "playClick"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "pause" name = "btn_pause' + i + '" onClick = "pauseClick"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "stop" name = "btn_stop' + i + '" onClick = "stopClick"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "next" name = "btn_next' + i + '" onClick = "nextClick"></input> <br>');
-				$("#btn_form" + i).append('<input type = "button" class = "prev" name = "btn_prev' + i + '" onClick = "prevClick"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "fast" name = "btn_fast' + i + '" onClick = "fastClick"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' + i + '" onClick = "clearClick()"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "play" name = "btn_play' + i + '" id = "btn_play' + i + '" onClick = "playClick()"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "pause" name = "btn_pause' + i + '" id = "btn_pause' + i + '" onClick = "pauseClick()"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "stop" name = "btn_stop' + i + '" id = "btn_stop' + i + '" onClick = "stopClick()"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "next" name = "btn_next' + i + '" id = "btn_next' + i + '" onClick = "nextClick()"></input> <br>');
+				$("#btn_form" + i).append('<input type = "button" class = "prev" name = "btn_prev' + i + '" id = "btn_prev' + i + '" onClick = "prevClick()"></input>');
+				$("#btn_form" + i).append('<input type = "button" class = "fast" name = "btn_fast' + i + '" id = "btn_fast' + i + '" onClick = "fastClick()"></input>');
 				$("#btn" + i).append('</form>');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
 				$("#ui-tabs-" + (i + 1)*2).append('<div class = "field" id = "field' + i + '">');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
 				$("#ui-tabs-" + (i + 1)*2).append('<div class = "cons_div" id = "cons_div' + i + '">');
-				$("#cons_div" + i).append('<form name = "cons_form" id = "cons_form' + i + '">');
+				$("#cons_div" + i).append('<form name = "cons_form" class = "cons_form" id = "cons_form' + i + '">');
 				$("#cons_form" + i).append('<textarea rows="37" cols="20" name="cons" id = "cons' + i + '" class = "cons" disabled readonly></textarea><br>');
-				$("#cons_form" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick></input>');
+				$("#cons_div" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
+				$("#submit_div" + i).append('<form name = "submit_form" class = "submit_form" id = "submit_form' + i + '">');
+				$("#submit_form" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick()></input>');
+				$("#submit_div" + i).append('</form>');
 				$("#cons_div" + i).append('</form>');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
 				copyMap(i);
 				fillLabyrinth1(i);
 				$("#statement" + i).append(problems[i].statement);
-				var divs = problems[i].commands;
 				$( "#sortable" + i ).sortable({
 					revert: false,
 					beforeStop: function(event, ui){
@@ -196,11 +240,11 @@
 					},
 					cursor: 'move',
 				});
-				curList = $("#sortable" + i).sortable('toArray');
+				//curList = $("#sortable" + i).sortable('toArray');
 				for (var k = 0; k < divs.length; ++k)
 				{
 					$("#" + divs[k] + i).draggable({
-						connectToSortable: '#sortable' + i,
+						connectToSortable: ("#sortable" + i),
 						helper: 'clone',
 						revert: 'invalid',
 						cursor: 'default',
@@ -210,20 +254,79 @@
 		});		
 	}
 	function enableButtons(){
-		with (document.btn_form){
-			btn_play.disabled = false;
-			btn_next.disabled = false;
-			btn_prev.disabled = false;
-			btn_fast.disabled = false;
-		}
+		$("#btn_play" + curProblem).disabled = false;
+		$("#btn_next" + curProblem).disabled = false;
+		$("#btn_prev" + curProblem).disabled = false;
+		$("#btn_fast" + curProblem).disabled = false;
 	}
 	function disableButtons(){
-		with (document.btn_form){
-			btn_play.disabled = true;
-			btn_next.disabled = true;
-			btn_prev.disabled = true;
-			btn_fast.disabled = true;
+		$("#btn_play" + curProblem).disabled = true;
+		$("#btn_next" + curProblem).disabled = true;
+		$("#btn_prev" + curProblem).disabled = true;
+		$("#btn_fast" + curProblem).disabled = true;
+	}
+	function callPlay(s){
+		if ($("#sortable" + curProblem).sortable('toArray').length == 1 || dead[curProblem])
+			return;
+		disableButtons();
+		if (curI[curProblem] + 1 < $("#sortable" + curProblem).sortable('toArray').length){
+			++curI[curProblem];
+			clearClasses();
 		}
+		else
+			setDefault();
+		setTimeout(function() { play(); }, s);
+	}
+	playClick = function(){
+		callPlay(300);
+	}
+	fastClick = function(){
+		callPlay(100);
+	}
+	clearClick = function(){
+		setDefault();
+		$('#sortable' + curProblem).children(":gt(0)").remove();
+	}
+	stopClick = function(){
+		stopped[curProblem] = true;
+		if (!playing[curProblem]){
+			setDefault();
+			clearClasses();
+		}
+	}
+	pauseClick = function(){
+		pause[curProblem] = true;
+		enableButtons();
+	}
+	nextClick = function(){
+		if ($("#sortable" + curProblem).sortable('toArray').length == 1)
+			return;
+		disableButtons();
+		if (curI[curProblem] + 1 < $("#sortable" + curProblem).sortable('toArray').length){
+			if (curList[curProblem].length > curI[curProblem]){
+				var el = $("#sortable" + curProblem).children();
+				changeClass(el[curI[curProblem]]);
+			}
+			++curI[curProblem];
+			play(1);
+		}
+		else
+			enableButtons();			
+	}
+	prevClick = function(){
+		disableButtons();
+		if(curI[curProblem] == 0 || curList[curProblem][curI[curProblem] - 1] == "")
+			setDefault();
+		else if (curI[curProblem] > 1){
+			var t = curI[curProblem];
+			setDefault(true);
+			var s = speed[curProblem];
+			speed[curProblem] = 0;
+			play(t);
+			speed[curProblem] = s;
+		}
+		else if(curI[curProblem] == 1)
+			setDefault(false);
 	}
 	function changeClass(elem){
 		if (!elem || elem.classList[0] == "invisible")
@@ -238,152 +341,157 @@
 		return false;
 	}
 	function clearClasses(){
-		var el = $("#sortable").children();
+		var el = $("#sortable" + curProblem).children();
 		for (var i = 0; i < el.length; ++i){
 			if (isChangedClass(el[i]))
 				changeClass(el[i]);
 		}
 	}
 	function updated(){
-		var arr = $("#sortable").sortable('toArray');
-		var el = $("#sortable").children();
-		if (arr.length < curList.length ||  !isChangedClass(el[curI])){
+		var arr = $("#sortable" + curProblem).sortable('toArray');
+		var el = $("#sortable" + curProblem).children();
+		if (arr.length < curList[curProblem].length ||  !isChangedClass(el[curI[curProblem]])){
 			setDefault();
 			clearClasses();
-			curList = arr;
+			curList[curProblem] = arr;
 		}
 		else {
-			for (var i = 0; i < curI; ++i){
-				if (curList[i] != arr[i]){
+			for (var i = 0; i < curI[curProblem]; ++i){
+				if (curList[curProblem][i] != arr[i]){
 					setDefault();
 					break;
 				}
 			}
-			curList = arr;
+			curList[curProblem] = arr;
 		}
 	}
 	function setDefault(f){
 		enableButtons();
-		dead = false;
-		var s = '#' + (curProblem* 10000 + curY * 100 + curX);
+		dead[curProblem] = false;
+		var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 		$(s).empty();
-		for (var i = 0; i < curMap.length; ++i){
-			for (var j = 0; j < curMap[i].length; ++j){
+		for (var i = 0; i < curMap[curProblem].length; ++i){
+			for (var j = 0; j < curMap[curProblem][i].length; ++j){
 				s = '#' + (curProblem* 10000 + i * 100 + j);
 				$(s).empty();
 			}
 		}
-		for (var k = 0; k < specSymbols.coord.x.length; ++k){
-			s = "#" + (curProblem* 10000 + specSymbols.coord.y[k] * 100 + specSymbols.coord.x[k]);
+		for (var k = 0; k < specSymbols[curProblem].coord.x.length; ++k){
+			s = "#" + (curProblem* 10000 + specSymbols[curProblem].coord.y[k] * 100 + specSymbols[curProblem].coord.x[k]);
 			$(s).empty();
-			$(s).append("<div class = '" + specSymbols.style[k] + "'></div>");
-			specSymbols.cur_count[k] = 0;
+			$(s).append("<div class = '" + specSymbols[curProblem].style[k] + "'></div>");
+			specSymbols[curProblem].cur_count[k] = 0;
 		}
-		for (var k = 0; k < movingElems.symbol.length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems.path[k][curI % movingElems.symbol.length].y * 100 + movingElems.path[curI % movingElems.symbol.length][0].x);
+		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
+			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][curI % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[curI % movingElems[curProblem].symbol.length][0].x);
 			$(s).empty();
-			s = "#" + (curProblem* 10000 + movingElems.path[k][0].y * 100 + movingElems.path[k][0].x);
-			$(s).prepend("<div class = '" + movingElems.style[k] + "'></div>");
+			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][0].y * 100 + movingElems[curProblem].path[k][0].x);
+			$(s).prepend("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
 		}
-		for (var k = 0; k < problem.cleaner.length; ++k){
-			for (var l = 0; l < problem.cleaned[k].length; ++l){
-				var y = problem.cleaned[k][l].y;
-				var x = problem.cleaned[k][l].x
+		for (var k = 0; k < problems[curProblem].cleaner.length; ++k){
+			for (var l = 0; l < problems[curProblem].cleaned[k].length; ++l){
+				var y = problems[curProblem].cleaned[k][l].y;
+				var x = problems[curProblem].cleaned[k][l].x
 				s = '#' + (curProblem* 10000 + y * 100 + x);
 				$(s).removeClass('floor');
 			}
 		}
-		copyMap();
-		pause = false;
-		$("#cons").empty();
-		curDir = startDir;
-		curX = start_x;
-		curY = start_y;
-		if (!stopped && curList.length > curI){
-			var el = $("#sortable").children();
-			changeClass(el[curI]);
+		copyMap(curProblem);
+		pause[curProblem] = false;
+		$("#cons" + curProblem).empty();
+		curDir[curProblem] = startDir;
+		curX[curProblem] = startX[curProblem];
+		curY[curProblem] = startY[curProblem];
+		if (!stopped[curProblem] && curList[curProblem].length > curI[curProblem]){
+			var el = $("#sortable" + curProblem).children();
+			changeClass(el[curI[curProblem]]);
 		}
-		stopped = false;
-		curI = 0;
+		stopped[curProblem] = false;
+		curI[curProblem] = 0;
 		if (!f){
-			s = "#" + (curProblem* 10000 + curY * 100 + curX);
-			$(s).append("<div class = '" + curDir + "'></div>");
+			s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
 		}
 	}
 	function loop(i, cnt){
-		if (dead)
+		if (!i)
+			i = 1;
+		if (dead[curProblem])
 			return;
-		var result = $('#sortable').sortable('toArray');
-		if (pause || stopped){
-			if (pause)
-				pause = false;
+		var result = $('#sortable' + curProblem).sortable('toArray');
+		if (pause[curProblem] || stopped[curProblem]){
+			if (pause[curProblem])
+				pause[curProblem] = false;
 			else{
-				stopped = false;
+				stopped[curProblem] = false;
 				setDefault();
 			}
-			curI = i - 1;
+			curI[curProblem] = i - 1;
 			return;
 		}
-		if (i > curI && speed != 0){
-			var el = $("#sortable").children();
+		if (i > curI[curProblem] && speed[curProblem] != 0){
+			var el = $("#sortable" + curProblem).children();
 			changeClass(el[i - 1]);
 		}
-		var x = curX;
-		var y = curY;
-		dx = changeDir[result[i]][curDir].dx;
-		dy = changeDir[result[i]][curDir].dy;
-		curDir = changeDir[result[i]][curDir].curDir;
+		var x = curX[curProblem];
+		var y = curY[curProblem];
+		var t = result[i];
+		while(t[t.length - 1] >= "0" && t[t.length - 1] <= "9")
+			t = t.substr(0, t.length - 1);
+		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
+		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
+		curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
 		var checked = checkCell(i);
-		if (dead)
+		if (dead[curProblem])
 			return;
 		if (checked)
-			if (curX + dx >= 0 && curX + dx < curMap[0].length && curY + dy >= 0 && curY < curMap.length)
-				if (curMap[curY + dy][curX + dx] != '#'){
-					curX += dx;
-					curY += dy;
+			if (curX[curProblem] + dx[curProblem] >= 0 && curX[curProblem] + dx[curProblem] < curMap[curProblem][0].length && curY[curProblem] + dy[curProblem] >= 0 && curY[curProblem] < curMap[curProblem].length)
+				if (curMap[curProblem][curY[curProblem] + dy[curProblem]][curX[curProblem] + dx[curProblem]] != '#'){
+					curX[curProblem] += dx[curProblem];
+					curY[curProblem] += dy[curProblem];
 				}
 				else{
-						$("#cons").append("Шаг " + i + ": Уткнулись в стенку \n");
+						$("#cons" + curProblem).append("Шаг " + i + ": Уткнулись в стенку \n");
 						var s = '#' + (curProblem* 10000 + curY * 100 + curX);
 						$(s).effect("highlight", {}, 300);
 					}
 			else
-				$("#cons").append("Шаг " + i + ": Выход за границу лабиринта \n");
-		if (!(speed == 0 && (i + 1) < cnt)){
+				$("#cons" + curProblem).append("Шаг " + i + ": Выход за границу лабиринта \n");
+		if (!(speed[curProblem] == 0 && (i + 1) < cnt)){
 			if (checked){
 				s = '#' + (curProblem* 10000 + y * 100 + x);
 				$(s).empty();
-				s = '#' + (curProblem* 10000 + curY * 100 + curX);
-				$(s).append('<div class = "' + curDir+'"></div>');
+				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
 			}
-			var el = $("#sortable").children();
+			var el = $("#sortable" + curProblem).children();
 			changeClass(el[i]);
-			setTimeout("nextStep(" + i + ", " + cnt + ")", speed);
+			setTimeout("nextStep(" + i + ", " + cnt + ")", speed[curProblem]);
 		}
 		else
 			nextStep(i, cnt);
 	}
 	function nextStep(i, cnt){
-		if (dead)
+		if (dead[curProblem])
 			return;
 		if (++i <cnt) loop(i, cnt); 
 		else {
-			curI = i - 1; 
-			playing = false;
+			curI[curProblem] = i - 1; 
+			playing[curProblem] = false;
 			enableButtons();
 		}
 	}
 	function play(cnt){
-		if (dead)
+		if (dead[curProblem])
 			return;
 		disableButtons();
-		playing = true;
-		var result = $('#sortable').sortable('toArray');
+		playing[curProblem] = true;
+		var result = $('#sortable' + curProblem).sortable('toArray');
 		if (!cnt)
 			cnt = result.length;
-		if (result[curI] == "")
-			++curI;
-		$("#sortable").sortable( "disable" );
-		loop(curI, cnt);
-		$("#sortable").sortable( "enable" );
+		if (result[curI[curProblem]] == "")
+			++curI[curProblem];
+		$("#sortable" + curProblem).sortable( "disable" );
+		loop(curI[curProblem], cnt);
+		$("#sortable" + curProblem).sortable( "enable" );
 	}

@@ -1,28 +1,40 @@
-﻿	var curI = 0;
-	var speed = 300;
-	var pause = false;
-	var stopped = false;
-	var playing = false;
-	var dead = false;
+﻿	var curI = [];
+	var speed = [];
+	var pause = [];
+	var stopped = [];
+	var playing = [];
+	var dead = [];
 	var curMap = [];
 	var startDir = "right";
+	var startX = [];
+	var startY = [];
 	var map = [];
-	var curDir;
-	var curX = 0;
-	var curY = 1;
-	var curList = [];
-	var life;
-	var pnts;
+	var curDir = [];
+	var curX = [];
+	var curY = [];
+	var curList = [[]];
+	var life = [];
+	var pnts = [];
 	var mElemId = 0;
-	var dx = 0;
-	var dy = 0;
+	var dx = [];
+	var dy = [];
 	var curProblem = 0;
 	var problems = [];
 	var specSymbols = [];
 	var movingElems = [];
 	var problemsList = [];
+	var users = {"login":[], "name":[],};
+	var login;
+	var name;
+	var passwd;
 	var cid = 765271;
 	var sid;
+	const divNames = {
+		"forward": "Прямо",
+		"left": "Налево",
+		"right": "Направо",
+		"wait": "Ждать",
+	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
 		"forward1 ui-draggable": "forward ui-draggable",
