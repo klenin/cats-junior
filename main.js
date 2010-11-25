@@ -1,14 +1,34 @@
 ﻿	$(document).ready(function(){
 		$("#tabs").tabs({
 			select: function(event, ui) {
-				  curProblem = ui.index;
-				  //alert(curProblem);
+				  curProblem = ui.index - 1;
 			}
 		});
 		fillTabs();
-		//$("#tabs").tabs();
 		document.title = "";
-
+		for (var i = 0; i < 3; ++i)
+			curList[i] = [];
+		divs = ["forward", "left", "right", "wait"];
+		$( "#tabs" ).bind( "tabsshow", function(event, ui) {
+				$( "#sortable" + curProblem).sortable({
+					revert: false,
+					cursor: 'move',
+				});
+				$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
+				  	if (ui.position.left > maxx || ui.position.top < miny)
+						ui.item.remove();
+					updated();
+				});
+				for (var k = 0; k < divs.length; ++k)
+				{
+					$("#" + divs[k] + curProblem).draggable({
+						connectToSortable: ("#sortable" + curProblem),
+						helper: 'clone',
+						revert: 'invalid',
+						cursor: 'default',
+					});
+				}
+		});
 		for (var i = 0; i < problems.length; ++i){
 			curI[i] = 0;
 			curDir[i] = startDir;
@@ -31,23 +51,12 @@
 				s = "#" + (i* 10000 + specSymbols[i].path[k][0].y * 100 + specSymbols[i].path[k][0].x);
 				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
 			}
+			for (var k = 0; k < movingElems[i].symbol.length; ++k){
+				s = "#" + (i* 10000 + movingElems[i].path[k][curI[i] % movingElems[i].symbol.length].y * 100 + movingElems[i].path[curI[i] % movingElems[i].symbol.length][0].x);
+				$(s).empty();
+				s = "#" + (i* 10000 + movingElems[i].path[k][0].y * 100 + movingElems[i].path[k][0].x);
+				$(s).prepend("<div class = '" + movingElems[i].style[k] + "'></div>");
+			}
 			$( "ul, li" ).disableSelection();
-		}
-		submitClick = function(){
-			callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1;', function(data){
-				if (data.status == "ok")
-					sid = data.sid;
-				else
-					alert("Ошибка подключения к серверу. Попробуйте снова");
-			});
-			chooseProblem();
-			chooseUser();
-			var result = "";
-			var curList = $("#sortable" + curProblem).sortable("toArray");
-			for (var i = 1; i < curList.length - 1; ++i)
-				result += "id" + i + "=" + curList[i] + "&";
-			if (curList.length > 1)
-				result += "id" + (curList.length - 1) + "=" + curList[curList.length - 1];
-	
 		}
 	});

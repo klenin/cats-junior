@@ -27,7 +27,7 @@
 	var login;
 	var name;
 	var passwd;
-	var cid = 765271;
+	var cid = 577647;
 	var sid;
 	const divNames = {
 		"forward": "Прямо",

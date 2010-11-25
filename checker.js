@@ -47,7 +47,7 @@
 		if (curMap[curProblem][c_y][c_x][0] >= '0' && curMap[curProblem][c_y][c_x][0] <= '9'){
 			if (movingElems[curProblem].die[curMap[curProblem][c_y][c_x]]){
 				$("#cons" + curProblem).append("Вас съели. Попробуйте снова \n");
-				s = "#" + (curProblem* 10000 + cur_y * 100 + curX);
+				s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).empty();
 				dead[curProblem] = true;
 				return false;
@@ -66,8 +66,8 @@
 							$("#cons" + curProblem).append("Шаг " + i + ": Нашли артефакт '" +specSymbols[curProblem].names[k] + "', " + specSymbols[curProblem].cur_count[k] +"-й \n");
 							break;
 					case "move": //ящик, сможем пододвинуть, если за ним пусто
-						var t_x = c_x + dx;
-						var t_y = c_y + dy;
+						var t_x = c_x + dx[curProblem];
+						var t_y = c_y + dy[curProblem];
 						if (curMap[curProblem][t_y][t_x] != '.'){
 							$("#cons" + curProblem).append("Шаг " + i + ": Не можем пододвинуть \n");
 							return false;
@@ -75,7 +75,7 @@
 						else{
 							s = '#' + (curProblem* 10000 + t_y * 100 + t_x);
 							$(s).empty();
-							$(s).append("<div class = '" + specSymbols.style_list[k] + "'></div>");
+							$(s).append("<div class = '" + specSymbols[curProblem].style_list[k] + "'></div>");
 							curMap[curProblem][t_y][t_x] = curMap[curProblem][c_y][c_x];
 						}
 				}

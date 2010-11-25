@@ -20,7 +20,7 @@ ul.ul_comands{
 }
 div.cons_div{
 	position: absolute;
-	left: 1000px; 
+	left: 980px; 
 	top: 50px; 
 }
 div.btn{
@@ -68,7 +68,6 @@ li.forward1{
 	color: #363636; 
 	z-index: 1;
 	background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat;
-	
 }
 li.left{
 	list-style-type: none; 
@@ -138,54 +137,54 @@ li.wait1{
 }
 td.wall{
 	background-image: url('../images/wall.jpg'); 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 }
 td.floor{
 	background-image: url('../images/floor.jpg'); 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 }
 div.up{
 	background: url('../images/hero_up.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height:55px;
 	z-index: 2;
 }
 div.down{
 	background: url('../images/hero_down.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 div.left{
 	background: url('../images/hero_left.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 div.right{
 	background: url('../images/hero_right.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 div.star{
 	background: url('../images/StarAqua.ico') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 div.box{
 	background: url('../images/box.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 div.monster{
 	background: url('../images/SeaMonster.png') 50% 50% no-repeat; 
-	width: 60px;
-	height: 60px;
+	width: 55px;
+	height: 55px;
 	z-index: 2;
 }
 input.play{

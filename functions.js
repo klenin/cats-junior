@@ -45,6 +45,17 @@
 			}
 		});
 	}
+	function callSubmit(serv, path, submitData, callback){
+		$.ajax({  
+			async: false,
+			url: "submit.php",
+			type: "POST",
+			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
+			success: function(html){  
+				callback(html);
+			}  
+		});  
+	}
 	function getProblemStatement(i){
 		$.ajax({
 			async: false,
@@ -113,7 +124,7 @@
 				if (data.finish_symb)
 					problems[l].finish_symb = data.finish_symb;
 				var tmp = data.moving_elements;
-				movingElems[l] = new Object();
+				movingElems[l] = [];
 				movingElems[l].style = [];
 				movingElems[l].path = [];
 				movingElems[l].looped = [];
@@ -169,8 +180,29 @@
 				$("#ui-tabs-0").append('</form>');
 			});
 	}
+	submitClick = function(){
+		login = 'apress';
+		passwd = 'tratata';		
+		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+			if (data.status == "ok")
+				sid = data.sid;
+			else
+				alert("Ошибка подключения к серверу. Попробуйте снова");
+		});
+		var result = "";
+		var curList = $("#sortable" + curProblem).sortable("toArray");
+		for (var i = 1; i < curList.length - 1; ++i){
+			result += curList[i].replace(/[0-9]/, "") + " ";
+		}
+		if (curList.length > 1)
+			result += curList[curList.length - 1].replace(/[0-9]/, "");
+		submitStr = 'source=' + result + '&problem_id=771346&de_id=772264';
+		callSubmit('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
+			alert(data);
+		});
+	}
 	function fillTabs(){
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=test;passwd=test;json=1;', function(data){
+		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=apress;passwd=tratata;json=1;', function(data){
 				if (data.status == "ok")
 					sid = data.sid;
 				else
@@ -190,12 +222,8 @@
 				$("#comands" + i).append('<div class = "drag" id = "drag' + i + '">');
 				$("#drag" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">');
 				var divs = problems[i].commands;
-				for (var j = 0; j < divs.length; ++j){
+				for (var j = 0; j < divs.length; ++j)
 					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
-					/*$("#ul_comands" + i).append('<li id = "left' + i + '" class = "left"><span style = "margin-left: 40px;">Налево</span></li>');
-					$("#ul_comands" + i).append('<li id = "right' + i + '" class = "right"><span style = "margin-left: 40px;">Направо</span></li>');
-					$("#ul_comands" + i).append('<li id = "wait' + i + '" class = "wait"><span style = "margin-left: 40px;">Ждать</span></li>');*/
-				}
 				$("#drag" + i).append('</ul>');
 				$("#comands" + i).append('</div>');
 				$("#ui-tabs-" + (i + 1)*2).append('</div>');
@@ -231,25 +259,9 @@
 				copyMap(i);
 				fillLabyrinth1(i);
 				$("#statement" + i).append(problems[i].statement);
-				$( "#sortable" + i ).sortable({
-					revert: false,
-					beforeStop: function(event, ui){
-						if (ui.position.left > maxx || ui.position.top < miny)
-							ui.item.remove();
-						updated();
-					},
-					cursor: 'move',
+				$('#submit' + i).live('click', function(){
+					submitClick();
 				});
-				//curList = $("#sortable" + i).sortable('toArray');
-				for (var k = 0; k < divs.length; ++k)
-				{
-					$("#" + divs[k] + i).draggable({
-						connectToSortable: ("#sortable" + i),
-						helper: 'clone',
-						revert: 'invalid',
-						cursor: 'default',
-					});
-				}
 			}
 		});		
 	}
@@ -383,7 +395,7 @@
 			specSymbols[curProblem].cur_count[k] = 0;
 		}
 		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][curI % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[curI % movingElems[curProblem].symbol.length][0].x);
+			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][curI[curProblem] % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[curI[curProblem] % movingElems[curProblem].symbol.length][0].x);
 			$(s).empty();
 			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][0].y * 100 + movingElems[curProblem].path[k][0].x);
 			$(s).prepend("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
