@@ -7,7 +7,7 @@
 		}
 	}
 	function fillLabyrinth1(l){
-		$("#field" + l).append("<table border = '0'' id = 'table_field" + l + "'>")
+		$("#field" + l).append("<table id = 'table_field" + l + "' style = 'border-width:0px; border-spacing: 0px'>")
 		for (var i = 0; i < curMap[l].length; ++i){
 			$("#table_field" + l).append("<tr id = 'tr_field" + (l * 1000 + i) + "'>");
 			for (var j = 0; j < curMap[l][i].length; ++j){
@@ -153,8 +153,8 @@
 				login = users.login[i];
 		}
 		$("#ui-tabs-0").append('<p>' + user[0].defaultValue +'</p>');
-		$("#ui-tabs-0").append('<input type = "button" name="changeUser" id = "changeUser" class = "submit" onClick = changeUser()></input>');
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+		$("#ui-tabs-0").append('<input type = "button" name="changeUser" id = "changeUser" class = "changeUser" onClick = changeUser()></input>');
+		callScript(pathPref + 'f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
 			if (data.status == "ok")
 				sid = data.sid;
 			else
@@ -162,7 +162,7 @@
 		});
 	}
 	function changeUser(){
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=users;sid='+sid+';cid='+cid+';json=1;', function(data){
+		callScript(pathPref +'f=users;sid=' + sid + ';cid=' + cid + ';json=1;', function(data){
 				users.login = [];
 				users.name = [];
 				for (var i = 0; i < data.length; ++i){
@@ -176,14 +176,14 @@
 				$("#ui-tabs-0").append('<form name = "userList" id = "userList">');
 				for (var i = 0; i < users.login.length; ++i)
 					$("#userList").append('<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users.name[i] + '" ' + (i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' + users.name[i] + '</label><br>');
-				$("#userList").append('<input type = "button" name="userNameSubmit" id = "userNameSubmit" class = "submit" onClick = chooseUser()></input>');
+				$("#userList").append('<input type = "button" name="userNameSubmit" id = "userNameSubmit" class = "userNameSubmit" onClick = chooseUser()></input>');
 				$("#ui-tabs-0").append('</form>');
 			});
 	}
 	submitClick = function(){
 		login = 'apress';
 		passwd = 'tratata';		
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+		callScript(pathPref + 'f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
 			if (data.status == "ok")
 				sid = data.sid;
 			else
@@ -202,7 +202,7 @@
 		});
 	}
 	function fillTabs(){
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=login;login=apress;passwd=tratata;json=1;', function(data){
+		callScript(pathPref + 'f=login;login=apress;passwd=tratata;json=1;', function(data){
 				if (data.status == "ok")
 					sid = data.sid;
 				else
@@ -210,15 +210,23 @@
 			});
 		$("#tabs").tabs("add", "#ui-tabs-0", "Выбор пользователя" );
 		changeUser();
-		callScript('http://imcs.dvgu.ru/cats/main.pl?f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
+		callScript(pathPref + 'f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
 			for (var i = 0; i < 3/*data.problems.length*/; ++i){
 				getProblemStatement(i);
 				getTest(i, 1);
 				problemsList.push({"id":data.problems[i].id, "name": data.problems[i].name});
 				$("#tabs").tabs("add", "#ui-tabs-" + (i + 1)*2,problems[i].name );
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "statement" id = "statement' + i + '">');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "comands" id = "comands' + i + '">');
+				$("#ui-tabs-" + (i + 1)*2).append('<table id = "main' + i + '">');
+				mainT = $("#main" + i);
+				mainT.append('<tr id = "1tr' + i +'">');
+				$("#1tr" + i).append('<td colspan = "4" id = "tdSt' + i + '" valign = "top">');
+				$("#tdSt" + i).append('<div class = "statement" id = "statement' + i + '">');
+				$("#tdSt" + i).append('</div>');
+				$("#1tr" + i).append('</td>');
+				mainT.append('</tr>');
+				mainT.append('<tr id = "2tr'+ i +'">');	
+				$("#2tr" + i).append('<td id = "tdCmd' + i + '" valign = "top" height = "100%">');				
+				$("#tdCmd" + i).append('<div class = "comands" id = "comands' + i + '">');
 				$("#comands" + i).append('<div class = "drag" id = "drag' + i + '">');
 				$("#drag" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">');
 				var divs = problems[i].commands;
@@ -226,15 +234,10 @@
 					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
 				$("#drag" + i).append('</ul>');
 				$("#comands" + i).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "drop" id = "drop' + i + '">');
-				$("#drop" + i).append('<hr><br>');
-				$("#drop" + i).append('Укажите последовательность действий');
-				$("#drop" + i).append('<ul id = "sortable' + i + '">');
-				$("#sortable" + i).append('<li class = "invisible" id = "invisible' + i + '"></li>');
-				$("#drop" + i).append('</ul>');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "btn" id = "btn' + i + '">');
+				$("#tdCmd" + i).append('</div>');
+				$("#2tr" + i).append('</td>');
+				$("#2tr" + i).append('<td id = "tdBtns' + i + '" rowspan = "2" valign = "top">');
+				$("#tdBtns" + i).append('<div class = "btn" id = "btn' + i + '">');
 				$("#btn" + i).append('<form name = "btn_form' + i + '" id = "btn_form' + i +'">');
 				$("#btn_form" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' + i + '" onClick = "clearClick()"></input>');
 				$("#btn_form" + i).append('<input type = "button" class = "play" name = "btn_play' + i + '" id = "btn_play' + i + '" onClick = "playClick()"></input>');
@@ -244,10 +247,14 @@
 				$("#btn_form" + i).append('<input type = "button" class = "prev" name = "btn_prev' + i + '" id = "btn_prev' + i + '" onClick = "prevClick()"></input>');
 				$("#btn_form" + i).append('<input type = "button" class = "fast" name = "btn_fast' + i + '" id = "btn_fast' + i + '" onClick = "fastClick()"></input>');
 				$("#btn" + i).append('</form>');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "field" id = "field' + i + '">');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
-				$("#ui-tabs-" + (i + 1)*2).append('<div class = "cons_div" id = "cons_div' + i + '">');
+				$("#tdBtns" + i).append('</div>');
+				$("#2tr" + i).append('</td>');	
+				$("#2tr" + i).append('<td id = "tdField' + i + '" rowspan = "2" valign = "top">');
+				$("#tdField" + i).append('<div class = "field" id = "field' + i + '">');
+				$("#tdField" + i).append('</div>');
+				$("#2tr" + i).append('</td>');		
+				$("#2tr" + i).append('<td id = "tdCons' + i + '" rowspan = "2" valign = "top">');
+				$("#tdCons" + i).append('<div class = "cons_div" id = "cons_div' + i + '">');
 				$("#cons_div" + i).append('<form name = "cons_form" class = "cons_form" id = "cons_form' + i + '">');
 				$("#cons_form" + i).append('<textarea rows="37" cols="20" name="cons" id = "cons' + i + '" class = "cons" disabled readonly></textarea><br>');
 				$("#cons_div" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
@@ -255,7 +262,21 @@
 				$("#submit_form" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick()></input>');
 				$("#submit_div" + i).append('</form>');
 				$("#cons_div" + i).append('</form>');
-				$("#ui-tabs-" + (i + 1)*2).append('</div>');
+				$("#tdCons" + i).append('</div>');
+				$("#2tr" + i).append('</td>');		
+				mainT.append('</tr>');
+				mainT.append('<tr id = "3tr'+ i +'">');
+				$("#3tr" + i).append('<td id = "tdDrop' + i + '" valign = "top" style="width:170px;">');
+				$("#tdDrop" + i).append('<div class = "drop" id = "drop' + i + '">');
+				$("#drop" + i).append('<hr align = "left" width = "200px"><br>');
+				$("#drop" + i).append('Укажите последовательность действий');
+				$("#drop" + i).append('<ul id = "sortable' + i + '" class = "sortable">');
+				$("#sortable" + i).append('<li class = "invisible" id = "invisible' + i + '"></li>');
+				$("#drop" + i).append('</ul>');
+				$("#tdDrop" + i).append('</div>');
+				$("#3tr" + i).append('</td>');	
+				mainT.append('</tr>');
+				$("#ui-tabs-" + (i + 1)*2).append('</table>');
 				copyMap(i);
 				fillLabyrinth1(i);
 				$("#statement" + i).append(problems[i].statement);
@@ -362,7 +383,7 @@
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var el = $("#sortable" + curProblem).children();
-		if (arr.length < curList[curProblem].length ||  !isChangedClass(el[curI[curProblem]])){
+		if (arr.length < curI[curProblem] - 1 ||  !isChangedClass(el[curI[curProblem]])){
 			setDefault();
 			clearClasses();
 			curList[curProblem] = arr;

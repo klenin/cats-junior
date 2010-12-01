@@ -29,6 +29,7 @@
 	var passwd;
 	var cid = 577647;
 	var sid;
+	var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
 	const divNames = {
 		"forward": "Прямо",
 		"left": "Налево",
