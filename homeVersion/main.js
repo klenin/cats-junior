@@ -1,36 +1,48 @@
 ﻿	$(document).ready(function(){
 		$("#tabs").tabs({
 			select: function(event, ui) {
-				  curProblem = ui.index - 1;
+				curProblem = ui.index - 1;
 			}
 		});
 		fillTabs();
 		document.title = "";
 		for (var i = 0; i < 3; ++i)
 			curList[i] = [];
+		cmdId = problems.length;
 		divs = ["forward", "left", "right", "wait"];
-		$( "#tabs" ).bind( "tabsshow", function(event, ui) {
-				$( "#sortable" + curProblem).sortable({
-					revert: false,
-					cursor: 'move',
+        	$( "#tabs" ).bind( "tabsshow", function(event, ui) {
+        		if (visited[curProblem])
+        			return;
+        		visited[curProblem] = 1;
+        		$( "#sortable" + curProblem).sortable({
+				revert: false,
+				cursor: 'move',
+			});
+			$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
+				if (ui.position.left > maxx || ui.position.top < miny)
+					ui.item.remove();
+				var id = ui.item[0].id;
+				id = id.replace(/\d{1,}/, "");
+				id += cmdId++;
+				ui.item[0].id = id;
+				updated();
+			});
+			for (var k = 0; k < divs.length; ++k){
+				$("#" + divs[k] + curProblem).draggable({
+					connectToSortable: ("#sortable" + curProblem),
+					helper: 'clone',
+					revert: 'invalid',
+					cursor: 'default',
 				});
-				$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
-				  	if (ui.position.left > maxx || ui.position.top < miny)
-						ui.item.remove();
-					updated();
+				$("#" + divs[k] + curProblem).live('dblclick', function(){
+					for (var j = 0; j < divs.length; ++j)
+						if ($(this).hasClass(divs[j]))
+							addNewCmd(divs[j]);
 				});
-				for (var k = 0; k < divs.length; ++k)
-				{
-					$("#" + divs[k] + curProblem).draggable({
-						connectToSortable: ("#sortable" + curProblem),
-						helper: 'clone',
-						revert: 'invalid',
-						cursor: 'default',
-					});
-				}
-		});
-		for (var i = 0; i < problems.length; ++i){
-			curI[i] = 0;
+  			}
+  		});    
+  		for (var i = 0; i < problems.length; ++i){
+			curCmdIndex[i] = 0;
 			curDir[i] = startDir;
 			curX[i] = startX[i];
 			curY[i] = startY[i];
@@ -52,7 +64,7 @@
 				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
 			}
 			for (var k = 0; k < movingElems[i].symbol.length; ++k){
-				s = "#" + (i* 10000 + movingElems[i].path[k][curI[i] % movingElems[i].symbol.length].y * 100 + movingElems[i].path[curI[i] % movingElems[i].symbol.length][0].x);
+				s = "#" + (i* 10000 + movingElems[i].path[k][curCmdIndex[i] % movingElems[i].symbol.length].y * 100 + movingElems[i].path[curCmdIndex[i] % movingElems[i].symbol.length][0].x);
 				$(s).empty();
 				s = "#" + (i* 10000 + movingElems[i].path[k][0].y * 100 + movingElems[i].path[k][0].x);
 				$(s).prepend("<div class = '" + movingElems[i].style[k] + "'></div>");

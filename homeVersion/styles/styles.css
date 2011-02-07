@@ -90,13 +90,17 @@ li.wait1{
 	border: 1px solid #ffffff;
 	color: #363636; 
 	z-index: 1;
-	background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; 
+	background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat; 
 }
 ul.ul_comands{
 	padding: 0px;
 }
 ul.sortable{
 	padding: 0px;
+	border: 2px #A9A9A9 double;
+	height: 400px;
+	overflow: auto;
+	width: 180px;
 }
 td.wall{
 	background-image: url('../images/wall.jpg'); 
@@ -115,6 +119,18 @@ td.floor{
 	margin: 0px; 
 	padding: 0px;
 	border-spacing: 0px;
+}
+div.key{
+	background: url('../images/key.png') 50% 50% no-repeat; 
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+}
+div.lock{
+	background: url('../images/lock.png') 50% 50% no-repeat; 
+	width: 100%;
+	height: 100%;
+	z-index: 2;
 }
 div.up{
 	background: url('../images/hero_up.png') 50% 50% no-repeat; 
@@ -170,11 +186,14 @@ div.monster{
 	height: 100%;
 	z-index: 2;
 }
-div.divSortable{
+/*div.divSortable{
 	width: 100%;
-	height: 100px;
+	height: 400px;
 	overflow: auto;
-}
+	border: #A9A9A9 double 2px;
+	width: 170px;
+	padding: 0px;
+}*/
 input.play{
 	background: url('../images/play.png'); 
 	border:medium none;
@@ -253,4 +272,5 @@ textarea.cons{
 	width: 250px;
 	font-size:11pt;
 	margin-left:5px;
+	height: 500 px;
 }
