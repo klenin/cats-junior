@@ -92,3 +92,5 @@
 	const dirs = {"R": "right", "L": "left", "U": "up", "D": "down"}
 	const maxx = 185;
 	const miny = 0;
+	const btnsPlay = new Array("play", "next", "prev", "fast");
+	const btns = new Array("play", "pause", "stop", "prev", "next", "fast");

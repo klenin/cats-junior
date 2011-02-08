@@ -18,15 +18,15 @@
 						break;					
 					//$(s).removeClass("wall");					
 					$(s).addClass("floor");
-					$("#cons" + curProblem).append("Шаг " + i + ": Открыли ячейку с координатами " + x + ", " + y + "\n");
+					$("#cons" + curProblem).append("Шаг " + i + 1 + ": Открыли ячейку с координатами " + x + ", " + y + "\n");
 					curMap[curProblem][y][x] = '.';
 				}
 			}
 		}
 		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
-			if (curCmdIndex[curProblem] >= movingElems[curProblem].path[k].length && !movingElems[curProblem].looped[k])
+			if (curCmdIndex[curProblem] > movingElems[curProblem].path[k].length && !movingElems[curProblem].looped[k])
 				continue;
-			var j = (i - 1) % movingElems[curProblem].path[k].length;
+			var j = i % movingElems[curProblem].path[k].length;
 			var x = movingElems[curProblem].path[k][j].x;
 			var y = movingElems[curProblem].path[k][j].y;
 			curMap[curProblem][y][x] = '.';
@@ -40,7 +40,7 @@
 						$(s).empty();
 						$(s).append("<div class = '" + specSymbols[curProblem].style_list[j] + "'></div>");
 					}
-			j = i % movingElems[curProblem].path[k].length;
+			j = (i + 1) % movingElems[curProblem].path[k].length;
 			x = movingElems[curProblem].path[k][j].x;
 			y = movingElems[curProblem].path[k][j].y;
 			curMap[curProblem][y][x] = k + "";
@@ -67,9 +67,9 @@
 				switch(specSymbols[curProblem]["do"][k]){
 					case "eat":
 						if (specSymbols[curProblem].cur_count[k] == specSymbols[curProblem].count[k])
-							$("#cons" + curProblem).append("Шаг " + i + ": Нашли все артефакты '" + specSymbols[curProblem].names[k] + "' \n");
+							$("#cons" + curProblem).append("Шаг " + i + 1 + ": Нашли все артефакты '" + specSymbols[curProblem].names[k] + "' \n");
 						else
-						$("#cons" + curProblem).append("Шаг " + i + ": Нашли артефакт '" +specSymbols[curProblem].names[k] + "', " + specSymbols[curProblem].cur_count[k] +"-й \n");
+						$("#cons" + curProblem).append("Шаг " + i + 1 + ": Нашли артефакт '" +specSymbols[curProblem].names[k] + "', " + specSymbols[curProblem].cur_count[k] +"-й \n");
 						$("#cons" + curProblem).append("Текущее количество очков: " + (pnts[curProblem] + specSymbols[curProblem].points[k]) + "\n");
 						break;
 					case "move": //ящик, сможем пододвинуть, если за ним пусто
@@ -79,7 +79,7 @@
 							t_y >= curMap[curProblem].length || t_y < 0)
 							continue;
 						if (curMap[curProblem][t_y][t_x] != '.'){
-							$("#cons" + curProblem).append("Шаг " + i + ": Не можем пододвинуть \n");
+							$("#cons" + curProblem).append("Шаг " + i + 1 + ": Не можем пододвинуть \n");
 							return false;
 						}
 						else{

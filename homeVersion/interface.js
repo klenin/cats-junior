@@ -221,12 +221,8 @@
 				$("#4tr" + i).append('<td id = "tdBtns' + i + '" colspan = "2" valign = "top">');
 				$("#tdBtns" + i).append('<div class = "btn" id = "btn' + i + '">');
 				$("#btn" + i).append('<form name = "btn_form' + i + '" id = "btn_form' + i +'">');
-				$("#btn_form" + i).append('<input type = "button" class = "play" name = "btn_play' + i + '" id = "btn_play' + i + '" onClick = "playClick()"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "pause" name = "btn_pause' + i + '" id = "btn_pause' + i + '" onClick = "pauseClick()"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "stop" name = "btn_stop' + i + '" id = "btn_stop' + i + '" onClick = "stopClick()"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "prev" name = "btn_prev' + i + '" id = "btn_prev' + i + '" onClick = "prevClick()"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "next" name = "btn_next' + i + '" id = "btn_next' + i + '" onClick = "nextClick()"></input>');
-				$("#btn_form" + i).append('<input type = "button" class = "fast" name = "btn_fast' + i + '" id = "btn_fast' + i + '" onClick = "fastClick()"></input>');
+				for (var j = 0; j < btns.length; ++j)
+					$("#btn_form" + i).append('<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + '" id = "btn_' + btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
 				$("#btn" + i).append('</form>');
 				$("#tdBtns" + i).append('</div>');
 				$("#4tr" + i).append('</td>');
@@ -271,7 +267,6 @@
 				$("#drop" + i).append('Укажите последовательность действий');
 				$("#drop" + i).append('<div class = "divSortable" id = "divSortable' + i + '">');
 				$("#divSortable" + i).append('<ul id = "sortable' + i + '" class = "sortable">');
-				$("#sortable" + i).append('<li class = "invisible ui-draggable" id = "invisible' + i + '"></li>');
 				$("#divSortable" + i).append('</div>');
 				$("#drop" + i).append('</ul>');
 				$("#tdDrop" + i).append('</div>');
@@ -290,46 +285,37 @@
 		curList[curProblem] = arr;
 	}
 	function enableButtons(){
-		$("#btn_play" + curProblem).removeAttr('disabled');
-		$("#btn_next" + curProblem).removeAttr('disabled');
-		$("#btn_prev" + curProblem).removeAttr('disabled');
-		$("#btn_fast" + curProblem).removeAttr('disabled');
+		for (var i = 0; i < btnsPlay.length; ++i)
+			$("#btn_" + btnsPlay[i] + curProblem).removeAttr('disabled');
 	}
 	function disableButtons(){
-		$("#btn_play" + curProblem).attr('disabled', 'disabled');
-		$("#btn_next" + curProblem).attr('disabled', 'disabled');
-		$("#btn_prev" + curProblem).attr('disabled', 'disabled');
-		$("#btn_fast" + curProblem).attr('disabled', 'disabled');
+		for (var i = 0; i < btnsPlay.length; ++i)
+			$("#btn_" + btnsPlay[i] + curProblem).attr('disabled', 'disabled');
 	}
 	function callPlay(s){
-		if ($("#sortable" + curProblem).sortable('toArray').length == 1 || dead[curProblem])
+		if (!$("#sortable" + curProblem).sortable('toArray').length || dead[curProblem])
 			return;
-		if (curCmdIndex[curProblem] + 1 < $("#sortable" + curProblem).sortable('toArray').length){
-			++curCmdIndex[curProblem];
+		if (curCmdIndex[curProblem] < $("#sortable" + curProblem).sortable('toArray').length)
 			clearClasses();
-		}
 		else
 			setDefault();
-		//disableButtons();
+		disableButtons();
+		$("#sortable" + curProblem).sortable( "disable" );	
 		speed[curProblem] = s;
 		setTimeout(function() { play(); }, s);
 	}
+	
 	playClick = function(){
-		//disableButtons();
-		//alert ($("#btn_play0"))
 		callPlay(300);
 	}
 	fastClick = function(){
-		//disableButtons();
 		callPlay(1);
 	}
 	clearClick = function(){
 		if (!confirm('Вы уверены, что хотите очистить список команд?'))
 			return;
 		setDefault();
-		$('#sortable' + curProblem).children(":gt(0)").remove();
-		if ($( '#sortable' + curProblem ).sortable( 'option', 'disabled' ))
-			$('#sortable' + curProblem).sortable('enable');	
+		$('#sortable' + curProblem).children().remove();
 	}
 	stopClick = function(){
 		stopped[curProblem] = true;
@@ -339,38 +325,32 @@
 	pauseClick = function(){
 		if (playing[curProblem])			
 			pause[curProblem] = true;
+		$("#sortable" + curProblem).sortable( "enable" );
 		enableButtons();
 	}
 	nextClick = function(){
-		//disableButtons();
-		if ($("#sortable" + curProblem).sortable('toArray').length == 1){
-			enableButtons();
+		if (!$("#sortable" + curProblem).sortable('toArray').length || 
+			curCmdIndex[curProblem] >= $("#sortable" + curProblem).sortable('toArray').length)
 			return;
+		disableButtons();
+		$("#sortable" + curProblem).sortable( "disable" );
+		if (curCmdIndex[curProblem] && curList[curProblem].length > curCmdIndex[curProblem]){
+			var el = $("#sortable" + curProblem).children();
+			changeClass(el[curCmdIndex[curProblem] - 1]);
 		}
-		if (curCmdIndex[curProblem] + 1 < $("#sortable" + curProblem).sortable('toArray').length){
-			if (curList[curProblem].length > curCmdIndex[curProblem]){
-				var el = $("#sortable" + curProblem).children();
-				changeClass(el[curCmdIndex[curProblem]]);
-			}
-			++curCmdIndex[curProblem];
-			play(1);
-		}
-		else
-			enableButtons();			
+		play(1);
 	}
 	prevClick = function(){
-		//disableButtons();
-		if(curCmdIndex[curProblem] == 0 || curList[curProblem][curCmdIndex[curProblem] - 1] == "")
+		if (curCmdIndex[curProblem] <= 1){
 			setDefault();
-		else if (curCmdIndex[curProblem] > 1){
-			var t = curCmdIndex[curProblem];
-			setDefault(true);
-			var s = speed[curProblem];
-			speed[curProblem] = 0;
-			//disableButtons();
-			play(t);
-			speed[curProblem] = s;
+			return;
 		}
-		else if(curCmdIndex[curProblem] == 1)
-			setDefault(false);
+		disableButtons();
+		$("#sortable" + curProblem).sortable( "disable" );
+		var t = curCmdIndex[curProblem] - 1;
+		setDefault(true);
+		var s = speed[curProblem];
+		speed[curProblem] = 0;
+		play(t);
+		speed[curProblem] = s;
 	}

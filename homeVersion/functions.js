@@ -194,7 +194,7 @@
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var el = $("#sortable" + curProblem).children();
-		if (arr.length < curCmdIndex[curProblem] - 1 ||  !isChangedClass(el[curCmdIndex[curProblem]])){
+		if (arr.length < curCmdIndex[curProblem] || (curCmdIndex[curProblem] && !isChangedClass(el[curCmdIndex[curProblem] - 1]))){
 			setDefault();
 			clearClasses();
 			curList[curProblem] = arr;
@@ -211,6 +211,7 @@
 	}
 	function setDefault(f){
 		enableButtons();
+		$("#sortable" + curProblem).sortable( "enable" );
 		dead[curProblem] = false;
 		var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 		$(s).empty();
@@ -252,9 +253,9 @@
 		curDir[curProblem] = startDir;
 		curX[curProblem] = startX[curProblem];
 		curY[curProblem] = startY[curProblem];
-		if (!stopped[curProblem] && curList[curProblem].length > curCmdIndex[curProblem]){
+		if (!stopped[curProblem] && curCmdIndex[curProblem] && curList[curProblem].length >= curCmdIndex[curProblem]){
 			var el = $("#sortable" + curProblem).children();
-			changeClass(el[curCmdIndex[curProblem]]);
+			changeClass(el[curCmdIndex[curProblem] - 1]);
 		}
 		stopped[curProblem] = false;
 		curCmdIndex[curProblem] = 0;
@@ -264,8 +265,6 @@
 		}
 	}
 	function loop(i, cnt){
-		if (!i)
-			i = 1;
 		if (dead[curProblem])
 			return;
 		var result = $('#sortable' + curProblem).sortable('toArray');
@@ -276,7 +275,7 @@
 				stopped[curProblem] = false;
 				setDefault();
 			}
-			curCmdIndex[curProblem] = i - 1;
+			curCmdIndex[curProblem] = i;
 			return;
 		}
 		if (i > curCmdIndex[curProblem] && speed[curProblem] != 0){
@@ -326,40 +325,27 @@
 	function nextStep(i, cnt){
 		if (dead[curProblem])
 			return;
-		//disableButtons();
-		//$("#sortable" + curProblem).sortable( "disable" );
 		if (++i <cnt) {
 			loop(i, cnt);
-			setTimeout(function() {
-				$("#sortable" + curProblem).sortable( "enable" );
-				enableButtons();
-			}, 
-			speed[curProblem] * cnt
-			);
 		} 
 		else {
-			curCmdIndex[curProblem] = i - 1; 
+			curCmdIndex[curProblem] = i; 
 			playing[curProblem] = false;
+			$("#sortable" + curProblem).sortable( "enable" );
 			enableButtons();
 		}
 	}
 	function play(cnt){
 		if (dead[curProblem])
 			return;
-		disableButtons();
 		playing[curProblem] = true;
 		var result = $('#sortable' + curProblem).sortable('toArray');
+		if (curCmdIndex[curProblem] == result.length)
+			setDefault();
 		if (!cnt)
 			cnt = result.length;
 		if (result[curCmdIndex[curProblem]] == "")
 			++curCmdIndex[curProblem];
-		$("#sortable" + curProblem).sortable( "disable" );
 		var j = cnt - curCmdIndex[curProblem];
 		loop(curCmdIndex[curProblem], cnt);
-		setTimeout(function() {
-				$("#sortable" + curProblem).sortable( "enable" );
-				enableButtons();
-			}, 
-			speed[curProblem] * j
-		);
 	}

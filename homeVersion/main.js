@@ -10,14 +10,24 @@
 			curList[i] = [];
 		cmdId = problems.length;
 		divs = ["forward", "left", "right", "wait"];
-        	$( "#tabs" ).bind( "tabsshow", function(event, ui) {
-        		if (visited[curProblem])
-        			return;
-        		visited[curProblem] = 1;
-        		$( "#sortable" + curProblem).sortable({
+		$( "#tabs" ).bind( "tabsshow", function(event, ui) {
+			if (visited[curProblem])
+				return;
+			visited[curProblem] = 1;
+			$( "#sortable" + curProblem).sortable({
 				revert: false,
 				cursor: 'move',
 			});
+			/*$("#btn_play" + curProblem).bind("click", function(event, ui){
+				if ($("#btn_play" + curProblem).attr('disabled'))
+					var i = i;
+				$("#btn_play" + curProblem).attr('disabled', 'disabled');
+				$("#btn_next" + curProblem).attr('disabled', 'disabled');
+				$("#btn_prev" + curProblem).attr('disabled', 'disabled');
+				$("#btn_fast" + curProblem).attr('disabled', 'disabled');
+				$("#sortable" + curProblem).sortable( "disable" );	
+				callPlay(300);
+			});*/
 			$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
 				if (ui.position.left > maxx || ui.position.top < miny)
 					ui.item.remove();
@@ -39,7 +49,7 @@
 						if ($(this).hasClass(divs[j]))
 							addNewCmd(divs[j]);
 				});
-  			}
+			}
   		});    
   		for (var i = 0; i < problems.length; ++i){
 			curCmdIndex[i] = 0;
