@@ -16,7 +16,7 @@
 			visited[curProblem] = 1;
 			$( "#sortable" + curProblem).sortable({
 				revert: false,
-				cursor: 'move',
+				cursor: 'move'
 			});
 			/*$("#btn_play" + curProblem).bind("click", function(event, ui){
 				if ($("#btn_play" + curProblem).attr('disabled'))
@@ -42,7 +42,7 @@
 					connectToSortable: ("#sortable" + curProblem),
 					helper: 'clone',
 					revert: 'invalid',
-					cursor: 'default',
+					cursor: 'default'
 				});
 				$("#" + divs[k] + curProblem).live('dblclick', function(){
 					for (var j = 0; j < divs.length; ++j)

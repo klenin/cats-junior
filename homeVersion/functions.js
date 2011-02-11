@@ -15,7 +15,11 @@
 				data: 'url='+ url,
 				success: function(data) {
 					callback(data);
-				}
+				},
+				error: function(r, err1, err2){
+					//alert(r.responseText);
+					alert(err1 + ' ' + err2);
+				}  
 			});
 		} 
 		else{
@@ -82,6 +86,9 @@
 				problems[i].d_life = data.d_life;
 				problems[i].start_pnts = data.start_pnts;
 				problems[i].finish_symb = data.finish_symb;
+			},
+			error: function(r, err1, err2){
+				alert(r.responseText);
 			}
 		});
 	}
@@ -151,6 +158,9 @@
 					movingElems[l].symbol.push(mElemId);
 					mapFromTest[l][tmp[i].path[0].y][tmp[i].path[0].x] = "" + mElemId++;
 				}
+			},
+			error: function(r, err1, err2){
+				alert(r.responseText);
 			}
 		});
 	}

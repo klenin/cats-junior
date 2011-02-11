@@ -20,8 +20,7 @@
 			"name": "звезда",
 			"do": "eat",
 			"points": 50,
-			"d_life": 0,
-			
+			"d_life": 0
 		}
 	],
 	"cleaner": [],
@@ -31,5 +30,5 @@
 	"start_life": 1,
 	"d_life": 0,
 	"start_pnts": 0,
-	"finish_symb": 0,
+	"finish_symb": 0
 }

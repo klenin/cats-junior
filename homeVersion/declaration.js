@@ -32,7 +32,7 @@
 	var movingElems = [];  // description of moving elements (name of css style -- style, path of moving element -- path, 
 	// if moving element repeats his path -- looped, if meeting with moving element causes loss -- die, symbol in the labirint -- symbol)
 	var problemsList = []; // (id and names of problems)
-	var users = {"login":[], "name":[],};
+	var users = {"login":[], "name":[]};
 	var login;
 	var name;
 	var passwd = 12345;
@@ -45,7 +45,7 @@
 		"forward": "Прямо",
 		"left": "Налево",
 		"right": "Направо",
-		"wait": "Ждать",
+		"wait": "Ждать"
 	};
 	const classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
@@ -64,28 +64,28 @@
 			"down": {dx: 0, dy: 1, curDir: "down"},
 			"left":{dx: -1, dy: 0, curDir: "left"},
 			"right": {dx: 1, dy: 0, curDir: "right"},
-			"wait": {dx: 0, dy: 0, curDir: "forward"},
+			"wait": {dx: 0, dy: 0, curDir: "forward"}
 		},
 		"left":{
 			"up": {dx: 0, dy: 0, curDir: "left"},
 			"down": {dx: 0, dy: 0, curDir: "right"},
 			"left":{dx: 0, dy: 0, curDir: "down"},
 			"right": {dx: 0, dy: 0, curDir: "up"},
-			"wait": {dx: -1, dy: 0, curDir: "left"},
+			"wait": {dx: -1, dy: 0, curDir: "left"}
 		},
 		"right":{
 			"up": {dx: 0, dy: 0, curDir: "right"},
 			"down": {dx: 0, dy: 0, curDir: "left"},
 			"left":{dx: 0, dy: 0, curDir: "up"},
 			"right": {dx: 0, dy: 0, curDir: "down"},
-			"wait": {dx: 1, dy: 0, curDir: "right"},
+			"wait": {dx: 1, dy: 0, curDir: "right"}
 		}, 
 		"wait":{
 			"up": {dx: 0, dy: 0, curDir: "up"},
 			"down": {dx: 0, dy: 0, curDir: "down"},
 			"left":{dx: 0, dy: 0, curDir: "left"},
 			"right": {dx: 0, dy: 0, curDir: "right"},
-			"wait": {dx: 0, dy: 0, curDir: "wait"},
+			"wait": {dx: 0, dy: 0, curDir: "wait"}
 		},
 		
 	}
