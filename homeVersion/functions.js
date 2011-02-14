@@ -295,7 +295,7 @@
 		var x = curX[curProblem];
 		var y = curY[curProblem];
 		var t = result[i];
-		while(t[t.length - 1] >= "0" && t[t.length - 1] <= "9")
+		while(t.charAt(t.length - 1) >= "0" && t.charAt(t.length - 1) <= "9")
 			t = t.substr(0, t.length - 1);
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
 		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;

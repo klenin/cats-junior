@@ -213,26 +213,20 @@
 				mainT = $("#main" + i);
 				mainT.append('<tr id = "1tr' + i +'">');
 				$("#1tr" + i).append('<td colspan = "4" id = "tdSt' + i + '" valign = "top">');
-				$("#tdSt" + i).append('<div class = "statement" id = "statement' + i + '">');
-				$("#tdSt" + i).append('</div>');
 				$("#1tr" + i).append('</td>');
 				mainT.append('</tr>');
 				mainT.append('<tr id = "4tr' + i +'">');
 				$("#4tr" + i).append('<td id = "tdBtns' + i + '" colspan = "2" valign = "top">');
-				$("#tdBtns" + i).append('<div class = "btn" id = "btn' + i + '">');
-				$("#btn" + i).append('<form name = "btn_form' + i + '" id = "btn_form' + i +'">');
+				$("#tdBtns" + i).append('<div><form name = "btn_form' + i + '" id = "btn_form' + i +'">');
 				for (var j = 0; j < btns.length; ++j)
 					$("#btn_form" + i).append('<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + '" id = "btn_' + btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
-				$("#btn" + i).append('</form>');
-				$("#tdBtns" + i).append('</div>');
+				$("#tdBtns" + i).append('</form></div>');
 				$("#4tr" + i).append('</td>');
 				$("#4tr" + i).append('<td id = "tdBtnSubmit' + i + '" valign = "top">');
-				$("#tdBtnSubmit" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
-				$("#submit_div" + i).append('<form name = "submit_form" class = "submit_form" id = "submit_form' + i + '">');
+				$("#tdBtnSubmit" + i).append('<div><form name = "submit_form" class = "submit_form" id = "submit_form' + i + '">');
 				$("#submit_form" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' + i + '" onClick = "clearClick()"></input>');
 				$("#submit_form" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick()></input>');
-				$("#submit_div" + i).append('</form>');
-				$("#tdBtnSubmit" + i).append('</div>');
+				$("#tdBtnSubmit" + i).append('</form></div>');
 				$("#4tr" + i).append('</td>');
 				mainT.append('</tr>');
 				mainT.append('<tr id = "2tr'+ i +'">');	
@@ -252,11 +246,10 @@
 				$("#tdField" + i).append('</div>');
 				$("#2tr" + i).append('</td>');		
 				$("#2tr" + i).append('<td id = "tdCons' + i + '" rowspan = "2" valign = "top">');
-				$("#tdCons" + i).append('<div class = "cons_div" id = "cons_div' + i + '">');
-				$("#cons_div" + i).append('<form name = "cons_form" class = "cons_form" id = "cons_form' + i + '">');
+				$("#tdCons" + i).append('<div><form name = "cons_form" class = "cons_form" id = "cons_form' + i + '">');
 				$("#cons_form" + i).append('<textarea rows="34" cols="20" name="cons" id = "cons' + i + '" class = "cons" disabled readonly></textarea><br>');
-				$("#cons_div" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
-				$("#cons_div" + i).append('</form>');
+				$("#tdCons" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
+				$("#tdCons" + i).append('</form></div>');
 				$("#tdCons" + i).append('</div>');
 				$("#2tr" + i).append('</td>');		
 				mainT.append('</tr>');
@@ -275,7 +268,7 @@
 				$("#ui-tabs-" + (i + 1)*2).append('</table>');
 				copyMap(i);
 				fillLabyrinth1(i);
-				$("#statement" + i).append(problems[i].statement);
+				$("#tdSt" + i).append(problems[i].statement);
 			}
 		});		
 	}

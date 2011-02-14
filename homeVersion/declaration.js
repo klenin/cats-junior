@@ -41,13 +41,13 @@
 	var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
 	var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
 	var visited = []; // if tab have already been visited -- for proper tabs displaying
-	const divNames = {
+	var divNames = {
 		"forward": "Прямо",
 		"left": "Налево",
 		"right": "Направо",
 		"wait": "Ждать"
 	};
-	const classNames = {
+	var classNames = {
 		"forward ui-draggable": "forward1 ui-draggable",
 		"forward1 ui-draggable": "forward ui-draggable",
 		"left ui-draggable":"left1 ui-draggable",
@@ -57,8 +57,8 @@
 		"wait1 ui-draggable": "wait ui-draggable",
 		"wait ui-draggable": "wait1 ui-draggable"
 		};
-	const classes = new Array ("forward", "left", "right", "wait", "forward1", "left1", "right1", "wait1");
-	const changeDir = {
+	var classes = new Array ("forward", "left", "right", "wait", "forward1", "left1", "right1", "wait1");
+	var changeDir = {
 		"forward":{
 			"up": {dx: 0, dy: -1, curDir: "up"},
 			"down": {dx: 0, dy: 1, curDir: "down"},
@@ -86,11 +86,11 @@
 			"left":{dx: 0, dy: 0, curDir: "left"},
 			"right": {dx: 0, dy: 0, curDir: "right"},
 			"wait": {dx: 0, dy: 0, curDir: "wait"}
-		},
+		}
 		
 	}
-	const dirs = {"R": "right", "L": "left", "U": "up", "D": "down"}
-	const maxx = 185;
-	const miny = 0;
-	const btnsPlay = new Array("play", "next", "prev", "fast");
-	const btns = new Array("play", "pause", "stop", "prev", "next", "fast");
+	var dirs = {"R": "right", "L": "left", "U": "up", "D": "down"}
+	var maxx = 185;
+	var miny = 0;
+	var btnsPlay = new Array("play", "next", "prev", "fast");
+	var btns = new Array("play", "pause", "stop", "prev", "next", "fast");
