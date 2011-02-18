@@ -35,6 +35,12 @@
 				id = id.replace(/\d{1,}/, "");
 				id += cmdId++;
 				ui.item[0].id = id;
+				ui.item[0].ifLi = 1;
+				for (var j = 0; j < divs.length; ++j)
+					if (ui.helper.hasClass(divs[j])){
+						addNewCmd(divs[j], true);
+						ui.item.remove();
+				}
 				updated();
 			});
 			for (var k = 0; k < divs.length; ++k){
@@ -44,10 +50,15 @@
 					revert: 'invalid',
 					cursor: 'default'
 				});
+				$("#" + divs[k] + curProblem).bind( "dragstop", function(event, ui){
+					/*for (var j = 0; j < divs.length; ++j)
+						if ($(this).hasClass(divs[j]))
+							addNewCmd(divs[j], false);*/
+				});
 				$("#" + divs[k] + curProblem).live('dblclick', function(){
 					for (var j = 0; j < divs.length; ++j)
 						if ($(this).hasClass(divs[j]))
-							addNewCmd(divs[j]);
+							addNewCmd(divs[j], true);
 				});
 			}
   		});    

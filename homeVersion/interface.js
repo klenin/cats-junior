@@ -272,8 +272,14 @@
 			}
 		});		
 	}
-	function addNewCmd(str){
-		$("#sortable" + curProblem).append('<li id = "' + str + cmdId++ + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>')
+	function addNewCmd(str, dblClick){
+		$("#sortable" + curProblem).append('<div id = "cmd' + cmdId +'"></div>');
+		if (dblClick)
+			$("#cmd" + cmdId).append('<li ifLi = 1 id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');
+		$("#" + str + cmdId).append('<input type="input" readonly style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px;" id="spin' + cmdId + '" value="1" />');
+		$("#spin" + cmdId++).spin({
+			min: 1		
+		});
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		curList[curProblem] = arr;
 	}
@@ -295,7 +301,22 @@
 		disableButtons();
 		$("#sortable" + curProblem).sortable( "disable" );	
 		speed[curProblem] = s;
-		setTimeout(function() { play(); }, s);
+		var cmdIndexes = $('#sortable' + curProblem).sortable('toArray');
+		$('#sortable' + curProblem + ':input').attr('disabled', 'disabled');
+		var result = [];
+		var k = 0;
+		for (var i = 0; i < cmdIndexes.length; ++i){
+			//cmdIndexes[i] = cmdIndexes[i].substr(3);
+			var c = $('#' + cmdIndexes[i] + ' :input')[0].value;
+			for (var j = 0; j < divs.length; ++j)
+				if ($('#' + cmdIndexes[i] + ' > li').hasClass(divs[j])){
+					for (var l = 0; l < c; ++l)
+						result[k++] = divs[j];
+					result[k++] = "_" + cmdIndexes[i].substr(3);
+					break;
+				}
+		}
+		setTimeout(function() { play(result); }, s);
 	}
 	
 	playClick = function(){

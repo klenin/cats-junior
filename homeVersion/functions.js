@@ -274,10 +274,10 @@
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
 		}
 	}
-	function loop(i, cnt){
+	function loop(i, cnt, result){
 		if (dead[curProblem])
 			return;
-		var result = $('#sortable' + curProblem).sortable('toArray');
+		//var result = $('#sortable' + curProblem).sortable('toArray');
 		if (pause[curProblem] || stopped[curProblem]){
 			if (pause[curProblem])
 				pause[curProblem] = false;
@@ -288,13 +288,15 @@
 			curCmdIndex[curProblem] = i;
 			return;
 		}
+		var t = result[i];
 		if (i > curCmdIndex[curProblem] && speed[curProblem] != 0){
-			var el = $("#sortable" + curProblem).children();
-			changeClass(el[i - 1]);
+			if(t.charAt(0) == "_")
+				el = $('#' + t.substr(1) + ' > li')
+			changeClass(el);
 		}
 		var x = curX[curProblem];
 		var y = curY[curProblem];
-		var t = result[i];
+		
 		while(t.charAt(t.length - 1) >= "0" && t.charAt(t.length - 1) <= "9")
 			t = t.substr(0, t.length - 1);
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
@@ -327,16 +329,16 @@
 			}
 			var el = $("#sortable" + curProblem).children();
 			changeClass(el[i]);
-			setTimeout("nextStep(" + i + ", " + cnt + ")", speed[curProblem]);
+			setTimeout(function() { nextStep(i, cnt, result); }, speed[curProblem]);
 		}
 		else
 			nextStep(i, cnt);
 	}
-	function nextStep(i, cnt){
+	function nextStep(i, cnt, result){
 		if (dead[curProblem])
 			return;
 		if (++i <cnt) {
-			loop(i, cnt);
+			loop(i, cnt, result);
 		} 
 		else {
 			curCmdIndex[curProblem] = i; 
@@ -345,11 +347,10 @@
 			enableButtons();
 		}
 	}
-	function play(cnt){
+	function play(result, cnt){
 		if (dead[curProblem])
 			return;
 		playing[curProblem] = true;
-		var result = $('#sortable' + curProblem).sortable('toArray');
 		if (curCmdIndex[curProblem] == result.length)
 			setDefault();
 		if (!cnt)
@@ -357,5 +358,5 @@
 		if (result[curCmdIndex[curProblem]] == "")
 			++curCmdIndex[curProblem];
 		var j = cnt - curCmdIndex[curProblem];
-		loop(curCmdIndex[curProblem], cnt);
+		loop(curCmdIndex[curProblem], cnt, result);
 	}
