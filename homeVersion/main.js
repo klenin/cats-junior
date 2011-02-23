@@ -38,9 +38,8 @@
 				ui.item[0].ifLi = 1;
 				for (var j = 0; j < divs.length; ++j)
 					if (ui.helper.hasClass(divs[j])){
-						addNewCmd(divs[j], true);
-						ui.item.remove();
-				}
+						addNewCmd(divs[j], false, ui.item[0]);
+					}
 				updated();
 			});
 			for (var k = 0; k < divs.length; ++k){

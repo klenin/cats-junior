@@ -165,58 +165,61 @@
 		});
 	}
 	function changeClass(elem){
-		if (elem.id == "")
+		if (!elem)
 			return false;
-		var item = $('#' + elem.id);
-		if (!item || item.hasClass('invisible'))
-			return false;
+		elem = $("#" + elem);
 		var divs = ['forward', 'right', 'left', 'wait'];
 		for (var k = 0; k < divs.length; ++k){
-			if (item.hasClass(divs[k])){
-				item.removeClass(divs[k]);
-				item.addClass(divs[k] + 1);
+			if (elem.hasClass(divs[k])){
+				elem.removeClass(divs[k]);
+				elem.addClass(divs[k] + 1);
 			}   
-			else if (item.hasClass(divs[k] + 1)){
-				item.removeClass(divs[k] + 1);
-				item.addClass(divs[k]);
+			else if (elem.hasClass(divs[k] + 1)){
+				elem.removeClass(divs[k] + 1);
+				elem.addClass(divs[k]);
 			}
 		}
 	}
 	function isChangedClass(elem){
-		if (elem.id == "")
+		if (!elem)
 			return false;
-		var item = $('#' + elem.id);
-		if (!item || item.hasClass('invisible'))
-			return false;
+		elem = $("#" + elem);
 		var divs = ['forward', 'right', 'left', 'wait'];
 		for (var k = 0; k < divs.length; ++k)
-			if (item.hasClass(divs[k] + 1))
+			if (elem.hasClass(divs[k] + 1))
 				return true;
 		return false;
 	}
 	function clearClasses(){
 		var el = $("#sortable" + curProblem).children();
-		for (var i = 0; i < el.length; ++i){
-			if (isChangedClass(el[i]))
-				changeClass(el[i]);
+		l = el.length;
+		for (var i = 0; i < l; ++i){
+			if (isChangedClass(el.attr('id')))
+				changeClass(el.attr('id'));
+			el = el.next();
 		}
 	}
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
-		var el = $("#sortable" + curProblem).children();
-		if (arr.length < curCmdIndex[curProblem] || (curCmdIndex[curProblem] && !isChangedClass(el[curCmdIndex[curProblem] - 1]))){
-			setDefault();
-			clearClasses();
-			curList[curProblem] = arr;
-		}
-		else {
-			for (var i = 0; i < curCmdIndex[curProblem]; ++i){
-				if (curList[curProblem][i] != arr[i]){
-					setDefault();
+		var needToClear = false;
+		var k = 0;
+		for (var i = 0; i < arr.length; ++i){
+			//cmdIndexes[i] = cmdIndexes[i].substr(3);
+			var c = parseInt($('#' + arr[i] + ' :input')[0].value);
+			curList[curProblem][k++] = "_" + arr[i];
+			for (var j = 0; j < divs.length; ++j)
+				if ($('#' + arr[i]).hasClass(divs[j]) || $('#' + arr[i]).hasClass("" + divs[j] + 1)){
+					for (var l = 0; l < c; ++l){
+						if ((divs[j] != curList[curProblem][k]) && (k <= curCmdIndex[curProblem]))
+							needToClear = true;
+						curList[curProblem][k++] = divs[j];
+					}
 					break;
 				}
-			}
-			curList[curProblem] = arr;
+		}
+		if (needToClear){
+			setDefault();
+			clearClasses();
 		}
 	}
 	function setDefault(f){
@@ -263,21 +266,19 @@
 		curDir[curProblem] = startDir;
 		curX[curProblem] = startX[curProblem];
 		curY[curProblem] = startY[curProblem];
-		if (!stopped[curProblem] && curCmdIndex[curProblem] && curList[curProblem].length >= curCmdIndex[curProblem]){
-			var el = $("#sortable" + curProblem).children();
-			changeClass(el[curCmdIndex[curProblem] - 1]);
-		}
+		clearClasses();
 		stopped[curProblem] = false;
 		curCmdIndex[curProblem] = 0;
+		curDivName[curProblem] = "";
 		if (!f){
 			s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
 		}
 	}
 	function loop(i, cnt, result){
+		var newCmd = undefined;
 		if (dead[curProblem])
 			return;
-		//var result = $('#sortable' + curProblem).sortable('toArray');
 		if (pause[curProblem] || stopped[curProblem]){
 			if (pause[curProblem])
 				pause[curProblem] = false;
@@ -289,14 +290,20 @@
 			return;
 		}
 		var t = result[i];
-		if (i > curCmdIndex[curProblem] && speed[curProblem] != 0){
-			if(t.charAt(0) == "_")
-				el = $('#' + t.substr(1) + ' > li')
-			changeClass(el);
+		if (t.charAt(0) == "_"){
+			newCmd = t.substr(1);
+			t = result[++i];
+			if (i == cnt)
+				return;
+		}
+		if (i > curCmdIndex[curProblem]){
+			if (speed[curProblem] != 0 && curDivName[curProblem] && isChangedClass(curDivName[curProblem]))
+				changeClass(curDivName[curProblem]);
+			curDivName[curProblem] = newCmd;
+			curDivIndex[curProblem]++;
 		}
 		var x = curX[curProblem];
 		var y = curY[curProblem];
-		
 		while(t.charAt(t.length - 1) >= "0" && t.charAt(t.length - 1) <= "9")
 			t = t.substr(0, t.length - 1);
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
@@ -327,12 +334,14 @@
 				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
 			}
-			var el = $("#sortable" + curProblem).children();
-			changeClass(el[i]);
+			if (curDivName[curProblem])
+				$('#' + curDivName[curProblem] + ' > input').value--;
+			if (newCmd)
+				changeClass(curDivName[curProblem]);
 			setTimeout(function() { nextStep(i, cnt, result); }, speed[curProblem]);
 		}
 		else
-			nextStep(i, cnt);
+			nextStep(i, cnt, result);
 	}
 	function nextStep(i, cnt, result){
 		if (dead[curProblem])
