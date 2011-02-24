@@ -275,10 +275,12 @@
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
 			$("#sortable" + curProblem).append('<li ifLi = 1 id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
-			$("#" + str + cmdId).append('<input type="input" readonly style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px;" id="spin' + cmdId + '" value="1" />');
+			$("#" + str + cmdId).append('<div id = "spinDiv' + cmdId + '"></div>');
+			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit"  id="spin' + cmdId + '" value="1" />');
 		}
 		else
-			$("#" + elem.id).append('<input type="input" readonly style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px;" id="spin' + cmdId + '" value="1" />');
+			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
+		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" cnt = "0" readonly style = "width: 60px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
 		$("#spin" + cmdId++).spin({
 			min: 1		
 		});
@@ -300,7 +302,17 @@
 		disableButtons();
 		$("#sortable" + curProblem).sortable( "disable" );	
 		speed[curProblem] = s;
-		$('#sortable' + curProblem + ':input').attr('disabled', 'disabled');
+		//$('#sortable' + curProblem + '> li > input').attr('disabled', 'disabled');
+		$('#sortable' + curProblem + '> li > *').hide();
+		$('#sortable' + curProblem + '> li > span').show();
+		$('#sortable' + curProblem + '> li > text').show();
+		var el = $('#sortable' + curProblem).children();
+		while (el){
+			$("#spinCnt" + el.attr('id')).attr('cnt') = $("spin" + el.attr('id')).value;
+			$("#spinCnt" + el.attr('id')).value = $("spin" + el.attr('id')).value + "/" + $("spin" + el.attr('id')).value;
+			el = el.next();
+		}
+		//$('#sortable' + curProblem + '> li > spin').hide();
 		curDivIndex[curProblem] = -1;
 		setTimeout(function() { play(curList[curProblem]); }, s);
 	}
