@@ -205,7 +205,7 @@
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
 			//cmdIndexes[i] = cmdIndexes[i].substr(3);
-			var c = parseInt($('#' + arr[i] + ' :input')[0].value);
+			var c = parseInt($('#' + arr[i] + ' input')[0].value);
 			curList[curProblem][k++] = "_" + arr[i];
 			for (var j = 0; j < divs.length; ++j)
 				if ($('#' + arr[i]).hasClass(divs[j]) || $('#' + arr[i]).hasClass("" + divs[j] + 1)){
@@ -299,8 +299,10 @@
 		if (i > curCmdIndex[curProblem]){
 			if (speed[curProblem] != 0 && curDivName[curProblem] && isChangedClass(curDivName[curProblem]))
 				changeClass(curDivName[curProblem]);
-			curDivName[curProblem] = newCmd;
-			curDivIndex[curProblem]++;
+			if (newCmd){
+				curDivName[curProblem] = newCmd;
+				curDivIndex[curProblem]++;
+			}
 		}
 		var x = curX[curProblem];
 		var y = curY[curProblem];
@@ -327,6 +329,12 @@
 					}
 			else
 				$("#cons" + curProblem).append("Шаг " + i + ": Выход за границу лабиринта \n");
+		if (curDivName[curProblem]){
+			var numId = $("#" + curDivName[curProblem]).attr('numId');
+			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
+			$("#spinCnt" + numId).attr('cnt', newCnt);
+			$("#spinCnt" + numId).attr('value', newCnt + "/" + $("#spin" + numId).attr('value'));
+		}
 		if (!(speed[curProblem] == 0 && (i + 1) < cnt)){
 			if (checked){
 				s = '#' + (curProblem* 10000 + y * 100 + x);
@@ -334,8 +342,6 @@
 				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
 			}
-			if (curDivName[curProblem])
-				$('#' + curDivName[curProblem] + ' > input').value--;
 			if (newCmd)
 				changeClass(curDivName[curProblem]);
 			setTimeout(function() { nextStep(i, cnt, result); }, speed[curProblem]);
@@ -354,6 +360,7 @@
 			playing[curProblem] = false;
 			$("#sortable" + curProblem).sortable( "enable" );
 			enableButtons();
+			showCounters();
 		}
 	}
 	function play(result, cnt){

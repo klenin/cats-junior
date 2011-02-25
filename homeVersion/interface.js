@@ -274,46 +274,75 @@
 	}
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
-			$("#sortable" + curProblem).append('<li ifLi = 1 id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
-			$("#" + str + cmdId).append('<div id = "spinDiv' + cmdId + '"></div>');
-			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit"  id="spin' + cmdId + '" value="1" />');
+			$("#sortable" + curProblem).append('<li ifLi = 1 id = "' + str + cmdId + '" numId = "' + cmdId + '"class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
+			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
+			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit"  id="spin' + cmdId + '" value="1" />');
 		}
-		else
-			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
-		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" cnt = "0" readonly style = "width: 60px; height: 21px; margin-left: 10px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
+		else{
+			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
+			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
+		}
+		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" cnt = "0" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
 		$("#spin" + cmdId++).spin({
 			min: 1		
 		});
 		updated();
 	}
+	function hideCounters(){
+		$("#sortable" + curProblem + " > li > span > img").hide();			
+		$("#sortable" + curProblem + " > li > span > input").hide();
+		var el = $('#sortable' + curProblem).children();
+		while (el.length > 0){
+			$("#spinCnt" + el.attr('numId')).show();
+			el = el.next();
+		}
+	}
+	function showCounters(){
+		$("#sortable" + curProblem + " > li > span > img").show();			
+		$("#sortable" + curProblem + " > li > span > input").show();
+		var el = $('#sortable' + curProblem).children();
+		while (el.length > 0){
+			$("#spinCnt" + el.attr('numId')).hide();
+			el = el.next();
+		}
+	}
 	function enableButtons(){
 		for (var i = 0; i < btnsPlay.length; ++i)
-			$("#btn_" + btnsPlay[i] + curProblem).removeAttr('disabled');
+			$("#btn_" + btnsPlay[i] + curProblem).removeAttr('disabled');		
 	}
 	function disableButtons(){
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$("#btn_" + btnsPlay[i] + curProblem).attr('disabled', 'disabled');
+
 	}
 	function callPlay(s){
 		if (!$("#sortable" + curProblem).sortable('toArray').length || dead[curProblem])
 			return;
 		if (curCmdIndex[curProblem] > curList[curProblem].length)
 			setDefault();
+		$("#sortable" + curProblem).sortable( "disable" );
 		disableButtons();
-		$("#sortable" + curProblem).sortable( "disable" );	
+		hideCounters();
 		speed[curProblem] = s;
-		//$('#sortable' + curProblem + '> li > input').attr('disabled', 'disabled');
-		$('#sortable' + curProblem + '> li > *').hide();
-		$('#sortable' + curProblem + '> li > span').show();
-		$('#sortable' + curProblem + '> li > text').show();
 		var el = $('#sortable' + curProblem).children();
-		while (el){
-			$("#spinCnt" + el.attr('id')).attr('cnt') = $("spin" + el.attr('id')).value;
-			$("#spinCnt" + el.attr('id')).value = $("spin" + el.attr('id')).value + "/" + $("spin" + el.attr('id')).value;
+		while (el.length > 0){
+			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
+			$("#spinCnt" + el.attr('numId')).attr('value', $("#spin" + el.attr('numId')).attr('value') + "/" + $("#spin" + el.attr('numId')).attr('value'));
 			el = el.next();
 		}
-		//$('#sortable' + curProblem + '> li > spin').hide();
 		curDivIndex[curProblem] = -1;
+		var arr = $("#sortable" + curProblem).sortable('toArray');
+		var k = 0;
+		for (var i = 0; i < arr.length; ++i){
+			var c = parseInt($('#' + arr[i] + ' input')[0].value);
+			curList[curProblem][k++] = "_" + arr[i];
+			for (var j = 0; j < divs.length; ++j)
+				if ($('#' + arr[i]).hasClass(divs[j]) || $('#' + arr[i]).hasClass("" + divs[j] + 1)){
+					for (var l = 0; l < c; ++l)
+						curList[curProblem][k++] = divs[j];
+					break;
+				}
+		}
 		setTimeout(function() { play(curList[curProblem]); }, s);
 	}
 	

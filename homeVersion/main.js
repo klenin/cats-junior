@@ -33,14 +33,14 @@
 					ui.item.remove();
 				var id = ui.item[0].id;
 				id = id.replace(/\d{1,}/, "");
-				id += cmdId++;
+				id += cmdId;
 				ui.item[0].id = id;
 				ui.item[0].ifLi = 1;
+				ui.item[0].numId = cmdId;
 				for (var j = 0; j < divs.length; ++j)
 					if (ui.helper.hasClass(divs[j])){
 						addNewCmd(divs[j], false, ui.item[0]);
 					}
-				updated();
 			});
 			for (var k = 0; k < divs.length; ++k){
 				$("#" + divs[k] + curProblem).draggable({
