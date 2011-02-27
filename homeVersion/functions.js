@@ -199,6 +199,14 @@
 			el = el.next();
 		}
 	}
+	function setCounters(){
+		var el = $('#sortable' + curProblem).children();
+		while (el.length > 0){
+			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
+			$("#spinCnt" + el.attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
+			el = el.next();
+		}
+	}
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var needToClear = false;
@@ -221,6 +229,7 @@
 			setDefault();
 			clearClasses();
 		}
+		setCounters();
 	}
 	function setDefault(f){
 		enableButtons();
@@ -270,6 +279,12 @@
 		stopped[curProblem] = false;
 		curCmdIndex[curProblem] = 0;
 		curDivName[curProblem] = "";
+		var el = $('#sortable' + curProblem).children();
+		while (el.length > 0){
+			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
+			//$("#spinCnt" + el.attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
+			el = el.next();
+		}
 		if (!f){
 			s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
@@ -297,7 +312,7 @@
 				return;
 		}
 		if (i > curCmdIndex[curProblem]){
-			if (speed[curProblem] != 0 && curDivName[curProblem] && isChangedClass(curDivName[curProblem]))
+			if (speed[curProblem] != 0 && newCmd && curDivName[curProblem] && isChangedClass(curDivName[curProblem]))
 				changeClass(curDivName[curProblem]);
 			if (newCmd){
 				curDivName[curProblem] = newCmd;
@@ -360,7 +375,7 @@
 			playing[curProblem] = false;
 			$("#sortable" + curProblem).sortable( "enable" );
 			enableButtons();
-			showCounters();
+			//showCounters();
 		}
 	}
 	function play(result, cnt){

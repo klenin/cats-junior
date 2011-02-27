@@ -274,7 +274,9 @@
 	}
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
-			$("#sortable" + curProblem).append('<li ifLi = 1 id = "' + str + cmdId + '" numId = "' + cmdId + '"class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
+			$("#sortable" + curProblem).append('<li id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
+			$("#" + str + cmdId).attr('numId', cmdId);
+			$("#" + str + cmdId).attr('ifLi', 1);
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
 			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit"  id="spin' + cmdId + '" value="1" />');
 		}
@@ -282,11 +284,13 @@
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
 			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
 		}
-		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" cnt = "0" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
+		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
 		$("#spin" + cmdId++).spin({
-			min: 1		
+			min: 1,
+			changed: function(){
+				updated();
+			}
 		});
-		updated();
 	}
 	function hideCounters(){
 		$("#sortable" + curProblem + " > li > span > img").hide();			
@@ -323,13 +327,8 @@
 		$("#sortable" + curProblem).sortable( "disable" );
 		disableButtons();
 		hideCounters();
+		setCounters();
 		speed[curProblem] = s;
-		var el = $('#sortable' + curProblem).children();
-		while (el.length > 0){
-			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
-			$("#spinCnt" + el.attr('numId')).attr('value', $("#spin" + el.attr('numId')).attr('value') + "/" + $("#spin" + el.attr('numId')).attr('value'));
-			el = el.next();
-		}
 		curDivIndex[curProblem] = -1;
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var k = 0;
@@ -374,6 +373,8 @@
 			curCmdIndex[curProblem] >= curList[curProblem].length)
 			return;
 		disableButtons();
+		hideCounters();
+		//setCounters();
 		$("#sortable" + curProblem).sortable( "disable" );
 		if (curCmdIndex[curProblem] && curList[curProblem].length > curCmdIndex[curProblem]){  //
 			if (curDivName[curProblem])
@@ -392,6 +393,8 @@
 			curList[curProblem][0].charAt(curList[curProblem][0].length - 1) >= "0" && 
 			curList[curProblem][0].charAt(curList[curProblem][0].length - 1) <= "9")){
 			setDefault();
+			showCounters();
+			setCounters();
 			return;
 		}
 		disableButtons();
@@ -401,6 +404,8 @@
 			curList[curProblem][t - 1].charAt(curList[curProblem][t - 1].length - 1) <= "9")
 			--t;
 		setDefault(true);
+		hideCounters();
+		setCounters();
 		var s = speed[curProblem];
 		speed[curProblem] = 0;
 		play(curList[curProblem], t);

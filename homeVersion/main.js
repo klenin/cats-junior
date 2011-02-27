@@ -18,29 +18,22 @@
 				revert: false,
 				cursor: 'move'
 			});
-			/*$("#btn_play" + curProblem).bind("click", function(event, ui){
-				if ($("#btn_play" + curProblem).attr('disabled'))
-					var i = i;
-				$("#btn_play" + curProblem).attr('disabled', 'disabled');
-				$("#btn_next" + curProblem).attr('disabled', 'disabled');
-				$("#btn_prev" + curProblem).attr('disabled', 'disabled');
-				$("#btn_fast" + curProblem).attr('disabled', 'disabled');
-				$("#sortable" + curProblem).sortable( "disable" );	
-				callPlay(300);
-			});*/
 			$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
 				if (ui.position.left > maxx || ui.position.top < miny)
 					ui.item.remove();
-				var id = ui.item[0].id;
+				var id = ui.item.attr('id');
 				id = id.replace(/\d{1,}/, "");
 				id += cmdId;
-				ui.item[0].id = id;
-				ui.item[0].ifLi = 1;
-				ui.item[0].numId = cmdId;
-				for (var j = 0; j < divs.length; ++j)
-					if (ui.helper.hasClass(divs[j])){
-						addNewCmd(divs[j], false, ui.item[0]);
-					}
+				if (!ui.item.attr('numId')){
+					ui.item.attr('id', id);
+					ui.item.attr('ifLi', 1);
+					ui.item.attr('numId', cmdId);
+					for (var j = 0; j < divs.length; ++j)
+						if (ui.helper.hasClass(divs[j])){
+							addNewCmd(divs[j], false, ui.item[0]);
+						}
+				}
+				updated();
 			});
 			for (var k = 0; k < divs.length; ++k){
 				$("#" + divs[k] + curProblem).draggable({
@@ -58,6 +51,7 @@
 					for (var j = 0; j < divs.length; ++j)
 						if ($(this).hasClass(divs[j]))
 							addNewCmd(divs[j], true);
+					updated();
 				});
 			}
   		});    

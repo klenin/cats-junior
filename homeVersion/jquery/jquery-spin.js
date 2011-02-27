@@ -59,10 +59,6 @@
       changed: null,
       buttonUp: null,
       buttonDown: null, 
-	  hide: function(){
-		btn.hide();
-		txt.hide();
-	  },
     }
   });
   $.fn.extend({
