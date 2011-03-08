@@ -2,7 +2,7 @@
 	//each element of following arrays refers to the problem with the same index
 	var curCmdIndex = []; //index of the last executed command
 	var curDivIndex = []; //index of the div with command which is playing 
-	var curCmdCnt = [];
+	var curStep = [];
 	var curDivName = [];
 	var speed = []; // speed of arrow's moving in the labirint
 	var pause = []; // if commands executing is paused

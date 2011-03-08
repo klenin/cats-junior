@@ -5,18 +5,18 @@
 			for (var j = 0; j < curMap[l][i].length; ++j){
 				switch(curMap[l][i][j] ){					
 				case "#":						
-					$("#tr_field" + (l * 1000 + i)).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"' width = '50px'>");						
+					$("#tr_field" + (l * 1000 + i)).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"'>");						
 					break;					
 				case "#_":						
-					$("#tr_field" + (l * 1000 + i)).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"' width = '50px'>");						
+					$("#tr_field" + (l * 1000 + i)).append("<td class = 'wall' id = '"+(l * 10000 + i * 100 + j)+"'>");						
 					$('#' + (l * 10000 + i * 100 + j)).append('<div class = "lock"></div>');						
 					break;					
 				case "._":						
-					$("#tr_field" + (l * 1000 + i)).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"' width = '50px'>");						
+					$("#tr_field" + (l * 1000 + i)).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"'>");						
 					$('#' + (l * 10000 + i * 100 + j)).append('<div class = "key"></div>');						
 					break;					
 				default:						
-					$("#tr_field" + (l * 1000 + i)).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"' width = '50px'>");				
+					$("#tr_field" + (l * 1000 + i)).append("<td class = 'floor' id = '"+(l * 10000 + i * 100 + j)+"'>");				
 				}
                 if (curMap[l][i][j] == "R" || curMap[l][i][j] == "L" || curMap[l][i][j] == "U" || curMap[l][i][j] == "D"){
 					startDir[l] = dirs[curMap[l][i][j]];
@@ -98,14 +98,11 @@
 					alert("Ошибка подключения к серверу. Попробуйте снова");
 			});
 			var result = "";
-			var curList = $("#sortable" + curProblem).sortable("toArray");
-			for (var i = 1; i < curList.length - 1; ++i){
-				if (curList[i].search("invisible") != -1)
-					continue;
-				result += curList[i].replace(/[0-9]/, "") + " ";
+			var arr = $("#sortable" + curProblem).sortable("toArray");
+			for (var i = 0; i < arr.length - 1; ++i){
+				var c = parseInt($('#' + arr[i] + ' input')[0].value);
+				result += arr[i].replace(/\d{1,}/, "") + " " + c + " ";
 			}
-			if (curList.length > 1)
-				result += curList[curList.length - 1].replace(/[0-9]/, "");
 			submitStr = 'source=' + result + '&problem_id=771346&de_id=772264';
 			callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
 				alert(data);
@@ -125,12 +122,11 @@
 					alert("Ошибка подключения к серверу. Попробуйте снова");
 			});
 			var result = "";
-			var curList = $("#sortable" + curProblem).sortable("toArray");
-			for (var i = 1; i < curList.length - 1; ++i){
-				result += curList[i].replace(/\d{1,}/, "") + " ";
+			var arr = $("#sortable" + curProblem).sortable("toArray");
+			for (var i = 0; i < arr.length - 1; ++i){
+				var c = parseInt($('#' + arr[i] + ' input')[0].value);
+				result += arr[i].replace(/\d{1,}/, "") + " " + c + " ";
 			}
-			if (curList.length > 1)
-				result += curList[curList.length - 1].replace(/\d{1,}/, "");
 			var problem_id = problemsList[curProblem].id;  //problem_id = 
 			var de_id = 772264;
 			var boundary = Math.round((Math.random() * 999999999999));
@@ -235,8 +231,13 @@
 				$("#comands" + i).append('<div class = "drag" id = "drag' + i + '">');
 				$("#drag" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">');
 				var divs = problems[i].commands;
-				for (var j = 0; j < divs.length; ++j)
+				for (var j = 0; j < divs.length; ++j){
 					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
+					if($.browser.msie){
+						//$('#' + divs[j] + i).css('width', '180px');
+						$('#' + divs[j] + i).css('height', '35px');
+					}
+				}
 				$("#drag" + i).append('</ul>');
 				$("#comands" + i).append('</div>');
 				$("#tdCmd" + i).append('</div>');
@@ -254,12 +255,14 @@
 				$("#2tr" + i).append('</td>');		
 				mainT.append('</tr>');
 				mainT.append('<tr id = "3tr'+ i +'">');
-				$("#3tr" + i).append('<td id = "tdDrop' + i + '" valign = "top" style="width:170px;">');
+				$("#3tr" + i).append('<td id = "tdDrop' + i + '" valign = "top">');
 				$("#tdDrop" + i).append('<div class = "drop" id = "drop' + i + '">');
 				$("#drop" + i).append('<hr align = "left" width = "270px"><br>');
 				$("#drop" + i).append('Укажите последовательность действий');
 				$("#drop" + i).append('<div class = "divSortable" id = "divSortable' + i + '">');
 				$("#divSortable" + i).append('<ul id = "sortable' + i + '" class = "sortable">');
+				/*if($.browser.msie)
+					$('#sortable' + i).css('width', '200px');*/
 				$("#divSortable" + i).append('</div>');
 				$("#drop" + i).append('</ul>');
 				$("#tdDrop" + i).append('</div>');
@@ -270,11 +273,17 @@
 				fillLabyrinth1(i);
 				$("#tdSt" + i).append(problems[i].statement);
 			}
-		});		
+		});	
+		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1)*2, "О системе");	
+		$("#tabs").tabs('url', problems.length + 1, 'about.html');		
 	}
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
 			$("#sortable" + curProblem).append('<li id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
+			if($.browser.msie){
+				//$('#' + str + cmdId).css('width', '180px');
+				$('#' + str + cmdId).css('height', '35px');
+			}
 			$("#" + str + cmdId).attr('numId', cmdId);
 			$("#" + str + cmdId).attr('ifLi', 1);
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
@@ -311,10 +320,12 @@
 		}
 	}
 	function enableButtons(){
+		$("#sortable" + curProblem).sortable('enable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$("#btn_" + btnsPlay[i] + curProblem).removeAttr('disabled');		
 	}
 	function disableButtons(){
+		$("#sortable" + curProblem).sortable('disable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$("#btn_" + btnsPlay[i] + curProblem).attr('disabled', 'disabled');
 
@@ -324,12 +335,12 @@
 			return;
 		if (curCmdIndex[curProblem] > curList[curProblem].length)
 			setDefault();
-		$("#sortable" + curProblem).sortable( "disable" );
 		disableButtons();
 		hideCounters();
 		setCounters();
 		speed[curProblem] = s;
 		curDivIndex[curProblem] = -1;
+		curStep[curProblem] = 0;
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
@@ -342,7 +353,7 @@
 					break;
 				}
 		}
-		setTimeout(function() { play(curList[curProblem]); }, s);
+		setTimeout(function() { play(); }, s);
 	}
 	
 	playClick = function(){
@@ -361,11 +372,11 @@
 		stopped[curProblem] = true;
 		setDefault();
 		clearClasses();
+		showCounters();
 	}
 	pauseClick = function(){
 		if (playing[curProblem])			
 			pause[curProblem] = true;
-		$("#sortable" + curProblem).sortable( "enable" );
 		enableButtons();
 	}
 	nextClick = function(){
@@ -374,8 +385,6 @@
 			return;
 		disableButtons();
 		hideCounters();
-		//setCounters();
-		$("#sortable" + curProblem).sortable( "disable" );
 		if (curCmdIndex[curProblem] && curList[curProblem].length > curCmdIndex[curProblem]){  //
 			if (curDivName[curProblem])
 				changeClass(curDivName[curProblem]);
@@ -383,9 +392,9 @@
 		var t = curCmdIndex[curProblem];
 		if (curList[curProblem][t].charAt(curList[curProblem][t].length - 1) >= "0" && 
 			curList[curProblem][t].charAt(curList[curProblem][t].length - 1) <= "9")
-				play(curList[curProblem], 2);
+				play(2);
 		else
-			play(curList[curProblem], 1);
+			play(1);
 	}
 	prevClick = function(){
 		var t = curCmdIndex[curProblem];
@@ -398,7 +407,6 @@
 			return;
 		}
 		disableButtons();
-		$("#sortable" + curProblem).sortable( "disable" );
 		--t;
 		if (curList[curProblem][t - 1].charAt(curList[curProblem][t - 1].length - 1) >= "0" && 
 			curList[curProblem][t - 1].charAt(curList[curProblem][t - 1].length - 1) <= "9")

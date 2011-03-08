@@ -17,7 +17,6 @@
 					callback(data);
 				},
 				error: function(r, err1, err2){
-					//alert(r.responseText);
 					alert(err1 + ' ' + err2);
 				}  
 			});
@@ -212,7 +211,6 @@
 		var needToClear = false;
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
-			//cmdIndexes[i] = cmdIndexes[i].substr(3);
 			var c = parseInt($('#' + arr[i] + ' input')[0].value);
 			curList[curProblem][k++] = "_" + arr[i];
 			for (var j = 0; j < divs.length; ++j)
@@ -229,11 +227,11 @@
 			setDefault();
 			clearClasses();
 		}
+		showCounters();
 		setCounters();
 	}
 	function setDefault(f){
 		enableButtons();
-		$("#sortable" + curProblem).sortable( "enable" );
 		dead[curProblem] = false;
 		var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 		$(s).empty();
@@ -253,7 +251,7 @@
 			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][curCmdIndex[curProblem] % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[curCmdIndex[curProblem] % movingElems[curProblem].symbol.length][0].x);
 			$(s).empty();
 			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][0].y * 100 + movingElems[curProblem].path[k][0].x);
-			$(s).prepend("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
+			$(s).append("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
 		}
 		for (var k = 0; k < problems[curProblem].cleaner.length; ++k){			
 			var y = problems[curProblem].cleaner[k].y;			
@@ -265,7 +263,6 @@
 				x = problems[curProblem].cleaned[k][l].x				
 				s = '#' + (curProblem* 10000 + y * 100 + x);				
 				$(s).removeClass('floor');				
-				//$(s).addClass('wall');				
 				$(s).append('<div class = "lock"></div>');			
 			}		
 		}
@@ -279,10 +276,10 @@
 		stopped[curProblem] = false;
 		curCmdIndex[curProblem] = 0;
 		curDivName[curProblem] = "";
+		curStep[curProblem] = 0;
 		var el = $('#sortable' + curProblem).children();
 		while (el.length > 0){
 			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
-			//$("#spinCnt" + el.attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
 			el = el.next();
 		}
 		if (!f){
@@ -290,7 +287,7 @@
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
 		}
 	}
-	function loop(i, cnt, result){
+	function loop(i, cnt){
 		var newCmd = undefined;
 		if (dead[curProblem])
 			return;
@@ -304,10 +301,10 @@
 			curCmdIndex[curProblem] = i;
 			return;
 		}
-		var t = result[i];
+		var t = curList[curProblem][i];
 		if (t.charAt(0) == "_"){
 			newCmd = t.substr(1);
-			t = result[++i];
+			t = curList[curProblem][++i];
 			if (i == cnt)
 				return;
 		}
@@ -326,7 +323,7 @@
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
 		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
 		curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
-		var checked = checkCell(i);
+		var checked = checkCell(curStep[curProblem]);
 		if (dead[curProblem])
 			return;
 		if (checked)
@@ -338,12 +335,12 @@
 					curY[curProblem] += dy[curProblem];
 				}
 				else{
-						$("#cons" + curProblem).append("Шаг " + i + ": Уткнулись в стенку \n");
+						$("#cons" + curProblem).append("Шаг " + curStep[curProblem] + ": Уткнулись в стенку \n");
 						var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 						$(s).effect("highlight", {}, 300);
 					}
 			else
-				$("#cons" + curProblem).append("Шаг " + i + ": Выход за границу лабиринта \n");
+				$("#cons" + curProblem).append("Шаг " + curStep[curProblem] + ": Выход за границу лабиринта \n");
 		if (curDivName[curProblem]){
 			var numId = $("#" + curDivName[curProblem]).attr('numId');
 			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
@@ -359,35 +356,34 @@
 			}
 			if (newCmd)
 				changeClass(curDivName[curProblem]);
-			setTimeout(function() { nextStep(i, cnt, result); }, speed[curProblem]);
+			setTimeout(function() { nextStep(i, cnt); }, speed[curProblem]);
 		}
 		else
-			nextStep(i, cnt, result);
+			nextStep(i, cnt);
 	}
-	function nextStep(i, cnt, result){
+	function nextStep(i, cnt){
 		if (dead[curProblem])
 			return;
 		if (++i <cnt) {
-			loop(i, cnt, result);
+			++curStep[curProblem];
+			loop(i, cnt);
 		} 
 		else {
 			curCmdIndex[curProblem] = i; 
 			playing[curProblem] = false;
-			$("#sortable" + curProblem).sortable( "enable" );
 			enableButtons();
-			//showCounters();
 		}
 	}
-	function play(result, cnt){
+	function play(cnt){
 		if (dead[curProblem])
 			return;
 		playing[curProblem] = true;
-		if (curCmdIndex[curProblem] == result.length)
+		if (curCmdIndex[curProblem] == curList[curProblem].length)
 			setDefault();
 		if (!cnt)
-			cnt = result.length;
-		if (result[curCmdIndex[curProblem]] == "")
+			cnt = curList[curProblem].length;
+		if (curList[curProblem][curCmdIndex[curProblem]] == "")
 			++curCmdIndex[curProblem];
 		var j = cnt - curCmdIndex[curProblem];
-		loop(curCmdIndex[curProblem], cnt, result);
+		loop(curCmdIndex[curProblem], cnt);
 	}

@@ -35,6 +35,10 @@
 				}
 				updated();
 			});
+			$( "#sortable" + curProblem ).bind( "click", function(event, ui) {
+				if (!playing[curProblem])
+					showCounters();
+			});
 			for (var k = 0; k < divs.length; ++k){
 				$("#" + divs[k] + curProblem).draggable({
 					connectToSortable: ("#sortable" + curProblem),
