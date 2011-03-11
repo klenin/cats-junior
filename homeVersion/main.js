@@ -7,7 +7,7 @@
 		fillTabs();
 		document.title = "";
 		for (var i = 0; i < 3; ++i)
-			curList[i] = [];
+			curCmdList[i] = [];
 		cmdId = problems.length;
 		divs = ["forward", "left", "right", "wait"];
 		$( "#tabs" ).bind( "tabsshow", function(event, ui) {
@@ -60,7 +60,12 @@
 			}
   		});    
   		for (var i = 0; i < problems.length; ++i){
-			curCmdIndex[i] = 0;
+			curState[i] = new Object();
+			curCmdList[i] = new Array();
+			curState[i].cmdIndex = 0;
+			curState[i].divIndex = 0;
+			curState[i].step = 0;
+			curState[i].divName = "";
 			curDir[i] = startDir;
 			curX[i] = startX[i];
 			curY[i] = startY[i];
@@ -82,8 +87,6 @@
 				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
 			}
 			for (var k = 0; k < movingElems[i].symbol.length; ++k){
-				s = "#" + (i* 10000 + movingElems[i].path[k][curCmdIndex[i] % movingElems[i].symbol.length].y * 100 + movingElems[i].path[curCmdIndex[i] % movingElems[i].symbol.length][0].x);
-				$(s).empty();
 				s = "#" + (i* 10000 + movingElems[i].path[k][0].y * 100 + movingElems[i].path[k][0].x);
 				$(s).prepend("<div class = '" + movingElems[i].style[k] + "'></div>");
 			}

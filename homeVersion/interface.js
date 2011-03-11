@@ -314,25 +314,26 @@
 	function callPlay(s){
 		if (!$("#sortable" + curProblem).sortable('toArray').length || dead[curProblem])
 			return;
-		if (curCmdIndex[curProblem] > curList[curProblem].length)
+		pause[curProblem] = false;
+		stopped[curProblem] = false;
+		/*if (curCmdIndex[curProblem] > curList[curProblem].length)
+			setDefault();*/
+		if (divI() >= list().length || ((divI() == list().length - 1) && cmd() == list()[divI()].cnt))
 			setDefault();
 		disableButtons();
 		hideCounters();
-		setCounters();
+		if (cmd() == 0 && divI() == 0)
+			setCounters();
 		speed[curProblem] = s;
+		/*
 		curDivIndex[curProblem] = -1;
-		curStep[curProblem] = 0;
+		curStep[curProblem] = 0;*/
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
 			var c = parseInt($('#' + arr[i] + ' input')[0].value);
-			curList[curProblem][k++] = "_" + arr[i];
-			for (var j = 0; j < divs.length; ++j)
-				if ($('#' + arr[i]).hasClass(divs[j]) || $('#' + arr[i]).hasClass("" + divs[j] + 1)){
-					for (var l = 0; l < c; ++l)
-						curList[curProblem][k++] = divs[j];
-					break;
-				}
+			curCmdList[curProblem][i].cnt = c;
+			curCmdList[curProblem][i].name = arr[i];
 		}
 		setTimeout(function() { play(); }, s);
 	}
@@ -361,27 +362,20 @@
 		enableButtons();
 	}
 	nextClick = function(){
-		if (!$("#sortable" + curProblem).sortable('toArray').length || 
-			curCmdIndex[curProblem] >= curList[curProblem].length)
+		if ((!$("#sortable" + curProblem).sortable('toArray').length) || (divI() > list().length) || (divI() == list().length && 
+			cmd() >= list()[list().length - 1].cnt))
 			return;
+		if (cmd() == 0 && divI() == 0)
+			setCounters();
 		disableButtons();
 		hideCounters();
-		if (curCmdIndex[curProblem] && curList[curProblem].length > curCmdIndex[curProblem]){  //
-			if (curDivName[curProblem])
-				changeClass(curDivName[curProblem]);
-		}
-		var t = curCmdIndex[curProblem];
-		if (curList[curProblem][t].charAt(curList[curProblem][t].length - 1) >= "0" && 
-			curList[curProblem][t].charAt(curList[curProblem][t].length - 1) <= "9")
-				play(2);
-		else
-			play(1);
+		if (nextCmd())
+			loop(step() + 1);
+		enableButtons();
 	}
 	prevClick = function(){
-		var t = curCmdIndex[curProblem];
-		if (t <= 1 || (t == 2 && 
-			curList[curProblem][0].charAt(curList[curProblem][0].length - 1) >= "0" && 
-			curList[curProblem][0].charAt(curList[curProblem][0].length - 1) <= "9")){
+		var t = step();
+		if (step() <= 1) {
 			setDefault();
 			showCounters();
 			setCounters();
@@ -389,16 +383,13 @@
 		}
 		disableButtons();
 		--t;
-		if (curList[curProblem][t - 1].charAt(curList[curProblem][t - 1].length - 1) >= "0" && 
-			curList[curProblem][t - 1].charAt(curList[curProblem][t - 1].length - 1) <= "9")
-			--t;
 		setDefault(true);
 		hideCounters();
 		setCounters();
 		var s = speed[curProblem];
 		speed[curProblem] = 0;
-		play(curList[curProblem], t);
-		if (!isChangedClass(curDivName[curProblem]))
-			changeClass(curDivName[curProblem]);
+		play(t);
+		/*if (!isChangedClass(curDivName[curProblem]))
+			changeClass(curDivName[curProblem]);*/
 		speed[curProblem] = s;
 	}

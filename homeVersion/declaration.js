@@ -1,9 +1,10 @@
 ﻿	var atHome = 1; //for testing
 	//each element of following arrays refers to the problem with the same index
-	var curCmdIndex = []; //index of the last executed command
+	/*var curCmdIndex = []; //index of the last executed command
 	var curDivIndex = []; //index of the div with command which is playing 
 	var curStep = [];
-	var curDivName = [];
+	var curDivName = [];*/
+	var curState = [];
 	var speed = []; // speed of arrow's moving in the labirint
 	var pause = []; // if commands executing is paused
 	var stopped = []; // if commands executing is stopped
@@ -17,7 +18,7 @@
 	var curDir = []; 
 	var curX = [];
 	var curY = [];
-	var curList = [[]]; // current order of commands
+	var curCmdList = [[]]; // current order of commands
 	var life = []; 
 	var pnts = [];
 	var mElemId = 0; // current number of moving elements

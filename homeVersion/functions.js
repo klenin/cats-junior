@@ -206,22 +206,25 @@
 			el = el.next();
 		}
 	}
+	function divI(){ return curState[curProblem].divIndex; }
+	function divN(){ return curState[curProblem].divName;}
+	function cmd(){ return curState[curProblem].cmdIndex;}
+	function step(){ return curState[curProblem].step; }
+	function list() {return curCmdList[curProblem]; }
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var needToClear = false;
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
 			var c = parseInt($('#' + arr[i] + ' input')[0].value);
-			curList[curProblem][k++] = "_" + arr[i];
-			for (var j = 0; j < divs.length; ++j)
-				if ($('#' + arr[i]).hasClass(divs[j]) || $('#' + arr[i]).hasClass("" + divs[j] + 1)){
-					for (var l = 0; l < c; ++l){
-						if ((divs[j] != curList[curProblem][k]) && (k <= curCmdIndex[curProblem]))
-							needToClear = true;
-						curList[curProblem][k++] = divs[j];
-					}
-					break;
-				}
+			if (!curCmdList[curProblem][i])
+				curCmdList[curProblem][i] = new Object();
+			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt == c)){
+				if (i <= curState[curProblem].divIndex)
+					needToClear = false;
+				curCmdList[curProblem][i].name = arr[i];
+				curCmdList[curProblem][i].cnt = c;
+			}
 		}
 		if (needToClear){
 			setDefault();
@@ -274,9 +277,12 @@
 		curY[curProblem] = startY[curProblem];
 		clearClasses();
 		stopped[curProblem] = false;
-		curCmdIndex[curProblem] = 0;
-		curDivName[curProblem] = "";
-		curStep[curProblem] = 0;
+		with (curState[curProblem]){
+			cmdIndex = 0;
+			divIndex = 0;
+			step = 0;
+			divName = curCmdList[curProblem][0].name;
+		}
 		var el = $('#sortable' + curProblem).children();
 		while (el.length > 0){
 			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
@@ -287,8 +293,13 @@
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
 		}
 	}
-	function loop(i, cnt){
-		var newCmd = undefined;
+	function prevDivName(){
+		if (curState[curProblem].divIndex <= 1)
+			return false;
+		return curCmdList[curProblem][curState[curProblem].divIndex - 2].name;
+	}
+	function loop(cnt){
+		var newCmd = false;
 		if (dead[curProblem])
 			return;
 		if (pause[curProblem] || stopped[curProblem]){
@@ -298,32 +309,20 @@
 				stopped[curProblem] = false;
 				setDefault();
 			}
-			curCmdIndex[curProblem] = i;
 			return;
 		}
-		var t = curList[curProblem][i];
-		if (t.charAt(0) == "_"){
-			newCmd = t.substr(1);
-			t = curList[curProblem][++i];
-			if (i == cnt)
-				return;
-		}
-		if (i > curCmdIndex[curProblem]){
-			if (speed[curProblem] != 0 && newCmd && curDivName[curProblem] && isChangedClass(curDivName[curProblem]))
-				changeClass(curDivName[curProblem]);
-			if (newCmd){
-				curDivName[curProblem] = newCmd;
-				curDivIndex[curProblem]++;
-			}
+		var t = prevDivName();
+		if (speed[curProblem] != 0 && cmd() == 0 && t && isChangedClass(t)){
+			changeClass(t);
+			newCmd = true;
 		}
 		var x = curX[curProblem];
 		var y = curY[curProblem];
-		while(t.charAt(t.length - 1) >= "0" && t.charAt(t.length - 1) <= "9")
-			t = t.substr(0, t.length - 1);
+		t = divN().replace(/\d{1,}/, "")
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
 		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
 		curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
-		var checked = checkCell(curStep[curProblem]);
+		var checked = checkCell(step());
 		if (dead[curProblem])
 			return;
 		if (checked)
@@ -335,41 +334,52 @@
 					curY[curProblem] += dy[curProblem];
 				}
 				else{
-						$("#cons" + curProblem).append("Шаг " + curStep[curProblem] + ": Уткнулись в стенку \n");
+						$("#cons" + curProblem).append("Шаг " + step() + ": Уткнулись в стенку \n");
 						var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 						$(s).effect("highlight", {}, 300);
 					}
 			else
-				$("#cons" + curProblem).append("Шаг " + curStep[curProblem] + ": Выход за границу лабиринта \n");
-		if (curDivName[curProblem]){
-			var numId = $("#" + curDivName[curProblem]).attr('numId');
+				$("#cons" + curProblem).append("Шаг " + step() + ": Выход за границу лабиринта \n");
+		if (divN()){
+			var numId = $("#" + divN()).attr('numId');
 			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
 			$("#spinCnt" + numId).attr('cnt', newCnt);
 			$("#spinCnt" + numId).attr('value', newCnt + "/" + $("#spin" + numId).attr('value'));
 		}
-		if (!(speed[curProblem] == 0 && (i + 1) < cnt)){
+		if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
 			if (checked){
 				s = '#' + (curProblem* 10000 + y * 100 + x);
 				$(s).empty();
 				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
 			}
-			if (newCmd)
-				changeClass(curDivName[curProblem]);
-			setTimeout(function() { nextStep(i, cnt); }, speed[curProblem]);
+			if (newCmd || cmd() == 0)
+				changeClass(divN());
+			setTimeout(function() { nextStep(cnt); }, speed[curProblem]);
 		}
 		else
-			nextStep(i, cnt);
+			nextStep(cnt);
 	}
-	function nextStep(i, cnt){
+	function nextCmd(){
+		var t = curProblem;
+		if ((divI() == list().length - 1 && cmd() == list()[divI() - 1].cnt) || (divI() >= list().length))
+			return false;
+		if (cmd() == list()[divI()].cnt - 1)
+			with(curState[t]){
+				cmdIndex = 0;
+				divName =  curCmdList[t][divIndex++].name;
+			}
+		else 
+			++curState[t].cmdIndex;
+		++curState[t].step;
+		return true;
+	}
+	function nextStep(cnt){
 		if (dead[curProblem])
 			return;
-		if (++i <cnt) {
-			++curStep[curProblem];
-			loop(i, cnt);
-		} 
+		if ((!cnt || step() < cnt - 1) && !pause[curProblem] && nextCmd())
+			loop(cnt);
 		else {
-			curCmdIndex[curProblem] = i; 
 			playing[curProblem] = false;
 			enableButtons();
 		}
@@ -378,12 +388,9 @@
 		if (dead[curProblem])
 			return;
 		playing[curProblem] = true;
-		if (curCmdIndex[curProblem] == curList[curProblem].length)
+		if (!divN())
+			curState[curProblem].divName = list()[0].name;
+		if (((divI() == list().length) && (cmd() == list()[divI() - 1].cnt))|| divI() > list().length)
 			setDefault();
-		if (!cnt)
-			cnt = curList[curProblem].length;
-		if (curList[curProblem][curCmdIndex[curProblem]] == "")
-			++curCmdIndex[curProblem];
-		var j = cnt - curCmdIndex[curProblem];
-		loop(curCmdIndex[curProblem], cnt);
+		nextStep(cnt);
 	}
