@@ -1,5 +1,5 @@
 ﻿	function fillLabyrinth1(l){
-		$("#field" + l).append("<table id = 'table_field" + l + "' style = 'border-width:0px; border-spacing: 0px'>")
+		$("#tdField" + l).append("<table id = 'table_field" + l + "' style = 'border-width:0px; border-spacing: 0px'>")
 		for (var i = 0; i < curMap[l].length; ++i){
 			$("#table_field" + l).append("<tr id = 'tr_field" + (l * 1000 + i) + "'>");
 			for (var j = 0; j < curMap[l][i].length; ++j){
@@ -37,7 +37,7 @@
 			}
 			$("#table_field" + l).append("</tr>");
 		}
-		$("#field" + l).append("</table>");
+		$("#tdField" + l).append("</table>");
 	}
 	function chooseUser(){
 		var user = $("input:checked");
@@ -204,8 +204,8 @@
 				getTest(i, 1);
 				if (data)					///////
 					problemsList.push({"id":data.problems[i].id, "name": data.problems[i].name});
-				$("#tabs").tabs("add", "#ui-tabs-" + (i + 1)*2,problems[i].name );
-				$("#ui-tabs-" + (i + 1)*2).append('<table id = "main' + i + '">');
+				$("#tabs").tabs("add", "#ui-tabs-" + (i + 1),problems[i].name );
+				$("#ui-tabs-" + (i + 1)).append('<table id = "main' + i + '">');
 				mainT = $("#main" + i);
 				mainT.append('<tr id = "1tr' + i +'">');
 				$("#1tr" + i).append('<td colspan = "4" id = "tdSt' + i + '" valign = "top">');
@@ -213,23 +213,17 @@
 				mainT.append('</tr>');
 				mainT.append('<tr id = "4tr' + i +'">');
 				$("#4tr" + i).append('<td id = "tdBtns' + i + '" colspan = "2" valign = "top">');
-				$("#tdBtns" + i).append('<div><form name = "btn_form' + i + '" id = "btn_form' + i +'">');
 				for (var j = 0; j < btns.length; ++j)
-					$("#btn_form" + i).append('<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + '" id = "btn_' + btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
-				$("#tdBtns" + i).append('</form></div>');
+					$("#tdBtns" + i).append('<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + '" id = "btn_' + btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
 				$("#4tr" + i).append('</td>');
 				$("#4tr" + i).append('<td id = "tdBtnSubmit' + i + '" valign = "top">');
-				$("#tdBtnSubmit" + i).append('<div><form name = "submit_form" class = "submit_form" id = "submit_form' + i + '">');
-				$("#submit_form" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' + i + '" onClick = "clearClick()"></input>');
-				$("#submit_form" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick()></input>');
-				$("#tdBtnSubmit" + i).append('</form></div>');
+				$("#tdBtnSubmit" + i).append('<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' + i + '" onClick = "clearClick()"></input>');
+				$("#tdBtnSubmit" + i).append('<input type = "button" name="submit' + i + '" id = "submit' + i + '" class = "submit" onClick = submitClick()></input>');
 				$("#4tr" + i).append('</td>');
 				mainT.append('</tr>');
 				mainT.append('<tr id = "2tr'+ i +'">');	
 				$("#2tr" + i).append('<td id = "tdCmd' + i + '" valign = "top" height = "100%">');				
-				$("#tdCmd" + i).append('<div class = "comands" id = "comands' + i + '">');
-				$("#comands" + i).append('<div class = "drag" id = "drag' + i + '">');
-				$("#drag" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">');
+				$("#tdCmd" + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '">')
 				var divs = problems[i].commands;
 				for (var j = 0; j < divs.length; ++j){
 					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
@@ -238,44 +232,31 @@
 						$('#' + divs[j] + i).css('height', '35px');
 					}
 				}
-				$("#drag" + i).append('</ul>');
-				$("#comands" + i).append('</div>');
-				$("#tdCmd" + i).append('</div>');
+				$("#tdCmd" + i).append('</ul>');
 				$("#2tr" + i).append('</td>');
 				$("#2tr" + i).append('<td id = "tdField' + i + '" rowspan = "2" collspan = "2" valign = "top">');
-				$("#tdField" + i).append('<div class = "field" id = "field' + i + '" style = "padding-left: 10px;">');
-				$("#tdField" + i).append('</div>');
 				$("#2tr" + i).append('</td>');		
 				$("#2tr" + i).append('<td id = "tdCons' + i + '" rowspan = "2" valign = "top">');
-				$("#tdCons" + i).append('<div><form name = "cons_form" class = "cons_form" id = "cons_form' + i + '">');
-				$("#cons_form" + i).append('<textarea rows="34" cols="20" name="cons" id = "cons' + i + '" class = "cons" disabled readonly></textarea><br>');
-				$("#tdCons" + i).append('<div class = "submit_div" id = "submit_div' + i + '">');
-				$("#tdCons" + i).append('</form></div>');
-				$("#tdCons" + i).append('</div>');
+				$("#tdCons" + i).append('<textarea rows="34" cols="20" name="cons" id = "cons' + i + '" class = "cons" disabled readonly></textarea><br>');
 				$("#2tr" + i).append('</td>');		
 				mainT.append('</tr>');
 				mainT.append('<tr id = "3tr'+ i +'">');
 				$("#3tr" + i).append('<td id = "tdDrop' + i + '" valign = "top">');
-				$("#tdDrop" + i).append('<div class = "drop" id = "drop' + i + '">');
-				$("#drop" + i).append('<hr align = "left" width = "270px"><br>');
-				$("#drop" + i).append('Укажите последовательность действий');
-				$("#drop" + i).append('<div class = "divSortable" id = "divSortable' + i + '">');
-				$("#divSortable" + i).append('<ul id = "sortable' + i + '" class = "sortable">');
-				/*if($.browser.msie)
-					$('#sortable' + i).css('width', '200px');*/
-				$("#divSortable" + i).append('</div>');
-				$("#drop" + i).append('</ul>');
-				$("#tdDrop" + i).append('</div>');
+				$("#tdDrop" + i).append('<hr align = "left" width = "270px"><br>');
+				$("#tdDrop" + i).append('Укажите последовательность действий');
+				$("#tdDrop" + i).append('<table><tr><td><ul id = "sortable' + i + '" class = "ui-sortable sortable"></ul></td></tr></table>')
 				$("#3tr" + i).append('</td>');	
 				mainT.append('</tr>');
-				$("#ui-tabs-" + (i + 1)*2).append('</table>');
+				$("#ui-tabs-" + (i + 1)).append('</table>');
 				copyMap(i);
 				fillLabyrinth1(i);
 				$("#tdSt" + i).append(problems[i].statement);
 			}
 		});	
-		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1)*2, "О системе");	
-		$("#tabs").tabs('url', problems.length + 1, 'about.html');		
+		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1), "О системе");	
+		$("#tabs").tabs('url', problems.length + 1, 'about.html');	
+		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 2), "Результаты");	
+		$("#ui-tabs-" + (problems.length + 2)).append('<table style = "width: 100%; height: 100%"><tr><td><iframe src = "http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;" style = "width: 100%; height: 100%"></iframe></td></tr></table>');
 	}
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
@@ -293,7 +274,7 @@
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
 			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
 		}
-		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit">')
+		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" class = "spinCnt" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit;">')
 		$("#spin" + cmdId++).spin({
 			min: 1,
 			changed: function(){
