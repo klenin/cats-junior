@@ -198,8 +198,12 @@
 			el = el.next();
 		}
 	}
-	function setCounters(){
+	function setCounters(j){
 		var el = $('#sortable' + curProblem).children();
+		while(j){
+			el = el.next();
+			j--;
+		}
 		while (el.length > 0){
 			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
 			$("#spinCnt" + el.attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
@@ -214,14 +218,19 @@
 	function updated(){
 		var arr = $("#sortable" + curProblem).sortable('toArray');
 		var needToClear = false;
+		var j = curCmdList[curProblem].length;
+		if(!curCmdList[curProblem].length)
+			needToClear = true;
 		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
 			var c = parseInt($('#' + arr[i] + ' input')[0].value);
 			if (!curCmdList[curProblem][i])
 				curCmdList[curProblem][i] = new Object();
-			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt == c)){
-				if (i <= curState[curProblem].divIndex)
-					needToClear = false;
+			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt != c)){
+				if (i < curState[curProblem].divIndex){
+					needToClear = true;
+					j = 0;
+				}
 				curCmdList[curProblem][i].name = arr[i];
 				curCmdList[curProblem][i].cnt = c;
 			}
@@ -230,8 +239,9 @@
 			setDefault();
 			clearClasses();
 		}
+		curState[curProblem].divName = list()[divI()].name;
 		showCounters();
-		setCounters();
+		setCounters(j);
 	}
 	function setDefault(f){
 		enableButtons();
@@ -294,9 +304,9 @@
 		}
 	}
 	function prevDivName(){
-		if (curState[curProblem].divIndex <= 1)
+		if (curState[curProblem].divIndex < 1)
 			return false;
-		return curCmdList[curProblem][curState[curProblem].divIndex - 2].name;
+		return curCmdList[curProblem][curState[curProblem].divIndex - 1].name;
 	}
 	function loop(cnt){
 		var newCmd = false;
@@ -312,10 +322,9 @@
 			return;
 		}
 		var t = prevDivName();
-		if (speed[curProblem] != 0 && cmd() == 0 && t && isChangedClass(t)){
+		if (speed[curProblem] != 0 && cmd() == 0 && t && isChangedClass(t))
 			changeClass(t);
-			newCmd = true;
-		}
+		newCmd = cmd() == 0;
 		var x = curX[curProblem];
 		var y = curY[curProblem];
 		t = divN().replace(/\d{1,}/, "")
@@ -362,12 +371,19 @@
 	}
 	function nextCmd(){
 		var t = curProblem;
-		if ((divI() == list().length - 1 && cmd() == list()[divI() - 1].cnt) || (divI() >= list().length))
+		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt - 1)){
+			curState[t].divIndex = list().length;
+			++curState[t].step;
+			curState[t].cmdIndex = 0;
+			return false;
+		}
+		else
+		if (divI() >= list().length)
 			return false;
 		if (cmd() == list()[divI()].cnt - 1)
 			with(curState[t]){
 				cmdIndex = 0;
-				divName =  curCmdList[t][divIndex++].name;
+				divName =  curCmdList[t][++divIndex].name;
 			}
 		else 
 			++curState[t].cmdIndex;
@@ -377,7 +393,7 @@
 	function nextStep(cnt){
 		if (dead[curProblem])
 			return;
-		if ((!cnt || step() < cnt - 1) && !pause[curProblem] && nextCmd())
+		if ( nextCmd() && !pause[curProblem] &&(!cnt || step() < cnt))
 			loop(cnt);
 		else {
 			playing[curProblem] = false;
@@ -390,7 +406,9 @@
 		playing[curProblem] = true;
 		if (!divN())
 			curState[curProblem].divName = list()[0].name;
-		if (((divI() == list().length) && (cmd() == list()[divI() - 1].cnt))|| divI() > list().length)
+		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt - 1) || (divI() >= list().length)){
 			setDefault();
-		nextStep(cnt);
+			setCounters();
+		}
+		loop(cnt);
 	}

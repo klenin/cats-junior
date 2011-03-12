@@ -316,8 +316,6 @@
 			return;
 		pause[curProblem] = false;
 		stopped[curProblem] = false;
-		/*if (curCmdIndex[curProblem] > curList[curProblem].length)
-			setDefault();*/
 		if (divI() >= list().length || ((divI() == list().length - 1) && cmd() == list()[divI()].cnt))
 			setDefault();
 		disableButtons();
@@ -325,16 +323,6 @@
 		if (cmd() == 0 && divI() == 0)
 			setCounters();
 		speed[curProblem] = s;
-		/*
-		curDivIndex[curProblem] = -1;
-		curStep[curProblem] = 0;*/
-		var arr = $("#sortable" + curProblem).sortable('toArray');
-		var k = 0;
-		for (var i = 0; i < arr.length; ++i){
-			var c = parseInt($('#' + arr[i] + ' input')[0].value);
-			curCmdList[curProblem][i].cnt = c;
-			curCmdList[curProblem][i].name = arr[i];
-		}
 		setTimeout(function() { play(); }, s);
 	}
 	
@@ -362,16 +350,21 @@
 		enableButtons();
 	}
 	nextClick = function(){
-		if ((!$("#sortable" + curProblem).sortable('toArray').length) || (divI() > list().length) || (divI() == list().length && 
-			cmd() >= list()[list().length - 1].cnt))
+		var t = curProblem;
+		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
+			curState[t].divIndex = list().length;
+			++curState[t].step;
+			curState[t].cmdIndex = 0;
 			return;
+		}
+		else
+			if (divI() >= list().length)
+				return;
 		if (cmd() == 0 && divI() == 0)
 			setCounters();
 		disableButtons();
 		hideCounters();
-		if (nextCmd())
-			loop(step() + 1);
-		enableButtons();
+		loop(step() + 1);
 	}
 	prevClick = function(){
 		var t = step();
@@ -388,8 +381,6 @@
 		setCounters();
 		var s = speed[curProblem];
 		speed[curProblem] = 0;
-		play(t);
-		/*if (!isChangedClass(curDivName[curProblem]))
-			changeClass(curDivName[curProblem]);*/
+		loop(t);
 		speed[curProblem] = s;
 	}
