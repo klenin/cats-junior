@@ -19,8 +19,11 @@
 				cursor: 'move'
 			});
 			$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
-				if (ui.position.left > maxx || ui.position.top < miny)
+				if (ui.position.left > maxx || ui.position.top < miny){
 					ui.item.remove();
+					updated();
+					return;
+				}
 				var id = ui.item.attr('id');
 				id = id.replace(/\d{1,}/, "");
 				id += cmdId;
@@ -46,12 +49,9 @@
 					revert: 'invalid',
 					cursor: 'default'
 				});
-				$("#" + divs[k] + curProblem).bind( "dragstop", function(event, ui){
-					/*for (var j = 0; j < divs.length; ++j)
-						if ($(this).hasClass(divs[j]))
-							addNewCmd(divs[j], false);*/
-				});
 				$("#" + divs[k] + curProblem).live('dblclick', function(){
+					if ($(this).attr('ifLi'))
+						return;
 					for (var j = 0; j < divs.length; ++j)
 						if ($(this).hasClass(divs[j]))
 							addNewCmd(divs[j], true);

@@ -221,25 +221,41 @@
 		var j = curCmdList[curProblem].length;
 		if(!curCmdList[curProblem].length)
 			needToClear = true;
-		var k = 0;
 		for (var i = 0; i < arr.length; ++i){
 			var c = parseInt($('#' + arr[i] + ' input')[0].value);
 			if (!curCmdList[curProblem][i])
 				curCmdList[curProblem][i] = new Object();
 			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt != c)){
-				if (i < curState[curProblem].divIndex){
-					needToClear = true;
-					j = 0;
+				if (i < divI()){
+					/*if ((i == list().length - 1) && (list().length == divI())){
+						with(curState[curProblem]){
+							divIndex = list().length - 1;
+							cmdIndex = c - 1;
+							divName = arr[i];
+							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('cnt', c);
+							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
+						}
+					}
+					else{*/
+						needToClear = true;
+						j = 0;
+					//}
 				}
+				else
+					if ((i == divI()) && (j > i))
+						j = i;
 				curCmdList[curProblem][i].name = arr[i];
 				curCmdList[curProblem][i].cnt = c;
 			}
 		}
+		if (i < curCmdList[curProblem].length)
+			curCmdList[curProblem].splice(i, curCmdList[curProblem].length - i);
 		if (needToClear){
 			setDefault();
 			clearClasses();
 		}
-		curState[curProblem].divName = list()[divI()].name;
+		if (divI() < list().length)
+			curState[curProblem].divName = list()[divI()].name;
 		showCounters();
 		setCounters(j);
 	}
@@ -261,7 +277,7 @@
 			specSymbols[curProblem].cur_count[k] = 0;
 		}
 		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][curCmdIndex[curProblem] % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[curCmdIndex[curProblem] % movingElems[curProblem].symbol.length][0].x);
+			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][step() % movingElems[curProblem].symbol.length].y * 100 + movingElems[curProblem].path[step() % movingElems[curProblem].symbol.length][0].x);
 			$(s).empty();
 			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][0].y * 100 + movingElems[curProblem].path[k][0].x);
 			$(s).append("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
@@ -287,6 +303,7 @@
 		curY[curProblem] = startY[curProblem];
 		clearClasses();
 		stopped[curProblem] = false;
+		pnts[curProblem] = 0;
 		with (curState[curProblem]){
 			cmdIndex = 0;
 			divIndex = 0;

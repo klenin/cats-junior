@@ -227,10 +227,8 @@
 				var divs = problems[i].commands;
 				for (var j = 0; j < divs.length; ++j){
 					$("#ul_comands" + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + '"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
-					if($.browser.msie){
-						//$('#' + divs[j] + i).css('width', '180px');
+					if($.browser.msie)
 						$('#' + divs[j] + i).css('height', '35px');
-					}
 				}
 				$("#tdCmd" + i).append('</ul>');
 				$("#2tr" + i).append('</td>');
@@ -261,10 +259,8 @@
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
 			$("#sortable" + curProblem).append('<li id = "' + str + cmdId + '" class = "' + str + ' ui-draggable"><span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
-			if($.browser.msie){
-				//$('#' + str + cmdId).css('width', '180px');
+			if($.browser.msie)
 				$('#' + str + cmdId).css('height', '35px');
-			}
 			$("#" + str + cmdId).attr('numId', cmdId);
 			$("#" + str + cmdId).attr('ifLi', 1);
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
@@ -320,8 +316,7 @@
 			setDefault();
 		disableButtons();
 		hideCounters();
-		if (cmd() == 0 && divI() == 0)
-			setCounters();
+		setCounters(divI() + 1);
 		speed[curProblem] = s;
 		setTimeout(function() { play(); }, s);
 	}

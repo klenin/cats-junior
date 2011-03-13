@@ -24,7 +24,7 @@
 			}
 		}
 		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
-			if (curCmdIndex[curProblem] > movingElems[curProblem].path[k].length && !movingElems[curProblem].looped[k])
+			if (step() > movingElems[curProblem].path[k].length && !movingElems[curProblem].looped[k])
 				continue;
 			var j = i % movingElems[curProblem].path[k].length;
 			var x = movingElems[curProblem].path[k][j].x;
