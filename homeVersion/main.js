@@ -58,7 +58,23 @@
 					updated();
 				});
 			}
-  		});    
+  		});  
+		
+		$("#about").dialog({
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$( this ).dialog( "close" );
+				}
+			}, 
+			autoOpen: false,
+			title: 'О системе',
+		});
+		$("#about").html('Здесь будет help и информация о системе');
+		$("#aboutBtn").click(function() {
+			$("#about").dialog('open');
+			return false;
+		});
   		for (var i = 0; i < problems.length; ++i){
 			curState[i] = new Object();
 			curCmdList[i] = new Array();
@@ -90,6 +106,7 @@
 				s = "#" + (i* 10000 + movingElems[i].path[k][0].y * 100 + movingElems[i].path[k][0].x);
 				$(s).prepend("<div class = '" + movingElems[i].style[k] + "'></div>");
 			}
+			highlightMap(i, curX[i], curY[i]);
 			$( "ul, li" ).disableSelection();
 		}
 	});

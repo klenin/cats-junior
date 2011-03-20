@@ -39,7 +39,7 @@ ul.sortable{
 	height: 400px;
 	overflow: auto;
 }
-td.wall, td.floor{
+td.wall, td.floor, td.highlightFloor, td.highlightWall{
 	width: 30px;
 	height: 30px;
 	border: 0px;
@@ -49,6 +49,8 @@ td.wall, td.floor{
 }
 td.wall{ background-image: url('../images/wall.jpg'); }
 td.floor{ background-image: url('../images/floor.jpg'); }
+td.highlightWall{ background-image: url('../images/wall_.jpg'); }
+td.highlightFloor{ background-image: url('../images/floor_.jpg'); }
 div.key, div.lock, div.up, div.down, div.left, div.right, div.star, div.BigStar, div.MiddleStar, div.box, div.monster{	
 	width: 100%;
 	height: 100%;

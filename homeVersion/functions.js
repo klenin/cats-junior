@@ -259,6 +259,30 @@
 		showCounters();
 		setCounters(j);
 	}
+	function highlightMap(l, x, y){
+		for (var i = 0; i < curMap[l].length; ++i){
+			s  = "#" + (l * 10000 + i * 100 + x);
+			if ($(s).hasClass('floor'))
+				$(s).addClass('highlightFloor');
+			if ($(s).hasClass('wall'))
+				$(s).addClass('highlightWall');
+			s  = "#" + (l * 10000 + y * 100 + i);
+			if ($(s).hasClass('floor'))
+				$(s).addClass('highlightFloor');
+			if ($(s).hasClass('wall'))
+				$(s).addClass('highlightWall');
+		}	
+	}
+	function highlightMapOff(l, x, y){
+		for (var i = 0; i < curMap[l].length; ++i){
+			s  = "#" + (l * 10000 + i * 100 + x);
+			$(s).removeClass('highlightFloor');
+			$(s).removeClass('highlightWall');
+			s  = "#" + (l * 10000 + y * 100 + i);
+			$(s).removeClass('highlightFloor');
+			$(s).removeClass('highlightWall');
+		}	
+	}
 	function setDefault(f){
 		enableButtons();
 		dead[curProblem] = false;
@@ -268,6 +292,8 @@
 			for (var j = 0; j < curMap[curProblem][i].length; ++j){
 				s = '#' + (curProblem* 10000 + i * 100 + j);
 				$(s).empty();
+				$(s).removeClass('highlightFloor');
+				$(s).removeClass('highlightWall');
 			}
 		}
 		for (var k = 0; k < specSymbols[curProblem].coord.x.length; ++k){
@@ -318,6 +344,7 @@
 		if (!f){
 			s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
+			highlightMap(curProblem, curX[curProblem], curY[curProblem]);
 		}
 	}
 	function prevDivName(){
@@ -376,8 +403,10 @@
 			if (checked){
 				s = '#' + (curProblem* 10000 + y * 100 + x);
 				$(s).empty();
+				highlightMapOff(curProblem, x, y);
 				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
+				highlightMap(curProblem, curX[curProblem], curY[curProblem]);
 			}
 			if (newCmd || cmd() == 0)
 				changeClass(divN());

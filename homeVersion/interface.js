@@ -251,10 +251,8 @@
 				$("#tdSt" + i).append(problems[i].statement);
 			}
 		});	
-		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1), "О системе");	
-		$("#tabs").tabs('url', problems.length + 1, 'about.html');	
-		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 2), "Результаты");	
-		$("#ui-tabs-" + (problems.length + 2)).append('<table style = "width: 100%; height: 100%"><tr><td><iframe src = "http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;" style = "width: 100%; height: 100%"></iframe></td></tr></table>');
+		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1), "Результаты");	
+		$("#ui-tabs-" + (problems.length + 1)).append('<table style = "width: 100%; height: 100%"><tr><td><iframe src = "http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;" style = "width: 100%; height: 100%"></iframe></td></tr></table>');
 	}
 	function addNewCmd(str, dblClick, elem){
 		if (dblClick){
