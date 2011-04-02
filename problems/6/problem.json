@@ -1,0 +1,10 @@
+﻿{
+	"name": "Обучение-2",
+	"statement": "Необходимо подобрать звездочку",
+	"testsNum": 1,
+	"commands": ["forward", "left", "right"],
+	"start_life": 1,
+	"d_life": 0,
+	"start_pnts": 0,
+	"finish_symb": 0
+}
