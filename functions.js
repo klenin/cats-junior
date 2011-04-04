@@ -85,6 +85,7 @@
 				problems[i].d_life = data.d_life;
 				problems[i].start_pnts = data.start_pnts;
 				problems[i].finish_symb = data.finish_symb;
+				problems[i].max_step = data.max_step;
 			},
 			error: function(r, err1, err2){
 				alert(r.responseText);
@@ -142,20 +143,27 @@
 					problems[l].finish_symb = data.finish_symb;
 				var tmp = data.moving_elements;
 				movingElems[l] = [];
-				movingElems[l].style = [];
-				movingElems[l].path = [];
-				movingElems[l].looped = [];
-				movingElems[l].die = [];
-				movingElems[l].symbol = [];
 				for (var i = 0; i < tmp.length; ++i){
-					movingElems[l].style.push(tmp[i].style);
-					movingElems[l].path[i] = [];
-					for (var j = 0; j < tmp[i].path.length; ++j)
-						movingElems[l].path[i].push(tmp[i].path[j]);
-					movingElems[l].looped.push(tmp[i].looped);
-					movingElems[l].die.push(tmp[i].die);
-					movingElems[l].symbol.push(mElemId);
-					mapFromTest[l][tmp[i].path[0].y][tmp[i].path[0].x] = "" + mElemId++;
+					var monster = new Object();
+					monster.path = [];
+					monster.style = tmp[i].style;
+					monster.looped = tmp[i].looped;
+					monster.die = tmp[i].die;
+					monster.id = mElemId[curProblem]++;
+					monster.dLife = tmp[i].dLife ? tmp[i].dLife : 0;
+					monster.pnts = tmp[i].pnts ? tmp[i].pnts : 0;
+					for (var j = 0; j < tmp[i].path.length; ++j){
+						monster.path[j] = new Object();
+						monster.path[j].x = tmp[i].path[j].x;
+						monster.path[j].y = tmp[i].path[j].y;
+						monster.path[j].startX = tmp[i].path[j].x;
+						monster.path[j].startY = tmp[i].path[j].y;
+						monster.path[j].dir = tmp[i].path[j].dir;
+						monster.path[j].initCnt = tmp[i].path[j].initCnt;
+						monster.path[j].cnt = 0;
+					}
+					monster.pathIndex = 0;
+					movingElems[l].push(monster);
 				}
 			},
 			error: function(r, err1, err2){
@@ -306,9 +314,16 @@
 			$(s).append("<div class = '" + specSymbols[curProblem].style[k] + "'></div>");
 			specSymbols[curProblem].cur_count[k] = 0;
 		}
-		for (var k = 0; k < movingElems[curProblem].symbol.length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems[curProblem].path[k][0].y * 100 + movingElems[curProblem].path[k][0].x);
-			$(s).append("<div class = '" + movingElems[curProblem].style[k] + "'></div>");
+		for (var k = 0; k < movingElems[curProblem].length; ++k){
+			s = "#" + (curProblem* 10000 + movingElems[curProblem][k].path[0].startY * 100 + movingElems[curProblem][k].path[0].startX);
+			
+			for (var t = 0; t < movingElems[curProblem][k].path.length; ++t){
+				movingElems[curProblem][k].path[t].cnt = 0;
+				movingElems[curProblem][k].path[t].y = movingElems[curProblem][k].path[t].startY;
+				movingElems[curProblem][k].path[t].x = movingElems[curProblem][k].path[t].startX;
+			}
+			movingElems[curProblem][k].pathIndex = 0;
+			$(s).append("<div class = '" + movingElems[curProblem][k].style + "'></div>");
 		}
 		for (var k = 0; k < problems[curProblem].cleaner.length; ++k){			
 			var y = problems[curProblem].cleaner[k].y;			
@@ -326,7 +341,7 @@
 		copyMap(curProblem);
 		pause[curProblem] = false;
 		$("#cons" + curProblem).empty();
-		curDir[curProblem] = startDir;
+		curDir[curProblem] = startDir[curProblem];
 		curX[curProblem] = startX[curProblem];
 		curY[curProblem] = startY[curProblem];
 		clearClasses();
@@ -389,12 +404,12 @@
 					curY[curProblem] += dy[curProblem];
 				}
 				else{
-						$("#cons" + curProblem).append("Шаг " + step() + ": Уткнулись в стенку \n");
+						$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Уткнулись в стенку \n");
 						var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 						$(s).effect("highlight", {}, 300);
 					}
 			else
-				$("#cons" + curProblem).append("Шаг " + step() + ": Выход за границу лабиринта \n");
+				$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Выход за границу лабиринта \n");
 		if (divN()){
 			var numId = $("#" + divN()).attr('numId');
 			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
@@ -435,7 +450,11 @@
 			}
 		else 
 			++curState[t].cmdIndex;
-		++curState[t].step;
+		$("#curStep" + curProblem).attr('value', ++curState[t].step + 1);
+		if (curState[t].step + 1 == problems[t].max_step){
+			$("#cons" + t).append('Превышен лимит затраченных шагов.');
+			dead[t] = true;
+		}
 		return true;
 	}
 	function nextStep(cnt){

@@ -199,7 +199,7 @@
 		$("#tabs").tabs("add", "#ui-tabs-0", "Выбор пользователя" );
 		changeUser();
 		callScript(pathPref + 'f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
-			for (var i = 0; i < 8/*data.problems.length*/; ++i){
+			for (var i = 0; i < 9/*data.problems.length*/; ++i){
 			    getProblemStatement(i);
 				getTest(i, 1);
 				if (data)					///////
@@ -208,8 +208,14 @@
 				$("#ui-tabs-" + (i + 1)).append('<table id = "main' + i + '">');
 				mainT = $("#main" + i);
 				mainT.append('<tr id = "1tr' + i +'">');
-				$("#1tr" + i).append('<td colspan = "3" id = "tdSt' + i + '" valign = "top">');
+				$("#1tr" + i).append('<td colspan = "' + (problems[i].max_step ? 2 : 3) +'" id = "tdSt' + i + '" valign = "top">');
 				$("#1tr" + i).append('</td>');
+				if (problems[i].max_step){
+					$("#1tr" + i).append('<td colspan id = "tdPnts' + i + '" valign = "top">');
+					$("#tdPnts" + i).append('Затрачено шагов: <input style = "width: 25px;"readonly id = "curStep' + i + '"> из ' + problems[i].max_step);
+					$("#1tr" + i).append('</td>');
+					$("#curStep" + i).attr('value', '0');
+				}
 				$("#1tr" + i).append('<td valign = "top" id = "tdAboutBtn' + i + '">');
 				$("#tdAboutBtn" + i).append('<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "aboutBtn' + i +'">');
 				$("#aboutBtn" + i).append('<span class="ui-button-text">?</span>');
@@ -255,7 +261,8 @@
 				fillLabyrinth1(i);
 				$("#tdSt" + i).append(problems[i].statement);
 			}
-		});	
+		});
+			
 		$("#tabs").tabs("add", "#ui-tabs-" + (problems.length + 1), "Результаты");	
 		$("#ui-tabs-" + (problems.length + 1)).append('<table style = "width: 100%; height: 100%"><tr><td><iframe src = "http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;" style = "width: 100%; height: 100%"></iframe></td></tr></table>');
 	}

@@ -83,7 +83,7 @@
 			curState[i].divIndex = 0;
 			curState[i].step = 0;
 			curState[i].divName = "";
-			curDir[i] = startDir;
+			curDir[i] = startDir[i];
 			curX[i] = startX[i];
 			curY[i] = startY[i];
 			speed[i] = 300;
@@ -103,9 +103,9 @@
 				s = "#" + (i* 10000 + specSymbols[i].path[k][0].y * 100 + specSymbols[i].path[k][0].x);
 				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
 			}
-			for (var k = 0; k < movingElems[i].symbol.length; ++k){
-				s = "#" + (i* 10000 + movingElems[i].path[k][0].y * 100 + movingElems[i].path[k][0].x);
-				$(s).prepend("<div class = '" + movingElems[i].style[k] + "'></div>");
+			for (var k = 0; k < movingElems[i].length; ++k){
+				s = "#" + (i* 10000 + movingElems[i][k].path[0].y * 100 + movingElems[i][k].path[0].x);
+				$(s).prepend("<div class = '" + movingElems[i][k].style + "'></div>");
 			}
 			highlightMap(i, curX[i], curY[i]);
 			$( "ul, li" ).disableSelection();

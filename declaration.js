@@ -6,7 +6,7 @@
 	var playing = []; // if commands are in progress
 	var dead = []; // if player lost
 	var curMap = []; // current state of labirint
-	var startDir = "right"; 
+	var startDir = []; 
 	var startX = [];
 	var startY = [];
 	var mapFromTest = []; // initial state of labirint
@@ -16,7 +16,7 @@
 	var curCmdList = [[]]; // current order of commands
 	var life = []; 
 	var pnts = [];
-	var mElemId = 0; // current number of moving elements
+	var mElemId = []; // current number of moving elements
 	var dx = [];
 	var dy = [];
 	var curProblem = 0;

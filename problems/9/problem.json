@@ -1,5 +1,5 @@
 ﻿{
-	"name": "Задача 1",
+	"name": "Задача 2",
 	"statement": "Необходимо набрать максимальное количество очков",
 	"testsNum": 1,
 	"commands": ["forward", "left", "right"],
