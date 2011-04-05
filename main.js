@@ -4,7 +4,7 @@
 				curProblem = ui.index - 1;
 			}
 		});
-		$("#tabs").tabs('paging', { cycle: false, follow: true } );
+		$("#tabs").tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 		fillTabs();
 		document.title = "";
 		for (var i = 0; i < 3; ++i)

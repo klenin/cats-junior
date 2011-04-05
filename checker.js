@@ -5,14 +5,25 @@
 				s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).empty();
 				dead[curProblem] = true;
-				return false;
+				highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);	
+				highlightMap(curProblem, mx, my);	
+				for (var k = 0; k < movingElems[curProblem].length; ++k)
+					drawMonster(movingElems[curProblem][k]);
+				return true;
 			}
 			life[curProblem] += monster.d_life;
 			pnts[curProblem] += monster.points;
 		}
-		return true;
+		return false;
 	}
-	function checkCell(i){
+	function drawMonster(monster){
+		x = monster.path[monster.pathIndex].x;
+		y = monster.path[monster.pathIndex].y;
+		s = "#" + (curProblem* 10000 + y * 100 + x);
+		$(s).empty();
+		$(s).append("<div class = '" + monster.style + "'></div>");
+	}
+	function checkCell(i, cnt){
 		life[curProblem] += problems[curProblem].d_life;
 		pnts[curProblem] = pnts[curProblem] ? pnts[curProblem] : 0;
 		var c_x = curX[curProblem] + dx[curProblem];
@@ -33,8 +44,8 @@
 							$(s).empty();
 							$(s).append("<div class = '" + specSymbols[curProblem].style_list[j] + "'></div>");
 						}
-					if (!isEaten(monster, x, y, c_x, c_y))
-						return false;
+				if (isEaten(monster, x, y, c_x, c_y))
+					return false;
 				if (monster.path[monster.pathIndex].cnt == monster.path[monster.pathIndex].initCnt)
 					++monster.pathIndex;
 			}
@@ -57,10 +68,7 @@
 			movingElems[curProblem][k] = monster;
 			if (curMap[curProblem][y][x] == "#")
 				continue;
-			s = "#" + (curProblem* 10000 + y * 100 + x);
-			$(s).empty();
-			$(s).append("<div class = '" + monster.style + "'></div>");
-			if (!isEaten(monster, x, y, c_x, c_y))
+			if (isEaten(monster, x, y, c_x, c_y))
 				return false;
 		}
 		if (c_x >= curMap[curProblem][0].length || c_x < 0 || c_y >= curMap[curProblem].length || c_y < 0)
@@ -124,5 +132,27 @@
 			dead[curProblem] = true;
 			return false;
 		}
+	if (c_x >= 0 && c_x < curMap[curProblem][0].length && c_y >= 0 && c_y < curMap[curProblem].length)
+		if (curMap[curProblem][c_y][c_x] != '#' && curMap[curProblem][c_y][c_x] != '#_'){
+			if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
+				s = '#' + (curProblem* 10000 + curY[curProblem]* 100 + curX[curProblem]);
+				$(s).empty();
+				highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);
+				s = '#' + (curProblem* 10000 + c_y * 100 + c_x);
+				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
+				highlightMap(curProblem, c_x, c_y);	
+				for (var k = 0; k < movingElems[curProblem].length; ++k)
+					drawMonster(movingElems[curProblem][k]);
+			}			
+			curX[curProblem] = c_x;
+			curY[curProblem] = c_y;
+		}
+		else{
+			$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Уткнулись в стенку \n");
+			var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+			$(s).effect("highlight", {}, 300);
+			}
+	else
+		$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Выход за границу лабиринта \n");
 	return true;
 }

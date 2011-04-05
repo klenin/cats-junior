@@ -204,7 +204,7 @@
 				getTest(i, 1);
 				if (data)					///////
 					problemsList.push({"id":data.problems[i].id, "name": data.problems[i].name});
-				$("#tabs").tabs("add", "#ui-tabs-" + (i + 1),problems[i].name );
+				$("#tabs").tabs("add", "#ui-tabs-" + (i + 1), problems[i].name );
 				$("#ui-tabs-" + (i + 1)).append('<table id = "main' + i + '">');
 				mainT = $("#main" + i);
 				mainT.append('<tr id = "1tr' + i +'">');

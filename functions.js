@@ -392,24 +392,9 @@
 		dx[curProblem] = changeDir[t][curDir[curProblem]].dx;
 		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
 		curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
-		var checked = checkCell(step());
+		var checked = checkCell(step(), cnt);
 		if (dead[curProblem])
 			return;
-		if (checked)
-			if (curX[curProblem] + dx[curProblem] >= 0 && curX[curProblem] + dx[curProblem] < curMap[curProblem][0].length 
-				&& curY[curProblem] + dy[curProblem] >= 0 && curY[curProblem] + dy[curProblem] < curMap[curProblem].length)
-				if ((curMap[curProblem][curY[curProblem] + dy[curProblem]][curX[curProblem] + dx[curProblem]] != '#') &&
-					(curMap[curProblem][curY[curProblem] + dy[curProblem]][curX[curProblem] + dx[curProblem]] != '#_')){
-					curX[curProblem] += dx[curProblem];
-					curY[curProblem] += dy[curProblem];
-				}
-				else{
-						$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Уткнулись в стенку \n");
-						var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-						$(s).effect("highlight", {}, 300);
-					}
-			else
-				$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Выход за границу лабиринта \n");
 		if (divN()){
 			var numId = $("#" + divN()).attr('numId');
 			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
@@ -417,14 +402,6 @@
 			$("#spinCnt" + numId).attr('value', newCnt + "/" + $("#spin" + numId).attr('value'));
 		}
 		if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
-			if (checked){
-				s = '#' + (curProblem* 10000 + y * 100 + x);
-				$(s).empty();
-				highlightMapOff(curProblem, x, y);
-				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
-				highlightMap(curProblem, curX[curProblem], curY[curProblem]);
-			}
 			if (newCmd || cmd() == 0)
 				changeClass(divN());
 			setTimeout(function() { nextStep(cnt); }, speed[curProblem]);
