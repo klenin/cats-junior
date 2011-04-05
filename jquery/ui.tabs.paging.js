@@ -67,7 +67,9 @@ $.extend($.ui.tabs.prototype, {
             // fix padding issues with buttons
             // TODO determine a better way to handle this
 			allTabsWidth += maxDiff + ($.browser.msie?4:0) + 9;  
-
+			if (tabWidths.length == 11){
+				var i = i;
+			}
 			// if the width of all tables is greater than the container's width, calculate the pages
 			if (allTabsWidth > containerWidth) {
 				// create next button			
@@ -95,31 +97,34 @@ $.extend($.ui.tabs.prototype, {
 				var pageIndex = 0, pageWidth = 0, maxTabPadding = 0;
 				
 				// start calculating pageWidths
-				for (var i = 0; i < tabWidths.length; i++) {
+				var i = 0;
+				while (true) {
 					// if first tab of page or selected tab's padding larger than the current max, set the maxTabPadding
 					if (pageWidth == 0 || selectedTabWidths[i] - tabWidths[i] > maxTabPadding)
 						maxTabPadding = (selectedTabWidths[i] - tabWidths[i]);
 					
 					// if first tab of page, initialize pages variable for page 
 					if (pages[pageIndex] == null) {
-						pages[pageIndex] = { start: i };
+						pages[pageIndex] = { start: i, end: i - 1 };
 					
 					} else if ((i > 0 && (i % opts.tabsPerPage) == 0) || (tabWidths[i] + pageWidth + buttonWidth + 12) > containerWidth) {
 						if ((pageWidth + maxTabPadding) > maxPageWidth)	
 							maxPageWidth = (pageWidth + maxTabPadding);
 						pageIndex++;
-						pages[pageIndex] = { start: i };			
+						pages[pageIndex] = { start: pages[pageIndex - 1].start + 1, end: pages[pageIndex - 1].start};		
 						pageWidth = 0;
 					}
-					pages[pageIndex].end = i+1;
+					i = pages[pageIndex].end = pages[pageIndex].end + 1;
 					pageWidth += tabWidths[i];
 					if (i == self.options.selected) currentPage = pageIndex;
+					if (i == tabWidths.length - 1)
+						break;
 				}
 				if ((pageWidth + maxTabPadding) > maxPageWidth)	
 					maxPageWidth = (pageWidth + maxTabPadding);				
 
 			    // hide all tabs then show tabs for current page
-				self.lis.hide().slice(pages[currentPage].start, pages[currentPage].end).show();
+				self.lis.hide().slice(pages[currentPage].start, pages[currentPage].end + 1).show();
 				if (currentPage == (pages.length - 1) && !opts.cycle) 
 					disableButton('next');			
 				if (currentPage == 0 && !opts.cycle) 
@@ -150,7 +155,7 @@ $.extend($.ui.tabs.prototype, {
 			
 			var start = pages[currentPage].start;
 			var end = pages[currentPage].end;
-			self.lis.hide().slice(start, end).show();
+			self.lis.hide().slice(start, end + 1).show();
 			
 			if (direction == 'prev') {
 				enableButton('next');
@@ -159,7 +164,8 @@ $.extend($.ui.tabs.prototype, {
 			} else {
 				enableButton('prev');
 				if (opts.follow && (self.options.selected < start || self.options.selected > (end-1))) self.select(start);
-				if (!opts.cycle && end >= self.length()) disableButton('next');
+				var i = self.length();
+				if (!opts.cycle && end + 1 >= self.length()) disableButton('next');
 			}
 		}
 		
@@ -242,7 +248,7 @@ $.extend($.ui.tabs.prototype, {
 				if (index >= start && index < end) {
 					// if the the tab selected is not within the currentPage of tabs, then change pages
 					if (i != currentPage) {
-						self.lis.hide().slice(start, end).show();
+						self.lis.hide().slice(start, end + 1).show();
 						
 						currentPage = parseInt(i);
 						if (currentPage == 0) {
@@ -250,7 +256,7 @@ $.extend($.ui.tabs.prototype, {
 							if (!opts.cycle && start <= 0) disableButton('prev');
 						} else {
 							enableButton('prev');
-							if (!opts.cycle && end >= self.length()) disableButton('next');
+							if (!opts.cycle && end + 1 >= self.length()) disableButton('next');
 						}
 					}
 					break;
