@@ -10,7 +10,7 @@
 		if (atHome){
 			$.ajax({
 				async: false,
-				dataType : "json",
+				dataType : 'json',
 				url: 'script.php',
 				data: 'url='+ url,
 				success: function(data) {
@@ -24,7 +24,7 @@
 		else{
 			$.ajax({
 				async: false,
-				dataType : "json",
+				dataType : 'json',
 				url: url,
 				success: function(data) {
 					callback(data);
@@ -37,8 +37,8 @@
 			return;
 		$.ajax({  
 			async: false,
-			url: "submit.php",
-			type: "POST",
+			url: 'submit.php',
+			type: 'POST',
 			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 			success: function(html){  
 				callback(html);
@@ -51,7 +51,7 @@
 		$.ajax({  
 			async: false,
 			url: url,
-			type: "POST",
+			type: 'POST',
 			contentType: 'multipart/form-data',
 			data: submitData,
 			beforeSend: function(xhr){
@@ -174,7 +174,7 @@
 	function changeClass(elem){
 		if (!elem)
 			return false;
-		elem = $("#" + elem);
+		elem = $('#' + elem);
 		var divs = ['forward', 'right', 'left', 'wait'];
 		for (var k = 0; k < divs.length; ++k){
 			if (elem.hasClass(divs[k])){
@@ -190,7 +190,7 @@
 	function isChangedClass(elem){
 		if (!elem)
 			return false;
-		elem = $("#" + elem);
+		elem = $('#' + elem);
 		var divs = ['forward', 'right', 'left', 'wait'];
 		for (var k = 0; k < divs.length; ++k)
 			if (elem.hasClass(divs[k] + 1))
@@ -198,7 +198,7 @@
 		return false;
 	}
 	function clearClasses(){
-		var el = $("#sortable" + curProblem).children();
+		var el = $('#sortable' + curProblem).children();
 		l = el.length;
 		for (var i = 0; i < l; ++i){
 			if (isChangedClass(el.attr('id')))
@@ -213,8 +213,10 @@
 			j--;
 		}
 		while (el.length > 0){
-			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
-			$("#spinCnt" + el.attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
+			var numId = el.attr('numId');
+			var val = $('#spin' + numId).attr('value');
+			$('#spinCnt' + numId).attr('cnt', val);
+			$('#spinCnt' + numId).attr('value', val + '/' + val);
 			el = el.next();
 		}
 	}
@@ -224,26 +226,29 @@
 	function step(){ return curState[curProblem].step; }
 	function list() {return curCmdList[curProblem]; }
 	function updated(){
-		var arr = $("#sortable" + curProblem).sortable('toArray');
+		var arr = $('#sortable' + curProblem).sortable('toArray');
 		var needToClear = false;
-		var j = curCmdList[curProblem].length;
+		var j = curCmdList[curProblem].length;  //number of first cmd that counters must be changed
 		if(!curCmdList[curProblem].length)
 			needToClear = true;
 		for (var i = 0; i < arr.length; ++i){
-			var c = parseInt($('#' + arr[i] + ' input')[0].value);
+			var c = parseInt($('#' + arr[i] + ' input')[0].value); //current counter
 			if (!curCmdList[curProblem][i])
 				curCmdList[curProblem][i] = new Object();
-			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt != c)){
-				if (i < divI()){
-					if(curCmdList[curProblem][i].name == arr[i] && (i == divI() - 1) && (cmd() == 0) && curCmdList[curProblem][i].cnt <= c && cmdListEnded[curProblem]){
-						with(curState[curProblem]){
-							divIndex = list().length - 1;
+			if (curCmdList[curProblem][i].name != arr[i] || 
+				(curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt != c)){ //if command was changed
+				if (i < divI()){   
+					if (cmdListEnded[curProblem] && (i == divI() - 1) && 
+						(curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt < c)){ //after axecuting all 
+						with(curState[curProblem]){                   //of commands the counter of the last command was increased
+							divIndex = i;
 							cmdIndex = c - 1;
 							divName = arr[i];
-							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('cnt', c - curCmdList[curProblem][i].cnt);
-							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('value', 
-									(c - curCmdList[curProblem][i].cnt) + "/" + $("#spin" + $('#' + arr[i]).attr('numId')).attr('value'));
 						}
+						var numId = $('#' + arr[i]).attr('numId');
+						$('#spinCnt' + numId).attr('cnt', c - curCmdList[curProblem][i].cnt);
+						$('#spinCnt' + numId).attr('value', 
+								$('#spinCnt' + numId).attr('cnt') + '/' + $('#spin' + numId).attr('value'));
 					}
 					else{
 						needToClear = true;
@@ -251,57 +256,59 @@
 					}
 				}
 				else
-					if (i == divI()){
-						if (i < arr.length - 1 && cmdListEnded[curProblem])
-							needToClear = true;
-						else
-							if (j > i)
-								j = i;
-					}
+					if (i == divI()){     //parameters of last executed cmd were changed
+						if (curCmdList[curProblem][i].name == arr[i]){   //if counter was changed
+							if (curCmdList[curProblem][i].cnt > c)
+								needToClear = true;
+							else{   //change the value of counter
+								var numId = $('#' + arr[i]).attr('numId');
+								$('#spinCnt' + numId).attr('cnt', parseInt($('#spinCnt' + numId).attr('cnt')) + 1);
+								$('#spinCnt' + numId).attr('value', 
+									$('#spinCnt' + numId).attr('cnt') + '/' + $('#spin' + numId).attr('value'));	
+							} 
+						}
+						else	
+							j = i;
+				}
 				curCmdList[curProblem][i].name = arr[i];
 				curCmdList[curProblem][i].cnt = c;
 			}
 		}
+		cmdListEnded[curProblem] = false;
 		if (i < curCmdList[curProblem].length)
 			curCmdList[curProblem].splice(i, curCmdList[curProblem].length - i);
-		cmdListEnded[curProblem] = false;
 		if (needToClear){
 			setDefault();
 			clearClasses();
 		}
-		cmdListEnded[curProblem] = false;
 		if (divI() < list().length)
 			curState[curProblem].divName = list()[divI()].name;
 		showCounters();
 		setCounters(j);
 	}
+	function highlightCell(l, y, x){
+		s  = '#' + (l * 10000 + y * 100 + x);
+		if ($(s).hasClass('floor'))
+			$(s).addClass('highlightFloor');
+		if ($(s).hasClass('wall'))
+			$(s).addClass('highlightWall');
+	}
+	function highlightCellOff(l, y, x){
+		s  = '#' + (l * 10000 + y * 100 + x);
+		$(s).removeClass('highlightFloor');
+		$(s).removeClass('highlightWall');
+	}
 	function highlightMap(l, x, y){
-		for (var i = 0; i < curMap[l].length; ++i){
-			s  = "#" + (l * 10000 + i * 100 + x);
-			if ($(s).hasClass('floor'))
-				$(s).addClass('highlightFloor');
-			if ($(s).hasClass('wall'))
-				$(s).addClass('highlightWall');
-		}	
-		for (var i = 0; i < curMap[l][0].length; ++i){
-			s  = "#" + (l * 10000 + y * 100 + i);
-			if ($(s).hasClass('floor'))
-				$(s).addClass('highlightFloor');
-			if ($(s).hasClass('wall'))
-				$(s).addClass('highlightWall');
-		}	
+		for (var i = 0; i < curMap[l].length; ++i)
+			highlightCell(l, i, x);
+		for (var i = 0; i < curMap[l][0].length; ++i)
+			highlightCell(l, y, i);
 	}
 	function highlightMapOff(l, x, y){
-		for (var i = 0; i < curMap[l].length; ++i){
-			s  = "#" + (l * 10000 + i * 100 + x);
-			$(s).removeClass('highlightFloor');
-			$(s).removeClass('highlightWall');
-		}	
-		for (var i = 0; i < curMap[l][0].length; ++i){
-			s  = "#" + (l * 10000 + y * 100 + i);
-			$(s).removeClass('highlightFloor');
-			$(s).removeClass('highlightWall');
-		}	
+		for (var i = 0; i < curMap[l].length; ++i)
+			highlightCellOff(l, i, x);
+		for (var i = 0; i < curMap[l][0].length; ++i)
+			highlightCellOff(l, y, i);
 	}
 	function setDefault(f){
 		enableButtons();
@@ -323,8 +330,8 @@
 			specSymbols[curProblem].cur_count[k] = 0;
 		}
 		for (var k = 0; k < movingElems[curProblem].length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems[curProblem][k].path[0].startY * 100 + movingElems[curProblem][k].path[0].startX);
-			
+			s = "#" + (curProblem* 10000 + movingElems[curProblem][k].path[0].startY * 100 + 
+								movingElems[curProblem][k].path[0].startX);
 			for (var t = 0; t < movingElems[curProblem][k].path.length; ++t){
 				movingElems[curProblem][k].path[t].cnt = 0;
 				movingElems[curProblem][k].path[t].y = movingElems[curProblem][k].path[t].startY;
@@ -364,12 +371,12 @@
 		}
 		var el = $('#sortable' + curProblem).children();
 		while (el.length > 0){
-			$("#spinCnt" + el.attr('numId')).attr('cnt', $("#spin" + el.attr('numId')).attr('value'));
+			$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
 			el = el.next();
 		}
 		if (!f){
-			s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-			$(s).append("<div class = '" + curDir[curProblem] + "'></div>");
+			s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+			$(s).append('<div class = "' + curDir[curProblem] + '"></div>');
 			highlightMap(curProblem, curX[curProblem], curY[curProblem]);
 		}
 	}
@@ -405,10 +412,10 @@
 		if (dead[curProblem])
 			return;
 		if (divN()){
-			var numId = $("#" + divN()).attr('numId');
-			var newCnt = $("#spinCnt" + numId).attr('cnt') - 1;
-			$("#spinCnt" + numId).attr('cnt', newCnt);
-			$("#spinCnt" + numId).attr('value', newCnt + "/" + $("#spin" + numId).attr('value'));
+			var numId = $('#'+ divN()).attr('numId');
+			var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
+			$('#spinCnt' + numId).attr('cnt', newCnt);
+			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
 		}
 		if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
 			if (newCmd || cmd() == 0)
@@ -437,9 +444,9 @@
 			}
 		else 
 			++curState[t].cmdIndex;
-		$("#curStep" + curProblem).attr('value', ++curState[t].step + 1);
+		$('#curStep' + curProblem).attr('value', ++curState[t].step + 1);
 		if (curState[t].step + 1 == problems[t].max_step){
-			$("#cons" + t).append('Превышен лимит затраченных шагов.');
+			$('#cons' + t).append('Превышен лимит затраченных шагов');
 			dead[t] = true;
 		}
 		return true;
@@ -460,7 +467,7 @@
 		playing[curProblem] = true;
 		if (!divN())
 			curState[curProblem].divName = list()[0].name;
-		if (divI() >= list().length || ((divI() == list().length - 1) && cmd() == list()[divI()].cnt)){
+		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt) || (divI() >= list().length)){
 			setDefault();
 			setCounters();
 		}

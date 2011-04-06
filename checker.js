@@ -1,8 +1,8 @@
 ﻿	function isEaten(monster, mx, my, px, py){
 		if (mx == px && my == py){
 			if (monster.die){
-				$("#cons" + curProblem).append("Вас съели. Попробуйте снова \n");
-				s = "#" + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+				$('#cons' + curProblem).append('Вас съели. Попробуйте снова \n');
+				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
 				$(s).empty();
 				dead[curProblem] = true;
 				highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);	
@@ -19,9 +19,9 @@
 	function drawMonster(monster){
 		x = monster.path[monster.pathIndex].x;
 		y = monster.path[monster.pathIndex].y;
-		s = "#" + (curProblem* 10000 + y * 100 + x);
+		s = '#' + (curProblem* 10000 + y * 100 + x);
 		$(s).empty();
-		$(s).append("<div class = '" + monster.style + "'></div>");
+		$(s).append('<div class = "' + monster.style + '"></div>');
 	}
 	function checkCell(i, cnt){
 		life[curProblem] += problems[curProblem].d_life;
@@ -34,15 +34,15 @@
 			if (monster.pathIndex < monster.path.length){
 				x = movingElems[curProblem][k].path[monster.pathIndex].x;
 				y = movingElems[curProblem][k].path[monster.pathIndex].y;
-				s = "#" + (curProblem* 10000 + y * 100 + x);
+				s = '#' + (curProblem* 10000 + y * 100 + x);
 				$(s).empty();
-				if (curMap[curProblem][y][x] != "." && curMap[curProblem][y][x] != "#" &&
-					curMap[curProblem][y][x] != "._" && curMap[curProblem][y][x] != "#_")
+				if (curMap[curProblem][y][x] != '.' && curMap[curProblem][y][x] != '#' &&
+					curMap[curProblem][y][x] != '._' && curMap[curProblem][y][x] != '#_')
 					for (var j = 0; j < specSymbols[curProblem].list.length; ++j)
 						if (specSymbols[curProblem].list[j] == curMap[curProblem][y][x]){
-							s = "#" + (curProblem* 10000 + y * 100 + x);
+							s = '#' + (curProblem* 10000 + y * 100 + x);
 							$(s).empty();
-							$(s).append("<div class = '" + specSymbols[curProblem].style_list[j] + "'></div>");
+							$(s).append('<div class = "' + specSymbols[curProblem].style_list[j] + '"></div>');
 						}
 				if (isEaten(monster, x, y, c_x, c_y))
 					return false;
@@ -50,7 +50,8 @@
 					++monster.pathIndex;
 			}
 			if ((monster.pathIndex >= monster.path.length || 
-				(monster.pathIndex == monster.path.length - 1 && monster.path[monster.pathIndex].cnt == monster.path[monster.pathIndex].initCnt))){
+				(monster.pathIndex == monster.path.length - 1 && 
+					monster.path[monster.pathIndex].cnt == monster.path[monster.pathIndex].initCnt))){
 				if (!movingElems[curProblem][k].looped)
 					continue;
 				for (var t = 0; t < monster.path.length; ++t){
@@ -66,7 +67,7 @@
 			monster.path[monster.pathIndex].y = y;
 			++monster.path[monster.pathIndex].cnt;
 			movingElems[curProblem][k] = monster;
-			if (curMap[curProblem][y][x] == "#")
+			if (curMap[curProblem][y][x] == '#')
 				continue;
 			if (isEaten(monster, x, y, c_x, c_y))
 				return false;
@@ -85,8 +86,8 @@
 					if ($(s).hasClass('floor'))						
 						break;					
 					//$(s).removeClass("wall");					
-					$(s).addClass("floor");
-					$("#cons" + curProblem).append("Шаг " + (i + 1) + ": Открыли ячейку с координатами " + x + ", " + y + "\n");
+					$(s).addClass('floor');
+					$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
 					curMap[curProblem][y][x] = '.';
 				}
 			}
@@ -94,13 +95,16 @@
 		for (var k = 0; k < specSymbols[curProblem].list.length; ++k){
 			if (curMap[curProblem][c_y][c_x] == specSymbols[curProblem].list[k]){
 				++specSymbols[curProblem].cur_count[k];
-				switch(specSymbols[curProblem]["do"][k]){
-					case "eat":
+				switch(specSymbols[curProblem]['do'][k]){
+					case 'eat':
 						if (specSymbols[curProblem].cur_count[k] == specSymbols[curProblem].count[k])
-							$("#cons" + curProblem).append("Шаг " + (i + 1) + ": Нашли все артефакты '" + specSymbols[curProblem].names[k] + "' \n");
+							$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Нашли все артефакты "' + 
+								specSymbols[curProblem].names[k] + '" \n');
 						else
-						$("#cons" + curProblem).append("Шаг " + (i + 1) + ": Нашли артефакт '" +specSymbols[curProblem].names[k] + "', " + specSymbols[curProblem].cur_count[k] +"-й \n");
-						$("#cons" + curProblem).append("Текущее количество очков: " + (pnts[curProblem] + specSymbols[curProblem].points[k]) + "\n");
+						$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Нашли артефакт "' + specSymbols[curProblem].names[k] + 
+							'", ' + specSymbols[curProblem].cur_count[k] + '-й \n');
+						$('#cons' + curProblem).append('Текущее количество очков: ' + 
+							(pnts[curProblem] + specSymbols[curProblem].points[k]) + "\n");
 						break;
 					case "move": //ящик, сможем пододвинуть, если за ним пусто
 						var t_x = c_x + dx[curProblem];
@@ -109,13 +113,13 @@
 							t_y >= curMap[curProblem].length || t_y < 0)
 							continue;
 						if (curMap[curProblem][t_y][t_x] != '.'){
-							$("#cons" + curProblem).append("Шаг " + (i + 1) + ": Не можем пододвинуть \n");
+							$("#cons" + curProblem).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
 							return false;
 						}
 						else{
 							s = '#' + (curProblem* 10000 + t_y * 100 + t_x);
 							$(s).empty();
-							$(s).append("<div class = '" + specSymbols[curProblem].style_list[k] + "'></div>");
+							$(s).append('<div class = "' + specSymbols[curProblem].style_list[k] + '"></div>');
 							curMap[curProblem][t_y][t_x] = curMap[curProblem][c_y][c_x];
 						}
 				}
@@ -128,7 +132,7 @@
 			}
 		}
 		if (life[curProblem] == 0){
-			$("#cons" + curProblem).append("Количество жизней = 0. Попробуйте снова \n");
+			$('#cons' + curProblem).append('Количество жизней = 0. Попробуйте снова \n');
 			dead[curProblem] = true;
 			return false;
 		}
@@ -148,11 +152,11 @@
 			curY[curProblem] = c_y;
 		}
 		else{
-			$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Уткнулись в стенку \n");
-			var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-			$(s).effect("highlight", {}, 300);
+			$("#cons" + curProblem).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
+			var s = '#' + (curProblem * 10000 + curY[curProblem] * 100 + curX[curProblem]);
+			$(s).effect('highlight', {}, 300);
 			}
 	else
-		$("#cons" + curProblem).append("Шаг " + (step() + 1) + ": Выход за границу лабиринта \n");
+		$('#cons' + curProblem).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
 	return true;
 }

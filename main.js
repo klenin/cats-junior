@@ -1,25 +1,25 @@
 ﻿	$(document).ready(function(){
-		$("#tabs").tabs({
+		$('#tabs').tabs({
 			select: function(event, ui) {
 				curProblem = ui.index - 1;
 			}
 		});
-		$("#tabs").tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
+		$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 		fillTabs();
 		document.title = "";
 		for (var i = 0; i < 3; ++i)
 			curCmdList[i] = [];
 		cmdId = problems.length;
-		divs = ["forward", "left", "right", "wait"];
-		$( "#tabs" ).bind( "tabsshow", function(event, ui) {
+		divs = ['forward', 'left', 'right', 'wait'];
+		$('#tabs').bind('tabsshow', function(event, ui) {
 			if (visited[curProblem])
 				return;
 			visited[curProblem] = 1;
-			$( "#sortable" + curProblem).sortable({
+			$('#sortable' + curProblem).sortable({
 				revert: false,
 				cursor: 'move'
 			});
-			$( "#sortable" + curProblem ).bind( "sortbeforestop", function(event, ui) {
+			$('#sortable' + curProblem ).bind('sortbeforestop', function(event, ui) {
 				if (ui.position.left > maxx || ui.position.top < miny){
 					ui.item.remove();
 					updated();
@@ -40,18 +40,18 @@
 				updated();
 				cmdListEnded[curProblem] = false;
 			});
-			$( "#sortable" + curProblem ).bind( "click", function(event, ui) {
+			$('#sortable' + curProblem ).bind('click', function(event, ui) {
 				if (!playing[curProblem])
 					showCounters();
 			});
 			for (var k = 0; k < divs.length; ++k){
-				$("#" + divs[k] + curProblem).draggable({
-					connectToSortable: ("#sortable" + curProblem),
+				$('#' + divs[k] + curProblem).draggable({
+					connectToSortable: ('#sortable' + curProblem),
 					helper: 'clone',
 					revert: 'invalid',
 					cursor: 'default'
 				});
-				$("#" + divs[k] + curProblem).live('dblclick', function(){
+				$('#' + divs[k] + curProblem).live('dblclick', function(){
 					if ($(this).attr('ifLi'))
 						return;
 					for (var j = 0; j < divs.length; ++j)
@@ -60,23 +60,22 @@
 					updated();
 				});
 			}
-			$("#aboutBtn" + curProblem).click(function() {
-				$("#about").dialog('open');
+			$('#aboutBtn' + curProblem).click(function() {
+				$('#about').dialog('open');
 				return false;
 			});
   		});  
-		
-		$("#about").dialog({
+		$('#about').dialog({
 			modal: true,
 			buttons: {
 				Ok: function() {
-					$( this ).dialog( "close" );
+					$( this ).dialog('close');
 				}
 			}, 
 			autoOpen: false,
 			title: 'О системе',
 		});
-		$("#about").html('Здесь будет help и информация о системе');
+		$('#about').html('Здесь будет help и информация о системе');
   		for (var i = 0; i < problems.length; ++i){
 			curState[i] = new Object();
 			curCmdList[i] = new Array();
@@ -95,21 +94,17 @@
 			playing[curProblem] = false;
 			dead[curProblem] = false;
 			cmdListEnded[i] = false;
-			var s = "#" + (i* 10000 + curY[i] * 100 + curX[i]);
-			$(s).append("<div class = '" + curDir[i] + "'></div>");
+			var s = '#' + (i* 10000 + curY[i] * 100 + curX[i]);
+			$(s).append('<div class = "' + curDir[i] + '"></div>');
 			for (var k = 0; k < specSymbols[i].style.length; ++k){
-				s = "#" + (i* 10000 + specSymbols[i].coord.y[k] * 100 + specSymbols[i].coord.x[k]);
-				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
-			}
-			for (var k = 0; k < specSymbols[i].symbol.length; ++k){
-				s = "#" + (i* 10000 + specSymbols[i].path[k][0].y * 100 + specSymbols[i].path[k][0].x);
-				$(s).prepend("<div class = '" + specSymbols[i].style[k] + "'></div>");
+				s = '#' + (i * 10000 + specSymbols[i].coord.y[k] * 100 + specSymbols[i].coord.x[k]);
+				$(s).prepend('<div class = "' + specSymbols[i].style[k] + '"></div>');
 			}
 			for (var k = 0; k < movingElems[i].length; ++k){
-				s = "#" + (i* 10000 + movingElems[i][k].path[0].y * 100 + movingElems[i][k].path[0].x);
-				$(s).prepend("<div class = '" + movingElems[i][k].style + "'></div>");
+				s = '#' + (i * 10000 + movingElems[i][k].path[0].y * 100 + movingElems[i][k].path[0].x);
+				$(s).prepend('<div class = "' + movingElems[i][k].style + '"></div>');
 			}
 			highlightMap(i, curX[i], curY[i]);
-			$( "ul, li" ).disableSelection();
+			$('ul, li').disableSelection();
 		}
 	});

@@ -2,6 +2,39 @@ BODY{
 	font-family:'Times New Roman';
 	font-size: 16px;
 }
+table.field{
+	border-width:0px; 
+	border-spacing: 0px
+}
+table.results, iframe.results{
+	width: 100%;
+	height: 100%;
+}
+input.pnts{
+	width: 25px;
+}
+input.cnt{
+	width: 30px; 
+	height: 21px; 
+	background-color: rgb(255, 255, 255); 
+	margin-right: 0px; 
+	padding-right: 0px; 
+	padding-top: 0px; 
+	border-width: 1px; 
+	padding-bottom: 0px; 
+	top: 0px; 
+	left: 0px; 
+	position: inherit;
+}
+span.cnt{
+	width: 60px; 
+	height: 21px; 
+	margin-left: 10px; 
+	margin-right: 0px; 
+	padding: 0px; 
+	top: 0px; 
+	position: inherit
+}
 li.invisible{
 	width: 1px;
 	height: 1px; 
@@ -104,6 +137,18 @@ textarea.cons{
 input.spinCnt{
 	font-family:'Times New Roman';
 	font-size: 1.1em;
+	width: 60px; height: 21px; 
+	background-color: 
+	rgb(255, 255, 255); 
+	margin-right: 0px; 
+	padding-right: 0px; 
+	padding-top: 0px; 
+	border-width: 1px; 
+	
+	padding-bottom: 0px; 
+	top: 0px; left: 0px; 
+	display:none; 
+	position: inherit;
 }
 .tabs:after { 
    display: block; 
