@@ -38,6 +38,7 @@
 						}
 				}
 				updated();
+				cmdListEnded[curProblem] = false;
 			});
 			$( "#sortable" + curProblem ).bind( "click", function(event, ui) {
 				if (!playing[curProblem])
@@ -93,6 +94,7 @@
 			stopped[curProblem] = false;
 			playing[curProblem] = false;
 			dead[curProblem] = false;
+			cmdListEnded[i] = false;
 			var s = "#" + (i* 10000 + curY[i] * 100 + curX[i]);
 			$(s).append("<div class = '" + curDir[i] + "'></div>");
 			for (var k = 0; k < specSymbols[i].style.length; ++k){

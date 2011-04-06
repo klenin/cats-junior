@@ -235,33 +235,41 @@
 				curCmdList[curProblem][i] = new Object();
 			if (curCmdList[curProblem][i].name != arr[i] || (curCmdList[curProblem][i].name == arr[i] && curCmdList[curProblem][i].cnt != c)){
 				if (i < divI()){
-					/*if ((i == list().length - 1) && (list().length == divI())){
+					if(curCmdList[curProblem][i].name == arr[i] && (i == divI() - 1) && (cmd() == 0) && curCmdList[curProblem][i].cnt <= c && cmdListEnded[curProblem]){
 						with(curState[curProblem]){
 							divIndex = list().length - 1;
 							cmdIndex = c - 1;
 							divName = arr[i];
-							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('cnt', c);
-							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('value', $("#spinCnt" + el.attr('numId')).attr('cnt') + "/" + $("#spin" + el.attr('numId')).attr('value'));
+							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('cnt', c - curCmdList[curProblem][i].cnt);
+							$("#spinCnt" + $("#" + arr[i]).attr('numId')).attr('value', 
+									(c - curCmdList[curProblem][i].cnt) + "/" + $("#spin" + $('#' + arr[i]).attr('numId')).attr('value'));
 						}
 					}
-					else{*/
+					else{
 						needToClear = true;
 						j = 0;
-					//}
+					}
 				}
 				else
-					if ((i == divI()) && (j > i))
-						j = i;
+					if (i == divI()){
+						if (i < arr.length - 1 && cmdListEnded[curProblem])
+							needToClear = true;
+						else
+							if (j > i)
+								j = i;
+					}
 				curCmdList[curProblem][i].name = arr[i];
 				curCmdList[curProblem][i].cnt = c;
 			}
 		}
 		if (i < curCmdList[curProblem].length)
 			curCmdList[curProblem].splice(i, curCmdList[curProblem].length - i);
+		cmdListEnded[curProblem] = false;
 		if (needToClear){
 			setDefault();
 			clearClasses();
 		}
+		cmdListEnded[curProblem] = false;
 		if (divI() < list().length)
 			curState[curProblem].divName = list()[divI()].name;
 		showCounters();
@@ -347,6 +355,7 @@
 		clearClasses();
 		stopped[curProblem] = false;
 		pnts[curProblem] = 0;
+		cmdListEnded[curProblem] = false;
 		with (curState[curProblem]){
 			cmdIndex = 0;
 			divIndex = 0;
@@ -415,6 +424,7 @@
 			curState[t].divIndex = list().length;
 			++curState[t].step;
 			curState[t].cmdIndex = 0;
+			cmdListEnded[t] = true;
 			return false;
 		}
 		else
@@ -450,7 +460,7 @@
 		playing[curProblem] = true;
 		if (!divN())
 			curState[curProblem].divName = list()[0].name;
-		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt - 1) || (divI() >= list().length)){
+		if (divI() >= list().length || ((divI() == list().length - 1) && cmd() == list()[divI()].cnt)){
 			setDefault();
 			setCounters();
 		}

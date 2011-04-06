@@ -19,6 +19,7 @@
 	var mElemId = []; // current number of moving elements
 	var dx = [];
 	var dy = [];
+	var cmdListEnded = []; //all commands were played
 	var curProblem = 0;
 	var problems = []; // problem description (name -- name, statement -- statement, tests number -- testsNum, 
 	//possible commands -- commands, initial life number - start_life, life number change with each step -- d_life, 

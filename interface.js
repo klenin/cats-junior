@@ -280,10 +280,11 @@
 			$("#" + str + cmdId).append('<span id = "spinDiv' + cmdId + '" style = "width: 60px; height: 21px; margin-left: 10px; margin-right: 0px; padding: 0px; top: 0px; posiyion: inherit"></span>');
 			$("#spinDiv" + cmdId).append('<input type="input" style = "width: 30px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; position: inherit" id="spin' + cmdId + '" value="1" />');
 		}
-		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" class = "spinCnt" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit;">')
+		$("#spinDiv" + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" class = "spinCnt" readonly style = "width: 60px; height: 21px; background-color: rgb(255, 255, 255); margin-right: 0px; padding-right: 0px; padding-top: 0px; border-width: 1px; padding-bottom: 0px; top: 0px; left: 0px; display:none; position: inherit;">');
 		$("#spin" + cmdId++).spin({
 			min: 1,
-			changed: function(){
+			changed: function(){		
+				//cmdListEnded[curProblem] = false;
 				updated();
 			}
 		});
