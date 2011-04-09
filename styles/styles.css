@@ -24,7 +24,7 @@ input.cnt{
 	padding-bottom: 0px; 
 	top: 0px; 
 	left: 0px; 
-	position: inherit;
+	z-index: 100;
 }
 span.cnt{
 	width: 60px; 
@@ -33,7 +33,8 @@ span.cnt{
 	margin-right: 0px; 
 	padding: 0px; 
 	top: 0px; 
-	position: inherit
+	position: inherit;
+	z-index: 2;
 }
 li.invisible{
 	width: 1px;
@@ -144,11 +145,11 @@ input.spinCnt{
 	padding-right: 0px; 
 	padding-top: 0px; 
 	border-width: 1px; 
-	
 	padding-bottom: 0px; 
 	top: 0px; left: 0px; 
 	display:none; 
 	position: inherit;
+	z-index: 1;
 }
 .tabs:after { 
    display: block; 

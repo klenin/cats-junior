@@ -217,11 +217,16 @@
 				$('#1tr' + i).append('<td colspan = "' + (problems[i].max_step ? 2 : 3) +'" id = "tdSt' + i + '" valign = "top">');
 				$('#1tr' + i).append('</td>');
 				if (problems[i].max_step){
-					$('#1tr' + i).append('<td colspan id = "tdPnts' + i + '" valign = "top">');
+					$('#1tr' + i).append('<td><table id = "tablePnts' + i + '"></table></td>')
+					$('#tablePnts' + i).append('<tr><td id = "tdPnts' + i + '" valign = "top">');
 					$('#tdPnts' + i).append('Затрачено шагов: <input class = "pnts" readonly id = "curStep' 
 						+ i + '"> из ' + problems[i].max_step);
-					$('#1tr' + i).append('</td>');
+					$('#1tr' + i).append('</td></tr>');
 					$('#curStep' + i).attr('value', '0');
+					$('#tablePnts' + i).append('<tr><td id = "tdProgressBar' + i + '" valign = "top">');
+					$('#tdProgressBar' + i).append('<div id = "progressBar' + i + '"></div>');
+					$('#progressBar' + i).progressbar({value: 0});
+					$('#1tr' + i).append('</td></tr>');
 				}
 				$('#1tr' + i).append('<td valign = "top" id = "tdAboutBtn' + i + '">');
 				$('#tdAboutBtn' + i).append(
@@ -292,13 +297,13 @@
 			$('#' + str + cmdId).attr('numId', cmdId);
 			$('#' + str + cmdId).attr('ifLi', 1);
 			$('#' + str + cmdId).append('<span id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-			$('#spinDiv' + cmdId).append('<input type="input" class = "cnt"  id="spin' + cmdId + '" value="1" />');
+			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 		}
 		else{
 			$('#' + str + cmdId).append('<span id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-			$('#spinDiv' + cmdId).append('<input type="input" class = "cnt"  id="spin' + cmdId + '" value="1" />');
+			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 		}
-		$('#spinDiv' + cmdId).append('<input type="text" id = "spinCnt' + cmdId + '" class = "spinCnt" readonly>')
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
 		$('#spin' + cmdId++).spin({
 			min: 1,
 			changed: function(){
@@ -339,8 +344,6 @@
 			return;
 		pause[curProblem] = false;
 		stopped[curProblem] = false;
-		if (divI() >= list().length || ((divI() == list().length - 1) && cmd() == list()[divI()].cnt))
-			setDefault();
 		disableButtons();
 		hideCounters();
 		setCounters(divI() + 1);
@@ -365,6 +368,8 @@
 		setDefault();
 		clearClasses();
 		showCounters();
+		setCounters();
+
 	}
 	pauseClick = function(){
 		if (playing[curProblem])			
@@ -400,9 +405,8 @@
 		--t;
 		setDefault(true);
 		hideCounters();
-		setCounters();
+		//setCounters();
 		var s = speed[curProblem];
 		speed[curProblem] = 0;
 		loop(t);
-		speed[curProblem] = s;
-	}
+}

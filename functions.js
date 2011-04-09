@@ -363,6 +363,8 @@
 		stopped[curProblem] = false;
 		pnts[curProblem] = 0;
 		cmdListEnded[curProblem] = false;
+		if ($("#curStep" + curProblem)) 
+			$("#curStep" + curProblem).attr('value', 0);
 		with (curState[curProblem]){
 			cmdIndex = 0;
 			divIndex = 0;
@@ -411,15 +413,15 @@
 		var checked = checkCell(step(), cnt);
 		if (dead[curProblem])
 			return;
-		if (divN()){
-			var numId = $('#'+ divN()).attr('numId');
-			var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
-			$('#spinCnt' + numId).attr('cnt', newCnt);
-			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
-		}
 		if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
 			if (newCmd || cmd() == 0)
 				changeClass(divN());
+			if (divN()){
+				var numId = $('#'+ divN()).attr('numId');
+				var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
+				$('#spinCnt' + numId).attr('cnt', newCnt);
+				$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+			}
 			setTimeout(function() { nextStep(cnt); }, speed[curProblem]);
 		}
 		else
@@ -445,6 +447,7 @@
 		else 
 			++curState[t].cmdIndex;
 		$('#curStep' + curProblem).attr('value', ++curState[t].step + 1);
+		$( "progressBar"  + curProblem).progressbar( "option", "value",  curState[t].step + 1 / problems[t].max_step);
 		if (curState[t].step + 1 == problems[t].max_step){
 			$('#cons' + t).append('Превышен лимит затраченных шагов');
 			dead[t] = true;
@@ -459,6 +462,16 @@
 		else {
 			playing[curProblem] = false;
 			enableButtons();
+			if (!speed[curProblem]){
+				speed[curProblem] = 300;
+				var numId = $('#'+ divN()).attr('numId');
+				var newCnt = $('#spin' + numId).attr('value') - cmd();
+				$('#spinCnt' + numId).attr('cnt', newCnt);
+				$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+				if (!isChangedClass(divN()))
+		 			changeClass(divN());
+
+			}	
 		}
 	}
 	function play(cnt){

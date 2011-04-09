@@ -51,7 +51,7 @@
       timeInterval: 500,
       timeBlink: 200,
       btnClass: null,
-      btnCss: {cursor: 'pointer', paddingTop: 1, marginLeft: 0, paddingLeft:0, margin: 0, verticalAlign: 'top'},
+      btnCss: {paddingTop: 1, marginLeft: 0, paddingLeft:0, margin: 0, verticalAlign: 'top'},
       txtCss: {marginLeft: 0, paddingLeft:0, marginRight: 0, paddingRight: 0, fontFamily: 'Times New Roman'},
       lock: false,
       decimal: null,

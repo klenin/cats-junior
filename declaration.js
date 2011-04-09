@@ -36,7 +36,7 @@
 	var login;
 	var name;
 	var passwd = 12345;
-	var cid; // contest id
+	var cid = 777988; // contest id
 	var sid; // session id
 	var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
 	var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
