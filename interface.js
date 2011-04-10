@@ -205,7 +205,7 @@
 		$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя" );
 		changeUser();
 		callScript(pathPref + 'f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
-			for (var i = 0; i < 9/*data.problems.length*/; ++i){
+			for (var i = 0; i < 10/*data.problems.length*/; ++i){
 			    getProblemStatement(i);
 				getTest(i, 1);
 				if (data)					///////
@@ -214,10 +214,10 @@
 				$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 				mainT = $('#main' + i);
 				mainT.append('<tr id = "1tr' + i +'">');
-				$('#1tr' + i).append('<td colspan = "' + (problems[i].max_step ? 2 : 3) +'" id = "tdSt' + i + '" valign = "top">');
+				$('#1tr' + i).append('<td colspan = "' + (problems[i].max_step ? 1 : 2) +'" id = "tdSt' + i + '" valign = "top">');
 				$('#1tr' + i).append('</td>');
 				if (problems[i].max_step){
-					$('#1tr' + i).append('<td><table id = "tablePnts' + i + '"></table></td>')
+					$('#1tr' + i).append('<td align = "right"><table id = "tablePnts' + i + '"></table></td>')
 					$('#tablePnts' + i).append('<tr><td id = "tdPnts' + i + '" valign = "top">');
 					$('#tdPnts' + i).append('Затрачено шагов: <input class = "pnts" readonly id = "curStep' 
 						+ i + '"> из ' + problems[i].max_step);
@@ -228,7 +228,7 @@
 					$('#progressBar' + i).progressbar({value: 0});
 					$('#1tr' + i).append('</td></tr>');
 				}
-				$('#1tr' + i).append('<td valign = "top" id = "tdAboutBtn' + i + '">');
+				$('#1tr' + i).append('<td valign = "top" align = "right" id = "tdAboutBtn' + i + '">');
 				$('#tdAboutBtn' + i).append(
 					'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "aboutBtn' + i +'">');
 				$('#aboutBtn' + i).append('<span class="ui-button-text">?</span>');
@@ -247,7 +247,7 @@
 					'<input type = "button" class = "clear" name = "btn_clear' + i + '" id = "btn_clear' 
 					+ i + '" onClick = "clearClick()"></input>');
 				$('#tdBtnSubmit' + i).append(
-					'<input type = "button" name="submit' + i + '" id = "submit' + i + 
+					'<input type = "button" align = "right" name="submit' + i + '" id = "submit' + i + 
 					'" class = "submit" onClick = submitClick()></input>');
 				$('#4tr' + i).append('</td>');
 				mainT.append('</tr>');

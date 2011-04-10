@@ -13,7 +13,7 @@
 			"style": "star",
 			"name": "звезда",
 			"do": "eat",
-			"points": 50,
+			"points": 10,
 			"d_life": 0
 		}
 	],
@@ -22,10 +22,9 @@
 	"moving_elements":[{
 		"style": "monster",
 		"path": [
-			{"x": 2, "y": 2}, 
-			{"x": 2, "y": 3},
-			{"x": 2, "y": 4},
-			{"x": 2, "y": 1}
+			{"x": 2, "y": 2, "dir": "D", "initCnt": 2}, 
+			{"x": 2, "y": 4, "dir": "U", "initCnt": 3},
+			{"x": 2, "y": 1, "dir": "D", "initCnt": 3}
 			],
 		"looped": true,
 		"die": true
@@ -33,10 +32,9 @@
 		{
 		"style": "monster",
 		"path": [
-			{"x": 4, "y": 3}, 
-			{"x": 4, "y": 4},
-			{"x": 4, "y": 1},
-			{"x": 4, "y": 2}
+			{"x": 4, "y": 3, "dir": "D", "initCnt": 1}, 
+			{"x": 4, "y": 4, "dir": "U", "initCnt": 3}, 
+			{"x": 4, "y": 1, "dir": "D", "initCnt": 3}
 			],
 		"looped": true,
 		"die": true

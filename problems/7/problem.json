@@ -1,10 +1,11 @@
 ﻿{
-	"name": "Обучение-3",
+	"name": "Задача 1",
 	"statement": "Необходимо собрать все звездочки на поле",
 	"testsNum": 1,
 	"commands": ["forward", "left", "right"],
 	"start_life": 1,
 	"d_life": 0,
 	"start_pnts": 0,
-	"finish_symb": 0
+	"finish_symb": 0,
+	"max_step": 12
 }

@@ -23,6 +23,20 @@
 		$(s).empty();
 		$(s).append('<div class = "' + monster.style + '"></div>');
 	}
+	function canMove(elem, x, y){
+		for (var k = 0; k < specSymbols[curProblem].list.length; ++k){
+			if (k == elem)
+				continue;
+			if (specSymbols[curProblem].list[k] == curMap[curProblem][y][x] && specSymbols[curProblem].zIndex[k] >= specSymbols[curProblem].zIndex[elem])
+				return false;
+		}
+		for (var k = 0; k < movingElems[curProblem].length; ++k){
+			var monster = movingElems[curProblem][k];
+			if (monster.path[monster.pathIndex].x == x && monster.path[monster.pathIndex].y == y && monster.zIndex >= specSymbols[curProblem].zIndex[elem])
+				return false;
+		}
+		return true;
+	}
 	function checkCell(i, cnt){
 		life[curProblem] += problems[curProblem].d_life;
 		pnts[curProblem] = pnts[curProblem] ? pnts[curProblem] : 0;
@@ -106,18 +120,18 @@
 						$('#cons' + curProblem).append('Текущее количество очков: ' + 
 							(pnts[curProblem] + specSymbols[curProblem].points[k]) + "\n");
 						break;
-					case "move": //ящик, сможем пододвинуть, если за ним пусто
+					case "move": //ящик, сможем пододвинуть, если за ним пусто или zIndex элемента < zIndex ящика
 						var t_x = c_x + dx[curProblem];
 						var t_y = c_y + dy[curProblem];
 						if (t_x >= curMap[curProblem][0].length || t_x < 0 || 
 							t_y >= curMap[curProblem].length || t_y < 0)
 							continue;
-						if (curMap[curProblem][t_y][t_x] != '.'){
+						if (!canMove(k, t_x, t_y)){
 							$("#cons" + curProblem).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
 							return false;
 						}
 						else{
-							s = '#' + (curProblem* 10000 + t_y * 100 + t_x);
+							s = '#' + (curProblem * 10000 + t_y * 100 + t_x);
 							$(s).empty();
 							$(s).append('<div class = "' + specSymbols[curProblem].style_list[k] + '"></div>');
 							curMap[curProblem][t_y][t_x] = curMap[curProblem][c_y][c_x];
@@ -136,27 +150,27 @@
 			dead[curProblem] = true;
 			return false;
 		}
-	if (c_x >= 0 && c_x < curMap[curProblem][0].length && c_y >= 0 && c_y < curMap[curProblem].length)
-		if (curMap[curProblem][c_y][c_x] != '#' && curMap[curProblem][c_y][c_x] != '#_'){
-			if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
-				s = '#' + (curProblem* 10000 + curY[curProblem]* 100 + curX[curProblem]);
-				$(s).empty();
-				highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);
-				s = '#' + (curProblem* 10000 + c_y * 100 + c_x);
-				$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
-				highlightMap(curProblem, c_x, c_y);	
-				for (var k = 0; k < movingElems[curProblem].length; ++k)
-					drawMonster(movingElems[curProblem][k]);
-			}			
-			curX[curProblem] = c_x;
-			curY[curProblem] = c_y;
-		}
-		else{
-			$("#cons" + curProblem).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
-			var s = '#' + (curProblem * 10000 + curY[curProblem] * 100 + curX[curProblem]);
-			$(s).effect('highlight', {}, 300);
+		if (c_x >= 0 && c_x < curMap[curProblem][0].length && c_y >= 0 && c_y < curMap[curProblem].length)
+			if (curMap[curProblem][c_y][c_x] != '#' && curMap[curProblem][c_y][c_x] != '#_'){
+				if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
+					s = '#' + (curProblem * 10000 + curY[curProblem]* 100 + curX[curProblem]);
+					$(s).empty();
+					highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);
+					s = '#' + (curProblem * 10000 + c_y * 100 + c_x);
+					$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
+					highlightMap(curProblem, c_x, c_y);	
+				}			
+				curX[curProblem] = c_x;
+				curY[curProblem] = c_y;
 			}
-	else
-		$('#cons' + curProblem).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
-	return true;
-}
+			else{
+				$("#cons" + curProblem).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
+				var s = '#' + (curProblem * 10000 + curY[curProblem] * 100 + curX[curProblem]);
+				$(s).effect('highlight', {}, 300);
+			}
+		else
+			$('#cons' + curProblem).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
+		for (var k = 0; k < movingElems[curProblem].length; ++k)
+			drawMonster(movingElems[curProblem][k]);
+		return true;
+	}

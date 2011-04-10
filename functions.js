@@ -118,6 +118,7 @@
 				specSymbols[l].cur_count = [];
 				specSymbols[l].symb = [];
 				specSymbols[l].symbol = [];
+				specSymbols[l].zIndex = [];
 				for (var i = 0; i < tmp.length; ++i){
 					specSymbols[l].list[i]  = tmp[i].symbol;
 					specSymbols[l].style_list[i] = tmp[i].style;
@@ -125,6 +126,7 @@
 					specSymbols[l].names[i] = tmp[i].name;
 					specSymbols[l].points[i] = tmp[i].points;
 					specSymbols[l].d_life[i] = tmp[i].d_life;
+					specSymbols[l].zIndex[i] = tmp[i].zIndex ? tmp[i].zIndex : 0;
 					specSymbols[l]["do"][i] = tmp[i]["do"];
 				}
 				problems[l].cleaner = data.cleaner.slice();
@@ -152,6 +154,7 @@
 					monster.id = mElemId[curProblem]++;
 					monster.dLife = tmp[i].dLife ? tmp[i].dLife : 0;
 					monster.pnts = tmp[i].pnts ? tmp[i].pnts : 0;
+					monster.zIndex = tmp[i].zIndex ? tmp[i].zIndex : 0;
 					for (var j = 0; j < tmp[i].path.length; ++j){
 						monster.path[j] = new Object();
 						monster.path[j].x = tmp[i].path[j].x;
@@ -311,75 +314,78 @@
 			highlightCellOff(l, y, i);
 	}
 	function setDefault(f){
+		var t = curProblem;
 		enableButtons();
-		dead[curProblem] = false;
-		var s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
+		dead[t] = false;
+		var s = '#' + (t* 10000 + curY[t] * 100 + curX[t]);
 		$(s).empty();
-		for (var i = 0; i < curMap[curProblem].length; ++i){
-			for (var j = 0; j < curMap[curProblem][i].length; ++j){
-				s = '#' + (curProblem* 10000 + i * 100 + j);
+		for (var i = 0; i < curMap[t].length; ++i){
+			for (var j = 0; j < curMap[t][i].length; ++j){
+				s = '#' + (t * 10000 + i * 100 + j);
 				$(s).empty();
 				$(s).removeClass('highlightFloor');
 				$(s).removeClass('highlightWall');
 			}
 		}
-		for (var k = 0; k < specSymbols[curProblem].coord.x.length; ++k){
-			s = "#" + (curProblem* 10000 + specSymbols[curProblem].coord.y[k] * 100 + specSymbols[curProblem].coord.x[k]);
+		for (var k = 0; k < specSymbols[t].coord.x.length; ++k){
+			s = "#" + (t * 10000 + specSymbols[t].coord.y[k] * 100 + specSymbols[t].coord.x[k]);
 			$(s).empty();
-			$(s).append("<div class = '" + specSymbols[curProblem].style[k] + "'></div>");
-			specSymbols[curProblem].cur_count[k] = 0;
+			$(s).append("<div class = '" + specSymbols[t].style[k] + "'></div>");
+			specSymbols[t].cur_count[k] = 0;
 		}
-		for (var k = 0; k < movingElems[curProblem].length; ++k){
-			s = "#" + (curProblem* 10000 + movingElems[curProblem][k].path[0].startY * 100 + 
-								movingElems[curProblem][k].path[0].startX);
-			for (var t = 0; t < movingElems[curProblem][k].path.length; ++t){
-				movingElems[curProblem][k].path[t].cnt = 0;
-				movingElems[curProblem][k].path[t].y = movingElems[curProblem][k].path[t].startY;
-				movingElems[curProblem][k].path[t].x = movingElems[curProblem][k].path[t].startX;
+		for (var k = 0; k < movingElems[t].length; ++k){
+			s = "#" + (t* 10000 + movingElems[t][k].path[0].startY * 100 + 
+								movingElems[t][k].path[0].startX);
+			for (var j = 0; j < movingElems[t][k].path.length; ++j){
+				movingElems[t][k].path[j].cnt = 0;
+				movingElems[t][k].path[j].y = movingElems[t][k].path[j].startY;
+				movingElems[t][k].path[j].x = movingElems[t][k].path[j].startX;
 			}
-			movingElems[curProblem][k].pathIndex = 0;
-			$(s).append("<div class = '" + movingElems[curProblem][k].style + "'></div>");
+			movingElems[t][k].pathIndex = 0;
+			$(s).append("<div class = '" + movingElems[t][k].style + "'></div>");
 		}
-		for (var k = 0; k < problems[curProblem].cleaner.length; ++k){			
-			var y = problems[curProblem].cleaner[k].y;			
-			var x = problems[curProblem].cleaner[k].x;			
-			var s = '#' + (curProblem* 10000 + y * 100 + x);			
+		for (var k = 0; k < problems[t].cleaner.length; ++k){			
+			var y = problems[t].cleaner[k].y;			
+			var x = problems[t].cleaner[k].x;			
+			var s = '#' + (t* 10000 + y * 100 + x);			
 			$(s).append('<div class = "key"></div>');			
-			for (var l = 0; l < problems[curProblem].cleaned[k].length; ++l){				
-				y = problems[curProblem].cleaned[k][l].y;				
-				x = problems[curProblem].cleaned[k][l].x				
-				s = '#' + (curProblem* 10000 + y * 100 + x);				
+			for (var l = 0; l < problems[t].cleaned[k].length; ++l){				
+				y = problems[t].cleaned[k][l].y;				
+				x = problems[t].cleaned[k][l].x				
+				s = '#' + (t * 10000 + y * 100 + x);				
 				$(s).removeClass('floor');				
 				$(s).append('<div class = "lock"></div>');			
 			}		
 		}
-		copyMap(curProblem);
-		pause[curProblem] = false;
-		$("#cons" + curProblem).empty();
-		curDir[curProblem] = startDir[curProblem];
-		curX[curProblem] = startX[curProblem];
-		curY[curProblem] = startY[curProblem];
+		copyMap(t);
+		pause[t] = false;
+		$("#cons" + t).empty();
+		curDir[t] = startDir[t];
+		curX[t] = startX[t];
+		curY[t] = startY[t];
 		clearClasses();
-		stopped[curProblem] = false;
-		pnts[curProblem] = 0;
-		cmdListEnded[curProblem] = false;
-		if ($("#curStep" + curProblem)) 
-			$("#curStep" + curProblem).attr('value', 0);
-		with (curState[curProblem]){
+		stopped[t] = false;
+		pnts[t] = 0;
+		cmdListEnded[t] = false;
+		if ($("#curStep" + t)){
+			$("#curStep" + t).attr('value', 0);
+			$('#progressBar'  + t).progressbar('option', 'value',  0);
+		}
+		with (curState[t]){
 			cmdIndex = 0;
 			divIndex = 0;
 			step = 0;
-			divName = curCmdList[curProblem][0].name;
+			divName = curCmdList[t][0].name;
 		}
-		var el = $('#sortable' + curProblem).children();
+		var el = $('#sortable' + t).children();
 		while (el.length > 0){
 			$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
 			el = el.next();
 		}
 		if (!f){
-			s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-			$(s).append('<div class = "' + curDir[curProblem] + '"></div>');
-			highlightMap(curProblem, curX[curProblem], curY[curProblem]);
+			s = '#' + (t * 10000 + curY[t] * 100 + curX[t]);
+			$(s).append('<div class = "' + curDir[t] + '"></div>');
+			highlightMap(t, curX[t], curY[t]);
 		}
 	}
 	function prevDivName(){
@@ -446,9 +452,9 @@
 			}
 		else 
 			++curState[t].cmdIndex;
-		$('#curStep' + curProblem).attr('value', ++curState[t].step + 1);
-		$( "progressBar"  + curProblem).progressbar( "option", "value",  curState[t].step + 1 / problems[t].max_step);
-		if (curState[t].step + 1 == problems[t].max_step){
+		$('#curStep' + t).attr('value', ++curState[t].step + 1);
+		$('#progressBar'  + t).progressbar('option', 'value',  (curState[t].step + 1) / problems[t].max_step * 100);
+		if (curState[t].step == problems[t].max_step){
 			$('#cons' + t).append('Превышен лимит затраченных шагов');
 			dead[t] = true;
 		}

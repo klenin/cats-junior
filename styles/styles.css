@@ -51,6 +51,9 @@ li.forward, li.forward1, li.left, li.left1, li.right, li.right1, li.wait, li.wai
 	border: 1px solid #ffffff;
 	color: #363636; 
 	z-index: 1;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
 }
 li.forward{ background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; }
 li.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; }
@@ -72,6 +75,9 @@ ul.sortable{
 	border: 2px #A9A9A9 double;
 	height: 400px;
 	overflow: auto;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
 }
 td.wall, td.floor, td.highlightFloor, td.highlightWall{
 	width: 30px;
@@ -120,10 +126,16 @@ input.submit{
 	width: 190;
 	height: 36;
 	margin-left:5px;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
 }
 input.userNameSubmit, input.changeUser{
 	width: 208;
 	height: 36;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
 }
 input.userNameSubmit{ 	background: url('../images/submitUser.png'); }
 input.changeUser{ 	background: url('../images/changeUser.png'); }
@@ -134,6 +146,9 @@ textarea.cons{
 	font-size:11pt;
 	margin-left:5px;
 	height: 500 px;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
 }
 input.spinCnt{
 	font-family:'Times New Roman';
