@@ -1,38 +1,11 @@
 ﻿	function fillLabyrinth1(l){
+		highlightOn(l);
 		$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field">');
 		for (var i = 0; i < curMap[l].length; ++i){
 			$('#table_field' + l).append('<tr id = "tr_field' + (l * 1000 + i) + '">');
 			for (var j = 0; j < curMap[l][i].length; ++j){
-				switch(curMap[l][i][j] ){					
-				case '#':						
-					$('#tr_field' + (l * 1000 + i)).append('<td class = "wall" id = "'+(l * 10000 + i * 100 + j)+'">');						
-					break;					
-				case '#_':						
-					$('#tr_field' + (l * 1000 + i)).append('<td class = "wall" id = "'+(l * 10000 + i * 100 + j)+'">');						
-					$('#' + (l * 10000 + i * 100 + j)).append('<div class = "lock"></div>');						
-					break;					
-				case '._':						
-					$('#tr_field' + (l * 1000 + i)).append('<td class = "floor" id = "'+(l * 10000 + i * 100 + j)+'">');						
-					$('#' + (l * 10000 + i * 100 + j)).append('<div class = "key"></div>');						
-					break;					
-				default:						
-					$('#tr_field' + (l * 1000 + i)).append('<td class = "floor" id = "'+(l * 10000 + i * 100 + j)+'">');				
-				}
-                if (curMap[l][i][j] == "R" || curMap[l][i][j] == "L" || curMap[l][i][j] == "U" || curMap[l][i][j] == "D"){
-					startDir[l] = dirs[curMap[l][i][j]];
-					startX[l] = j;
-					startY[l] = i;
-				}
-				for (var k = 0; k < specSymbols[l].list.length; ++k){
-					if (curMap[l][i][j] == specSymbols[l].list[k]){
-						specSymbols[l].coord.x.push(j);
-						specSymbols[l].coord.y.push(i);
-						specSymbols[l].style.push(specSymbols[l].style_list[k]);
-						specSymbols[l].cur_count[k] = 0;
-						specSymbols[l].symb.push(specSymbols[l].list[k]);
-						break;
-					}
-				}
+				$('#tr_field' + (l * 1000 + i)).append('<td id = "'+ (l * 10000 + i * 100 + j)+'">');
+				curMapWithObjects[l][i][j].draw();
 				$('#tr_field' + (l * 1000 + i)).append('</td>');
 			}
 			$('#table_field' + l).append('</tr>');
@@ -164,7 +137,8 @@
 			data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
 			data += '-------------' + boundary  + '--\r\n';
 			var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid, data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, sep, l, function(data){
+			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid, data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
+					+ sid + ';cid=' + cid, sep, l, function(data){
 				alert('Решение отослано на проверку');
 			});
 		}

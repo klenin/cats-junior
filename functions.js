@@ -102,72 +102,69 @@
 					return;
 				mapFromTest[l] = [];
 				mapFromTest[l] = data.map.slice();
-				var tmp = data.spec_symbols;
-				specSymbols[l] = new Object();
-				specSymbols[l].list  = [];
-				specSymbols[l].style_list = [];
-				specSymbols[l].count = [];
-				specSymbols[l].names = [];
-				specSymbols[l].points = [];
-				specSymbols[l].d_life = [];
-				specSymbols[l]["do"] = [];
-				specSymbols[l].coord = new Object();
-				specSymbols[l].coord.x = [];
-				specSymbols[l].coord.y = [];
-				specSymbols[l].style = [];
-				specSymbols[l].cur_count = [];
-				specSymbols[l].symb = [];
-				specSymbols[l].symbol = [];
-				specSymbols[l].zIndex = [];
-				for (var i = 0; i < tmp.length; ++i){
-					specSymbols[l].list[i]  = tmp[i].symbol;
-					specSymbols[l].style_list[i] = tmp[i].style;
-					specSymbols[l].count[i] = tmp[i].count;
-					specSymbols[l].names[i] = tmp[i].name;
-					specSymbols[l].points[i] = tmp[i].points;
-					specSymbols[l].d_life[i] = tmp[i].d_life;
-					specSymbols[l].zIndex[i] = tmp[i].zIndex ? tmp[i].zIndex : 0;
-					specSymbols[l]["do"][i] = tmp[i]["do"];
-				}
-				problems[l].cleaner = data.cleaner.slice();
-				problems[l].cleaned = [];
-				for (var i = 0; i < data.cleaned.length; ++i)
-					problems[l].cleaned[i] = data.cleaned[i].slice();
-				if (data.commands)
-					problems[l].commands = data.commands.slice();
-				if (data.start_life)
-					problems[l].start_life = data.start_life;
-				if (data.d_life)
-					problems[l].d_life = data.d_life;
-				if (data.start_pnts)
-					problems[l].start_pnts = data.start_pnts;
-				if (data.finish_symb)
-					problems[l].finish_symb = data.finish_symb;
-				var tmp = data.moving_elements;
-				movingElems[l] = [];
-				for (var i = 0; i < tmp.length; ++i){
-					var monster = new Object();
-					monster.path = [];
-					monster.style = tmp[i].style;
-					monster.looped = tmp[i].looped;
-					monster.die = tmp[i].die;
-					monster.id = mElemId[curProblem]++;
-					monster.dLife = tmp[i].dLife ? tmp[i].dLife : 0;
-					monster.pnts = tmp[i].pnts ? tmp[i].pnts : 0;
-					monster.zIndex = tmp[i].zIndex ? tmp[i].zIndex : 0;
-					for (var j = 0; j < tmp[i].path.length; ++j){
-						monster.path[j] = new Object();
-						monster.path[j].x = tmp[i].path[j].x;
-						monster.path[j].y = tmp[i].path[j].y;
-						monster.path[j].startX = tmp[i].path[j].x;
-						monster.path[j].startY = tmp[i].path[j].y;
-						monster.path[j].dir = tmp[i].path[j].dir;
-						monster.path[j].initCnt = tmp[i].path[j].initCnt;
-						monster.path[j].cnt = 0;
+				curMapWithObjects[l] = [];
+				boxId[l] = 0;
+				monsterId[l] = 0;
+				prizeId[l] = 0;
+				cellId[l] = 0;
+				boxes[l] = [];
+				monsters[l] = [];
+				numOfPrizes[l] = 0;
+				var t1 = data.spec_symbols;
+				var t2 = data.moving_elements;
+				var t3 = data.cleaner;
+				var t4 = data.cleaned;
+				var obj = undefined;
+				for (var i = 0; i < mapFromTest[l].length; ++i){
+					curMapWithObjects[l][i] = [];
+					for (var j = 0; j < mapFromTest[l][i].length; ++j){
+						curMapWithObjects[l][i][j] = [];
+						var c = new Coord(j, i);
+						curMapWithObjects[l][i][j] = new FieldElem(l, c, mapFromTest[l][i][j] == "#")
+						if (mapFromTest[l][i][j] == "R" || mapFromTest[l][i][j] == "U" || 
+							mapFromTest[l][i][j] == "D" || mapFromTest[l][i][j] == "L" ){
+							arrow[l] = new Arrow(l, c, mapFromTest[l][i][j]);
+							obj = arrow[l];
+							curDir[l] = startDir[l] = dirs[mapFromTest[l][i][j]];
+							curX[l] = startX[l] = j;
+							curY[l] = startY[l] = i;
+						}
+						for (var k = 0; k < t1.length; ++k)
+						if (t1[k].symbol == mapFromTest[l][i][j]){
+							obj = t1[k]["do"] == "eat" ? 
+								new Prize(l, c, t1[k].style, t1[k].symbol, t1[k].zIndex ? t1[k].zIndex : 1, t1[k].points, 
+											t1[k].d_life, t1[k].name) : 
+								new Box(l, c, t1[k].style, t1[k].symbol, t1[k].zIndex ? t1[k].zIndex : 2, t1[k].points, 
+											t1[k].d_life, t1[k].name);
+							if (obj.getClass() == 'Prize')
+								++numOfPrizes[l];
+							else
+								boxes[l].push({'id': boxId[l], 'x': j, 'y': i});
+							break;
+						}
+						if (obj)
+							curMapWithObjects[l][i][j].pushCell(obj);
+						obj = undefined;
 					}
-					monster.pathIndex = 0;
-					movingElems[l].push(monster);
 				}
+				for (var k = 0; k < t2.length; ++k){
+					var c = new Coord(t2[k].path[0].x, t2[k].path[0].y);
+					obj = new Monster(l, c, t2[k].style, "", t2[k].zIndex ? t2[k].zIndex : 3, t2[k].points, t2[k].d_life, t2[k].path, 
+									t2[k].looped, t2[k].die);
+					curMapWithObjects[l][c.y][c.x].pushCell(obj);
+					monsters[l].push({'x': c.getX(), 'y': c.getY()});
+				}
+				for (var k = 0; k < t3.length; ++k){
+					var c = new Coord(t3[k].x, t3[k].y);
+					obj = new Key(l, c, t4[k]);
+					curMapWithObjects[l][c.y][c.x].pushCell(obj);
+					for (var j = 0; j < t4[k].length; ++j){
+						var c1 = new Coord(t4[k][j].x, t4[k][j].y);
+						obj = new Lock(l, c1);
+						curMapWithObjects[l][c1.y][c1.x].pushCell(obj);
+					}
+				}
+				curNumOfPrizes[l] = 0;
 			},
 			error: function(r, err1, err2){
 				alert(r.responseText);
@@ -289,75 +286,52 @@
 		showCounters();
 		setCounters(j);
 	}
-	function highlightCell(l, y, x){
-		s  = '#' + (l * 10000 + y * 100 + x);
-		if ($(s).hasClass('floor'))
-			$(s).addClass('highlightFloor');
-		if ($(s).hasClass('wall'))
-			$(s).addClass('highlightWall');
+	function highlightOn(t){
+		for (var i = 0; i < curMapWithObjects[t].length; ++i)
+			curMapWithObjects[t][i][arrow[t].getCoord().x].highlightOn();
+		for (var i = 0; i < curMapWithObjects[t][0].length; ++i)
+			curMapWithObjects[t][arrow[t].getCoord().y][i].highlightOn();
 	}
-	function highlightCellOff(l, y, x){
-		s  = '#' + (l * 10000 + y * 100 + x);
-		$(s).removeClass('highlightFloor');
-		$(s).removeClass('highlightWall');
-	}
-	function highlightMap(l, x, y){
-		for (var i = 0; i < curMap[l].length; ++i)
-			highlightCell(l, i, x);
-		for (var i = 0; i < curMap[l][0].length; ++i)
-			highlightCell(l, y, i);
-	}
-	function highlightMapOff(l, x, y){
-		for (var i = 0; i < curMap[l].length; ++i)
-			highlightCellOff(l, i, x);
-		for (var i = 0; i < curMap[l][0].length; ++i)
-			highlightCellOff(l, y, i);
+	function highlightOff(t, func){
+		for (var i = 0; i < curMapWithObjects[t].length; ++i)
+			curMapWithObjects[t][i][arrow[t].getCoord().x].highlightOff();
+		for (var i = 0; i < curMapWithObjects[t][0].length; ++i)
+			curMapWithObjects[t][arrow[t].getCoord().y][i].highlightOff();
 	}
 	function setDefault(f){
 		var t = curProblem;
 		enableButtons();
 		dead[t] = false;
-		var s = '#' + (t* 10000 + curY[t] * 100 + curX[t]);
-		$(s).empty();
-		for (var i = 0; i < curMap[t].length; ++i){
-			for (var j = 0; j < curMap[t][i].length; ++j){
+		for (var i = 0; i < curMapWithObjects[t].length; ++i)
+			for (var j = 0; j < curMapWithObjects[t][i].length; ++j){
 				s = '#' + (t * 10000 + i * 100 + j);
 				$(s).empty();
-				$(s).removeClass('highlightFloor');
-				$(s).removeClass('highlightWall');
+				curMapWithObjects[t][i][j].setDefault();
 			}
-		}
-		for (var k = 0; k < specSymbols[t].coord.x.length; ++k){
-			s = "#" + (t * 10000 + specSymbols[t].coord.y[k] * 100 + specSymbols[t].coord.x[k]);
-			$(s).empty();
-			$(s).append("<div class = '" + specSymbols[t].style[k] + "'></div>");
-			specSymbols[t].cur_count[k] = 0;
-		}
-		for (var k = 0; k < movingElems[t].length; ++k){
-			s = "#" + (t* 10000 + movingElems[t][k].path[0].startY * 100 + 
-								movingElems[t][k].path[0].startX);
-			for (var j = 0; j < movingElems[t][k].path.length; ++j){
-				movingElems[t][k].path[j].cnt = 0;
-				movingElems[t][k].path[j].y = movingElems[t][k].path[j].startY;
-				movingElems[t][k].path[j].x = movingElems[t][k].path[j].startX;
+		for (var i = 0; i < curMapWithObjects[t].length; ++i)
+			for (var j = 0; j < curMapWithObjects[t][i].length; ++j){
+				var arr = curMapWithObjects[t][i][j].changedCells();
+				for (var k = 0; k < arr.length; ++k){
+					curMapWithObjects[t][arr[k].getCoord().y][arr[k].getCoord().x].pushCell(arr[k]);
+					switch(arr[k].getClass()){
+						case 'Arrow': 
+							arrow[t] = arr[k];
+							break;
+						case 'Monster':
+							monsters[t][arr[k].getId()] = arr[k];
+							monsters[t][arr[k].getId()].x = arr[k].getCoord().x;
+							monsters[t][arr[k].getId()].y = arr[k].getCoord().y;
+							break;
+						case 'Box':
+							boxes[t][arr[k].getId()] = arr[k];
+							break;
+						}
+				}
 			}
-			movingElems[t][k].pathIndex = 0;
-			$(s).append("<div class = '" + movingElems[t][k].style + "'></div>");
-		}
-		for (var k = 0; k < problems[t].cleaner.length; ++k){			
-			var y = problems[t].cleaner[k].y;			
-			var x = problems[t].cleaner[k].x;			
-			var s = '#' + (t* 10000 + y * 100 + x);			
-			$(s).append('<div class = "key"></div>');			
-			for (var l = 0; l < problems[t].cleaned[k].length; ++l){				
-				y = problems[t].cleaned[k][l].y;				
-				x = problems[t].cleaned[k][l].x				
-				s = '#' + (t * 10000 + y * 100 + x);				
-				$(s).removeClass('floor');				
-				$(s).append('<div class = "lock"></div>');			
-			}		
-		}
-		copyMap(t);
+		highlightOn(t);
+		for (var i = 0; i < curMapWithObjects[t].length; ++i)
+			for (var j = 0; j < curMapWithObjects[t][i].length; ++j)
+				curMapWithObjects[t][i][j].draw();
 		pause[t] = false;
 		$("#cons" + t).empty();
 		curDir[t] = startDir[t];
@@ -367,6 +341,7 @@
 		stopped[t] = false;
 		pnts[t] = 0;
 		cmdListEnded[t] = false;
+		curNumOfPrizes[l] = 0;
 		if ($("#curStep" + t)){
 			$("#curStep" + t).attr('value', 0);
 			$('#progressBar'  + t).progressbar('option', 'value',  0);
@@ -381,11 +356,6 @@
 		while (el.length > 0){
 			$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
 			el = el.next();
-		}
-		if (!f){
-			s = '#' + (t * 10000 + curY[t] * 100 + curX[t]);
-			$(s).append('<div class = "' + curDir[t] + '"></div>');
-			highlightMap(t, curX[t], curY[t]);
 		}
 	}
 	function prevDivName(){

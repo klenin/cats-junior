@@ -1,176 +1,149 @@
-﻿	function isEaten(monster, mx, my, px, py){
-		if (mx == px && my == py){
-			if (monster.die){
-				$('#cons' + curProblem).append('Вас съели. Попробуйте снова \n');
-				s = '#' + (curProblem* 10000 + curY[curProblem] * 100 + curX[curProblem]);
-				$(s).empty();
-				dead[curProblem] = true;
-				highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);	
-				highlightMap(curProblem, mx, my);	
-				for (var k = 0; k < movingElems[curProblem].length; ++k)
-					drawMonster(movingElems[curProblem][k]);
-				return true;
-			}
-			life[curProblem] += monster.d_life;
-			pnts[curProblem] += monster.points;
-		}
-		return false;
+﻿	function labirintOverrun(x, y){
+		return (x >= curMap[curProblem][0].length || x < 0 || y >= curMap[curProblem].length || y < 0);
 	}
-	function drawMonster(monster){
-		x = monster.path[monster.pathIndex].x;
-		y = monster.path[monster.pathIndex].y;
-		s = '#' + (curProblem* 10000 + y * 100 + x);
-		$(s).empty();
-		$(s).append('<div class = "' + monster.style + '"></div>');
-	}
-	function canMove(elem, x, y){
-		for (var k = 0; k < specSymbols[curProblem].list.length; ++k){
-			if (k == elem)
-				continue;
-			if (specSymbols[curProblem].list[k] == curMap[curProblem][y][x] && specSymbols[curProblem].zIndex[k] >= specSymbols[curProblem].zIndex[elem])
-				return false;
-		}
-		for (var k = 0; k < movingElems[curProblem].length; ++k){
-			var monster = movingElems[curProblem][k];
-			if (monster.path[monster.pathIndex].x == x && monster.path[monster.pathIndex].y == y && monster.zIndex >= specSymbols[curProblem].zIndex[elem])
-				return false;
-		}
-		return true;
+	function die(){
+		var p = curProblem;
+		$('#cons' + p).append('Вас съели. Попробуйте снова \n');
+		dead[p] = true;
+		curMapWithObjects[p][arrow[p].getCoord().y][arrow[p].getCoord().x].deleteElement(arrow[p]);
+		arrow[p].setDead();
+		curMapWithObjects[p][arrow[p].getCoord().y][arrow[p].getCoord().x].pushCell(arrow[p]);
 	}
 	function checkCell(i, cnt){
-		life[curProblem] += problems[curProblem].d_life;
-		pnts[curProblem] = pnts[curProblem] ? pnts[curProblem] : 0;
-		var c_x = curX[curProblem] + dx[curProblem];
-		var c_y = curY[curProblem] + dy[curProblem];
-		for (var k = 0; k < movingElems[curProblem].length; ++k){
-			var monster = movingElems[curProblem][k];
-			var x, y, s;
-			if (monster.pathIndex < monster.path.length){
-				x = movingElems[curProblem][k].path[monster.pathIndex].x;
-				y = movingElems[curProblem][k].path[monster.pathIndex].y;
-				s = '#' + (curProblem* 10000 + y * 100 + x);
-				$(s).empty();
-				if (curMap[curProblem][y][x] != '.' && curMap[curProblem][y][x] != '#' &&
-					curMap[curProblem][y][x] != '._' && curMap[curProblem][y][x] != '#_')
-					for (var j = 0; j < specSymbols[curProblem].list.length; ++j)
-						if (specSymbols[curProblem].list[j] == curMap[curProblem][y][x]){
-							s = '#' + (curProblem* 10000 + y * 100 + x);
-							$(s).empty();
-							$(s).append('<div class = "' + specSymbols[curProblem].style_list[j] + '"></div>');
-						}
-				if (isEaten(monster, x, y, c_x, c_y))
-					return false;
-				if (monster.path[monster.pathIndex].cnt == monster.path[monster.pathIndex].initCnt)
-					++monster.pathIndex;
+		var p = curProblem;
+		life[p] += problems[p].d_life;
+		var changeCoord = true;
+		var changedElems = [];
+		var cX = curX[p] + dx[p];
+		var cY = curY[p] + dy[p];
+		changedElems.push(new Coord(curX[p], curY[p]));
+		changedElems.push(new Coord(cX, cY));
+		if (labirintOverrun(cX, cY))
+			$('#cons' + p).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
+		else {
+			var elem = curMapWithObjects[p][cY][cX];
+			if (elem.isWall){
+				$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
+				changeCoord = false;
 			}
-			if ((monster.pathIndex >= monster.path.length || 
-				(monster.pathIndex == monster.path.length - 1 && 
-					monster.path[monster.pathIndex].cnt == monster.path[monster.pathIndex].initCnt))){
-				if (!movingElems[curProblem][k].looped)
+			var cells = elem.getCells();
+			for (var j = 0; !elem.isWall && j < cells.length; ++j){
+				if (cells[j].getClass() == 'Lock' && cells[j].isLocked()){
+					$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
+					changeCoord = false;
+					break;
+				}
+				if (cells[j].getClass() == 'Monster'){
+					die();
+					changeCoord = false;
+					break;
+				}
+				if (cells[j].getClass() == 'Box'){
+					var tX = cX + dx[p];
+					var tY = cY + dy[p];
+					var el1 = curMapWithObjects[p][tY][tX];
+					var f = el1.isWall || labirintOverrun(tX, tY);
+					var cells1 = el1.getCells();
+					for (var k = 0; k < cells1.length; ++k)
+						f = f || (cells1[k].getZIndex() >= cells[j].getZIndex());
+					if (f){
+						$("#cons" + p).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
+						changeCoord = false;
+					}
+					else{
+						var box = cells[j];
+						curMapWithObjects[p][cY][cX].deleteElement(cells[j]);
+						box.setCoord(new Coord(tX, tY));
+						curMapWithObjects[p][tY][tX].pushCell(box);
+						changedElems.push(new Coord(tX, tY));
+						--j;
+						continue;
+					}
+				}
+				if (cells[j].getClass() == 'Prize' && !cells[j].isEaten()){
+					var prize = cells[j];
+					curMapWithObjects[p][cY][cX].deleteElement(cells[j]);
+					prize.setEaten();
+					curMapWithObjects[p][cY][cX].pushCell(prize);
+					$('#cons' + p).append('Шаг ' + (i + 1) + ': Нашли бонус "' + prize.getName() + '"\n');
+					$('#cons' + p).append('Текущее количество очков: ' + 
+							(pnts[p] + prize.getPoints()) + '\n');
+					if (++curNumOfPrizes[p] == numOfPrizes[p])
+						$('#cons' + p).append('Вы собрали все бонусы!\n');
+					--j;
 					continue;
-				for (var t = 0; t < monster.path.length; ++t){
-					monster.path[t].x = monster.path[t].startX;
-					monster.path[t].y = monster.path[t].startY;
-					monster.path[t].cnt = 0;
+					
 				}
-				monster.pathIndex = 0;
-			}
-			x = monster.path[monster.pathIndex].x + changeDir.forward[dirs[monster.path[monster.pathIndex].dir]].dx;
-			y = monster.path[monster.pathIndex].y + changeDir.forward[dirs[monster.path[monster.pathIndex].dir]].dy;			
-			monster.path[monster.pathIndex].x = x;
-			monster.path[monster.pathIndex].y = y;
-			++monster.path[monster.pathIndex].cnt;
-			movingElems[curProblem][k] = monster;
-			if (curMap[curProblem][y][x] == '#')
-				continue;
-			if (isEaten(monster, x, y, c_x, c_y))
-				return false;
-		}
-		if (c_x >= curMap[curProblem][0].length || c_x < 0 || c_y >= curMap[curProblem].length || c_y < 0)
-			return true;
-		for (var k = 0; k < problems[curProblem].cleaner.length; ++k){			
-			if (problems[curProblem].cleaner[k].x == c_x && problems[curProblem].cleaner[k].y == c_y){				
-				var s = '#' + (curProblem* 10000 + c_y * 100 + c_x);				
-				$(s).empty();				
-				for (var l = 0; l < problems[curProblem].cleaned[k].length; ++l){					
-					var y = problems[curProblem].cleaned[k][l].y;					
-					var x = problems[curProblem].cleaned[k][l].x;					
-					s = '#' + (curProblem* 10000 + y * 100 + x);					
-					$(s).empty();					
-					if ($(s).hasClass('floor'))						
-						break;					
-					//$(s).removeClass("wall");					
-					$(s).addClass('floor');
-					$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
-					curMap[curProblem][y][x] = '.';
-				}
-			}
-		}	
-		for (var k = 0; k < specSymbols[curProblem].list.length; ++k){
-			if (curMap[curProblem][c_y][c_x] == specSymbols[curProblem].list[k]){
-				++specSymbols[curProblem].cur_count[k];
-				switch(specSymbols[curProblem]['do'][k]){
-					case 'eat':
-						if (specSymbols[curProblem].cur_count[k] == specSymbols[curProblem].count[k])
-							$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Нашли все артефакты "' + 
-								specSymbols[curProblem].names[k] + '" \n');
-						else
-						$('#cons' + curProblem).append('Шаг ' + (i + 1) + ': Нашли артефакт "' + specSymbols[curProblem].names[k] + 
-							'", ' + specSymbols[curProblem].cur_count[k] + '-й \n');
-						$('#cons' + curProblem).append('Текущее количество очков: ' + 
-							(pnts[curProblem] + specSymbols[curProblem].points[k]) + "\n");
-						break;
-					case "move": //ящик, сможем пододвинуть, если за ним пусто или zIndex элемента < zIndex ящика
-						var t_x = c_x + dx[curProblem];
-						var t_y = c_y + dy[curProblem];
-						if (t_x >= curMap[curProblem][0].length || t_x < 0 || 
-							t_y >= curMap[curProblem].length || t_y < 0)
-							continue;
-						if (!canMove(k, t_x, t_y)){
-							$("#cons" + curProblem).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
-							return false;
-						}
-						else{
-							s = '#' + (curProblem * 10000 + t_y * 100 + t_x);
-							$(s).empty();
-							$(s).append('<div class = "' + specSymbols[curProblem].style_list[k] + '"></div>');
-							curMap[curProblem][t_y][t_x] = curMap[curProblem][c_y][c_x];
-						}
-				}
-				curMap[curProblem][c_y][c_x] = '.';
-				s = '#' + (curProblem* 10000 + c_y * 100 + c_x);
-				$(s).empty();
-				life[curProblem] += specSymbols[curProblem].d_life[k];
-				pnts[curProblem] += specSymbols[curProblem].points[k];
-				break;
+				if (cells[j].getClass() == 'Key' && !cells[j].isFound()){
+					for (var k = 0; k < cells[j].getLocks().length; ++k){
+						var x = cells[j].getLocks()[k].x;
+						var y = cells[j].getLocks()[k].y;
+						$('#cons' + p).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
+						var cells1 = curMapWithObjects[p][y][x].getCells();
+						for(var l = 0; l < cells1.length; ++l)
+							if(cells1[l].getClass() == 'Lock')
+								cells1[l].setUnlocked();
+						changedElems.push(new Coord(x, y));
+					}
+					cells[j].setFound();
+				}						
+				life[p] += cells[j].getDLife();
+				pnts[p] += cells[j].getPoints();
 			}
 		}
-		if (life[curProblem] == 0){
-			$('#cons' + curProblem).append('Количество жизней = 0. Попробуйте снова \n');
-			dead[curProblem] = true;
-			return false;
+		if (changeCoord){
+			for (var i = 0; i < curMapWithObjects[p].length; ++i){
+				curMapWithObjects[p][i][arrow[p].getCoord().x].highlightOff();
+				if (i != arrow[p].getCoord().y)
+					changedElems.push(new Coord(arrow[p].getCoord().x, i));
+			}
+			for (var i = 0; i < curMapWithObjects[p][0].length; ++i){
+				curMapWithObjects[p][arrow[p].getCoord().y][i].highlightOff();
+				if (i != arrow[p].getCoord().x)
+					changedElems.push(new Coord(i, arrow[p].getCoord().y));
+			}
+			curMapWithObjects[p][curY[p]][curX[p]].deleteElement(arrow[p]);
+			arrow[p].setCoord(new Coord(cX, cY));
+			arrow[p].setDir(dirs[curDir[p]]);
+			curMapWithObjects[p][cY][cX].pushCell(arrow[p]);
+			for (var i = 0; i < curMapWithObjects[p].length; ++i){
+				curMapWithObjects[p][i][arrow[p].getCoord().x].highlightOn();
+				if (i != arrow[p].getCoord().y)
+					changedElems.push(new Coord(arrow[p].getCoord().x, i));
+			}
+			for (var i = 0; i < curMapWithObjects[p][0].length; ++i){
+				curMapWithObjects[p][arrow[p].getCoord().y][i].highlightOn();
+				if (i != arrow[p].getCoord().x)
+					changedElems.push(new Coord(i, arrow[p].getCoord().y));
+			}
+			curX[p] = cX;
+			curY[p] = cY;
 		}
-		if (c_x >= 0 && c_x < curMap[curProblem][0].length && c_y >= 0 && c_y < curMap[curProblem].length)
-			if (curMap[curProblem][c_y][c_x] != '#' && curMap[curProblem][c_y][c_x] != '#_'){
-				if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
-					s = '#' + (curProblem * 10000 + curY[curProblem]* 100 + curX[curProblem]);
-					$(s).empty();
-					highlightMapOff(curProblem, curX[curProblem], curY[curProblem]);
-					s = '#' + (curProblem * 10000 + c_y * 100 + c_x);
-					$(s).append('<div class = "' + curDir[curProblem]+'"></div>');
-					highlightMap(curProblem, c_x, c_y);	
-				}			
-				curX[curProblem] = c_x;
-				curY[curProblem] = c_y;
+		if (!dead[p]){
+			for (var k = 0; k < monsters[p].length; ++k){
+				var elem = curMapWithObjects[p][monsters[p][k].y][monsters[p][k].x];
+				var m = elem.findCell('Monster', k);
+				//if (!m)
+					//UnhandledError();
+				var c = m.tryNextStep();
+				var elem1 = curMapWithObjects[p][c.y][c.x];
+				if (elem1.mayPush(m)){
+					elem.deleteElement(m);
+					m.nextStep();
+					m.setCoord(c);
+					changedElems.push(c);
+					changedElems.push(new Coord(monsters[p][k].x, monsters[p][k].y));
+					elem1.pushCell(m);
+					if (c.x == arrow[p].getCoord().x && c.y == arrow[p].getCoord().y)
+						die();
+					monsters[p][k].x = c.x;
+					monsters[p][k].y = c.y;
+				}
+				//else
+					//Unhandled error
 			}
-			else{
-				$("#cons" + curProblem).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
-				var s = '#' + (curProblem * 10000 + curY[curProblem] * 100 + curX[curProblem]);
-				$(s).effect('highlight', {}, 300);
-			}
-		else
-			$('#cons' + curProblem).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
-		for (var k = 0; k < movingElems[curProblem].length; ++k)
-			drawMonster(movingElems[curProblem][k]);
+		}
+		for (var i = 0; i < changedElems.length; ++i)
+			curMapWithObjects[p][changedElems[i].getY()][changedElems[i].getX()].draw();
 		return true;
 	}

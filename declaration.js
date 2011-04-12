@@ -16,11 +16,18 @@
 	var curCmdList = [[]]; // current order of commands
 	var life = []; 
 	var pnts = [];
-	var mElemId = []; // current number of moving elements
+	var monsterId = [];
+	var boxId = [];
+	var prizeId = [];
+	var cellId = [];
+	var boxes = [];
+	var monsters = [];
 	var dx = [];
 	var dy = [];
 	var cmdListEnded = []; //all commands were played
 	var curProblem = 0;
+	var numOfPrizes = [];
+	var curNumOfPrizes = [];
 	var problems = []; // problem description (name -- name, statement -- statement, tests number -- testsNum, 
 	//possible commands -- commands, initial life number - start_life, life number change with each step -- d_life, 
 	//initial points number -- start_pnts, finish symbol -- finish_symb, list of keys - cleaner, list of locks - cleaned)
@@ -29,8 +36,6 @@
 	// points for the symbol -- points, life number changing -- d_life, eat or move -- do, coordinate in labirint -- coord.x, coord.y, 
 	//name of css style -- style, 
 	//current number of these symbols - cur_count, ) -- ?
-	var movingElems = [];  // description of moving elements (name of css style -- style, path of moving element -- path, 
-	// if moving element repeats his path -- looped, if meeting with moving element causes loss -- die, symbol in the labirint -- symbol)
 	var problemsList = []; // (id and names of problems)
 	var users = {'login':[], 'name':[]};
 	var login;
@@ -42,6 +47,8 @@
 	var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
 	var resultsUrl = 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;';
 	var visited = []; // if tab have already been visited -- for proper tabs displaying
+	var curMapWithObjects = [];
+	var arrow = [];
 	var divNames = {
 		'forward': 'Прямо',
 		'left': 'Налево',
@@ -90,7 +97,7 @@
 		}
 		
 	}
-	var dirs = {'R': 'right', 'L': 'left', 'U': 'up', 'D': 'down'}
+	var dirs = {'R': 'right', 'L': 'left', 'U': 'up', 'D': 'down', 'right': 'R', 'left': 'L', 'up': 'U', 'down': 'D'};
 	var maxx = 185;
 	var miny = 0;
 	var btnsPlay = new Array('play', 'next', 'prev', 'fast');

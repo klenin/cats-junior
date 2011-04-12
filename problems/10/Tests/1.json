@@ -28,7 +28,7 @@
 			"do": "move",
 			"points": 0,
 			"d_life": 0,
-			"zIndex": 2
+			"zIndex": 3
 		}
 	],
 	"cleaner": [],

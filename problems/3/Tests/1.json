@@ -53,18 +53,18 @@
 	"moving_elements":[{
 		"style": "monster",
 		"path": [
-			{"x": 3, "y": 8}, 
-			{"x": 3, "y": 7},
-			{"x": 4, "y": 7},
-			{"x": 4, "y": 6},
-			{"x": 3, "y": 6}, 
-			{"x": 3, "y": 5}, 
-			{"x": 4, "y": 5}, 
-			{"x": 3, "y": 5}, 
-			{"x": 3, "y": 6}, 
-			{"x": 4, "y": 6}, 
-			{"x": 4, "y": 7}, 
-			{"x": 3, "y": 7} 
+			{"x": 3, "y": 8, "dir": "U", "initCnt": 1}, 
+			{"x": 3, "y": 7, "dir": "R", "initCnt": 1},
+			{"x": 4, "y": 7, "dir": "U", "initCnt": 1},
+			{"x": 4, "y": 6, "dir": "L", "initCnt": 1},
+			{"x": 3, "y": 6, "dir": "U", "initCnt": 1}, 
+			{"x": 3, "y": 5, "dir": "R", "initCnt": 1}, 
+			{"x": 4, "y": 5, "dir": "L", "initCnt": 1}, 
+			{"x": 3, "y": 5, "dir": "D", "initCnt": 1}, 
+			{"x": 3, "y": 6, "dir": "R", "initCnt": 1}, 
+			{"x": 4, "y": 6, "dir": "D", "initCnt": 1}, 
+			{"x": 4, "y": 7, "dir": "L", "initCnt": 1},
+			{"x": 3, "y": 7, "dir": "D", "initCnt": 1}
 			],
 		"looped": true,
 		"die": true
