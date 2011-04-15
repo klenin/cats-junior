@@ -17,9 +17,10 @@
 		var cX = curX[p] + dx[p];
 		var cY = curY[p] + dy[p];
 		changedElems.push(new Coord(curX[p], curY[p]));
-		changedElems.push(new Coord(cX, cY));
-		if (labirintOverrun(cX, cY))
+		if (labirintOverrun(cX, cY)){
 			$('#cons' + p).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
+			changeCoord = false;
+		}
 		else {
 			var elem = curMapWithObjects[p][cY][cX];
 			if (elem.isWall){
@@ -95,6 +96,7 @@
 			}
 		}
 		if (changeCoord){
+			changedElems.push(new Coord(cX, cY));
 			for (var i = 0; i < curMapWithObjects[p].length; ++i){
 				curMapWithObjects[p][i][arrow[p].getCoord().x].highlightOff();
 				if (i != arrow[p].getCoord().y)

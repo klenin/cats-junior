@@ -173,21 +173,20 @@
 	}
 	function exportCommands(){
 		var list = $('#sortable' + curProblem).children();
-		var text = '';
-		text = '[';
+		var arr = new Array();
 		while (list.length){
+			var dir;
+			var obj = new Object();
 			for (var i = 0; i < classes.length / 2; ++i)
 				if (list.first().hasClass(classes[i]) || list.first().hasClass(classes[i] + 1)){
-					text += '{"dir": "' + classes[i] + '", ';
+					obj.dir = classes[i];
 					break;
 				}
-			text += '"cnt": ' + $('#spin' + list.first().attr('numId')).attr('value') + '}';
-			if (list.next().length)
-				text += ', <br>';
+			obj.cnt = $('#spin' + list.first().attr('numId')).attr('value');
+			arr.push(obj);
 			list = list.next();
 		}
-		text += ']'
-		$('#export' + curProblem).html(text);
+		$('#export' + curProblem).html($.toJSON(arr));
 		$('#export' + curProblem).dialog('open');
 		return false;
 	}
