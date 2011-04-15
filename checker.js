@@ -41,11 +41,14 @@
 				if (cells[j].getClass() == 'Box'){
 					var tX = cX + dx[p];
 					var tY = cY + dy[p];
-					var el1 = curMapWithObjects[p][tY][tX];
-					var f = el1.isWall || labirintOverrun(tX, tY);
-					var cells1 = el1.getCells();
-					for (var k = 0; k < cells1.length; ++k)
-						f = f || (cells1[k].getZIndex() >= cells[j].getZIndex());
+					var f = labirintOverrun(tX, tY);
+					if (!f){
+						var el1 = curMapWithObjects[p][tY][tX];
+						f = el1.isWall;
+						var cells1 = el1.getCells();
+						for (var k = 0; k < cells1.length; ++k)
+							f = f || (cells1[k].getZIndex() >= cells[j].getZIndex());
+					}
 					if (f){
 						$("#cons" + p).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
 						changeCoord = false;

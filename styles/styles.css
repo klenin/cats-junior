@@ -29,8 +29,7 @@ input.cnt{
 span.cnt{
 	width: 60px; 
 	height: 21px; 
-	margin-left: 10px; 
-	margin-right: 0px; 
+	float: right;
 	padding: 0px; 
 	top: 0px; 
 	position: inherit;
@@ -68,7 +67,7 @@ ul.ul_comands{
 	margin: 0px;
 }
 ul.sortable{
-	width: 200px;
+	width: 220px;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;

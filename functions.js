@@ -365,13 +365,12 @@
 	}
 	function loop(cnt){
 		var newCmd = false;
-		if (dead[curProblem])
+		if (dead[curProblem] || !playing[curProblem])
 			return;
 		if (pause[curProblem] || stopped[curProblem]){
 			if (pause[curProblem])
 				pause[curProblem] = false;
 			else{
-				stopped[curProblem] = false;
 				setDefault();
 			}
 			return;
@@ -387,8 +386,6 @@
 		dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
 		curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
 		var checked = checkCell(step(), cnt);
-		if (dead[curProblem])
-			return;
 		if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
 			if (newCmd || cmd() == 0)
 				changeClass(divN());
@@ -398,6 +395,8 @@
 				$('#spinCnt' + numId).attr('cnt', newCnt);
 				$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
 			}
+			if (dead[curProblem])
+				return;
 			setTimeout(function() { nextStep(cnt); }, speed[curProblem]);
 		}
 		else
@@ -431,9 +430,9 @@
 		return true;
 	}
 	function nextStep(cnt){
-		if (dead[curProblem])
+		if (dead[curProblem] || stopped[curProblem])
 			return;
-		if ( nextCmd() && !pause[curProblem] &&(!cnt || step() < cnt))
+		if ( playing[curProblem] && nextCmd() && !pause[curProblem] && !stopped[curProblem] &&(!cnt || step() < cnt))
 			loop(cnt);
 		else {
 			playing[curProblem] = false;

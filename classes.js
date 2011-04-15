@@ -92,7 +92,7 @@ var FieldElem = $.inherit({
 	},
 	mayPush: function(elem){
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].getZIndex() >= elem.getZIndex())
+			if (this.cells[i].getZIndex() >= elem.getZIndex() && this.cells[i].getClass() != 'Arrow')
 				return false;
 		return true;
 	}

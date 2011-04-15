@@ -2,10 +2,10 @@
 	"name": "Задача 4",
 	"statement": "Необходимо набрать максимальное количество очков",
 	"testsNum": 1,
-	"commands": ["forward", "left", "right"],
+	"commands": ["forward", "left", "right", "wait"],
 	"start_life": 1,
 	"d_life": 0,
 	"start_pnts": 0,
 	"finish_symb": 0,
-	"max_step": 50
+	"max_step": 150
 }

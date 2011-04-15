@@ -270,11 +270,11 @@
 				$('#' + str + cmdId).css('height', '35px');
 			$('#' + str + cmdId).attr('numId', cmdId);
 			$('#' + str + cmdId).attr('ifLi', 1);
-			$('#' + str + cmdId).append('<span id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+			$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 		}
 		else{
-			$('#' + str + cmdId).append('<span id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+			$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 		}
 		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
@@ -340,10 +340,10 @@
 	stopClick = function(){
 		stopped[curProblem] = true;
 		setDefault();
+		playing[curProblem] = false;
 		clearClasses();
 		showCounters();
 		setCounters();
-
 	}
 	pauseClick = function(){
 		if (playing[curProblem])			
