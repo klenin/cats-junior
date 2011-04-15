@@ -171,6 +171,63 @@
 			}
 		});
 	}
+	function exportCommands(){
+		var list = $('#sortable' + curProblem).children();
+		var text = '';
+		text = '[';
+		while (list.length){
+			for (var i = 0; i < classes.length / 2; ++i)
+				if (list.first().hasClass(classes[i]) || list.first().hasClass(classes[i] + 1)){
+					text += '{"dir": "' + classes[i] + '", ';
+					break;
+				}
+			text += '"cnt": ' + $('#spin' + list.first().attr('numId')).attr('value') + '}';
+			if (list.next().length)
+				text += ', <br>';
+			list = list.next();
+		}
+		text += ']'
+		$('#export' + curProblem).html(text);
+		$('#export' + curProblem).dialog('open');
+		return false;
+	}
+	function addCmd(name, cnt){
+		$('#sortable' + curProblem).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
+			'<span style = "margin-left: 40px;">' + divNames[name] + '</span></li>');		
+		if($.browser.msie)
+			$('#' + name + cmdId).css('height', '35px');
+		$('#' + name + cmdId).attr('numId', cmdId);
+		$('#' + name + cmdId).attr('ifLi', 1);
+		$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
+	}
+	function setSpin(){
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+		$('#spin' + cmdId++).spin({
+			min: 1,
+			changed: function(){
+				updated();			
+			}
+		});
+	}
+	function import_(){
+		$('#import' + curProblem).dialog('open');
+		return false;
+	}
+	function importCommands(){
+		var cmds = jQuery.parseJSON($('#importText' + curProblem).attr('value'));
+		if (cmds){
+			$('#sortable' + curProblem).children().remove();
+			for (var i = 0; i < cmds.length; ++i){
+				addCmd(cmds[i].dir, cmds[i].cnt);
+				setSpin();
+			}
+			updated();
+			setDefault();
+			setCounters(0);
+		}
+		$('#import' + curProblem).dialog('close');
+	}
 	function changeClass(elem){
 		if (!elem)
 			return false;

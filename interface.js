@@ -204,9 +204,19 @@
 				}
 				$('#1tr' + i).append('<td valign = "top" align = "right" id = "tdAboutBtn' + i + '">');
 				$('#tdAboutBtn' + i).append(
-					'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "aboutBtn' + i +'">');
+					'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "aboutBtn' + i +'"></button>');
+				$('#tdAboutBtn' + i).append(
+					'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "exportBtn' + i +'"></button>');
+				$('#tdAboutBtn' + i).append(
+					'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "importBtn' + i +'"></button>');
 				$('#aboutBtn' + i).append('<span class="ui-button-text">?</span>');
-				$('#tdAboutBtn' + i).append('</button>');
+				$('#exportBtn' + i).append('<span class="ui-button-text">export</span>');
+				$('#importBtn' + i).append('<span class="ui-button-text">import</span>');
+				$('#tdAboutBtn' + i).append('<div id = "import' + i + '"></div>');
+				$('#tdAboutBtn' + i).append('<div id = "export' + i + '"></div>');
+				$('#exportBtn' + i).click(function() { return exportCommands(); });
+				$('#importBtn' + i).click(function() { return import_(); });
+				$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '"></textarea>');
 				$('#1tr' + i).append('</td>');
 				mainT.append('</tr>');
 				mainT.append('<tr id = "4tr' + i +'">');
@@ -263,27 +273,13 @@
 			'<iframe src = "' + resultsUrl + '" class = "results"></iframe></td></tr></table>');
 	}
 	function addNewCmd(str, dblClick, elem){
-		if (dblClick){
-			$('#sortable' + curProblem).append('<li id = "' + str + cmdId + '" class = "' + str + ' ui-draggable">' + 
-				'<span style = "margin-left: 40px;">' + divNames[str] + '</span></li>');		
-			if($.browser.msie)
-				$('#' + str + cmdId).css('height', '35px');
-			$('#' + str + cmdId).attr('numId', cmdId);
-			$('#' + str + cmdId).attr('ifLi', 1);
-			$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
-		}
+		if (dblClick)	
+			addCmd(str, 1);
 		else{
 			$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 		}
-		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-		$('#spin' + cmdId++).spin({
-			min: 1,
-			changed: function(){
-				updated();			
-			}
-		});
+		setSpin();
 	}
 	function hideCounters(){
 		$('#sortable' + curProblem + ' > li > span > img').hide();			

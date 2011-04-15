@@ -94,6 +94,36 @@
 			playing[curProblem] = false;
 			dead[curProblem] = false;
 			cmdListEnded[i] = false;
+			$('#export' + i).dialog({
+				modal: true,
+				buttons: {
+					Ok: function() {
+						$(this).dialog('close');
+					}
+				}, 
+				autoOpen: false,
+				title: 'Список команд',
+				minWidth: 250,
+				minHeight: 400
+			});
+			$('#import' + i).dialog({
+				modal: true,
+				buttons: {
+					'Load': function() {
+						if (!confirm('Вы уверены, что хотите изменить список команд?'))
+							return;
+						importCommands();
+					},
+					'Cancel': function() {
+						$(this).dialog('close');
+					}
+				}, 
+				autoOpen: false,
+				title: 'Загрузка списка команд',
+				minWidth: 250,
+				minHeight: 400
+				
+			});
 			$('ul, li').disableSelection();
 		}
 	});
