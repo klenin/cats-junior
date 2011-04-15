@@ -80,7 +80,7 @@ var FieldElem = $.inherit({
 		for (var i = 0; i < this.cells.length; ++i)
 			if (this.cells[i].coord.x != this.coord.x || this.cells[i].coord.y != this.coord.y){
 				arr.push(this.cells[i]);
-				this.cells.splice(i, 1);
+				this.cells.splice(i--, 1);
 		}
 		return arr;
 	},
@@ -220,7 +220,7 @@ var Arrow = $.inherit(Cell,{
 	setDefault: function(){
 		this.dir = this.initDir;
 		this.coord = this.initCoord;
-		this.style = this.initDir;
+		this.style = dirs[this.initDir];
 		this.dead = false;
 		this.__base();
 	},
