@@ -25,9 +25,13 @@ var FieldElem = $.inherit({
 		return 'FieldElem';
 	},
 	highlightOn: function() {
+		for (var i = 0; i < this.cells.length; ++i)
+			this.cells[i].highlightOn();
 		this.highlighted = true;
 	},
 	highlightOff: function() {
+		for (var i = 0; i < this.cells.length; ++i)
+			this.cells[i].highlightOff();
 		this.highlighted = false;
 	},
 	isWall: function(){
@@ -142,18 +146,21 @@ var Cell = $.inherit({
 	},
 	setDefault: function() {
 		this.highlighted = false;
-	}
+		this.highlightOff();
+	},
+	highlightOn: function(){},
+	highlightOff: function(){}
 });
 
 var Lock = $.inherit(Cell, {
 	__constructor: function(problem, coord) {
-		this.__base(problem, coord, "lock", "#_", 11);
+		this.__base(problem, coord, 'lock', '#_', 11);
 		this.locked = true;
 	},
 	setDefault: function() {
 		this.locked = true;
 		this.isWall = true;
-		this.style = "lock";
+		this.style = 'lock';
 		this.__base();
 	},
 	isLocked: function() {
@@ -162,16 +169,26 @@ var Lock = $.inherit(Cell, {
 	setUnlocked: function() {
 		this.locked = false;
 		this.isWall = false;
-		this.style = "floor";
+		this.style = 'floor';
 	},
 	getClass: function() {
 		return 'Lock';
+	},
+	highlightOn: function(){
+		if (this.locked)
+			this.style = 'highlightedLock';
+		this.__base();
+	},
+	highlightOff: function(){
+		if (this.locked)
+			this.style = 'lock';
+		this.__base();
 	}
 });
 
 var Key = $.inherit(Cell, {
 	__constructor: function(problem, coord, locks) {
-		this.__base(problem, coord, "key", "._", 1);
+		this.__base(problem, coord, 'key', '._', 1);
 		this.found = false;
 		this.locks = locks;
 	},

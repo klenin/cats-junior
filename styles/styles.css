@@ -88,15 +88,16 @@ td.wall, td.floor, td.highlightFloor, td.highlightWall{
 }
 td.wall{ background-image: url('../images/wall.jpg'); }
 td.floor{ background-image: url('../images/floor.jpg'); }
-td.highlightWall{ background-image: url('../images/wall_.jpg'); }
-td.highlightFloor{ background-image: url('../images/floor_.jpg'); }
-div.key, div.lock, div.up, div.down, div.left, div.right, div.star, div.BigStar, div.MiddleStar, div.box, div.monster{	
+td.highlightWall{ background-image: url('../images/wall__.jpg'); }
+td.highlightFloor{ background-image: url('../images/floor__.jpg'); }
+div.key, div.lock, div.up, div.down, div.highlightedLock, div.left, div.right, div.star, div.BigStar, div.MiddleStar, div.box, div.monster{	
 	width: 100%;
 	height: 100%;
 	z-index: 2;
 }
 div.key{ background: url('../images/key.png') 50% 50% no-repeat; }
 div.lock{ background: url('../images/lock.png') 50% 50% no-repeat; }
+div.highlightedLock{ background: url('../images/highlightedLock.png') 50% 50% no-repeat; }
 div.up{ background: url('../images/hero_up.png') 50% 50% no-repeat; }
 div.down{ background: url('../images/hero_down.png') 50% 50% no-repeat; }
 div.left{ background: url('../images/hero_left.png') 50% 50% no-repeat; }
