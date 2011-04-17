@@ -7,8 +7,6 @@
 		$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 		fillTabs();
 		document.title = "";
-		for (var i = 0; i < 3; ++i)
-			curCmdList[i] = [];
 		cmdId = problems.length;
 		divs = ['forward', 'left', 'right', 'wait'];
 		$('#tabs').bind('tabsshow', function(event, ui) {
@@ -79,10 +77,7 @@
   		for (var i = 0; i < problems.length; ++i){
 			curState[i] = new Object();
 			curCmdList[i] = new Array();
-			curState[i].cmdIndex = 0;
-			curState[i].divIndex = 0;
-			curState[i].step = 0;
-			curState[i].divName = "";
+			curState[i] = {'cmdIndex': 0, 'divIndex': 0, 'step': 0, 'divName': ''};
 			curDir[i] = startDir[i];
 			curX[i] = startX[i];
 			curY[i] = startY[i];

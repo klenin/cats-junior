@@ -18,8 +18,8 @@
 		$('#ui-tabs-0').append('<p>Текущий пользователь:</p>');
 		name = user[0].defaultValue;
 		for (var i = 0; i < users.login.length; ++i){
-			if (name == users.name[i])
-				login = users.login[i];
+			if (name == users[i].name)
+				login = users[i].login;
 		}
 		$('#ui-tabs-0').append('<p>' + user[0].defaultValue +'</p>');
 		$('#ui-tabs-0').append(
@@ -40,23 +40,20 @@
 				if (!data)
 					return;
 				login = undefined;
-    			users.login = [];
-				users.name = [];
 				for (var i = 0; i < data.length; ++i){
 					if (data[i].ooc == 1)
 						continue;
-					users.login.push(data[i].login);
-					users.name.push(data[i].name);
+					users.push({'login': data[i].login, 'name': data[i].name}); 
 				}
 				$('#ui-tabs-0').empty();
-				if (users.login.length > 0){
+				if (users.length > 0){
 					$('#ui-tabs-0').append('<p>Выберите свое имя из списка</p>');
 					$('#ui-tabs-0').append('<form name = "userList" id = "userList">');
-					for (var i = 0; i < users.login.length; ++i)
+					for (var i = 0; i < users.length; ++i)
 						$('#userList').append(
-						'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users.name[i] + '" ' + 
+						'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' + 
 						(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' 
-						+ users.name[i] + '</label><br>');
+						+ users[i].name + '</label><br>');
 					$('#userList').append(
 						'<input type = "button" name="userNameSubmit" id = "userNameSubmit" class = "userNameSubmit"' + 
 						' onClick = chooseUser()></input>');
@@ -76,12 +73,7 @@
 				else
 					alert("Ошибка подключения к серверу. Попробуйте снова");
 			});
-			var result = "";
-			var arr = $('#sortable' + curProblem).sortable('toArray');
-			for (var i = 0; i < arr.length - 1; ++i){
-				var c = parseInt($('#' + arr[i] + ' input')[0].value);
-				result += arr[i].replace(/\d{1,}/, "") + " " + c + " ";
-			}
+			var result = commandsToJSON();
 			submitStr = 'source=' + result + '&problem_id=771346&de_id=772264';
 			callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
 				alert(data);
@@ -100,12 +92,7 @@
 				else
 					alert("Ошибка подключения к серверу. Попробуйте снова");
 			});
-			var result = "";
-			var arr = $('#sortable' + curProblem).sortable('toArray');
-			for (var i = 0; i < arr.length - 1; ++i){
-				var c = parseInt($('#' + arr[i] + ' input')[0].value);
-				result += arr[i].replace(/\d{1,}/, "") + " " + c + " ";
-			}
+			var result = commandsToJSON();
 			var problem_id = problemsList[curProblem].id;  //problem_id = 
 			var de_id = 772264;
 			var boundary = Math.round((Math.random() * 999999999999));

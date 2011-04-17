@@ -76,16 +76,7 @@
 			success: function(data) {
 				if (!data)
 					return;
-				problems[i] = new Object();
-				problems[i].name = data.name;
-				problems[i].statement = data.statement;
-				problems[i].testsNum = data.testsNum;
-				problems[i].commands = data.commands.slice();
-				problems[i].start_life = data.start_life;
-				problems[i].d_life = data.d_life;
-				problems[i].start_pnts = data.start_pnts;
-				problems[i].finish_symb = data.finish_symb;
-				problems[i].max_step = data.max_step;
+				problems[i] = data;
 			},
 			error: function(r, err1, err2){
 				alert(r.responseText);
@@ -171,7 +162,7 @@
 			}
 		});
 	}
-	function exportCommands(){
+	function commandsToJSON(){
 		var list = $('#sortable' + curProblem).children();
 		var arr = new Array();
 		while (list.length){
@@ -186,7 +177,10 @@
 			arr.push(obj);
 			list = list.next();
 		}
-		$('#export' + curProblem).html($.toJSON(arr));
+		return $.toJSON(arr);
+	}
+	function exportCommands(){
+		$('#export' + curProblem).html(commandsToJSON());
 		$('#export' + curProblem).dialog('open');
 		return false;
 	}
@@ -402,12 +396,7 @@
 			$("#curStep" + t).attr('value', 0);
 			$('#progressBar'  + t).progressbar('option', 'value',  0);
 		}
-		with (curState[t]){
-			cmdIndex = 0;
-			divIndex = 0;
-			step = 0;
-			divName = curCmdList[t][0].name;
-		}
+		curState[t] = {'cmdIndex': 0, 'divIndex': 0, 'step': 0, 'divName': curCmdList[t][0].name};
 		var el = $('#sortable' + t).children();
 		while (el.length > 0){
 			$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
@@ -461,9 +450,7 @@
 	function nextCmd(){
 		var t = curProblem;
 		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt - 1)){
-			curState[t].divIndex = list().length;
-			++curState[t].step;
-			curState[t].cmdIndex = 0;
+			curState[t] = {'divIndex': list().length, 'cmdIndex': 0, 'step': curState[t].step + 1};
 			cmdListEnded[t] = true;
 			return false;
 		}
@@ -501,7 +488,6 @@
 				$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
 				if (!isChangedClass(divN()))
 		 			changeClass(divN());
-
 			}	
 		}
 	}

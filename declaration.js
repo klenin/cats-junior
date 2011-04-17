@@ -37,7 +37,7 @@
 	//name of css style -- style, 
 	//current number of these symbols - cur_count, ) -- ?
 	var problemsList = []; // (id and names of problems)
-	var users = {'login':[], 'name':[]};
+	var users = [];
 	var login;
 	var name;
 	var passwd = 12345;
