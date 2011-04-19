@@ -29,7 +29,6 @@ input.cnt{
 span.cnt{
 	width: 60px; 
 	height: 21px; 
-	float: right;
 	padding: 0px; 
 	top: 0px; 
 	position: inherit;
@@ -145,7 +144,7 @@ textarea.cons{
 	width: 250px;
 	font-size:11pt;
 	margin-left:5px;
-	height: 500 px;
+	height: 500px;
 	-moz-border-radius: 4px; 
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;

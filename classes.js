@@ -13,6 +13,7 @@ var Coord = $.inherit({
 		return 'Coord';
 	}
 });
+
 var FieldElem = $.inherit({
 	__constructor: function(problem, coord, isWall) {
 		this.problem = problem;
@@ -101,6 +102,7 @@ var FieldElem = $.inherit({
 		return true;
 	}
 });
+
 var Cell = $.inherit({
 	__constructor: function(problem, coord, style, symbol, zIndex, points, dLife, id) {
 		this.problem = problem;
