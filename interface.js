@@ -369,7 +369,7 @@ playClick = function(){
 }
 
 fastClick = function(){
-	callPlay(1);
+	callPlay(0);
 }
 
 clearClick = function(){
@@ -412,7 +412,10 @@ nextClick = function(){
 	playing[curProblem] = true;
 	pause[curProblem] = false;
 	stopped[curProblem] = false;
-	loop(1);
+	speed[curProblem] = 0;
+	if (cmd() == list()[divI()].cnt - 1)
+		changeClass(divN());
+	loop(1);	
 }
 
 prevClick = function(){
@@ -427,7 +430,6 @@ prevClick = function(){
 	--t;
 	setDefault(true);
 	hideCounters();
-	//setCounters();
 	var s = speed[curProblem];
 	speed[curProblem] = 0;
 	playing[curProblem] = true;

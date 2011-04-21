@@ -2,15 +2,6 @@ var Coord = $.inherit({
 	__constructor: function(x, y) {
 		this.x = x;
 		this.y = y;
-	},
-	getX: function() {
-		return this.x;
-	},
-	getY: function() {
-		return this.y;
-	},
-	getClass: function() {
-		return 'Coord';
 	}
 });
 
@@ -22,9 +13,6 @@ var FieldElem = $.inherit({
 		this.highlighted = false;
 		this.cells = [];
 	},
-	getClass: function() {
-		return 'FieldElem';
-	},
 	highlightOn: function() {
 		for (var i = 0; i < this.cells.length; ++i)
 			this.cells[i].highlightOn();
@@ -34,9 +22,6 @@ var FieldElem = $.inherit({
 		for (var i = 0; i < this.cells.length; ++i)
 			this.cells[i].highlightOff();
 		this.highlighted = false;
-	},
-	isWall: function(){
-		return this.isWall;
 	},
 	draw: function() {
 		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
@@ -64,18 +49,15 @@ var FieldElem = $.inherit({
 	},
 	sortCells: function() {
 		this.cells.sort(function(a, b){
-			return b.getZIndex() - a.getZIndex();
+			return b.zIndex - a.zIndex;
 		});
-	},
-	setCells: function(cells) {
-		this.cells = cells;
 	},
 	pushCell: function(cell) {
 		this.cells.push(cell);
 	},
 	deleteElement: function(elem) {
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].getClass() == elem.getClass() && this.cells[i].getId() == elem.getId()){
+			if (this.cells[i].__self == elem.__self && this.cells[i].id == elem.id){
 				this.cells.splice(i, 1);
 				break;
 			}
@@ -91,13 +73,13 @@ var FieldElem = $.inherit({
 	},
 	findCell: function(c, id){
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].getClass() == c && this.cells[i].getId() == id)
+			if (this.cells[i].__self == c && this.cells[i].id== id)//////
 				return this.cells[i];
 		return undefined;
 	},
 	mayPush: function(elem){
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].getZIndex() >= elem.getZIndex() && this.cells[i].getClass() != 'Arrow')
+			if (this.cells[i].zIndex >= elem.zIndex && this.cells[i].__self != Arrow)
 				return false;
 		return true;
 	}
@@ -113,33 +95,6 @@ var Cell = $.inherit({
 		this.dLife = dLife ? dLife : 0;
 		this.coord = coord;
 		this.id = (id != undefined) ? id : cellId[problem]++;
-	},
-	getStyle: function() {
-		return this.style;
-	},
-	getSymbol: function() {
-		return this.symbol;
-	},
-	getZIndex: function() {
-		return this.zIndex;
-	},
-	getPoints: function() {
-		return this.points;
-	},
-	getDLife: function() {
-		return this.dLife;
-	},
-	getClass: function() {
-		return 'Cell';
-	},
-	getCoord: function() {
-		return this.coord;
-	},
-	getId: function() {
-		return this.id;
-	},
-	setCoord: function(coord) {
-		this.coord = coord;
 	},
 	draw: function() {
 		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
@@ -165,16 +120,10 @@ var Lock = $.inherit(Cell, {
 		this.style = 'lock';
 		this.__base();
 	},
-	isLocked: function() {
-		return this.locked;
-	},
 	setUnlocked: function() {
 		this.locked = false;
 		this.isWall = false;
 		this.style = 'floor';
-	},
-	getClass: function() {
-		return 'Lock';
 	},
 	highlightOn: function(){
 		if (this.locked)
@@ -198,24 +147,12 @@ var Key = $.inherit(Cell, {
 		this.found = false;
 		this.__base();
 	},
-	isFound: function() {
-		return this.found;
-	},
-	setFound: function() {
-		this.found = true;
-	},
 	draw: function() {
 		if (!this.found)
 			this.__base();
 		else
 			return false;
 		return true;
-	},
-	getClass: function() {
-		return 'Key';
-	},
-	getLocks: function() {
-		return this.locks;
 	}
 });
 
@@ -227,24 +164,12 @@ var Arrow = $.inherit(Cell,{
 		this.initDir = dir;
 		this.dead = false;
 	},
-	getClass: function() {
-		return 'Arrow';
-	},
-	getDir: function() {
-		return this.dir;
-	},
-	setDir: function(dir) {
-		this.dir = dir;
-	},
 	setDefault: function(){
 		this.dir = this.initDir;
 		this.coord = this.initCoord;
 		this.style = dirs[this.initDir];
 		this.dead = false;
 		this.__base();
-	},
-	setDead: function() {
-		this.dead = true;
 	},
 	draw: function() {
 		this.style = dirs[this.dir];
@@ -268,21 +193,9 @@ var Prize = $.inherit(Cell,{
 		this.name = name;
 		this.eaten = false;
 	},
-	getName: function() {
-		return this.name;
-	},
-	getClass: function() {
-		return 'Prize';
-	},
 	setDefault: function(){
 		this.eaten = false;
 		this.__base();
-	},
-	setEaten: function() {
-		this.eaten = true;
-	},
-	isEaten: function() {
-		return this.eaten;
 	},
 	draw: function() {
 		if (!this.eaten)
@@ -299,14 +212,8 @@ var Box = $.inherit(Cell,{
 		this.name = name;
 		this.initCoord = coord;
 	},
-	getName: function() {
-		return this.name;
-	},
-	getClass: function() {
-		return 'Box';
-	},
 	move: function(dx, dy) {
-		this.coord = new Coord(this.coord.getX(), this.coord.getY());
+		this.coord = new Coord(this.coord.x, this.coord.y);
 	},
 	setDefault: function() {
 		this.coord = this.initCoord;
@@ -318,22 +225,12 @@ var Monster = $.inherit(Cell,{
 	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, path, looped, die) {
 		this.__base(problem, coord, style, symbol, zIndex, points, dLife, monsterId[problem]++);
 		this.path = new Array();
-		for (var i = 0; i < path.length; ++i){
+		for (var i = 0; i < path.length; ++i)
 			this.path[i] = {'x': path[i].x, 'y': path[i].y, 'startX': path[i].x, 'startY': path[i].y,
 							'dir': path[i].dir, 'initCnt': path[i].initCnt, cnt: 0};
-		}
 		this.looped = looped;
 		this.die = die;
 		this.pathIndex = 0;
-	},
-	getLooped: function() {
-		return this.looped;
-	},
-	getDie: function() {
-		return this.die;
-	},
-	getClass: function() {
-		return 'Monster';
 	},
 	setDefault: function() {
 		for (var i = 0; i < this.path.length; ++i){
@@ -347,8 +244,8 @@ var Monster = $.inherit(Cell,{
 	},
 	tryNextStep: function() {
 		var x = this.coord.x, y = this.coord.y, dir = this.path[this.pathIndex].dir;
-		if ((this.pathIndex >= this.path.length || (this.pathIndex == this.path.length - 1 && 
-				this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt))){
+		if (/*(this.pathIndex >= this.path.length || */this.pathIndex == this.path.length - 1 && 
+				this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt){
 			if (!this.looped)
 				return;
 			x = this.path[0].startX;
@@ -363,8 +260,8 @@ var Monster = $.inherit(Cell,{
 		return new Coord(x, y);
 	},
 	nextStep: function() {
-		if ((this.pathIndex >= this.path.length || (this.pathIndex == this.path.length - 1 && 
-				this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt))){
+		if /*(this.pathIndex >= this.path.length || */(this.pathIndex == this.path.length - 1 && 
+				this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt){
 			if (!this.looped)
 				return;
 			this.setDefault();

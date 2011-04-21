@@ -123,7 +123,7 @@ function getTest(l, k){
 										t1[k].d_life, t1[k].name) : 
 							new Box(l, c, t1[k].style, t1[k].symbol, t1[k].zIndex ? t1[k].zIndex : 2, t1[k].points, 
 										t1[k].d_life, t1[k].name);
-						if (obj.getClass() == 'Prize')
+						if (obj.__self == Prize)
 							++numOfPrizes[l];
 						else
 							boxes[l].push({'id': boxId[l], 'x': j, 'y': i});
@@ -139,7 +139,7 @@ function getTest(l, k){
 				obj = new Monster(l, c, t2[k].style, "", t2[k].zIndex ? t2[k].zIndex : 3, t2[k].points, t2[k].d_life, t2[k].path, 
 								t2[k].looped, t2[k].die);
 				curMap[l][c.y][c.x].pushCell(obj);
-				monsters[l].push({'x': c.getX(), 'y': c.getY()});
+				monsters[l].push({'x': c.x, 'y': c.y});
 			}
 			for (var k = 0; k < t3.length; ++k){
 				var c = new Coord(t3[k].x, t3[k].y);
@@ -175,6 +175,12 @@ function commandsToJSON(){
 		list = list.next();
 	}
 	return $.toJSON(arr);
+}
+
+function exportCommands(){
+	$('#export' + curProblem).html(commandsToJSON());
+	$('#export' + curProblem).dialog('open');
+	return false;
 }
 
 function changeClass(elem){
@@ -215,7 +221,7 @@ function clearClasses(){
 	}
 }
 
-function setCounters(j){
+function setCounters(j, dontReload){
 	var el = $('#sortable' + curProblem).children();
 	while(j){
 		el = el.next();
@@ -223,9 +229,10 @@ function setCounters(j){
 	}
 	while (el.length > 0){
 		var numId = el.attr('numId');
-		var val = $('#spin' + numId).attr('value');
-		$('#spinCnt' + numId).attr('cnt', val);
-		$('#spinCnt' + numId).attr('value', val + '/' + val);
+		var val =  $('#spin' + numId).attr('value');
+		var newVal = dontReload ? $('#spinCnt' + numId).attr('cnt') : val;
+		$('#spinCnt' + numId).attr('cnt', newVal);
+		$('#spinCnt' + numId).attr('value', newVal + '/' + val);
 		el = el.next();
 	}
 }
@@ -304,16 +311,16 @@ function updated(){
 
 function highlightOn(t){
 	for (var i = 0; i < curMap[t].length; ++i)
-		curMap[t][i][arrow[t].getCoord().x].highlightOn();
+		curMap[t][i][arrow[t].coord.x].highlightOn();
 	for (var i = 0; i < curMap[t][0].length; ++i)
-		curMap[t][arrow[t].getCoord().y][i].highlightOn();
+		curMap[t][arrow[t].coord.y][i].highlightOn();
 }
 
 function highlightOff(t, func){
 	for (var i = 0; i < curMap[t].length; ++i)
-		curMap[t][i][arrow[t].getCoord().x].highlightOff();
+		curMap[t][i][arrow[t].coord.x].highlightOff();
 	for (var i = 0; i < curMap[t][0].length; ++i)
-		curMap[t][arrow[t].getCoord().y][i].highlightOff();
+		curMap[t][arrow[t].coord.y][i].highlightOff();
 }
 
 function setDefault(f){
@@ -330,18 +337,18 @@ function setDefault(f){
 		for (var j = 0; j < curMap[t][i].length; ++j){
 			var arr = curMap[t][i][j].changedCells();
 			for (var k = 0; k < arr.length; ++k){
-				curMap[t][arr[k].getCoord().y][arr[k].getCoord().x].pushCell(arr[k]);
-				switch(arr[k].getClass()){
-					case 'Arrow': 
+				curMap[t][arr[k].coord.y][arr[k].coord.x].pushCell(arr[k]);
+				switch(arr[k].__self){
+					case Arrow: 
 						arrow[t] = arr[k];
 						break;
-					case 'Monster':
-						monsters[t][arr[k].getId()] = arr[k];
-						monsters[t][arr[k].getId()].x = arr[k].getCoord().x;
-						monsters[t][arr[k].getId()].y = arr[k].getCoord().y;
+					case Monster:
+						monsters[t][arr[k].id] = arr[k];
+						monsters[t][arr[k].id].x = arr[k].coord.x;
+						monsters[t][arr[k].id].y = arr[k].coord.y;
 						break;
-					case 'Box':
-						boxes[t][arr[k].getId()] = arr[k];
+					case Box:
+						boxes[t][arr[k].id] = arr[k];
 						break;
 					}
 			}
@@ -378,8 +385,10 @@ function prevDivName(){
 	return curCmdList[curProblem][curState[curProblem].divIndex - 1].name;
 }
 
-function loop(cnt){
+function loop(cnt, i){
 	var newCmd = false;
+	if (!i)
+		i = 0;
 	if (dead[curProblem] || !playing[curProblem])
 		return;
 	if (pause[curProblem] || stopped[curProblem]){
@@ -401,21 +410,21 @@ function loop(cnt){
 	dy[curProblem] = changeDir[t][curDir[curProblem]].dy;
 	curDir[curProblem] = changeDir[t][curDir[curProblem]].curDir;
 	var checked = checkCell(step(), cnt);
-	if (!(speed[curProblem] == 0 && (!cnt || (step() + 1 < cnt)))){
-		if (newCmd || cmd() == 0)
-			changeClass(divN());
-		if (divN()){
-			var numId = $('#'+ divN()).attr('numId');
-			var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
-			$('#spinCnt' + numId).attr('cnt', newCnt);
-			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
-		}
-		if (dead[curProblem])
-			return;
-		setTimeout(function() { nextStep(cnt); }, speed[curProblem]);
+	if (divN()){
+		var numId = $('#'+ divN()).attr('numId');
+		var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
+		$('#spinCnt' + numId).attr('cnt', newCnt);
 	}
-	else
-		nextStep(cnt);
+	if (!speed[curProblem] || (i >= cnt))
+		return nextStep(cnt, ++i);
+	if (newCmd || cmd() == 0)
+		changeClass(divN());
+	if (divN()){
+		$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+	}
+	if (dead[curProblem])
+		return;
+	setTimeout(function() { nextStep(cnt, ++i); }, speed[curProblem]);	
 }
 
 function nextCmd(){
@@ -444,22 +453,21 @@ function nextCmd(){
 	return true;
 }
 
-function nextStep(cnt){
+function nextStep(cnt, i){
 	if (dead[curProblem] || stopped[curProblem])
 		return;
-	if ( playing[curProblem] && nextCmd() && !pause[curProblem] && !stopped[curProblem] &&(!cnt || step() < cnt))
-		loop(cnt);
+	if ( playing[curProblem] && nextCmd() && !pause[curProblem] && !stopped[curProblem] && (!cnt || i < cnt))
+		loop(cnt, i);
 	else {
 		playing[curProblem] = false;
 		enableButtons();
 		if (!speed[curProblem]){
 			speed[curProblem] = 300;
-			var numId = $('#'+ divN()).attr('numId');
-			var newCnt = $('#spin' + numId).attr('value') - cmd();
-			$('#spinCnt' + numId).attr('cnt', newCnt);
-			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
-			if (!isChangedClass(divN()))
-				changeClass(divN());
+			setCounters(0, true);
+			var lastCmd = (divI() >= list().length) ? 
+				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
+			if (!isChangedClass(lastCmd))
+				changeClass(lastCmd);
 		}	
 	}
 }

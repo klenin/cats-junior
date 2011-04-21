@@ -4,7 +4,6 @@ var speed = []; // speed of arrow's moving in the labirint
 var pause = []; // if commands executing is paused
 var stopped = []; // if commands executing is stopped
 var playing = []; // if commands are in progress
-var dead = []; // if player lost
 var curMap = []; // current state of labirint
 var startDir = []; 
 var startX = [];
@@ -28,9 +27,10 @@ var cmdListEnded = []; //all commands were played
 var curProblem = 0;
 var numOfPrizes = [];
 var curNumOfPrizes = [];
+var curProblem;
 var problems = []; // problem description (name -- name, statement -- statement, tests number -- testsNum, 
 //possible commands -- commands, initial life number - start_life, life number change with each step -- d_life, 
-//initial points number -- start_pnts, finish symbol -- finish_symb, list of keys - cleaner, list of locks - cleaned)
+//initial points number -- start_pnts, list of keys - keys, list of locks - locks)
 var problemsList = []; // (id and names of problems)
 var users = [];
 var login;
