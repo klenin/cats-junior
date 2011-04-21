@@ -66,3 +66,4 @@ var maxx = 185;
 var miny = 0;
 var btnsPlay = new Array('play', 'next', 'prev', 'fast');
 var btns = new Array('play', 'pause', 'stop', 'prev', 'next', 'fast');
+var buttonClass = 'ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all';

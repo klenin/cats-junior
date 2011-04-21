@@ -183,7 +183,8 @@ function fillTabs(){
 			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 			mainT = $('#main' + i);
 			mainT.append('<tr id = "1tr' + i +'">');
-			$('#1tr' + i).append('<td colspan = "' + (problems[i].maxStep ? 1 : 2) +'" id = "tdSt' + i + '" valign = "top">');
+			$('#1tr' + i).append('<td colspan = "' + (problems[i].maxStep ? 1 : 2) +'" id = "tdSt' + 
+								i + '" valign = "top">');
 			$('#1tr' + i).append('</td>');
 			if (problems[i].maxStep){
 				$('#1tr' + i).append('<td align = "right"><table id = "tablePnts' + i + '"></table></td>')
@@ -199,11 +200,11 @@ function fillTabs(){
 			}
 			$('#1tr' + i).append('<td valign = "top" align = "right" id = "tdAboutBtn' + i + '">');
 			$('#tdAboutBtn' + i).append(
-				'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "aboutBtn' + i +'"></button>');
+				'<button class="' + buttonClass +'" id = "aboutBtn' + i +'"></button>');
 			$('#tdAboutBtn' + i).append(
-				'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "exportBtn' + i +'"></button>');
+				'<button class="' + buttonClass +'" id = "exportBtn' + i +'"></button>');
 			$('#tdAboutBtn' + i).append(
-				'<button class="ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all" id = "importBtn' + i +'"></button>');
+				'<button class="' + buttonClass +'" id = "importBtn' + i +'"></button>');
 			$('#aboutBtn' + i).append('<span class="ui-button-text">?</span>');
 			$('#exportBtn' + i).append('<span class="ui-button-text">export</span>');
 			$('#importBtn' + i).append('<span class="ui-button-text">import</span>');
@@ -218,8 +219,8 @@ function fillTabs(){
 			$('#4tr' + i).append('<td id = "tdBtns' + i + '" colspan = "2" valign = "top">');
 			for (var j = 0; j < btns.length; ++j)
 				$('#tdBtns' + i).append(
-					'<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + '" id = "btn_' + 
-					btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
+					'<input type = "button" class = "' + btns[j] + '" name = "btn_' + btns[j] +  i + 
+					'" id = "btn_' + btns[j] + i + '" onClick = "' + btns[j] + 'Click()"></input>');
 			$('#4tr' + i).append('</td>');
 			$('#4tr' + i).append('<td id = "tdBtnSubmit' + i + '" valign = "top">');
 			$('#tdBtnSubmit' + i).append(

@@ -123,6 +123,11 @@ var Lock = $.inherit(Cell, {
 		this.isWall = false;
 		this.style = 'floor';
 	},
+	draw: function() {
+		if (!this.locked)
+			return false;
+		this.__base()
+	},
 	highlightOn: function(){
 		if (this.locked)
 			this.style = 'highlightedLock';
@@ -146,11 +151,9 @@ var Key = $.inherit(Cell, {
 		this.__base();
 	},
 	draw: function() {
-		if (!this.found)
-			this.__base();
-		else
+		if (this.found)
 			return false;
-		return true;
+		this.__base();
 	}
 });
 
