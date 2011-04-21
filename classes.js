@@ -94,7 +94,7 @@ var Cell = $.inherit({
 		this.points = points ? points : 0;
 		this.dLife = dLife ? dLife : 0;
 		this.coord = coord;
-		this.id = (id != undefined) ? id : cellId[problem]++;
+		this.id = (id != undefined) ? id : problems[problem].maxCellId++;
 	},
 	draw: function() {
 		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
@@ -158,7 +158,7 @@ var Key = $.inherit(Cell, {
 
 var Arrow = $.inherit(Cell,{
 	__constructor : function(problem, coord,  dir) {
-		this.__base(problem, coord, dirs[dir], dir, 3);
+		this.__base(problem, coord, dir, dirs[dir], 3);
 		this.dir = dir;
 		this.initCoord = coord;
 		this.initDir = dir;
@@ -167,12 +167,12 @@ var Arrow = $.inherit(Cell,{
 	setDefault: function(){
 		this.dir = this.initDir;
 		this.coord = this.initCoord;
-		this.style = dirs[this.initDir];
+		this.style = this.initDir;
 		this.dead = false;
 		this.__base();
 	},
 	draw: function() {
-		this.style = dirs[this.dir];
+		this.style = this.dir;
 		if (!this.dead)
 			this.__base();
 		else
@@ -189,7 +189,7 @@ var Arrow = $.inherit(Cell,{
 
 var Prize = $.inherit(Cell,{
 	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, name) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, prizeId[problem]++);
+		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxPrizeId++);
 		this.name = name;
 		this.eaten = false;
 	},
@@ -208,7 +208,7 @@ var Prize = $.inherit(Cell,{
 
 var Box = $.inherit(Cell,{
 	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, name) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, boxId[problem]++);
+		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxBoxId++);
 		this.name = name;
 		this.initCoord = coord;
 	},
@@ -223,7 +223,7 @@ var Box = $.inherit(Cell,{
 
 var Monster = $.inherit(Cell,{
 	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, path, looped, die) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, monsterId[problem]++);
+		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxMonsterId++);
 		this.path = new Array();
 		for (var i = 0; i < path.length; ++i)
 			this.path[i] = {'x': path[i].x, 'y': path[i].y, 'startX': path[i].x, 'startY': path[i].y,

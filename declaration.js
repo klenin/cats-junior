@@ -1,37 +1,7 @@
 ﻿var atHome = 1; //for testing
-var curState = [];
-var speed = []; // speed of arrow's moving in the labirint
-var pause = []; // if commands executing is paused
-var stopped = []; // if commands executing is stopped
-var playing = []; // if commands are in progress
-var curMap = []; // current state of labirint
-var startDir = []; 
-var startX = [];
-var startY = [];
-var mapFromTest = []; // initial state of labirint
-var curDir = []; 
-var curX = [];
-var curY = [];
-var curCmdList = [[]]; // current order of commands
-var life = []; 
-var pnts = [];
-var monsterId = [];
-var boxId = [];
-var prizeId = [];
-var cellId = [];
-var boxes = [];
-var monsters = [];
-var dx = [];
-var dy = [];
-var cmdListEnded = []; //all commands were played
-var curProblem = 0;
-var numOfPrizes = [];
-var curNumOfPrizes = [];
 var curProblem;
-var problems = []; // problem description (name -- name, statement -- statement, tests number -- testsNum, 
-//possible commands -- commands, initial life number - start_life, life number change with each step -- d_life, 
-//initial points number -- start_pnts, list of keys - keys, list of locks - locks)
-var problemsList = []; // (id and names of problems)
+var curProblemIndex;
+var problems = [];
 var users = [];
 var login;
 var name;

@@ -1,16 +1,16 @@
-﻿function fillLabyrinth(l){
-	highlightOn(l);
-	$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field">');
-	for (var i = 0; i < curMap[l].length; ++i){
-		$('#table_field' + l).append('<tr id = "tr_field' + (l * 1000 + i) + '">');
-		for (var j = 0; j < curMap[l][i].length; ++j){
-			$('#tr_field' + (l * 1000 + i)).append('<td id = "'+ (l * 10000 + i * 100 + j)+'">');
-			curMap[l][i][j].draw();
-			$('#tr_field' + (l * 1000 + i)).append('</td>');
+﻿function fillLabyrinth(problem){
+	highlightOn(problem);
+	var l = problem.tabIndex;
+	$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field"></table>');
+	var table = $('#table_field' + l);
+	for (var i = 0; i < problem.map.length; ++i){
+		table.append('<tr id = "tr_field' + (l * 1000 + i) + '"></tr>');
+		var tr = $('#tr_field' + (l * 1000 + i));
+		for (var j = 0; j < problem.map[i].length; ++j){
+			tr.append('<td id = "'+ (l * 10000 + i * 100 + j)+'"></td>');
+			problem.map[i][j].draw();
 		}
-		$('#table_field' + l).append('</tr>');
 	}
-	$('#tdField' + l).append('</table>');
 }
 
 function chooseUser(){
@@ -96,7 +96,7 @@ submitClick = function(){
 				alert("Ошибка подключения к серверу. Попробуйте снова");
 		});
 		var result = commandsToJSON();
-		var problem_id = problemsList[curProblem].id;  //problem_id = 
+		var problem_id = curProblem.id;  //problem_id = 
 		var de_id = 772264;
 		var boundary = Math.round((Math.random() * 999999999999));
 		var sep = '-------------' + boundary + '\r\n';
@@ -173,8 +173,12 @@ function fillTabs(){
 		for (var i = 0; i < 10/*data.problems.length*/; ++i){
 			getProblemStatement(i);
 			getTest(i, 1);
-			if (data && i < data.problems.length)					///////
-				problemsList.push({'id':data.problems[i].id, 'name': data.problems[i].name});
+			if (data && i < data.problems.length){					///////
+				with(problems[i]){
+					id = data.problems[i].id;
+					//name = data.problems[i].name;
+				}
+			}
 			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].name );
 			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 			mainT = $('#main' + i);
@@ -254,7 +258,7 @@ function fillTabs(){
 			$('#3tr' + i).append('</td>');	
 			mainT.append('</tr>');
 			$('#ui-tabs-' + (i + 1)).append('</table>');
-			fillLabyrinth(i);
+			fillLabyrinth(problems[i]);
 			$('#tdSt' + i).append(problems[i].statement);
 		}
 	});
@@ -264,13 +268,13 @@ function fillTabs(){
 }
 
 function exportCommands(){
-	$('#export' + curProblem).html(commandsToJSON());
-	$('#export' + curProblem).dialog('open');
+	$('#export' + curProblem.tabIndex).html(commandsToJSON());
+	$('#export' + curProblem.tabIndex).dialog('open');
 	return false;
 }
 
 function addCmd(name, cnt){
-	$('#sortable' + curProblem).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
+	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
 		'<span style = "margin-left: 40px;">' + divNames[name] + '</span></li>');		
 	if($.browser.msie)
 		$('#' + name + cmdId).css('height', '35px');
@@ -291,14 +295,14 @@ function setSpin(){
 }
 
 function import_(){
-	$('#import' + curProblem).dialog('open');
+	$('#import' + curProblem.tabIndex).dialog('open');
 	return false;
 }
 
 function importCommands(){
-	var cmds = jQuery.parseJSON($('#importText' + curProblem).attr('value'));
+	var cmds = jQuery.parseJSON($('#importText' + curProblem.tabIndex).attr('value'));
 	if (cmds){
-		$('#sortable' + curProblem).children().remove();
+		$('#sortable' + curProblem.tabIndex).children().remove();
 		for (var i = 0; i < cmds.length; ++i){
 			addCmd(cmds[i].dir, cmds[i].cnt);
 			setSpin();
@@ -307,7 +311,7 @@ function importCommands(){
 		setDefault();
 		setCounters(0);
 	}
-	$('#import' + curProblem).dialog('close');
+	$('#import' + curProblem.tabIndex).dialog('close');
 }
 
 function addNewCmd(str, dblClick, elem){
@@ -321,9 +325,9 @@ function addNewCmd(str, dblClick, elem){
 }
 
 function hideCounters(){
-	$('#sortable' + curProblem + ' > li > span > img').hide();			
-	$('#sortable' + curProblem + ' > li > span > input').hide();
-	var el = $('#sortable' + curProblem).children();
+	$('#sortable' + curProblem.tabIndex + ' > li > span > img').hide();			
+	$('#sortable' + curProblem.tabIndex + ' > li > span > input').hide();
+	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		$('#spinCnt' + el.attr('numId')).show();
 		el = el.next();
@@ -331,9 +335,9 @@ function hideCounters(){
 }
 
 function showCounters(){
-	$('#sortable' + curProblem + ' > li > span > img').show();			
-	$('#sortable' + curProblem + ' > li > span > input').show();
-	var el = $('#sortable' + curProblem).children();
+	$('#sortable' + curProblem.tabIndex + ' > li > span > img').show();			
+	$('#sortable' + curProblem.tabIndex + ' > li > span > input').show();
+	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		$('#spinCnt' + el.attr('numId')).hide();
 		el = el.next();
@@ -341,26 +345,26 @@ function showCounters(){
 }
 
 function enableButtons(){
-	$('#sortable' + curProblem).sortable('enable');
+	$('#sortable' + curProblem.tabIndex).sortable('enable');
 	for (var i = 0; i < btnsPlay.length; ++i)
-		$('#btn_' + btnsPlay[i] + curProblem).removeAttr('disabled');		
+		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).removeAttr('disabled');		
 }
 
 function disableButtons(){
-	$('#sortable' + curProblem).sortable('disable');
+	$('#sortable' + curProblem.tabIndex).sortable('disable');
 	for (var i = 0; i < btnsPlay.length; ++i)
-		$('#btn_' + btnsPlay[i] + curProblem).attr('disabled', 'disabled');
+		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).attr('disabled', 'disabled');
 }
 
 function callPlay(s){
-	if (!$('#sortable' + curProblem).sortable('toArray').length || dead[curProblem])
+	if (!$('#sortable' + curProblem.tabIndex).sortable('toArray').length || curProblem.arrow.dead)
 		return;
-	pause[curProblem] = false;
-	stopped[curProblem] = false;
+	curProblem.paused = false;
+	curProblem.stopped = false;
 	disableButtons();
 	hideCounters();
 	setCounters(divI() + 1);
-	speed[curProblem] = s;
+	curProblem.speed = s;
 	setTimeout(function() { play(); }, s);
 }
 
@@ -376,30 +380,29 @@ clearClick = function(){
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
 	setDefault();
-	$('#sortable' + curProblem).children().remove();
+	$('#sortable' + curProblem.tabIndex).children().remove();
 }
 
 stopClick = function(){
-	stopped[curProblem] = true;
+	curProblem.stopped = true;
 	setDefault();
-	playing[curProblem] = false;
+	curProblem.playing = false;
 	clearClasses();
 	showCounters();
 	setCounters();
 }
 
 pauseClick = function(){
-	if (playing[curProblem])			
-		pause[curProblem] = true;
+	if (curProblem.playing)			
+		curProblem.paused = true;
 	enableButtons();
 }
 
 nextClick = function(){
-	var t = curProblem;
 	if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
-		curState[t].divIndex = list().length;
-		++curState[t].step;
-		curState[t].cmdIndex = 0;
+		curProblem.divIndex = list().length;
+		++curProblem.step;
+		curProblem.cmdIndex = 0;
 		return;
 	}
 	else
@@ -409,10 +412,10 @@ nextClick = function(){
 		setCounters();
 	disableButtons();
 	hideCounters();
-	playing[curProblem] = true;
-	pause[curProblem] = false;
-	stopped[curProblem] = false;
-	speed[curProblem] = 0;
+	curProblem.playing = true;
+	curProblem.paused = false;
+	curProblem.stopped = false;
+	curProblem.speed = 0;
 	if (cmd() == list()[divI()].cnt - 1)
 		changeClass(divN());
 	loop(1);	
@@ -430,8 +433,8 @@ prevClick = function(){
 	--t;
 	setDefault(true);
 	hideCounters();
-	var s = speed[curProblem];
-	speed[curProblem] = 0;
-	playing[curProblem] = true;
+	var s = curProblem.speed;
+	curProblem.speed = 0;
+	curProblem.playing = true;
 	loop(t);
 }

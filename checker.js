@@ -1,30 +1,27 @@
 ﻿function labirintOverrun(x, y){
-	return (x >= curMap[curProblem][0].length || x < 0 || y >= curMap[curProblem].length || y < 0);
+	return (x >= curProblem.map[0].length || x < 0 || y >= curProblem.map.length || y < 0);
 }
 
 function die(){
-	var p = curProblem;
+	var p = curProblem.tabIndex;
 	$('#cons' + p).append('Вас съели. Попробуйте снова \n');
-	dead[p] = true;
-	curMap[p][arrow[p].coord.y][arrow[p].coord.x].deleteElement(arrow[p]);
-	arrow[p].dead = true;
-	curMap[p][arrow[p].coord.y][arrow[p].coord.x].pushCell(arrow[p]);
+	curProblem.arrow.dead = true;
 }
 
-function checkCell(i, cnt){
-	var p = curProblem;
-	life[p] += problems[p].d_life;
+function checkCell(i, cnt, newDir){
+	var p = curProblem.tabIndex;
+	curProblem.life += curProblem.d_life;
 	var changeCoord = true;
 	var changedElems = [];
-	var cX = curX[p] + dx[p];
-	var cY = curY[p] + dy[p];
-	changedElems.push(new Coord(curX[p], curY[p]));
+	var cX = curProblem.arrow.coord.x + curProblem.dx;
+	var cY = curProblem.arrow.coord.y + curProblem.dy;
+	changedElems.push(new Coord(curProblem.arrow.coord.x, curProblem.arrow.coord.y));
 	if (labirintOverrun(cX, cY)){
 		$('#cons' + p).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
 		changeCoord = false;
 	}
 	else {
-		var elem = curMap[p][cY][cX];
+		var elem = curProblem.map[cY][cX];
 		if (elem.isWall){
 			$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
 			changeCoord = false;
@@ -38,15 +35,14 @@ function checkCell(i, cnt){
 			}
 			if (cells[j].__self == Monster){
 				die();
-				changeCoord = false;
 				break;
 			}
 			if (cells[j].__self == Box){
-				var tX = cX + dx[p];
-				var tY = cY + dy[p];
+				var tX = cX + curProblem.dx;
+				var tY = cY + curProblem.dy;
 				var f = labirintOverrun(tX, tY);
 				if (!f){
-					var el1 = curMap[p][tY][tX];
+					var el1 = curProblem.map[tY][tX];
 					f = el1.isWall;
 					var cells1 = el1.getCells();
 					for (var k = 0; k < cells1.length; ++k)
@@ -58,23 +54,20 @@ function checkCell(i, cnt){
 				}
 				else{
 					var box = cells[j];
-					curMap[p][cY][cX].deleteElement(cells[j]);
+					curProblem.map[cY][cX].deleteElement(cells[j]);
 					box.coord = new Coord(tX, tY);
-					curMap[p][tY][tX].pushCell(box);
+					curProblem.map[tY][tX].pushCell(box);
 					changedElems.push(new Coord(tX, tY));
 					--j;
 					continue;
 				}
 			}
 			if (cells[j].__self == Prize && !cells[j].eaten){
-				var prize = cells[j];
-				curMap[p][cY][cX].deleteElement(cells[j]);
-				prize.eaten = true;
-				curMap[p][cY][cX].pushCell(prize);
-				$('#cons' + p).append('Шаг ' + (i + 1) + ': Нашли бонус "' + prize.name + '"\n');
+				cells[j].eaten = true;
+				$('#cons' + p).append('Шаг ' + (i + 1) + ': Нашли бонус "' + cells[j].name + '"\n');
 				$('#cons' + p).append('Текущее количество очков: ' + 
-						(pnts[p] + prize.points) + '\n');
-				if (++curNumOfPrizes[p] == numOfPrizes[p])
+						(curProblem.points + cells[j].points) + '\n');
+				if (++curProblem.curNumOfPrizes == curProblem.numOfPrizes)
 					$('#cons' + p).append('Вы собрали все бонусы!\n');
 				--j;
 				continue;
@@ -85,7 +78,7 @@ function checkCell(i, cnt){
 					var x = cells[j].locks[k].x;
 					var y = cells[j].locks[k].y;
 					$('#cons' + p).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
-					var cells1 = curMap[p][y][x].getCells();
+					var cells1 = curProblem.map[y][x].getCells();
 					for(var l = 0; l < cells1.length; ++l)
 						if(cells1[l].__self == Lock)
 							cells1[l].setUnlocked();
@@ -93,60 +86,60 @@ function checkCell(i, cnt){
 				}
 				cells[j].found = true;
 			}						
-			life[p] += cells[j].dLife;
-			pnts[p] += cells[j].points;
+			curProblem.life += cells[j].dLife;
+			curProblem.points += cells[j].points;
 		}
 	}
 	if (changeCoord){
-		changedElems.push(new Coord(cX, cY));
-		for (var i = 0; i < curMap[p].length; ++i){
-			curMap[p][i][arrow[p].coord.x].highlightOff();
-			if (i != arrow[p].coord.y)
-				changedElems.push(new Coord(arrow[p].coord.x, i));
+		for (var i = 0; i < curProblem.map.length; ++i){
+			curProblem.map[i][curProblem.arrow.coord.x].highlightOff();
+			if (i != curProblem.arrow.coord.y)
+				changedElems.push(new Coord(curProblem.arrow.coord.x, i));
 		}
-		for (var i = 0; i < curMap[p][0].length; ++i){
-			curMap[p][arrow[p].coord.y][i].highlightOff();
-			if (i != arrow[p].coord.x)
-				changedElems.push(new Coord(i, arrow[p].coord.y));
+		for (var i = 0; i < curProblem.map[0].length; ++i){
+			curProblem.map[curProblem.arrow.coord.y][i].highlightOff();
+			if (i != curProblem.arrow.coord.x)
+				changedElems.push(new Coord(i, curProblem.arrow.coord.y));
 		}
-		curMap[p][curY[p]][curX[p]].deleteElement(arrow[p]);
-		arrow[p].coord = new Coord(cX, cY);
-		arrow[p].dir = dirs[curDir[p]];
-		curMap[p][cY][cX].pushCell(arrow[p]);
-		for (var i = 0; i < curMap[p].length; ++i){
-			curMap[p][i][arrow[p].coord.x].highlightOn();
-			if (i != arrow[p].coord.y)
-				changedElems.push(new Coord(arrow[p].coord.x, i));
-		}
-		for (var i = 0; i < curMap[p][0].length; ++i){
-			curMap[p][arrow[p].coord.y][i].highlightOn();
-			if (i != arrow[p].coord.x)
-				changedElems.push(new Coord(i, arrow[p].coord.y));
-		}
-		curX[p] = cX;
-		curY[p] = cY;
 	}
-	if (!dead[p]){
-		for (var k = 0; k < monsters[p].length; ++k){
-			var elem = curMap[p][monsters[p][k].y][monsters[p][k].x];
+	if (!curProblem.arrow.dead){
+		for (var k = 0; k < curProblem.monsters.length; ++k){
+			var elem = curProblem.map[curProblem.monsters[k].y][curProblem.monsters[k].x];
 			var m = elem.findCell(Monster, k);
 			var c = m.tryNextStep();
-			var elem1 = curMap[p][c.y][c.x];
+			var elem1 = curProblem.map[c.y][c.x];
 			if (elem1.mayPush(m)){
 				elem.deleteElement(m);
 				m.nextStep();
 				m.coord = c;
 				changedElems.push(c);
-				changedElems.push(new Coord(monsters[p][k].x, monsters[p][k].y));
+				changedElems.push(new Coord(curProblem.monsters[k].x, curProblem.monsters[k].y));
 				elem1.pushCell(m);
-				if (c.x == arrow[p].coord.x && c.y == arrow[p].coord.y)
+				if (c.x == curProblem.arrow.coord.x && c.y == curProblem.arrow.coord.y)
 					die();
-				monsters[p][k].x = c.x;
-				monsters[p][k].y = c.y;
+				curProblem.monsters[k].x = c.x;
+				curProblem.monsters[k].y = c.y;
 			}
 		}
 	}
+	if (changeCoord && 	!curProblem.arrow.dead){
+		changedElems.push(new Coord(cX, cY));
+		curProblem.map[curProblem.arrow.coord.y][curProblem.arrow.coord.x].deleteElement(curProblem.arrow);
+		curProblem.arrow.coord = new Coord(cX, cY);
+		curProblem.arrow.dir = newDir;
+		curProblem.map[cY][cX].pushCell(curProblem.arrow);
+		for (var i = 0; i < curProblem.map.length; ++i){
+			curProblem.map[i][curProblem.arrow.coord.x].highlightOn();
+			if (i != curProblem.arrow.coord.y)
+				changedElems.push(new Coord(curProblem.arrow.coord.x, i));
+		}
+		for (var i = 0; i < curProblem.map[0].length; ++i){
+			curProblem.map[curProblem.arrow.coord.y][i].highlightOn();
+			if (i != curProblem.arrow.coord.x)
+				changedElems.push(new Coord(i, curProblem.arrow.coord.y));
+		}
+	}
 	for (var i = 0; i < changedElems.length; ++i)
-		curMap[p][changedElems[i].y][changedElems[i].x].draw();
+		curProblem.map[changedElems[i].y][changedElems[i].x].draw();
 	return true;
 }

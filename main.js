@@ -1,7 +1,8 @@
 ﻿$(document).ready(function(){
 	$('#tabs').tabs({
 		select: function(event, ui) {
-			curProblem = ui.index - 1;
+			curProblemIndex = ui.index - 1;
+			curProblem = problems[curProblemIndex];
 		}
 	});
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
@@ -10,14 +11,14 @@
 	cmdId = problems.length;
 	divs = ['forward', 'left', 'right', 'wait'];
 	$('#tabs').bind('tabsshow', function(event, ui) {
-		if (visited[curProblem])
+		if (curProblem.visited)
 			return;
-		visited[curProblem] = 1;
-		$('#sortable' + curProblem).sortable({
+		curProblem.visited = 1;
+		$('#sortable' + curProblem.tabIndex).sortable({
 			revert: false,
 			cursor: 'move'
 		});
-		$('#sortable' + curProblem ).bind('sortbeforestop', function(event, ui) {
+		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
 			if (ui.position.left > maxx || ui.position.top < miny){
 				ui.item.remove();
 				updated();
@@ -36,20 +37,20 @@
 					}
 			}
 			updated();
-			cmdListEnded[curProblem] = false;
+			curProblem.cmdListEnded = false;
 		});
-		$('#sortable' + curProblem ).bind('click', function(event, ui) {
-			if (!playing[curProblem])
+		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
+			if (!curProblem.playing)
 				showCounters();
 		});
 		for (var k = 0; k < divs.length; ++k){
-			$('#' + divs[k] + curProblem).draggable({
-				connectToSortable: ('#sortable' + curProblem),
+			$('#' + divs[k] + curProblem.tabIndex).draggable({
+				connectToSortable: ('#sortable' + curProblem.tabIndex),
 				helper: 'clone',
 				revert: 'invalid',
 				cursor: 'default'
 			});
-			$('#' + divs[k] + curProblem).live('dblclick', function(){
+			$('#' + divs[k] + curProblem.tabIndex).live('dblclick', function(){
 				if ($(this).attr('ifLi'))
 					return;
 				for (var j = 0; j < divs.length; ++j)
@@ -58,7 +59,7 @@
 				updated();
 			});
 		}
-		$('#aboutBtn' + curProblem).click(function() {
+		$('#aboutBtn' + curProblem.tabIndex).click(function() {
 			$('#about').dialog('open');
 			return false;
 		});
@@ -75,19 +76,6 @@
 	});
 	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){
-		curCmdList[i] = new Array();
-		curState[i] = {'cmdIndex': 0, 'divIndex': 0, 'step': 0, 'divName': ''};
-		curDir[i] = startDir[i];
-		curX[i] = startX[i];
-		curY[i] = startY[i];
-		speed[i] = 300;
-		life[i] = problems[i].start_life;
-		pnts[i] = problems[i].start_points;
-		pause[curProblem] = false;
-		stopped[curProblem] = false;
-		playing[curProblem] = false;
-		dead[curProblem] = false;
-		cmdListEnded[i] = false;
 		$('#export' + i).dialog({
 			modal: true,
 			buttons: {
