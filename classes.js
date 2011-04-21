@@ -319,14 +319,8 @@ var Monster = $.inherit(Cell,{
 		this.__base(problem, coord, style, symbol, zIndex, points, dLife, monsterId[problem]++);
 		this.path = new Array();
 		for (var i = 0; i < path.length; ++i){
-			this.path[i] = new Object();
-			this.path[i].x = path[i].x;
-			this.path[i].y = path[i].y;
-			this.path[i].startX = path[i].x;
-			this.path[i].startY = path[i].y;
-			this.path[i].dir = path[i].dir;
-			this.path[i].initCnt = path[i].initCnt;
-			this.path[i].cnt = 0;
+			this.path[i] = {'x': path[i].x, 'y': path[i].y, 'startX': path[i].x, 'startY': path[i].y,
+							'dir': path[i].dir, 'initCnt': path[i].initCnt, cnt: 0};
 		}
 		this.looped = looped;
 		this.die = die;

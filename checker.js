@@ -6,9 +6,9 @@ function die(){
 	var p = curProblem;
 	$('#cons' + p).append('Вас съели. Попробуйте снова \n');
 	dead[p] = true;
-	curMapWithObjects[p][arrow[p].getCoord().y][arrow[p].getCoord().x].deleteElement(arrow[p]);
+	curMap[p][arrow[p].getCoord().y][arrow[p].getCoord().x].deleteElement(arrow[p]);
 	arrow[p].setDead();
-	curMapWithObjects[p][arrow[p].getCoord().y][arrow[p].getCoord().x].pushCell(arrow[p]);
+	curMap[p][arrow[p].getCoord().y][arrow[p].getCoord().x].pushCell(arrow[p]);
 }
 
 function checkCell(i, cnt){
@@ -24,7 +24,7 @@ function checkCell(i, cnt){
 		changeCoord = false;
 	}
 	else {
-		var elem = curMapWithObjects[p][cY][cX];
+		var elem = curMap[p][cY][cX];
 		if (elem.isWall){
 			$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
 			changeCoord = false;
@@ -46,7 +46,7 @@ function checkCell(i, cnt){
 				var tY = cY + dy[p];
 				var f = labirintOverrun(tX, tY);
 				if (!f){
-					var el1 = curMapWithObjects[p][tY][tX];
+					var el1 = curMap[p][tY][tX];
 					f = el1.isWall;
 					var cells1 = el1.getCells();
 					for (var k = 0; k < cells1.length; ++k)
@@ -58,9 +58,9 @@ function checkCell(i, cnt){
 				}
 				else{
 					var box = cells[j];
-					curMapWithObjects[p][cY][cX].deleteElement(cells[j]);
+					curMap[p][cY][cX].deleteElement(cells[j]);
 					box.setCoord(new Coord(tX, tY));
-					curMapWithObjects[p][tY][tX].pushCell(box);
+					curMap[p][tY][tX].pushCell(box);
 					changedElems.push(new Coord(tX, tY));
 					--j;
 					continue;
@@ -68,9 +68,9 @@ function checkCell(i, cnt){
 			}
 			if (cells[j].getClass() == 'Prize' && !cells[j].isEaten()){
 				var prize = cells[j];
-				curMapWithObjects[p][cY][cX].deleteElement(cells[j]);
+				curMap[p][cY][cX].deleteElement(cells[j]);
 				prize.setEaten();
-				curMapWithObjects[p][cY][cX].pushCell(prize);
+				curMap[p][cY][cX].pushCell(prize);
 				$('#cons' + p).append('Шаг ' + (i + 1) + ': Нашли бонус "' + prize.getName() + '"\n');
 				$('#cons' + p).append('Текущее количество очков: ' + 
 						(pnts[p] + prize.getPoints()) + '\n');
@@ -85,7 +85,7 @@ function checkCell(i, cnt){
 					var x = cells[j].getLocks()[k].x;
 					var y = cells[j].getLocks()[k].y;
 					$('#cons' + p).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
-					var cells1 = curMapWithObjects[p][y][x].getCells();
+					var cells1 = curMap[p][y][x].getCells();
 					for(var l = 0; l < cells1.length; ++l)
 						if(cells1[l].getClass() == 'Lock')
 							cells1[l].setUnlocked();
@@ -99,27 +99,27 @@ function checkCell(i, cnt){
 	}
 	if (changeCoord){
 		changedElems.push(new Coord(cX, cY));
-		for (var i = 0; i < curMapWithObjects[p].length; ++i){
-			curMapWithObjects[p][i][arrow[p].getCoord().x].highlightOff();
+		for (var i = 0; i < curMap[p].length; ++i){
+			curMap[p][i][arrow[p].getCoord().x].highlightOff();
 			if (i != arrow[p].getCoord().y)
 				changedElems.push(new Coord(arrow[p].getCoord().x, i));
 		}
-		for (var i = 0; i < curMapWithObjects[p][0].length; ++i){
-			curMapWithObjects[p][arrow[p].getCoord().y][i].highlightOff();
+		for (var i = 0; i < curMap[p][0].length; ++i){
+			curMap[p][arrow[p].getCoord().y][i].highlightOff();
 			if (i != arrow[p].getCoord().x)
 				changedElems.push(new Coord(i, arrow[p].getCoord().y));
 		}
-		curMapWithObjects[p][curY[p]][curX[p]].deleteElement(arrow[p]);
+		curMap[p][curY[p]][curX[p]].deleteElement(arrow[p]);
 		arrow[p].setCoord(new Coord(cX, cY));
 		arrow[p].setDir(dirs[curDir[p]]);
-		curMapWithObjects[p][cY][cX].pushCell(arrow[p]);
-		for (var i = 0; i < curMapWithObjects[p].length; ++i){
-			curMapWithObjects[p][i][arrow[p].getCoord().x].highlightOn();
+		curMap[p][cY][cX].pushCell(arrow[p]);
+		for (var i = 0; i < curMap[p].length; ++i){
+			curMap[p][i][arrow[p].getCoord().x].highlightOn();
 			if (i != arrow[p].getCoord().y)
 				changedElems.push(new Coord(arrow[p].getCoord().x, i));
 		}
-		for (var i = 0; i < curMapWithObjects[p][0].length; ++i){
-			curMapWithObjects[p][arrow[p].getCoord().y][i].highlightOn();
+		for (var i = 0; i < curMap[p][0].length; ++i){
+			curMap[p][arrow[p].getCoord().y][i].highlightOn();
 			if (i != arrow[p].getCoord().x)
 				changedElems.push(new Coord(i, arrow[p].getCoord().y));
 		}
@@ -128,12 +128,10 @@ function checkCell(i, cnt){
 	}
 	if (!dead[p]){
 		for (var k = 0; k < monsters[p].length; ++k){
-			var elem = curMapWithObjects[p][monsters[p][k].y][monsters[p][k].x];
+			var elem = curMap[p][monsters[p][k].y][monsters[p][k].x];
 			var m = elem.findCell('Monster', k);
-			//if (!m)
-				//UnhandledError();
 			var c = m.tryNextStep();
-			var elem1 = curMapWithObjects[p][c.y][c.x];
+			var elem1 = curMap[p][c.y][c.x];
 			if (elem1.mayPush(m)){
 				elem.deleteElement(m);
 				m.nextStep();
@@ -146,11 +144,9 @@ function checkCell(i, cnt){
 				monsters[p][k].x = c.x;
 				monsters[p][k].y = c.y;
 			}
-			//else
-				//Unhandled error
 		}
 	}
 	for (var i = 0; i < changedElems.length; ++i)
-		curMapWithObjects[p][changedElems[i].getY()][changedElems[i].getX()].draw();
+		curMap[p][changedElems[i].getY()][changedElems[i].getX()].draw();
 	return true;
 }

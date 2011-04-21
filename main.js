@@ -75,7 +75,6 @@
 	});
 	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){
-		curState[i] = new Object();
 		curCmdList[i] = new Array();
 		curState[i] = {'cmdIndex': 0, 'divIndex': 0, 'step': 0, 'divName': ''};
 		curDir[i] = startDir[i];

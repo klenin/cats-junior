@@ -31,7 +31,6 @@ span.cnt{
 	height: 21px; 
 	padding: 0px; 
 	top: 0px; 
-	position: inherit;
 	z-index: 2;
 }
 li.invisible{

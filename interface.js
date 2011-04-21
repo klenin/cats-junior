@@ -1,11 +1,11 @@
-﻿function fillLabyrinth1(l){
+﻿function fillLabyrinth(l){
 	highlightOn(l);
 	$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field">');
 	for (var i = 0; i < curMap[l].length; ++i){
 		$('#table_field' + l).append('<tr id = "tr_field' + (l * 1000 + i) + '">');
 		for (var j = 0; j < curMap[l][i].length; ++j){
 			$('#tr_field' + (l * 1000 + i)).append('<td id = "'+ (l * 10000 + i * 100 + j)+'">');
-			curMapWithObjects[l][i][j].draw();
+			curMap[l][i][j].draw();
 			$('#tr_field' + (l * 1000 + i)).append('</td>');
 		}
 		$('#table_field' + l).append('</tr>');
@@ -254,14 +254,60 @@ function fillTabs(){
 			$('#3tr' + i).append('</td>');	
 			mainT.append('</tr>');
 			$('#ui-tabs-' + (i + 1)).append('</table>');
-			copyMap(i);
-			fillLabyrinth1(i);
+			fillLabyrinth(i);
 			$('#tdSt' + i).append(problems[i].statement);
 		}
 	});
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты');	
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
 		'<iframe src = "' + resultsUrl + '" class = "results"></iframe></td></tr></table>');
+}
+
+function exportCommands(){
+	$('#export' + curProblem).html(commandsToJSON());
+	$('#export' + curProblem).dialog('open');
+	return false;
+}
+
+function addCmd(name, cnt){
+	$('#sortable' + curProblem).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
+		'<span style = "margin-left: 40px;">' + divNames[name] + '</span></li>');		
+	if($.browser.msie)
+		$('#' + name + cmdId).css('height', '35px');
+	$('#' + name + cmdId).attr('numId', cmdId);
+	$('#' + name + cmdId).attr('ifLi', 1);
+	$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
+}
+
+function setSpin(){
+	$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+	$('#spin' + cmdId++).spin({
+		min: 1,
+		changed: function(){
+			updated();			
+		}
+	});
+}
+
+function import_(){
+	$('#import' + curProblem).dialog('open');
+	return false;
+}
+
+function importCommands(){
+	var cmds = jQuery.parseJSON($('#importText' + curProblem).attr('value'));
+	if (cmds){
+		$('#sortable' + curProblem).children().remove();
+		for (var i = 0; i < cmds.length; ++i){
+			addCmd(cmds[i].dir, cmds[i].cnt);
+			setSpin();
+		}
+		updated();
+		setDefault();
+		setCounters(0);
+	}
+	$('#import' + curProblem).dialog('close');
 }
 
 function addNewCmd(str, dblClick, elem){
@@ -321,6 +367,7 @@ function callPlay(s){
 playClick = function(){
 	callPlay(300);
 }
+
 fastClick = function(){
 	callPlay(1);
 }
@@ -362,7 +409,10 @@ nextClick = function(){
 		setCounters();
 	disableButtons();
 	hideCounters();
-	loop(step() + 1);
+	playing[curProblem] = true;
+	pause[curProblem] = false;
+	stopped[curProblem] = false;
+	loop(1);
 }
 
 prevClick = function(){
@@ -380,5 +430,6 @@ prevClick = function(){
 	//setCounters();
 	var s = speed[curProblem];
 	speed[curProblem] = 0;
+	playing[curProblem] = true;
 	loop(t);
 }

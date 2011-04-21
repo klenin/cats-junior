@@ -1,13 +1,4 @@
-﻿function copyMap(i){
-	curMap[i] = [];
-	for (var k = 0; k < mapFromTest[i].length; ++k){
-		curMap[i][k] = new Array();
-		for (var l = 0; l < mapFromTest[i][k].length; ++l)
-			curMap[i][k][l] = mapFromTest[i][k][l];
-	}
-}
-
-function callScript(url, callback){
+﻿function callScript(url, callback){
 	if (atHome){
 		$.ajax({
 			async: false,
@@ -98,7 +89,7 @@ function getTest(l, k){
 				return;
 			mapFromTest[l] = [];
 			mapFromTest[l] = data.map.slice();
-			curMapWithObjects[l] = [];
+			curMap[l] = [];
 			boxId[l] = 0;
 			monsterId[l] = 0;
 			prizeId[l] = 0;
@@ -112,11 +103,11 @@ function getTest(l, k){
 			var t4 = data.cleaned;
 			var obj = undefined;
 			for (var i = 0; i < mapFromTest[l].length; ++i){
-				curMapWithObjects[l][i] = [];
+				curMap[l][i] = [];
 				for (var j = 0; j < mapFromTest[l][i].length; ++j){
-					curMapWithObjects[l][i][j] = [];
+					curMap[l][i][j] = [];
 					var c = new Coord(j, i);
-					curMapWithObjects[l][i][j] = new FieldElem(l, c, mapFromTest[l][i][j] == "#")
+					curMap[l][i][j] = new FieldElem(l, c, mapFromTest[l][i][j] == "#")
 					if (mapFromTest[l][i][j] == "R" || mapFromTest[l][i][j] == "U" || 
 						mapFromTest[l][i][j] == "D" || mapFromTest[l][i][j] == "L" ){
 						arrow[l] = new Arrow(l, c, mapFromTest[l][i][j]);
@@ -139,7 +130,7 @@ function getTest(l, k){
 						break;
 					}
 					if (obj)
-						curMapWithObjects[l][i][j].pushCell(obj);
+						curMap[l][i][j].pushCell(obj);
 					obj = undefined;
 				}
 			}
@@ -147,17 +138,17 @@ function getTest(l, k){
 				var c = new Coord(t2[k].path[0].x, t2[k].path[0].y);
 				obj = new Monster(l, c, t2[k].style, "", t2[k].zIndex ? t2[k].zIndex : 3, t2[k].points, t2[k].d_life, t2[k].path, 
 								t2[k].looped, t2[k].die);
-				curMapWithObjects[l][c.y][c.x].pushCell(obj);
+				curMap[l][c.y][c.x].pushCell(obj);
 				monsters[l].push({'x': c.getX(), 'y': c.getY()});
 			}
 			for (var k = 0; k < t3.length; ++k){
 				var c = new Coord(t3[k].x, t3[k].y);
 				obj = new Key(l, c, t4[k]);
-				curMapWithObjects[l][c.y][c.x].pushCell(obj);
+				curMap[l][c.y][c.x].pushCell(obj);
 				for (var j = 0; j < t4[k].length; ++j){
 					var c1 = new Coord(t4[k][j].x, t4[k][j].y);
 					obj = new Lock(l, c1);
-					curMapWithObjects[l][c1.y][c1.x].pushCell(obj);
+					curMap[l][c1.y][c1.x].pushCell(obj);
 				}
 			}
 			curNumOfPrizes[l] = 0;
@@ -184,53 +175,6 @@ function commandsToJSON(){
 		list = list.next();
 	}
 	return $.toJSON(arr);
-}
-
-function exportCommands(){
-	$('#export' + curProblem).html(commandsToJSON());
-	$('#export' + curProblem).dialog('open');
-	return false;
-}
-
-function addCmd(name, cnt){
-	$('#sortable' + curProblem).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
-		'<span style = "margin-left: 40px;">' + divNames[name] + '</span></li>');		
-	if($.browser.msie)
-		$('#' + name + cmdId).css('height', '35px');
-	$('#' + name + cmdId).attr('numId', cmdId);
-	$('#' + name + cmdId).attr('ifLi', 1);
-	$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
-}
-
-function setSpin(){
-	$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-	$('#spin' + cmdId++).spin({
-		min: 1,
-		changed: function(){
-			updated();			
-		}
-	});
-}
-
-function import_(){
-	$('#import' + curProblem).dialog('open');
-	return false;
-}
-
-function importCommands(){
-	var cmds = jQuery.parseJSON($('#importText' + curProblem).attr('value'));
-	if (cmds){
-		$('#sortable' + curProblem).children().remove();
-		for (var i = 0; i < cmds.length; ++i){
-			addCmd(cmds[i].dir, cmds[i].cnt);
-			setSpin();
-		}
-		updated();
-		setDefault();
-		setCounters(0);
-	}
-	$('#import' + curProblem).dialog('close');
 }
 
 function changeClass(elem){
@@ -359,34 +303,34 @@ function updated(){
 }
 
 function highlightOn(t){
-	for (var i = 0; i < curMapWithObjects[t].length; ++i)
-		curMapWithObjects[t][i][arrow[t].getCoord().x].highlightOn();
-	for (var i = 0; i < curMapWithObjects[t][0].length; ++i)
-		curMapWithObjects[t][arrow[t].getCoord().y][i].highlightOn();
+	for (var i = 0; i < curMap[t].length; ++i)
+		curMap[t][i][arrow[t].getCoord().x].highlightOn();
+	for (var i = 0; i < curMap[t][0].length; ++i)
+		curMap[t][arrow[t].getCoord().y][i].highlightOn();
 }
 
 function highlightOff(t, func){
-	for (var i = 0; i < curMapWithObjects[t].length; ++i)
-		curMapWithObjects[t][i][arrow[t].getCoord().x].highlightOff();
-	for (var i = 0; i < curMapWithObjects[t][0].length; ++i)
-		curMapWithObjects[t][arrow[t].getCoord().y][i].highlightOff();
+	for (var i = 0; i < curMap[t].length; ++i)
+		curMap[t][i][arrow[t].getCoord().x].highlightOff();
+	for (var i = 0; i < curMap[t][0].length; ++i)
+		curMap[t][arrow[t].getCoord().y][i].highlightOff();
 }
 
 function setDefault(f){
 	var t = curProblem;
 	enableButtons();
 	dead[t] = false;
-	for (var i = 0; i < curMapWithObjects[t].length; ++i)
-		for (var j = 0; j < curMapWithObjects[t][i].length; ++j){
+	for (var i = 0; i < curMap[t].length; ++i)
+		for (var j = 0; j < curMap[t][i].length; ++j){
 			s = '#' + (t * 10000 + i * 100 + j);
 			$(s).empty();
-			curMapWithObjects[t][i][j].setDefault();
+			curMap[t][i][j].setDefault();
 		}
-	for (var i = 0; i < curMapWithObjects[t].length; ++i)
-		for (var j = 0; j < curMapWithObjects[t][i].length; ++j){
-			var arr = curMapWithObjects[t][i][j].changedCells();
+	for (var i = 0; i < curMap[t].length; ++i)
+		for (var j = 0; j < curMap[t][i].length; ++j){
+			var arr = curMap[t][i][j].changedCells();
 			for (var k = 0; k < arr.length; ++k){
-				curMapWithObjects[t][arr[k].getCoord().y][arr[k].getCoord().x].pushCell(arr[k]);
+				curMap[t][arr[k].getCoord().y][arr[k].getCoord().x].pushCell(arr[k]);
 				switch(arr[k].getClass()){
 					case 'Arrow': 
 						arrow[t] = arr[k];
@@ -403,9 +347,9 @@ function setDefault(f){
 			}
 		}
 	highlightOn(t);
-	for (var i = 0; i < curMapWithObjects[t].length; ++i)
-		for (var j = 0; j < curMapWithObjects[t][i].length; ++j)
-			curMapWithObjects[t][i][j].draw();
+	for (var i = 0; i < curMap[t].length; ++i)
+		for (var j = 0; j < curMap[t][i].length; ++j)
+			curMap[t][i][j].draw();
 	pause[t] = false;
 	$("#cons" + t).empty();
 	curDir[t] = startDir[t];

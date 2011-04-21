@@ -31,11 +31,6 @@ var curNumOfPrizes = [];
 var problems = []; // problem description (name -- name, statement -- statement, tests number -- testsNum, 
 //possible commands -- commands, initial life number - start_life, life number change with each step -- d_life, 
 //initial points number -- start_pnts, finish symbol -- finish_symb, list of keys - cleaner, list of locks - cleaned)
-var specSymbols = []; // description of special symbols (list of possible symbols -- list, 
-//list of css style names -- style_list, number of symbols -- count, names of possible symbols -- names, 
-// points for the symbol -- points, life number changing -- d_life, eat or move -- do, coordinate in labirint -- coord.x, coord.y, 
-//name of css style -- style, 
-//current number of these symbols - cur_count, ) -- ?
 var problemsList = []; // (id and names of problems)
 var users = [];
 var login;
@@ -47,7 +42,6 @@ var cmdId; // current number for added command(generated for dynamic creating of
 var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
 var resultsUrl = 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;';
 var visited = []; // if tab have already been visited -- for proper tabs displaying
-var curMapWithObjects = [];
 var arrow = [];
 var divNames = {
 	'forward': 'Прямо',
