@@ -10,7 +10,7 @@ function die(){
 
 function checkCell(i, cnt, newDir){
 	var p = curProblem.tabIndex;
-	curProblem.life += curProblem.d_life;
+	curProblem.life += curProblem.dLife;
 	var changeCoord = true;
 	var changedElems = [];
 	var cX = curProblem.arrow.coord.x + curProblem.dx;

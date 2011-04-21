@@ -18,7 +18,7 @@
 			"name": "звезда",
 			"do": "eat",
 			"points": 40,
-			"d_life": 0
+			"dLife": 0
 			
 		},
 		{
@@ -28,7 +28,7 @@
 			"name": "ящик",
 			"do": "move",
 			"points": 0,
-			"d_life": 0
+			"dLife": 0
 			
 		}
 	],
@@ -36,8 +36,7 @@
 	"cleaned": [[{"x": 6, "y": 4}], [{"x": 4, "y": 4}], [{"x": 4, "y": 7}]],
 	"moving_elements":[],
 	"commands": ["forward", "left", "right"],
-	"start_life": 1,
-	"d_life": 0,
-	"start_pnts": 0,
-	"finish_symb": 0
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0
 }

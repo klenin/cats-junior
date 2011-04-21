@@ -20,14 +20,14 @@
 			"name": "звезда",
 			"do": "eat",
 			"points": 50,
-			"d_life": 0
+			"dLife": 0
 		}
 	],
 	"cleaner": [],
 	"cleaned": [],
 	"moving_elements":[],
 	"commands": ["forward", "left", "right"],
-	"start_life": 1,
-	"d_life": 0,
-	"start_pnts": 0
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0
 }

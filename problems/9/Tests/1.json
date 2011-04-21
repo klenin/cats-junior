@@ -12,7 +12,7 @@
 			"name": "звезда",
 			"do": "eat",
 			"points": 10,
-			"d_life": 0
+			"dLife": 0
 		}
 	],
 	"cleaner": [],
@@ -39,8 +39,7 @@
 		"die": true
 	}],
 	"commands": ["forward", "left", "right", "wait"],
-	"start_life": 1,
-	"d_life": 0,
-	"start_pnts": 0,
-	"finish_symb": 0
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0
 }

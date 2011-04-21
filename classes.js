@@ -86,15 +86,13 @@ var FieldElem = $.inherit({
 });
 
 var Cell = $.inherit({
-	__constructor: function(problem, coord, style, symbol, zIndex, points, dLife, id) {
+	__constructor: function(problem, coord, obj) {
 		this.problem = problem;
-		this.style = style;
-		this.symbol = symbol;
-		this.zIndex = zIndex ? zIndex : 0;
-		this.points = points ? points : 0;
-		this.dLife = dLife ? dLife : 0;
 		this.coord = coord;
-		this.id = (id != undefined) ? id : problems[problem].maxCellId++;
+		$.extend(true, this, obj);
+		this.zIndex = this.zIndex ? this.zIndex : 0;
+		this.points = this.points ? this.points : 0;
+		this.dLife = this.dLife ? this.dLife : 0;
 	},
 	draw: function() {
 		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
@@ -111,7 +109,7 @@ var Cell = $.inherit({
 
 var Lock = $.inherit(Cell, {
 	__constructor: function(problem, coord) {
-		this.__base(problem, coord, 'lock', '#_', 11);
+		this.__base(problem, coord, {style: 'lock', symbol: '#_', zIndex: 11});
 		this.locked = true;
 	},
 	setDefault: function() {
@@ -139,7 +137,7 @@ var Lock = $.inherit(Cell, {
 
 var Key = $.inherit(Cell, {
 	__constructor: function(problem, coord, locks) {
-		this.__base(problem, coord, 'key', '._', 1);
+		this.__base(problem, coord, {style: 'key', symbol: '._', zIndex: 1});
 		this.found = false;
 		this.locks = locks;
 	},
@@ -158,7 +156,7 @@ var Key = $.inherit(Cell, {
 
 var Arrow = $.inherit(Cell,{
 	__constructor : function(problem, coord,  dir) {
-		this.__base(problem, coord, dir, dirs[dir], 3);
+		this.__base(problem, coord, {style: dir, symbol: dirs[dir], zIndex: 3});
 		this.dir = dir;
 		this.initCoord = coord;
 		this.initDir = dir;
@@ -188,9 +186,9 @@ var Arrow = $.inherit(Cell,{
 });
 
 var Prize = $.inherit(Cell,{
-	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, name) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxPrizeId++);
-		this.name = name;
+	__constructor : function(problem, coord, prize) {
+		this.__base(problem, coord, $.extend(prize, 
+			{id: problems[problem].maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
 		this.eaten = false;
 	},
 	setDefault: function(){
@@ -207,9 +205,9 @@ var Prize = $.inherit(Cell,{
 });
 
 var Box = $.inherit(Cell,{
-	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, name) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxBoxId++);
-		this.name = name;
+	__constructor : function(problem, coord, box) {
+		this.__base(problem, coord, $.extend(box, 
+			{id: problems[problem].maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
 		this.initCoord = coord;
 	},
 	move: function(dx, dy) {
@@ -222,14 +220,11 @@ var Box = $.inherit(Cell,{
 });
 
 var Monster = $.inherit(Cell,{
-	__constructor : function(problem, coord, style, symbol, zIndex, points, dLife, path, looped, die) {
-		this.__base(problem, coord, style, symbol, zIndex, points, dLife, problems[problem].maxMonsterId++);
-		this.path = new Array();
-		for (var i = 0; i < path.length; ++i)
-			this.path[i] = {'x': path[i].x, 'y': path[i].y, 'startX': path[i].x, 'startY': path[i].y,
-							'dir': path[i].dir, 'initCnt': path[i].initCnt, cnt: 0};
-		this.looped = looped;
-		this.die = die;
+	__constructor : function(problem, coord, monster) {
+		this.__base(problem, coord, $.extend(true, monster, 
+			{id: problems[problem].maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
+		for (var i = 0; i < this.path.length; ++i)
+			this.path[i] = $.extend(this.path[i], {startX: this.path[i].x, startY: this.path[i].y, cnt: 0});
 		this.pathIndex = 0;
 	},
 	setDefault: function() {

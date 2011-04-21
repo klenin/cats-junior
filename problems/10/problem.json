@@ -3,9 +3,8 @@
 	"statement": "Необходимо набрать максимальное количество очков",
 	"testsNum": 1,
 	"commands": ["forward", "left", "right", "wait"],
-	"start_life": 1,
-	"d_life": 0,
-	"start_pnts": 0,
-	"finish_symb": 0,
-	"max_step": 65
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0,
+	"maxStep": 65
 }

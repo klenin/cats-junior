@@ -183,13 +183,13 @@ function fillTabs(){
 			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 			mainT = $('#main' + i);
 			mainT.append('<tr id = "1tr' + i +'">');
-			$('#1tr' + i).append('<td colspan = "' + (problems[i].max_step ? 1 : 2) +'" id = "tdSt' + i + '" valign = "top">');
+			$('#1tr' + i).append('<td colspan = "' + (problems[i].maxStep ? 1 : 2) +'" id = "tdSt' + i + '" valign = "top">');
 			$('#1tr' + i).append('</td>');
-			if (problems[i].max_step){
+			if (problems[i].maxStep){
 				$('#1tr' + i).append('<td align = "right"><table id = "tablePnts' + i + '"></table></td>')
 				$('#tablePnts' + i).append('<tr><td id = "tdPnts' + i + '" valign = "top">');
 				$('#tdPnts' + i).append('Затрачено шагов: <input class = "pnts" readonly id = "curStep' 
-					+ i + '"> из ' + problems[i].max_step);
+					+ i + '"> из ' + problems[i].maxStep);
 				$('#1tr' + i).append('</td></tr>');
 				$('#curStep' + i).attr('value', '0');
 				$('#tablePnts' + i).append('<tr><td id = "tdProgressBar' + i + '" valign = "top">');

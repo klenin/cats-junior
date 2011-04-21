@@ -5,9 +5,7 @@
 			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: function(data) {
-				callback(data);
-			},
+			success: callback,
 			error: function(r, err1, err2){
 				alert(err1 + ' ' + err2);
 			}  
@@ -18,9 +16,7 @@
 			async: false,
 			dataType : 'json',
 			url: url,
-			success: function(data) {
-				callback(data);
-			}
+			success: callback
 		});
 	}
 }
@@ -33,9 +29,7 @@ function callSubmit_(serv, path, submitData, callback){
 		url: 'submit.php',
 		type: 'POST',
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
-		success: function(html){  
-			callback(html);
-		}  
+		success: callback
 	});  
 }
 
@@ -54,9 +48,7 @@ function callSubmit(url, submitData, path, serv, sep, l, callback){
 			xhr.setRequestHeader('Referer', url);
 			return true;
 		},  
-		success: function(html){  
-			callback(html);
-		},
+		success: callback,
 		error: function(r, err1, err2){
 			alert(err1 + " " + err2);
 		}  
@@ -94,8 +86,8 @@ function getTest(l, k){
 				step: 0, 
 				divName: '',
 				speed: 300, 
-				life: problems[l].start_life,
-				points: problems[l].start_pnts,
+				life: problems[l].startLife,
+				points: problems[l].startPoints,
 				paused: false, 
 				stopped: false, 
 				playing: false, 
@@ -115,61 +107,68 @@ function getTest(l, k){
 				dx: 0,
 				dy: 0
 			});
-			var t1 = data.spec_symbols;
-			var t2 = data.moving_elements;
-			var t3 = data.cleaner;
-			var t4 = data.cleaned;
-			var obj = undefined;
-			for (var i = 0; i < data.map.length; ++i){
-				newProblem.map[i] = [];
-				for (var j = 0; j < data.map[i].length; ++j){
-					newProblem.map[i][j] = [];
-					var c = new Coord(j, i);
-					newProblem.map[i][j] = new FieldElem(l, c, data.map[i][j] == "#")
-					if (data.map[i][j] == "R" || data.map[i][j] == "U" || 
-						data.map[i][j] == "D" || data.map[i][j] == "L" ){
-						obj = newProblem.arrow = new Arrow(l, c, dirs[newProblem.mapFromTest[i][j]]);
-					}
-					for (var k = 0; k < t1.length; ++k)
-						if (t1[k].symbol == data.map[i][j]){
-							obj = t1[k]["do"] == "eat" ? 
-								new Prize(l, c, t1[k].style, t1[k].symbol, t1[k].zIndex ? t1[k].zIndex : 1, t1[k].points, 
-											t1[k].d_life, t1[k].name) : 
-								new Box(l, c, t1[k].style, t1[k].symbol, t1[k].zIndex ? t1[k].zIndex : 2, t1[k].points, 
-											t1[k].d_life, t1[k].name);
-							if (obj.__self == Prize)
-								++newProblem.numOfPrizes;
-							else
-								newProblem.boxes.push({'id': newProblem.maxBoxId, 'x': j, 'y': i});
-							break;
-						}
-					if (obj)
-						newProblem.map[i][j].pushCell(obj);
-					obj = undefined;
-				}
-			}
-			for (var k = 0; k < t2.length; ++k){
-				var c = new Coord(t2[k].path[0].x, t2[k].path[0].y);
-				obj = new Monster(l, c, t2[k].style, "", t2[k].zIndex ? t2[k].zIndex : 3, t2[k].points, t2[k].d_life, t2[k].path, 
-								t2[k].looped, t2[k].die);
-				newProblem.map[c.y][c.x].pushCell(obj);
-				newProblem.monsters.push({'x': c.x, 'y': c.y});
-			}
-			for (var k = 0; k < t3.length; ++k){
-				var c = new Coord(t3[k].x, t3[k].y);
-				obj = new Key(l, c, t4[k]);
-				newProblem.map[c.y][c.x].pushCell(obj);
-				for (var j = 0; j < t4[k].length; ++j){
-					var c1 = new Coord(t4[k][j].x, t4[k][j].y);
-					obj = new Lock(l, c1);
-					newProblem.map[c1.y][c1.x].pushCell(obj);
-				}
-			}
+			setLabyrinth(data.map, data.spec_symbols, newProblem)
+			setMonsters(data.moving_elements, newProblem);
+			setKeysAndLocks(data.cleaner, data.cleaned, newProblem);
 		},
 		error: function(r, err1, err2){
 			alert(r.responseText);
 		}
 	});
+}
+
+function setLabyrinth(map, specSymbols, problem){
+	var obj = undefined;
+	for (var i = 0; i < map.length; ++i){
+		problem.map[i] = [];
+		for (var j = 0; j < map[i].length; ++j){
+			problem.map[i][j] = [];
+			var c = new Coord(j, i);
+			problem.map[i][j] = new FieldElem(problem.tabIndex, c, map[i][j] == "#")
+			if (map[i][j] == "R" || map[i][j] == "U" || 
+				map[i][j] == "D" || map[i][j] == "L" ){
+				obj = problem.arrow = new Arrow(problem.tabIndex, c, dirs[problem.mapFromTest[i][j]]);
+			}
+			for (var k = 0; k < specSymbols.length; ++k)
+				if (specSymbols[k].symbol == map[i][j]){
+					obj = specSymbols[k]["do"] == "eat" ? 
+						new Prize(problem.tabIndex, c, specSymbols[k]) : 
+						new Box(problem.tabIndex, c,specSymbols[k]) ;
+					if (obj.__self == Prize)
+						++problem.numOfPrizes;
+					else
+						problem.boxes.push({'id': problem.maxBoxId, 'x': j, 'y': i});
+					break;
+				}
+			if (obj)
+				problem.map[i][j].pushCell(obj);
+			obj = undefined;
+		}
+	}
+}
+
+function setMonsters(monsters, problem){
+	var obj = undefined;
+	for (var k = 0; k < monsters.length; ++k){
+		var c = new Coord(monsters[k].path[0].x, monsters[k].path[0].y);
+		obj = new Monster(problem.tabIndex, c, monsters[k]);
+		problem.map[c.y][c.x].pushCell(obj);
+		problem.monsters.push({'x': c.x, 'y': c.y});
+	}
+}
+
+function setKeysAndLocks(keys, locks, problem){
+	var obj = undefined;
+	for (var k = 0; k < keys.length; ++k){
+		var c = new Coord(keys[k].x, keys[k].y);
+		obj = new Key(problem.tabIndex, c, locks[k]);
+		problem.map[c.y][c.x].pushCell(obj);
+		for (var j = 0; j < locks[k].length; ++j){
+			var c1 = new Coord(locks[k][j].x, locks[k][j].y);
+			obj = new Lock(problem.tabIndex, c1);
+			problem.map[c1.y][c1.x].pushCell(obj);
+		}
+	}
 }
 
 function commandsToJSON(){
@@ -456,8 +455,8 @@ function nextCmd(){
 	else 
 		++curProblem.cmdIndex;
 	$('#curStep' + t).attr('value', ++curProblem.step + 1);
-	$('#progressBar'  + t).progressbar('option', 'value',  (curProblem.step + 1) / problems[t].max_step * 100);
-	if (curProblem.step == problems[t].max_step){
+	$('#progressBar'  + t).progressbar('option', 'value',  (curProblem.step + 1) / problems[t].maxStep * 100);
+	if (curProblem.step == problems[t].maxStep){
 		$('#cons' + t).append('Превышен лимит затраченных шагов');
 		curProblem.arrow.dead = true;
 	}
