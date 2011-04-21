@@ -3,34 +3,30 @@
 }
 
 function die(){
-	var p = curProblem.tabIndex;
-	$('#cons' + p).append('Вас съели. Попробуйте снова \n');
+	var mes = new MessageStepsLimit();
 	curProblem.arrow.dead = true;
 }
 
-function checkCell(i, cnt, newDir){
+function tryNextCoord(i, changedElems){
 	var p = curProblem.tabIndex;
-	curProblem.life += curProblem.dLife;
-	var changeCoord = true;
-	var changedElems = [];
+	var result = true;
 	var cX = curProblem.arrow.coord.x + curProblem.dx;
 	var cY = curProblem.arrow.coord.y + curProblem.dy;
-	changedElems.push(new Coord(curProblem.arrow.coord.x, curProblem.arrow.coord.y));
 	if (labirintOverrun(cX, cY)){
-		$('#cons' + p).append('Шаг ' + (step() + 1) + ': Выход за границу лабиринта \n');
-		changeCoord = false;
+		var mes = new MessageLabirinthOverrun(i);
+		result = false;
 	}
 	else {
 		var elem = curProblem.map[cY][cX];
 		if (elem.isWall){
-			$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
-			changeCoord = false;
+			var mes = new MessageWall(i);
+			result = false;
 		}
 		var cells = elem.getCells();
 		for (var j = 0; !elem.isWall && j < cells.length; ++j){
 			if (cells[j].__self == Lock && cells[j].locked){
-				$("#cons" + p).append('Шаг ' + (step() + 1) + ': Уткнулись в стенку \n');
-				changeCoord = false;
+				var mes = new MessageWall(i);
+				result = false;
 				break;
 			}
 			if (cells[j].__self == Monster){
@@ -49,8 +45,8 @@ function checkCell(i, cnt, newDir){
 						f = f || (cells1[k].zIndex >= cells[j].zIndex);
 				}
 				if (f){
-					$("#cons" + p).append('Шаг ' + (i + 1) + ': Не можем пододвинуть \n');
-					changeCoord = false;
+					var mes = new MessageCantMove(i);
+					result = false;
 				}
 				else{
 					var box = cells[j];
@@ -64,11 +60,8 @@ function checkCell(i, cnt, newDir){
 			}
 			if (cells[j].__self == Prize && !cells[j].eaten){
 				cells[j].eaten = true;
-				$('#cons' + p).append('Шаг ' + (i + 1) + ': Нашли бонус "' + cells[j].name + '"\n');
-				$('#cons' + p).append('Текущее количество очков: ' + 
-						(curProblem.points + cells[j].points) + '\n');
-				if (++curProblem.curNumOfPrizes == curProblem.numOfPrizes)
-					$('#cons' + p).append('Вы собрали все бонусы!\n');
+				var mes = new MessagePrizeFound(i, cells[j].name, (curProblem.points + cells[j].points), 
+					++curProblem.curNumOfPrizes == curProblem.numOfPrizes);
 				--j;
 				continue;
 				
@@ -77,7 +70,7 @@ function checkCell(i, cnt, newDir){
 				for (var k = 0; k < cells[j].locks.length; ++k){
 					var x = cells[j].locks[k].x;
 					var y = cells[j].locks[k].y;
-					$('#cons' + p).append('Шаг ' + (i + 1) + ': Открыли ячейку с координатами ' + x + ', ' + y + '\n');
+					var mes = new MessageCellOpened(i, x, y);
 					var cells1 = curProblem.map[y][x].getCells();
 					for(var l = 0; l < cells1.length; ++l)
 						if(cells1[l].__self == Lock)
@@ -90,6 +83,17 @@ function checkCell(i, cnt, newDir){
 			curProblem.points += cells[j].points;
 		}
 	}
+	return result;
+}
+
+function changeLabyrinth(i, cnt, newDir){
+	var p = curProblem.tabIndex;
+	curProblem.life += curProblem.dLife;
+	var changedElems = [];
+	var cX = curProblem.arrow.coord.x + curProblem.dx;
+	var cY = curProblem.arrow.coord.y + curProblem.dy;
+	changedElems.push(new Coord(curProblem.arrow.coord.x, curProblem.arrow.coord.y));
+	var changeCoord = tryNextCoord(i, changedElems);
 	if (changeCoord){
 		for (var i = 0; i < curProblem.map.length; ++i){
 			curProblem.map[i][curProblem.arrow.coord.x].highlightOff();
@@ -141,5 +145,4 @@ function checkCell(i, cnt, newDir){
 	}
 	for (var i = 0; i < changedElems.length; ++i)
 		curProblem.map[changedElems[i].y][changedElems[i].x].draw();
-	return true;
 }

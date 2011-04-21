@@ -9,7 +9,6 @@
 	fillTabs();
 	document.title = "";
 	cmdId = problems.length;
-	divs = ['forward', 'left', 'right', 'wait'];
 	$('#tabs').bind('tabsshow', function(event, ui) {
 		if (curProblem.visited)
 			return;
@@ -31,9 +30,9 @@
 				ui.item.attr('id', id);
 				ui.item.attr('ifLi', 1);
 				ui.item.attr('numId', cmdId);
-				for (var j = 0; j < divs.length; ++j)
-					if (ui.helper.hasClass(divs[j])){
-						addNewCmd(divs[j], false, ui.item[0]);
+				for (var j = 0; j < classes.length; ++j)
+					if (ui.helper.hasClass(classes[j])){
+						addNewCmd(classes[j], false, ui.item[0]);
 					}
 			}
 			updated();
@@ -43,19 +42,19 @@
 			if (!curProblem.playing)
 				showCounters();
 		});
-		for (var k = 0; k < divs.length; ++k){
-			$('#' + divs[k] + curProblem.tabIndex).draggable({
+		for (var k = 0; k < classes.length; ++k){
+			$('#' + classes[k] + curProblem.tabIndex).draggable({
 				connectToSortable: ('#sortable' + curProblem.tabIndex),
 				helper: 'clone',
 				revert: 'invalid',
 				cursor: 'default'
 			});
-			$('#' + divs[k] + curProblem.tabIndex).live('dblclick', function(){
+			$('#' + classes[k] + curProblem.tabIndex).live('dblclick', function(){
 				if ($(this).attr('ifLi'))
 					return;
-				for (var j = 0; j < divs.length; ++j)
-					if ($(this).hasClass(divs[j]))
-						addNewCmd(divs[j], true);
+				for (var j = 0; j < classes.length; ++j)
+					if ($(this).hasClass(classes[j]))
+						addNewCmd(classes[j], true);
 				updated();
 			});
 		}

@@ -237,7 +237,7 @@ function fillTabs(){
 			var divs = problems[i].commands;
 			for (var j = 0; j < divs.length; ++j){
 				$('#ul_comands' + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + 
-					'"><span style = "margin-left: 40px;">' + divNames[divs[j]] + '</span></li>');
+					'"><span style = "margin-left: 40px;">' + cmdClassToName[divs[j]] + '</span></li>');
 				if($.browser.msie)
 					$('#' + divs[j] + i).css('height', '35px');
 			}
@@ -276,7 +276,7 @@ function exportCommands(){
 
 function addCmd(name, cnt){
 	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
-		'<span style = "margin-left: 40px;">' + divNames[name] + '</span></li>');		
+		'<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span></li>');		
 	if($.browser.msie)
 		$('#' + name + cmdId).css('height', '35px');
 	$('#' + name + cmdId).attr('numId', cmdId);
@@ -388,7 +388,7 @@ stopClick = function(){
 	curProblem.stopped = true;
 	setDefault();
 	curProblem.playing = false;
-	clearClasses();
+	cmdHighlightOff();
 	showCounters();
 	setCounters();
 }
@@ -417,9 +417,10 @@ nextClick = function(){
 	curProblem.paused = false;
 	curProblem.stopped = false;
 	curProblem.speed = 0;
-	if (cmd() == list()[divI()].cnt - 1)
-		changeClass(divN());
-	loop(1);	
+	if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
+		changeCmdHighlight(curProblem.cmdList[divI()- 1].name);	
+	loop(1);
+	nextCmd();
 }
 
 prevClick = function(){
@@ -438,4 +439,5 @@ prevClick = function(){
 	curProblem.speed = 0;
 	curProblem.playing = true;
 	loop(t);
+	nextCmd();
 }

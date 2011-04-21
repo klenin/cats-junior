@@ -177,7 +177,7 @@ function commandsToJSON(){
 	while (list.length){
 		var dir;
 		var obj = new Object();
-		for (var i = 0; i < classes.length / 2; ++i)
+		for (var i = 0; i < classes.length; ++i)
 			if (list.first().hasClass(classes[i]) || list.first().hasClass(classes[i] + 1)){
 				obj.dir = classes[i];
 				break;
@@ -189,11 +189,11 @@ function commandsToJSON(){
 	return $.toJSON(arr);
 }
 
-function changeClass(elem){
+function changeCmdHighlight(elem){
 	if (!elem)
 		return false;
 	elem = $('#' + elem);
-	var divs = ['forward', 'right', 'left', 'wait'];
+	var divs = curProblem.commands;
 	for (var k = 0; k < divs.length; ++k){
 		if (elem.hasClass(divs[k])){
 			elem.removeClass(divs[k]);
@@ -206,23 +206,23 @@ function changeClass(elem){
 	}
 }
 
-function isChangedClass(elem){
+function isCmdHighlighted(elem){
 	if (!elem)
 		return false;
 	elem = $('#' + elem);
-	var divs = ['forward', 'right', 'left', 'wait'];
+	var divs = curProblem.commands;
 	for (var k = 0; k < divs.length; ++k)
 		if (elem.hasClass(divs[k] + 1))
 			return true;
 	return false;
 }
 
-function clearClasses(){
+function cmdHighlightOff(){
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	l = el.length;
 	for (var i = 0; i < l; ++i){
-		if (isChangedClass(el.attr('id')))
-			changeClass(el.attr('id'));
+		if (isCmdHighlighted(el.attr('id')))
+			changeCmdHighlight(el.attr('id'));
 		el = el.next();
 	}
 }
@@ -307,7 +307,7 @@ function updated(){
 		curProblem.cmdList.splice(i, curProblem.cmdList.length - i);
 	if (needToClear){
 		setDefault();
-		clearClasses();
+		cmdHighlightOff();
 	}
 	if (divI() < list().length)
 		curProblem.divName = list()[divI()].name;
@@ -362,7 +362,7 @@ function setDefault(f){
 		for (var j = 0; j < curProblem.map[i].length; ++j)
 			curProblem.map[i][j].draw();
 	$("#cons" + curProblem.tabIndex).empty();
-	clearClasses();
+	cmdHighlightOff();
 	with (curProblem){
 		arrow.setDefault();
 		paused = false;
@@ -407,15 +407,15 @@ function loop(cnt, i){
 		return;
 	}
 	var t = prevDivName();
-	if (curProblem.speed != 0 && cmd() == 0 && t && isChangedClass(t))
-		changeClass(t);
+	if (curProblem.speed != 0 && cmd() == 0 && t && isCmdHighlighted(t))
+		changeCmdHighlight(t);
 	newCmd = cmd() == 0;
 	var x = curProblem.arrow.coord.x;
 	var y = curProblem.arrow.coord.y;
 	t = divN().replace(/\d{1,}/, "")
 	curProblem.dx = changeDir[t][curProblem.arrow.dir].dx;
 	curProblem.dy = changeDir[t][curProblem.arrow.dir].dy;
-	var checked = checkCell(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir);
+	changeLabyrinth(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir);
 	if (divN()){
 		var numId = $('#'+ divN()).attr('numId');
 		var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
@@ -424,7 +424,7 @@ function loop(cnt, i){
 	if (!curProblem.speed || (i >= cnt))
 		return nextStep(cnt, ++i);
 	if (newCmd || cmd() == 0)
-		changeClass(divN());
+		changeCmdHighlight(divN());
 	if (divN()){
 		$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
 	}
@@ -457,7 +457,7 @@ function nextCmd(){
 	$('#curStep' + t).attr('value', ++curProblem.step + 1);
 	$('#progressBar'  + t).progressbar('option', 'value',  (curProblem.step + 1) / problems[t].maxStep * 100);
 	if (curProblem.step == problems[t].maxStep){
-		$('#cons' + t).append('Превышен лимит затраченных шагов');
+		var mes = new MessageStepsLimit();
 		curProblem.arrow.dead = true;
 	}
 	return true;
@@ -466,7 +466,7 @@ function nextCmd(){
 function nextStep(cnt, i){
 	if (curProblem.arrow.dead || curProblem.stopped)
 		return;
-	if (curProblem.playing && nextCmd() && !curProblem.paused && !curProblem.stopped && (!cnt || i < cnt))
+	if (curProblem.playing && !curProblem.paused && !curProblem.stopped && (!cnt || i < cnt) && nextCmd())
 		loop(cnt, i);
 	else {
 		curProblem.playing = false;
@@ -476,8 +476,8 @@ function nextStep(cnt, i){
 			setCounters(0, true);
 			var lastCmd = (divI() >= list().length) ? 
 				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
-			if (!isChangedClass(lastCmd))
-				changeClass(lastCmd);
+			if (!isCmdHighlighted(lastCmd))
+				changeCmdHighlight(lastCmd);
 		}	
 	}
 }
