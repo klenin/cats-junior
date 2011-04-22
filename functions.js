@@ -26,7 +26,9 @@ function callSubmit_(serv, path, submitData, callback){
 		url: 'submit.php',
 		type: 'POST',
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
-		success: callback
+		success: function(data){
+			callback(data);
+		}
 	});  
 }
 

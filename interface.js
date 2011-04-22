@@ -103,44 +103,34 @@ function changeUser(){
 
 function submit(data, sep, l, submitStr){
 	if (atHome){
-		callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
-			if (data.status != 'ok'){
-				if (data.error == 'bad sid'){
-					if (curUser.jury) {
-						$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
-						$('#enterPassword').dialog('open');
-						if (confirm('Переотправить решение?'))
-							submit(data, sep, l, submitStr);
-					}					
-					else
-						login(function() {submit(data, sep, l, submitStr)});
-				}
-				else
-					alert(data.message);
-			}
-			else
-				alert('Решение отослано на проверку');
-		});  
-	}
-	else
-	callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid, data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
-			+ sid + ';cid=' + cid, sep, l, function(data){
-		if (data.status != 'ok'){
+		callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';json=1;', submitStr, function(data){
 			if (data.error == 'bad sid'){
 				if (curUser.jury) {
 					$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
 					$('#enterPassword').dialog('open');
 					if (confirm('Переотправить решение?'))
-						submit(data, sep, l);
+						submit(data, sep, l, submitStr);
 				}					
 				else
-					login(function() {submit(data, sep, l)});
+					login(function() {submit(data, sep, l, submitStr)});
 			}
-			else
-				alert(data.message);
-		}
-		else
 			alert('Решение отослано на проверку');
+		});  
+	}
+	else
+	callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
+			+ sid + ';cid=' + cid, sep, l, function(data){
+		if (data.error == 'bad sid'){
+			if (curUser.jury) {
+				$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
+				$('#enterPassword').dialog('open');
+				if (confirm('Переотправить решение?'))
+					submit(data, sep, l);
+			}					
+			else
+				login(function() {submit(data, sep, l)});
+		}
+		alert('Решение отослано на проверку');
 		//submit(data, sep, l);
 	});
 }
@@ -149,12 +139,12 @@ submitClick = function(){
 	if (atHome){
 		/*curUser.login = 'apress';
 		curUser.passwd = 'tratata';		*/
-		callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
+		/*callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
 			if (data.status == "ok")
 				sid = data.sid;
 			else
 				alert(data.message);
-		});
+		});*/
 		var result = commandsToJSON();
 		submitStr = 'source=' + result + '&problem_id=' + curProblem.id + '&de_id=772264';
 		submit('', '', '', submitStr);

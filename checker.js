@@ -3,7 +3,7 @@
 }
 
 function die(){
-	var mes = new MessageStepsLimit();
+	var mes = new MessageDead();
 	curProblem.arrow.dead = true;
 }
 
@@ -62,9 +62,8 @@ function tryNextCoord(i, changedElems){
 				cells[j].eaten = true;
 				var mes = new MessagePrizeFound(i, cells[j].name, (curProblem.points + cells[j].points), 
 					++curProblem.curNumOfPrizes == curProblem.numOfPrizes);
-				--j;
-				continue;
-				
+				curProblem.life += cells[j].dLife;
+				curProblem.points += cells[j].points;
 			}
 			if (cells[j].__self == Key && !cells[j].found){
 				for (var k = 0; k < cells[j].locks.length; ++k){
@@ -79,8 +78,6 @@ function tryNextCoord(i, changedElems){
 				}
 				cells[j].found = true;
 			}						
-			curProblem.life += cells[j].dLife;
-			curProblem.points += cells[j].points;
 		}
 	}
 	return result;
@@ -105,6 +102,10 @@ function changeLabyrinth(i, cnt, newDir){
 			if (i != curProblem.arrow.coord.x)
 				changedElems.push(new Coord(i, curProblem.arrow.coord.y));
 		}
+		curProblem.map[curProblem.arrow.coord.y][curProblem.arrow.coord.x].deleteElement(curProblem.arrow);
+		curProblem.arrow.coord = new Coord(cX, cY);
+		curProblem.arrow.dir = newDir;
+		curProblem.map[cY][cX].pushCell(curProblem.arrow);
 	}
 	if (!curProblem.arrow.dead){
 		for (var k = 0; k < curProblem.monsters.length; ++k){
@@ -128,10 +129,6 @@ function changeLabyrinth(i, cnt, newDir){
 	}
 	if (changeCoord && 	!curProblem.arrow.dead){
 		changedElems.push(new Coord(cX, cY));
-		curProblem.map[curProblem.arrow.coord.y][curProblem.arrow.coord.x].deleteElement(curProblem.arrow);
-		curProblem.arrow.coord = new Coord(cX, cY);
-		curProblem.arrow.dir = newDir;
-		curProblem.map[cY][cX].pushCell(curProblem.arrow);
 		for (var i = 0; i < curProblem.map.length; ++i){
 			curProblem.map[i][curProblem.arrow.coord.x].highlightOn();
 			if (i != curProblem.arrow.coord.y)
