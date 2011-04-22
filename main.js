@@ -1,12 +1,14 @@
 ﻿$(document).ready(function(){
 	$('#tabs').tabs({
 		select: function(event, ui) {
-			curProblemIndex = ui.index - 1;
-			curProblem = problems[curProblemIndex];
+			if (ui.index > 0 && ui.index - 1 < problems.length){
+				curProblemIndex = ui.index - 1;
+				curProblem = problems[curProblemIndex];
+			}
 		}
 	});
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
-	fillTabs();
+	getContests();
 	document.title = "";
 	cmdId = problems.length;
 	$('#tabs').bind('tabsshow', function(event, ui) {
@@ -49,7 +51,7 @@
 				revert: 'invalid',
 				cursor: 'default'
 			});
-			$('#' + classes[k] + curProblem.tabIndex).live('dblclick', function(){
+			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
 				if ($(this).attr('ifLi'))
 					return;
 				for (var j = 0; j < classes.length; ++j)
@@ -80,10 +82,26 @@
 				curUser.passwd = $('#password').attr('value');
 				login();
 				$(this).dialog('close');					
+			},
+			Cancel: function(){
+				$(this).dialog('close');	
 			}
 		}, 
 		autoOpen: false,
 		close: function(){this.title = 'Введите пароль';}
+	});
+	$('#changeContest').dialog({
+		modal: true,
+		buttons: {
+			Ok: function() {
+				changeContest();
+				$(this).dialog('close');					
+			},
+			Cancel: function(){
+				$(this).dialog('close');	
+			}
+		}, 
+		autoOpen: false
 	});
 	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){

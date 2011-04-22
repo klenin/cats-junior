@@ -33,16 +33,18 @@ function login(callback){
 }
 
 function showNewUser(){
-	$('#ui-tabs-0').empty();
-	$('#ui-tabs-0').append('<p>Текущий пользователь:</p>');
-	$('#ui-tabs-0').append('<p>' + curUser.name +'</p>');
-	$('#ui-tabs-0').append(
-		'<input type = "button" name="changeUser" id = "changeUser" class = "changeUser" onClick = changeUser()></input>');
+	$('#userListDiv').empty();
+	$('#userListDiv').append('<p>Текущий пользователь:</p>');
+	$('#userListDiv').append('<p>' + curUser.name +'</p>');
+	$('#userListDiv').append(
+		'<button name="changeUser" id = "changeUser" class = "' + buttonClass + '">' + 
+		'<span class="ui-button-text">Сменить пользователя</span></button>');
+	$('#changeUser').click(changeUser);
 }
 
 function chooseUser(){
 	logined = false;
-	var user = $('input:checked');
+	var user = $('#userList > input:checked');
 	name = user[0].defaultValue;
 	for (var i = 0; i < users.length; ++i){
 		if (name == users[i].name){
@@ -53,7 +55,9 @@ function chooseUser(){
 						showNewUser();
 					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
 				});
-				$('#enterPassword').dialog('open') 
+				$('#enterPassword').dialog('open') ;
+				for (var i = 0; i < problems.length; ++i)
+					$('#forJury' + i).show();
 			}
 			else
 				login(showNewUser);
@@ -63,36 +67,38 @@ function chooseUser(){
 }
 
 function changeUser(){
+	for (var i = 0; i < problems.length; ++i)
+		$('#forJury' + i).hide();
 	logined = false;
-	callScript(pathPref +'f=logout;sid=' + sid + ';json=1;');
+	callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
 	sid = undefined;
 	callScript(pathPref +'f=users;cid=' + cid + ';rows=100;json=1;', function(data){
-			if (!data)
-				return;
-			curUser = new Object();
-			users = [];
-			for (var i = 0; i < data.length; ++i){
-				if (data[i].ooc == 1)
-					continue;
-				users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': defaultPass}); 
-			}
-			$('#ui-tabs-0').empty();
-			if (users.length > 0){
-				$('#ui-tabs-0').append('<p>Выберите свое имя из списка</p>');
-				$('#ui-tabs-0').append('<form name = "userList" id = "userList">');
-				for (var i = 0; i < users.length; ++i)
-					$('#userList').append(
-					'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' + 
-					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' 
-					+ users[i].name + '</label><br>');
+		if (!data)
+			return;
+		curUser = new Object();
+		users = [];
+		for (var i = 0; i < data.length; ++i){
+			if (data[i].ooc == 1)
+				continue;
+			users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': defaultPass}); 
+		}
+		$('#userListDiv').empty();
+		if (users.length > 0){
+			$('#userListDiv').append('<p>Выберите свое имя из списка</p>');
+			$('#userListDiv').append('<form name = "userList" id = "userList">');
+			for (var i = 0; i < users.length; ++i)
 				$('#userList').append(
-					'<input type = "button" name="userNameSubmit" id = "userNameSubmit" class = "userNameSubmit"' + 
-					' onClick = chooseUser()></input>');
-				$('#ui-tabs-0').append('</form>');
-			}
-			else 
-				$('#ui-tabs-0').append('<p>На данный момент нет доступных пользователей</p>');	
-		});
+				'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' + 
+				(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' 
+				+ users[i].name + '</label><br>');
+			$('#userListDiv').append('</form>');
+			$('#userListDiv').append('<button id = "userNameSubmit" class = "' + buttonClass + '"' + 
+			'<span class="ui-button-text">Выбрать пользователя</span></button><br>');
+			$('#userNameSubmit').click(chooseUser);
+		}
+		else 
+			$('#userListDiv').append('<p>На данный момент нет доступных пользователей</p>');	
+	});
 }
 
 function submit(data, sep, l, submitStr){
@@ -197,21 +203,66 @@ submitClick = function(){
 	}
 }
 
-function fillTabs(){
+function getContests(){
 	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
 		if (!data)
 			return;
 		contests = data.contests;
+		for (var i = 0; i < contests.length; ++i){
+				$('#contestsList').append(
+				'<input type="radio" name="contest_name" id="contest_name_' + i + '" value="' + contests[i].name + '" ' + 
+				(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="contest_name_' + i + '">' 
+				+ contests[i].name + '</label><br>');
+		}
 		cid = contests[0].id;
 	});
-	$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя" );
+	fillTabs();
+}
+
+function clearTabs(){
+	$('#tabs > div').each(function(index, elem){
+		$(elem.id).empty();
+		$('#tabs').tabs('remove', index);
+	});
+}
+
+function changeContest(){
+	var contest = $('#contestsList > input:checked');
+	name = contest[0].defaultValue;
+	for (var i = 0; i < contests.length; ++i){
+		if (name == contests[i].name){
+			if (cid != contests[i].id){
+				cid = contests[i].id;
+				clearTabs();
+				fillTabs();
+			}
+			break;
+		}
+	}
+}
+
+function fillTabs(){
+	if ($('#ui-tabs-0').length){
+		$('#ui-tabs-0').empty();
+		$('#tabs').tabs('remove', 0);
+	}
+	$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя", 0);
+	$('#ui-tabs-0').append('<div id = "userListDiv"></div>');
+	$('#ui-tabs-0').append('<button class="' + buttonClass +'" id = "changeContestBtn">' + 
+									'<span class="ui-button-text">Выбрать турнир</span></button>');
+	$('#changeContestBtn').click(function(){$('#changeContest').dialog('open'); return false; })
 	changeUser();
+	problems = [];
 	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
 		for (var i = 0; i < data.length; ++i){
 			problems[i] = $.extend({}, data[i], data[i].data);
 			problems[i].tabIndex = i;
 			getTest(data[i].data, i);
-			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title);
+			if ($('#ui-tabs-' + (i + 1)).length){
+				$('#ui-tabs-' + (i + 1)).empty();
+				$('#tabs').tabs('remove', i + 1);
+			}
+			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title, i + 1);
 			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 			mainT = $('#main' + i);
 			mainT.append('<tr id = "1tr' + i +'">');
@@ -233,18 +284,17 @@ function fillTabs(){
 			$('#1tr' + i).append('<td valign = "top" align = "right" id = "tdAboutBtn' + i + '">');
 			$('#tdAboutBtn' + i).append(
 				'<button class="' + buttonClass +'" id = "aboutBtn' + i +'"></button>');
-			$('#tdAboutBtn' + i).append(
-				'<button class="' + buttonClass +'" id = "exportBtn' + i +'"></button>');
-			$('#tdAboutBtn' + i).append(
-				'<button class="' + buttonClass +'" id = "importBtn' + i +'"></button>');
+			$('#tdAboutBtn' + i).append('<div id = "forJury' + i + '"></div>');
+			$('#forJury' + i).append('<button class="' + buttonClass +'" id = "exportBtn' + i +'"></button>');
+			$('#forJury' + i).append('<button class="' + buttonClass +'" id = "importBtn' + i +'"></button>');
 			$('#aboutBtn' + i).append('<span class="ui-button-text">?</span>');
 			$('#exportBtn' + i).append('<span class="ui-button-text">export</span>');
 			$('#importBtn' + i).append('<span class="ui-button-text">import</span>');
-			$('#tdAboutBtn' + i).append('<div id = "import' + i + '"></div>');
-			$('#tdAboutBtn' + i).append('<div id = "export' + i + '"></div>');
+			$('#forJury' + i).append('<div id = "import' + i + '"></div>');
+			$('#forJury' + i).append('<div id = "export' + i + '"></div>');
 			$('#exportBtn' + i).click(function() { return exportCommands(); });
 			$('#importBtn' + i).click(function() { return import_(); });
-			$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '"></textarea>');
+			$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '></textarea>');
 			$('#1tr' + i).append('</td>');
 			mainT.append('</tr>');
 			mainT.append('<tr id = "4tr' + i +'">');
@@ -293,11 +343,16 @@ function fillTabs(){
 			$('#ui-tabs-' + (i + 1)).append('</table>');
 			fillLabyrinth(problems[i]);
 			$('#tdSt' + i).append(problems[i].statement);
+			$('#forJury' + i).hide();
 		}
 	});
-	/*$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты');	
+	if ($('#ui-tabs-' + (problems.length + 1)).length){
+		$('#ui-tabs-' + (problems.length + 1)).empty();
+		$('#tabs').tabs('remove', (problems.length + 1));
+	}
+	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты', (problems.length + 1));	
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-		'<iframe src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');*/
+		'<iframe src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');
 }
 
 function exportCommands(){

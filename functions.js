@@ -5,7 +5,7 @@
 			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: callback
+			success: function(data){callback(data);}
 		});
 	} 
 	else{
