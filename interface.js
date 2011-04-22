@@ -13,39 +13,68 @@
 	}
 }
 
-function chooseUser(){
-	var user = $('input:checked');
-	$('#ui-tabs-0').empty();
-	$('#ui-tabs-0').append('<p>Текущий пользователь:</p>');
-	name = user[0].defaultValue;
-	for (var i = 0; i < users.length; ++i){
-		if (name == users[i].name)
-			login = users[i].login;
-	}
-	$('#ui-tabs-0').append('<p>' + user[0].defaultValue +'</p>');
-	$('#ui-tabs-0').append(
-		'<input type = "button" name="changeUser" id = "changeUser" class = "changeUser" onClick = changeUser()></input>');
-	if (atHome){
-		login = 'apress';
-		passwd = 'tratata';
-	}
-	callScript(pathPref + 'f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+function login(callback){
+	logined = false;
+	callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
 		if (data.status == 'ok')
 			sid = data.sid;
-		else
-			alert('Ошибка подключения к серверу. Попробуйте снова');
+		else{
+			alert(data.message);
+			return false;
+		}
+		if(curUser.jury){
+			curUser.passwd = '';
+			$('#password').attr('value', '');
+		}
+		logined = true;
+		callback();
+		return true;
 	});
 }
 
+function showNewUser(){
+	$('#ui-tabs-0').empty();
+	$('#ui-tabs-0').append('<p>Текущий пользователь:</p>');
+	$('#ui-tabs-0').append('<p>' + curUser.name +'</p>');
+	$('#ui-tabs-0').append(
+		'<input type = "button" name="changeUser" id = "changeUser" class = "changeUser" onClick = changeUser()></input>');
+}
+
+function chooseUser(){
+	logined = false;
+	var user = $('input:checked');
+	name = user[0].defaultValue;
+	for (var i = 0; i < users.length; ++i){
+		if (name == users[i].name){
+			curUser = users[i];
+			if (curUser.jury) {
+				$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
+					if (logined)
+						showNewUser();
+					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
+				});
+				$('#enterPassword').dialog('open') 
+			}
+			else
+				login(showNewUser);
+			break;
+		}
+	}
+}
+
 function changeUser(){
-	callScript(pathPref +'f=users;sid=' + sid + ';cid=' + cid + ';rows=100;json=1;', function(data){
+	logined = false;
+	callScript(pathPref +'f=logout;sid=' + sid + ';json=1;');
+	sid = undefined;
+	callScript(pathPref +'f=users;cid=' + cid + ';rows=100;json=1;', function(data){
 			if (!data)
 				return;
-			login = undefined;
+			curUser = new Object();
+			users = [];
 			for (var i = 0; i < data.length; ++i){
 				if (data[i].ooc == 1)
 					continue;
-				users.push({'login': data[i].login, 'name': data[i].name}); 
+				users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': defaultPass}); 
 			}
 			$('#ui-tabs-0').empty();
 			if (users.length > 0){
@@ -66,35 +95,72 @@ function changeUser(){
 		});
 }
 
+function submit(data, sep, l, submitStr){
+	if (atHome){
+		callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
+			if (data.status != 'ok'){
+				if (data.error == 'bad sid'){
+					if (curUser.jury) {
+						$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
+						$('#enterPassword').dialog('open');
+						if (confirm('Переотправить решение?'))
+							submit(data, sep, l, submitStr);
+					}					
+					else
+						login(function() {submit(data, sep, l, submitStr)});
+				}
+				else
+					alert(data.message);
+			}
+			else
+				alert('Решение отослано на проверку');
+		});  
+	}
+	else
+	callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid, data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
+			+ sid + ';cid=' + cid, sep, l, function(data){
+		if (data.status != 'ok'){
+			if (data.error == 'bad sid'){
+				if (curUser.jury) {
+					$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
+					$('#enterPassword').dialog('open');
+					if (confirm('Переотправить решение?'))
+						submit(data, sep, l);
+				}					
+				else
+					login(function() {submit(data, sep, l)});
+			}
+			else
+				alert(data.message);
+		}
+		else
+			alert('Решение отослано на проверку');
+		//submit(data, sep, l);
+	});
+}
+
 submitClick = function(){
 	if (atHome){
-		login = 'apress';
-		passwd = 'tratata';		
-		callScript(pathPref + 'f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
+		/*curUser.login = 'apress';
+		curUser.passwd = 'tratata';		*/
+		callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
 			if (data.status == "ok")
 				sid = data.sid;
 			else
-				alert("Ошибка подключения к серверу. Попробуйте снова");
+				alert(data.message);
 		});
 		var result = commandsToJSON();
-		submitStr = 'source=' + result + '&problem_id=771346&de_id=772264';
-		callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
-			alert(data);
-		});  
+		submitStr = 'source=' + result + '&problem_id=' + curProblem.id + '&de_id=772264';
+		submit('', '', '', submitStr);
 	} 
 	else {
-		if (!login) {
+		if (!logined) {
 			alert('Невозможно отослать решение, так как не выбран пользователь');
 			return false;
 		}
-		callScript(pathPref + 'f=login;login=' + login + ';passwd=' + passwd +';json=1;', function(data){
-			if (!data)
-				return;
-			if (data.status == 'ok')
-				sid = data.sid;
-			else
-				alert("Ошибка подключения к серверу. Попробуйте снова");
-		});
+		if (!sid){
+			(curUser.jury) ? $('#enterPassword').dialog('open') : login();
+		}
 		var result = commandsToJSON();
 		var problem_id = curProblem.id;  //problem_id = 
 		var de_id = 772264;
@@ -127,59 +193,25 @@ submitClick = function(){
 		data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
 		data += '-------------' + boundary  + '--\r\n';
 		var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-		callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid, data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
-				+ sid + ';cid=' + cid, sep, l, function(data){
-			alert('Решение отослано на проверку');
-		});
+		submit(data, sep, l);
 	}
 }
 
 function fillTabs(){
-	if (!login)  {
-		callScript(pathPref + 'f=login;login=' + 'apress' +';passwd=' + 'tratata' + ';json=1;', function(data){
+	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
 		if (!data)
 			return;
-		if (data.status == 'ok')
-			sid = data.sid;
-		else {
-			sid = undefined;
-			alert('Ошибка подключения к серверу. Попробуйте снова');
-		}
-		});
-	}
-	else
-		callScript(pathPref + 'f=login;login=' + login +';passwd=' + passwd + ';json=1;', function(data){
-			if (data.status == 'ok')
-				sid = data.sid;
-			else {
-				sid = undefined;
-				alert('Ошибка подключения к серверу. Попробуйте снова');
-			}
-		});
-	callScript(pathPref + 'f=contests;filter=current;json=1;', function(data){
-		if (!data)
-			return;
-		var contests = data.contests;
-		for (var i = 0; i < data.length; ++i){
-			if(contests[i].is_official)
-				cid = contests[i].id;
-		}
-	 });
-	if (atHome)
-		cid = 577647;
+		contests = data.contests;
+		cid = contests[0].id;
+	});
 	$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя" );
 	changeUser();
-	callScript(pathPref + 'f=problems;sid='+sid+';cid='+cid+';json=1;', function(data){
-		for (var i = 0; i < 10/*data.problems.length*/; ++i){
-			getProblemStatement(i);
-			getTest(i, 1);
-			if (data && i < data.problems.length){					///////
-				with(problems[i]){
-					id = data.problems[i].id;
-					//name = data.problems[i].name;
-				}
-			}
-			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].name );
+	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
+		for (var i = 0; i < data.length; ++i){
+			problems[i] = $.extend({}, data[i], data[i].data);
+			problems[i].tabIndex = i;
+			getTest(data[i].data, i);
+			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title);
 			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '">');
 			mainT = $('#main' + i);
 			mainT.append('<tr id = "1tr' + i +'">');
@@ -263,9 +295,9 @@ function fillTabs(){
 			$('#tdSt' + i).append(problems[i].statement);
 		}
 	});
-	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты');	
+	/*$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты');	
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-		'<iframe src = "' + resultsUrl + '" class = "results"></iframe></td></tr></table>');
+		'<iframe src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');*/
 }
 
 function exportCommands(){

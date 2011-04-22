@@ -5,10 +5,7 @@
 			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: callback,
-			error: function(r, err1, err2){
-				alert(err1 + ' ' + err2);
-			}  
+			success: callback
 		});
 	} 
 	else{
@@ -50,87 +47,58 @@ function callSubmit(url, submitData, path, serv, sep, l, callback){
 		},  
 		success: callback,
 		error: function(r, err1, err2){
-			alert(err1 + " " + err2);
+			alert('Ошибка подключения к серверу');
 		}  
 	}); 
 }
 
-function getProblemStatement(i){
-	$.ajax({
-		async: false,
-		dataType : "json",
-		url: 'problems/' + (i + 1) + '/problem.json',
-		success: function(data) {
-			if (!data)
-				return;
-			problems[i] = data;
-		},
-		error: function(r, err1, err2){
-			alert(r.responseText);
-		}
+function getTest(data, l){
+	var newProblem = $.extend(true, problems[l], {
+		cmdIndex: 0, 
+		divIndex: 0, 
+		step: 0, 
+		divName: '',
+		speed: 300, 
+		life: data.startLife,
+		points: data.startPoints,
+		paused: false, 
+		stopped: false, 
+		playing: false, 
+		cmdListEnded: false, 
+		cmdList: [], 
+		mapFromTest:  data.map.slice(), 
+		map: [], 
+		maxBoxId: 0, 
+		maxMonsterId: 0, 
+		maxPrizeId: 0, 
+		maxCellId: 0, 
+		boxes: [], 
+		monsters: [],
+		numOfPrizes: 0, 
+		curNumOfPrizes: 0, 
+		visited: false, 
+		dx: 0,
+		dy: 0
 	});
+	setLabyrinth(data.spec_symbols, newProblem)
+	setMonsters(data.moving_elements, newProblem);
+	setKeysAndLocks(data.cleaner, data.cleaned, newProblem);
 }
 
-function getTest(l, k){
-	$.ajax({
-		async: false,
-		dataType : "json",
-		url: 'problems/' + (l  + 1) + '/Tests/' + k +'.json',
-		success: function(data) {
-			if (!data)
-				return;
-			var newProblem = $.extend(true, problems[l], {
-				tabIndex: l, 
-				cmdIndex: 0, 
-				divIndex: 0, 
-				step: 0, 
-				divName: '',
-				speed: 300, 
-				life: problems[l].startLife,
-				points: problems[l].startPoints,
-				paused: false, 
-				stopped: false, 
-				playing: false, 
-				cmdListEnded: false, 
-				cmdList: [], 
-				mapFromTest:  data.map.slice(), 
-				map: [], 
-				maxBoxId: 0, 
-				maxMonsterId: 0, 
-				maxPrizeId: 0, 
-				maxCellId: 0, 
-				boxes: [], 
-				monsters: [],
-				numOfPrizes: 0, 
-				curNumOfPrizes: 0, 
-				visited: false, 
-				dx: 0,
-				dy: 0
-			});
-			setLabyrinth(data.map, data.spec_symbols, newProblem)
-			setMonsters(data.moving_elements, newProblem);
-			setKeysAndLocks(data.cleaner, data.cleaned, newProblem);
-		},
-		error: function(r, err1, err2){
-			alert(r.responseText);
-		}
-	});
-}
-
-function setLabyrinth(map, specSymbols, problem){
+function setLabyrinth(specSymbols, problem){
 	var obj = undefined;
-	for (var i = 0; i < map.length; ++i){
+	for (var i = 0; i < problem.mapFromTest.length; ++i){
 		problem.map[i] = [];
-		for (var j = 0; j < map[i].length; ++j){
+		for (var j = 0; j < problem.mapFromTest[i].length; ++j){
 			problem.map[i][j] = [];
 			var c = new Coord(j, i);
-			problem.map[i][j] = new FieldElem(problem.tabIndex, c, map[i][j] == "#")
-			if (map[i][j] == "R" || map[i][j] == "U" || 
-				map[i][j] == "D" || map[i][j] == "L" ){
+			problem.map[i][j] = new FieldElem(problem.tabIndex, c,problem.mapFromTest[i][j] == "#")
+			if (problem.mapFromTest[i][j] == "R" || problem.mapFromTest[i][j] == "U" || 
+				problem.mapFromTest[i][j] == "D" ||problem.mapFromTest[i][j] == "L" ){
 				obj = problem.arrow = new Arrow(problem.tabIndex, c, dirs[problem.mapFromTest[i][j]]);
 			}
 			for (var k = 0; k < specSymbols.length; ++k)
-				if (specSymbols[k].symbol == map[i][j]){
+				if (specSymbols[k].symbol == problem.mapFromTest[i][j]){
 					obj = specSymbols[k]["do"] == "eat" ? 
 						new Prize(problem.tabIndex, c, specSymbols[k]) : 
 						new Box(problem.tabIndex, c,specSymbols[k]) ;

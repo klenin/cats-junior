@@ -3,16 +3,17 @@ var curProblem;
 var curProblemIndex;
 var problems = [];
 var users = [];
-var login;
-var name;
-var passwd = 12345;
-var cid = 777988; // contest id
+var curUser;
+var logined = false;
+var defaultPass = 12345;
+var cid = 791634; // contest id
 var sid; // session id
 var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
 var pathPref = 'http://imcs.dvgu.ru/cats/main.pl?';
-var resultsUrl = 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=785773;';
+var resultsUrl = 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=';
 var visited = []; // if tab have already been visited -- for proper tabs displaying
 var arrow = [];
+var contests;
 var cmdClassToName = {
 	'forward': 'Прямо',
 	'left': 'Налево',

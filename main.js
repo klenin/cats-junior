@@ -73,6 +73,18 @@
 		autoOpen: false,
 		title: 'О системе'
 	});
+	$('#enterPassword').dialog({
+		modal: true,
+		buttons: {
+			Ok: function() {
+				curUser.passwd = $('#password').attr('value');
+				login();
+				$(this).dialog('close');					
+			}
+		}, 
+		autoOpen: false,
+		close: function(){this.title = 'Введите пароль';}
+	});
 	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){
 		$('#export' + i).dialog({
