@@ -299,14 +299,17 @@ function highlightOff(problem){
 		problem.map[problem.arrow.coord.y][i].highlightOff();
 }
 
+function drawLabirint(){
+	for (var i = 0; i < curProblem.map.length; ++i)
+		for (var j = 0; j < curProblem.map[i].length; ++j)
+			curProblem.map[i][j].draw();
+}
+
 function setDefault(f){
 	enableButtons();
 	for (var i = 0; i < curProblem.map.length; ++i)
-		for (var j = 0; j < curProblem.map[i].length; ++j){
-			s = '#' + (curProblem.tabIndex * 10000 + i * 100 + j);
-			$(s).empty();
+		for (var j = 0; j < curProblem.map[i].length; ++j)
 			curProblem.map[i][j].setDefault();
-		}
 	for (var i = 0; i < curProblem.map.length; ++i)
 		for (var j = 0; j < curProblem.map[i].length; ++j){
 			var arr = curProblem.map[i][j].changedCells();
@@ -328,9 +331,8 @@ function setDefault(f){
 			}
 		}
 	highlightOn(curProblem);
-	for (var i = 0; i < curProblem.map.length; ++i)
-		for (var j = 0; j < curProblem.map[i].length; ++j)
-			curProblem.map[i][j].draw();
+	if (!f)
+		drawLabirint();
 	$("#cons" + curProblem.tabIndex).empty();
 	cmdHighlightOff();
 	with (curProblem){
@@ -385,7 +387,7 @@ function loop(cnt, i){
 	t = divN().replace(/\d{1,}/, "")
 	curProblem.dx = changeDir[t][curProblem.arrow.dir].dx;
 	curProblem.dy = changeDir[t][curProblem.arrow.dir].dy;
-	changeLabyrinth(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir);
+	changeLabyrinth(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir, curProblem.speed == 0);
 	if (divN()){
 		var numId = $('#'+ divN()).attr('numId');
 		var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
@@ -434,9 +436,20 @@ function nextCmd(){
 }
 
 function nextStep(cnt, i){
-	if (curProblem.arrow.dead || curProblem.stopped)
+	if (curProblem.arrow.dead || curProblem.stopped){
+		if (curProblem.arrow.dead && !curProblem.speed){
+			curProblem.speed = 300;
+			setCounters(0, true);
+			var lastCmd = (divI() >= list().length) ? 
+				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
+			if (!isCmdHighlighted(lastCmd))
+				changeCmdHighlight(lastCmd);
+			drawLabirint();
+		}
 		return;
-	if (curProblem.playing && !curProblem.paused && !curProblem.stopped && (!cnt || i < cnt) && nextCmd())
+	}
+		
+	if ((!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
 		loop(cnt, i);
 	else {
 		curProblem.playing = false;
@@ -448,6 +461,7 @@ function nextStep(cnt, i){
 				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
 			if (!isCmdHighlighted(lastCmd))
 				changeCmdHighlight(lastCmd);
+			drawLabirint();
 		}	
 	}
 }

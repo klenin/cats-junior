@@ -272,5 +272,6 @@ var Monster = $.inherit(Cell,{
 		++this.path[this.pathIndex].cnt;
 		this.coord.x = this.path[this.pathIndex].x;
 		this.coord.y = this.path[this.pathIndex].y;
+		//alert(this.coord.x + ' ' + this.coord.y);
 	}
 });

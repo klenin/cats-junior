@@ -137,14 +137,6 @@ function submit(data, sep, l, submitStr){
 
 submitClick = function(){
 	if (atHome){
-		/*curUser.login = 'apress';
-		curUser.passwd = 'tratata';		*/
-		/*callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
-			if (data.status == "ok")
-				sid = data.sid;
-			else
-				alert(data.message);
-		});*/
 		var result = commandsToJSON();
 		submitStr = 'source=' + result + '&problem_id=' + curProblem.id + '&de_id=772264';
 		submit('', '', '', submitStr);
@@ -451,6 +443,7 @@ playClick = function(){
 }
 
 fastClick = function(){
+	cmdHighlightOff();
 	callPlay(0);
 }
 

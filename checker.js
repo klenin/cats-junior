@@ -83,7 +83,7 @@ function tryNextCoord(i, changedElems){
 	return result;
 }
 
-function changeLabyrinth(i, cnt, newDir){
+function changeLabyrinth(i, cnt, newDir, dontNeedToDraw){
 	var p = curProblem.tabIndex;
 	curProblem.life += curProblem.dLife;
 	var changedElems = [];
@@ -140,6 +140,8 @@ function changeLabyrinth(i, cnt, newDir){
 				changedElems.push(new Coord(i, curProblem.arrow.coord.y));
 		}
 	}
-	for (var i = 0; i < changedElems.length; ++i)
-		curProblem.map[changedElems[i].y][changedElems[i].x].draw();
+	if (!dontNeedToDraw){
+		for (var i = 0; i < changedElems.length; ++i)
+			curProblem.map[changedElems[i].y][changedElems[i].x].draw();
+	}
 }
