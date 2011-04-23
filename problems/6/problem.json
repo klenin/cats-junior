@@ -1,9 +1,0 @@
-﻿{
-	"name": "Обучение-2",
-	"statement": "Необходимо подобрать звездочку",
-	"testsNum": 1,
-	"commands": ["forward", "left", "right"],
-	"startLife": 1,
-	"dLife": 0,
-	"startPoints": 0
-}

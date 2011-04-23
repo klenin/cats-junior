@@ -136,19 +136,18 @@ function submit(data, sep, l, submitStr){
 }
 
 submitClick = function(){
+	if (!logined) {
+		alert('Невозможно отослать решение, так как не выбран пользователь');
+		return false;
+	}		
+	if (!sid)
+		(curUser.jury) ? $('#enterPassword').dialog('open') : login();
 	if (atHome){
 		var result = commandsToJSON();
 		submitStr = 'source=' + result + '&problem_id=' + curProblem.id + '&de_id=772264';
 		submit('', '', '', submitStr);
 	} 
 	else {
-		if (!logined) {
-			alert('Невозможно отослать решение, так как не выбран пользователь');
-			return false;
-		}
-		if (!sid){
-			(curUser.jury) ? $('#enterPassword').dialog('open') : login();
-		}
 		var result = commandsToJSON();
 		var problem_id = curProblem.id;  //problem_id = 
 		var de_id = 772264;

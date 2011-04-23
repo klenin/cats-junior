@@ -1,9 +1,0 @@
-﻿{
-	"name": "Обучение-0",
-	"statement": "Необходимо собрать все звездочки на поле",
-	"testsNum": 1,
-	"commands": ["forward", "left", "right"],
-	"startLife": 1,
-	"dLife": 0,
-	"startPoints": 0
-}
