@@ -7,6 +7,9 @@
 			}
 		}
 	});
+	$('#changeContest').hide();
+	$('#enterPassword').hide();
+	$('#contestsList').hide();
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 	getContests();
 	document.title = "";

@@ -44,7 +44,7 @@ function showNewUser(){
 
 function chooseUser(){
 	logined = false;
-	var user = $('#userList > input:checked');
+	var user = $('#userListDiv > input:checked');
 	name = user[0].defaultValue;
 	for (var i = 0; i < users.length; ++i){
 		if (name == users[i].name){
@@ -85,14 +85,13 @@ function changeUser(){
 		$('#userListDiv').empty();
 		if (users.length > 0){
 			$('#userListDiv').append('<p>Выберите свое имя из списка</p>');
-			$('#userListDiv').append('<form name = "userList" id = "userList">');
-			for (var i = 0; i < users.length; ++i)
-				$('#userList').append(
+			for (var i = 0; i < users.length; ++i){
+				$('#userListDiv').append(
 				'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' + 
 				(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' 
 				+ users[i].name + '</label><br>');
-			$('#userListDiv').append('</form>');
-			$('#userListDiv').append('<button id = "userNameSubmit" class = "' + buttonClass + '"' + 
+			}
+			$('#userListDiv').append('<button id = "userNameSubmit" class = "' + buttonClass + ' ui-icon-check"' + 
 			'<span class="ui-button-text">Выбрать пользователя</span></button><br>');
 			$('#userNameSubmit').click(chooseUser);
 		}
@@ -228,10 +227,11 @@ function fillTabs(){
 		$('#tabs').tabs('remove', 0);
 	}
 	$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя", 0);
-	$('#ui-tabs-0').append('<div id = "userListDiv"></div>');
-	$('#ui-tabs-0').append('<button class="' + buttonClass +'" id = "changeContestBtn">' + 
-									'<span class="ui-button-text">Выбрать турнир</span></button>');
-	$('#changeContestBtn').click(function(){$('#changeContest').dialog('open'); return false; })
+	$('#ui-tabs-0').append('<table width = "100%"><tr id = "tab0"><td><div id = "userListDiv"></div></td>');
+	$('#tab0').append('<td valign = "top" align = "right"><button class="' + buttonClass +'" id = "changeContestBtn">' +
+	'<span class="ui-button-text">Выбрать турнир</span></button></td></tr>');
+	$('#ui-tabs-0').append('</table>');
+	$('#changeContestBtn').click(function(){$('#changeContest').dialog('open'); return false; }); 
 	changeUser();
 	problems = [];
 	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
