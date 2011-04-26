@@ -7,20 +7,20 @@
 	["#", "#", "#", "#", ".", "#", "*", "#", ".", "#"],
 	["#", "#", "*", "#", ".", "#", "#", "#", "#", "*"],
 	[".", ".", ".", ".", ".", ".", ".", ".", ".", "."]],
-	"spec_symbols": [
+	"specSymbols": [
 		{
 			"symbol": "*",
 			"count": 5,
 			"style": "star",
 			"name": "звезда",
-			"do": "eat",
+			"action": "eat",
 			"points": 10,
 			"dLife": 0
 		}
 	],
-	"cleaner": [],
-	"cleaned": [],
-	"moving_elements":[{
+	"keys": [],
+	"locks": [],
+	"movingElements":[{
 		"style": "monster",
 		"path": [
 			{"x": 6, "y": 3, "dir": "R", "initCnt": 3}, 

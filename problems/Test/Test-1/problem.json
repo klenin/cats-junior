@@ -12,20 +12,20 @@
     ["#", ".", ".", ".", ".", ".", "#", ".", ".", "#"],
     ["#", ".", ".", ".", ".", ".", ".", ".", ".", "#"],
     ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#"]],
-	"spec_symbols": [
+	"specSymbols": [
 		{
 			"symbol": "*",
 			"count": 1,
 			"style": "star",
 			"name": "звезда",
-			"do": "eat",
+			"action": "eat",
 			"points": 50,
 			"dLife": 0
 		}
 	],
-	"cleaner": [],
-	"cleaned": [],
-	"moving_elements":[],
+	"keys": [],
+	"locks": [],
+	"movingElements":[],
 	"commands": ["forward", "left", "right"],
 	"startLife": 1,
 	"dLife": 0,

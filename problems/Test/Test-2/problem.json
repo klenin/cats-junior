@@ -10,13 +10,13 @@
     ["#", ".", ".", "&", "#_", "._", ".", ".", ".", "#"],
     ["#", "#", "#", "#", "#", "#", "#", "#", "#", "#"]
 	],
-	"spec_symbols": [
+	"specSymbols": [
 		{
 			"symbol": "*",
 			"count": 3,
 			"style": "star",
 			"name": "звезда",
-			"do": "eat",
+			"action": "eat",
 			"points": 40,
 			"dLife": 0
 			
@@ -26,15 +26,15 @@
 			"count": 2,
 			"style": "box",
 			"name": "ящик",
-			"do": "move",
+			"action": "move",
 			"points": 0,
 			"dLife": 0
 			
 		}
 	],
-	"cleaner": [{"x": 6, "y": 3},{"x": 5, "y": 4},{"x": 5, "y": 7}],
-	"cleaned": [[{"x": 6, "y": 4}], [{"x": 4, "y": 4}], [{"x": 4, "y": 7}]],
-	"moving_elements":[],
+	"keys": [{"x": 6, "y": 3},{"x": 5, "y": 4},{"x": 5, "y": 7}],
+	"locks": [[{"x": 6, "y": 4}], [{"x": 4, "y": 4}], [{"x": 4, "y": 7}]],
+	"movingElements":[],
 	"commands": ["forward", "left", "right"],
 	"startLife": 1,
 	"dLife": 0,

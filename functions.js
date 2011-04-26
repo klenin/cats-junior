@@ -82,9 +82,9 @@ function getTest(data, l){
 		dx: 0,
 		dy: 0
 	});
-	setLabyrinth(data.spec_symbols, newProblem)
-	setMonsters(data.moving_elements, newProblem);
-	setKeysAndLocks(data.cleaner, data.cleaned, newProblem);
+	setLabyrinth(data.specSymbols, newProblem)
+	setMonsters(data.movingElements, newProblem);
+	setKeysAndLocks(data.keys, data.locks, newProblem);
 }
 
 function setLabyrinth(specSymbols, problem){
@@ -101,7 +101,7 @@ function setLabyrinth(specSymbols, problem){
 			}
 			for (var k = 0; k < specSymbols.length; ++k)
 				if (specSymbols[k].symbol == problem.mapFromTest[i][j]){
-					obj = specSymbols[k]["do"] == "eat" ? 
+					obj = specSymbols[k].action == "eat" ? 
 						new Prize(problem.tabIndex, c, specSymbols[k]) : 
 						new Box(problem.tabIndex, c,specSymbols[k]) ;
 					if (obj.__self == Prize)

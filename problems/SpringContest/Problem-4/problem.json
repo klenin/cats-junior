@@ -9,13 +9,13 @@
 	["#", ".", ".", "#", "#", "#", "#", "#", "*", "#", "#", "#", ".", "#"], 
 	["#", ".", "#", "#", "#", "#", "#", "#", ".", "#", "#", "#", "#", "#"], 
 	["#", "*", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"]],
-	"spec_symbols": [
+	"specSymbols": [
 		{
 			"symbol": "*",
 			"count": 3,
 			"style": "star",
 			"name": "звезда",
-			"do": "eat",
+			"action": "eat",
 			"points": 10,
 			"dLife": 0, 
 			"zIndex": 2 
@@ -25,15 +25,15 @@
 			"count": 3,
 			"style": "box",
 			"name": "ящик",
-			"do": "move",
+			"action": "move",
 			"points": 0,
 			"dLife": 0,
 			"zIndex": 3
 		}
 	],
-	"cleaner": [],
-	"cleaned": [],
-	"moving_elements":[{
+	"keys": [],
+	"locks": [],
+	"movingElements":[{
 		"style": "monster",
 		"path": [
 			{"x": 12, "y": 1, "dir": "D", "initCnt": 5}, 

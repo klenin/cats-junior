@@ -270,7 +270,7 @@ public class Main {
     private Scanner in = null;
     private int curX, curY, dx, dy, curI = 1, arrowZIndex = 3;
     private int dLife = 0, startLife = 0, startPoints = 0, life = 0, pnts = 0, maxStep = 99999999, steps = 0;
-    private JSONArray map, spec_symbols, cleaner, cleaned, moving_elements, sol;
+    private JSONArray map, specSymbols, keys, locks, movingElements, sol;
     private boolean dead = false;
     String[][] curMap;
     String[] specSymbolsList;
@@ -410,16 +410,16 @@ public class Main {
             pnts = startPoints;
             myAssert(problem.has("map"), "Map is undefined");
             map = problem.getJSONArray("map");
-            if (problem.has("spec_symbols"))
-                spec_symbols = problem.getJSONArray("spec_symbols");
-            if (problem.has("cleaner")){
-                cleaner = problem.getJSONArray("cleaner");
-                myAssert(problem.has("cleaned"), "Cleaner cells are defined, but cleaned cells aren't defined");
-                cleaned = problem.getJSONArray("cleaned");
-                myAssert(cleaner.length() == cleaned.length(), "Cleaner and cleaned length aren't equal");
+            if (problem.has("specSymbols"))
+                specSymbols = problem.getJSONArray("specSymbols");
+            if (problem.has("keys")){
+                keys = problem.getJSONArray("keys");
+                myAssert(problem.has("locks"), "Cleaner cells are defined, but locks cells aren't defined");
+                locks = problem.getJSONArray("locks");
+                myAssert(keys.length() == locks.length(), "Cleaner and locks length aren't equal");
             }
-            if (problem.has("moving_elements"))
-                moving_elements = problem.getJSONArray("moving_elements");
+            if (problem.has("movingElements"))
+                movingElements = problem.getJSONArray("movingElements");
             curMap=new String[map.length()][((JSONArray)((JSONArray)map).get(0)).length()];
             field = new FieldElem[curMap.length][curMap[0].length];
             for (int i = 0; i < map.length(); ++i)
@@ -432,28 +432,28 @@ public class Main {
                         curX = j;
                         curDirect = table.get(curMap[i][j]);
                     }
-                    for (int k = 0; k < spec_symbols.length(); ++k){
-                        if (curMap[i][j].equals(((JSONObject)spec_symbols.get(k)).getString("symbol"))){
-                            obj = ((JSONObject)spec_symbols.get(k)).getString("do").equals("eat") ?
-                                new Prize(j, i, (JSONObject)spec_symbols.get(k)):
-                                new Box(j, i, (JSONObject)spec_symbols.get(k));
+                    for (int k = 0; k < specSymbols.length(); ++k){
+                        if (curMap[i][j].equals(((JSONObject)specSymbols.get(k)).getString("symbol"))){
+                            obj = ((JSONObject)specSymbols.get(k)).getString("action").equals("eat") ?
+                                new Prize(j, i, (JSONObject)specSymbols.get(k)):
+                                new Box(j, i, (JSONObject)specSymbols.get(k));
                                 field[i][j].cells.add(obj);
                                 break;
                             }
                     }
                 }
-            monsters = new Monster[moving_elements.length()];
-            for (int k = 0; k < moving_elements.length(); ++k){
-                Monster obj = new Monster((JSONObject)moving_elements.get(k));
+            monsters = new Monster[movingElements.length()];
+            for (int k = 0; k < movingElements.length(); ++k){
+                Monster obj = new Monster((JSONObject)movingElements.get(k));
                 field[obj.y][obj.x].cells.add(obj);
                 monsters[k] = obj;
             }
-            for (int k = 0; k < cleaner.length(); ++k){
-                Key key = new Key(((JSONObject)cleaner.get(k)).getInt("x"),
-                        ((JSONObject)cleaner.get(k)).getInt("y"), ((JSONArray)cleaned.get(k)).length());
-                for (int j = 0; j < ((JSONArray)cleaned.get(k)).length(); ++j){
-                    Lock lock = new Lock(((JSONObject)((JSONArray)cleaned.get(k)).get(j)).getInt("x"),
-                            ((JSONObject)((JSONArray)cleaned.get(k)).get(j)).getInt("y"));
+            for (int k = 0; k < keys.length(); ++k){
+                Key key = new Key(((JSONObject)keys.get(k)).getInt("x"),
+                        ((JSONObject)keys.get(k)).getInt("y"), ((JSONArray)locks.get(k)).length());
+                for (int j = 0; j < ((JSONArray)locks.get(k)).length(); ++j){
+                    Lock lock = new Lock(((JSONObject)((JSONArray)locks.get(k)).get(j)).getInt("x"),
+                            ((JSONObject)((JSONArray)locks.get(k)).get(j)).getInt("y"));
                     key.locks[j] = lock;
                 }
             }
