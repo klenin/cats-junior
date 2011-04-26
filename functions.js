@@ -74,7 +74,6 @@ function getTest(data, l){
 		maxMonsterId: 0, 
 		maxPrizeId: 0, 
 		maxCellId: 0, 
-		boxes: [], 
 		monsters: [],
 		numOfPrizes: 0, 
 		curNumOfPrizes: 0, 
@@ -82,7 +81,9 @@ function getTest(data, l){
 		dx: 0,
 		dy: 0
 	});
-	setLabyrinth(data.specSymbols, newProblem)
+	if (newProblem.maxCmdNum)
+		newProblem.maxStep = 0;
+	setLabyrinth(data.specSymbols, newProblem);
 	setMonsters(data.movingElements, newProblem);
 	setKeysAndLocks(data.keys, data.locks, newProblem);
 }
@@ -106,8 +107,6 @@ function setLabyrinth(specSymbols, problem){
 						new Box(problem.tabIndex, c,specSymbols[k]) ;
 					if (obj.__self == Prize)
 						++problem.numOfPrizes;
-					else
-						problem.boxes.push({'id': problem.maxBoxId, 'x': j, 'y': i});
 					break;
 				}
 			if (obj)
@@ -324,10 +323,7 @@ function setDefault(f){
 						curProblem.monsters[arr[k].id].x = arr[k].coord.x;
 						curProblem.monsters[arr[k].id].y = arr[k].coord.y;
 						break;
-					case Box:
-						curProblem.boxes[arr[k].id] = arr[k];
-						break;
-					}
+				}
 			}
 		}
 	highlightOn(curProblem);
@@ -347,10 +343,7 @@ function setDefault(f){
 		step = 0;
 		divName = cmdList[0].name;
 	}
-	if ($("#curStep" + curProblem.tabIndex)){
-		$("#curStep" + curProblem.tabIndex).attr('value', 0);
-		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  0);
-	}
+	changeProgressBar();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
@@ -397,41 +390,46 @@ function loop(cnt, i){
 		return nextStep(cnt, ++i);
 	if (newCmd || cmd() == 0)
 		changeCmdHighlight(divN());
-	if (divN()){
+	if (divN())
 		$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
-	}
 	if (curProblem.arrow.dead)
 		return;
 	setTimeout(function() { nextStep(cnt, ++i); }, curProblem.speed);	
 }
 
-function nextCmd(){
-	var t = curProblem.tabIndex;
-	if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt - 1)){
-		with(curProblem){
-			divIndex = list().length;
-			cmdIndex = 0;
-			step = curProblem.step + 1;
-		}
-		curProblem.cmdListEnded = true;
-		return false;
+function changeProgressBar(){
+	if (curProblem.maxCmd){
+		$('#curStep' + curProblem.tabIndex).attr('value', curProblem.divIndex);
+		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.divIndex / curProblem.maxCmd * 100);
+	} 
+	else if (curProblem.maxStep){
+		$('#curStep' + curProblem.tabIndex).attr('value', curProblem.step + 1);
+		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  (curProblem.step + 1) / curProblem.maxStep * 100);
 	}
-	else
+}
+
+function nextCmd(){
 	if (divI() >= list().length)
 		return false;
-	if (cmd() == list()[divI()].cnt - 1)
-		with(curProblem){
-			cmdIndex = 0;
-			divName =  curProblem.cmdList[++divIndex].name;
+	if (cmd() == list()[divI()].cnt - 1){
+		++curProblem.divIndex;
+		curProblem.cmdIndex = 0;
+		++curProblem.step;			
+		if (maxCmdNum && curProblem.divIndex == maxCmdNum){
+			var mes = new MessageCmdLimit();
+			curProblem.arrow.dead = true;
 		}
-	else 
-		++curProblem.cmdIndex;
-	$('#curStep' + t).attr('value', ++curProblem.step + 1);
-	$('#progressBar'  + t).progressbar('option', 'value',  (curProblem.step + 1) / problems[t].maxStep * 100);
-	if (curProblem.step == problems[t].maxStep){
-		var mes = new MessageStepsLimit();
-		curProblem.arrow.dead = true;
+		if (divI() == list().length - 1){
+			curProblem.cmdListEnded = true;
+			return false;
+		}
+		curProblem.divName =  curProblem.cmdList[++curProblem.divIndex].name;
 	}
+	else {
+		++curProblem.cmdIndex;
+		++curProblem.step;
+	}
+	changeProgressBar();
 	return true;
 }
 
@@ -448,7 +446,6 @@ function nextStep(cnt, i){
 		}
 		return;
 	}
-		
 	if ((!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
 		loop(cnt, i);
 	else {

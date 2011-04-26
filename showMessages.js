@@ -51,3 +51,9 @@ var MessageStepsLimit = $.inherit(Message, {
 		this.__base(['Превышен лимит затраченных шагов \n']);
 	}
 });
+
+var MessageCmdLimit = $.inherit(Message, {
+	__constructor: function() {
+		this.__base(['Превышен лимит затраченных команд \n']);
+	}
+});

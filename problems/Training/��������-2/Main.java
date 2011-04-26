@@ -193,7 +193,7 @@ public class Main {
          else{
              if (path.get(index).cnt == path.get(index).initCnt)
                 dir = path.get(index + 1).dir;
-            
+
            }
          c = nextDirect("forward", table.get(dir));
          return new Coord(x1 + c.x, y1 + c.y);
@@ -243,8 +243,8 @@ public class Main {
     public class Prize extends Cell{
         public boolean found;
         public Prize(int x, int y, JSONObject prize) throws JSONException{
-            super(x, y, prize.has("zIndex") ? prize.getInt("zIndex") : 1, 
-                    prize.has("points") ? prize.getInt("points"): 0,  
+            super(x, y, prize.has("zIndex") ? prize.getInt("zIndex") : 1,
+                    prize.has("points") ? prize.getInt("points"): 0,
                     prize.has("dLife") ? prize.getInt("dLife") : 0);
             found = false;
         }
@@ -403,8 +403,10 @@ public class Main {
                 life = problem.getInt("startLife");
             if (problem.has("dLife"))
                 dLife = problem.getInt("dLife");
-            if (problem.has("maxStep"))
-                maxStep = problem.getInt("maxStep");
+			if (problem.has("maxCmdNum"))
+                maxCmdNum = problem.getInt("maxCmdNum");
+            else if (problem.has("maxStep"))
+				maxStep = problem.getInt("maxStep");
             if (problem.has("startPoints"))
                 startPoints = problem.getInt("startPoints");
             pnts = startPoints;
@@ -414,9 +416,9 @@ public class Main {
                 specSymbols = problem.getJSONArray("specSymbols");
             if (problem.has("keys")){
                 keys = problem.getJSONArray("keys");
-                myAssert(problem.has("locks"), "Cleaner cells are defined, but locks cells aren't defined");
+                myAssert(problem.has("locks"), "Keys are defined, but locks cells aren't defined");
                 locks = problem.getJSONArray("locks");
-                myAssert(keys.length() == locks.length(), "Cleaner and locks length aren't equal");
+                myAssert(keys.length() == locks.length(), "Keys and locks length aren't equal");
             }
             if (problem.has("movingElements"))
                 movingElements = problem.getJSONArray("movingElements");
@@ -451,10 +453,12 @@ public class Main {
             for (int k = 0; k < keys.length(); ++k){
                 Key key = new Key(((JSONObject)keys.get(k)).getInt("x"),
                         ((JSONObject)keys.get(k)).getInt("y"), ((JSONArray)locks.get(k)).length());
+                field[key.y][key.x].cells.add(key);
                 for (int j = 0; j < ((JSONArray)locks.get(k)).length(); ++j){
                     Lock lock = new Lock(((JSONObject)((JSONArray)locks.get(k)).get(j)).getInt("x"),
                             ((JSONObject)((JSONArray)locks.get(k)).get(j)).getInt("y"));
                     key.locks[j] = lock;
+                    field[lock.y][lock.x].cells.add(lock);
                 }
             }
             fis.close();
@@ -467,13 +471,14 @@ public class Main {
             fileInString = baos.toString("utf-8");
             sol = new JSONArray(fileInString);
             for (int i = 0; i < sol.length(); ++i){
+				if (i + 1 > maxCmdNum)
+					break;
                 String direct = ((JSONObject)sol.get(i)).getString("dir");
                 Integer cnt = ((JSONObject)sol.get(i)).getInt("cnt");
                 int j = 0;
-                for (j = 0; j < cnt; ++j){
-                    if (!nextStep(curI++, direct))
+                for (j = 0; j < cnt; ++j)
+					if (!nextStep(curI++, direct))
                         break;
-                }
                 if (j != cnt)
                     break;
             }
@@ -481,7 +486,7 @@ public class Main {
     } catch (Exception exept) {
           exept.printStackTrace();
           System.exit(216);
-    } 
+    }
     }
     public static void main(String[] args) {
       try {

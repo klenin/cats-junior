@@ -1,6 +1,5 @@
 ﻿var atHome = 1; //for testing
 var curProblem;
-var curProblemIndex;
 var problems = [];
 var users = [];
 var curUser;
