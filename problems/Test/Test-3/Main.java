@@ -269,7 +269,7 @@ public class Main {
     private PrintWriter out = null;
     private Scanner in = null;
     private int curX, curY, dx, dy, curI = 1, arrowZIndex = 3;
-    private int dLife = 0, startLife = 0, startPoints = 0, life = 0, pnts = 0, maxStep = 99999999, steps = 0;
+    private int dLife = 0, startLife = 0, startPoints = 0, life = 0, pnts = 0, maxStep = 99999999, maxCmdNum = 99999999, steps = 0;
     private JSONArray map, specSymbols, keys, locks, movingElements, sol;
     private boolean dead = false;
     String[][] curMap;

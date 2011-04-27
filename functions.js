@@ -415,15 +415,15 @@ function nextCmd(){
 		++curProblem.divIndex;
 		curProblem.cmdIndex = 0;
 		++curProblem.step;			
-		if (maxCmdNum && curProblem.divIndex == maxCmdNum){
+		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
 			var mes = new MessageCmdLimit();
 			curProblem.arrow.dead = true;
 		}
-		if (divI() == list().length - 1){
+		if (divI() == list().length){
 			curProblem.cmdListEnded = true;
 			return false;
 		}
-		curProblem.divName =  curProblem.cmdList[++curProblem.divIndex].name;
+		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
 	}
 	else {
 		++curProblem.cmdIndex;
