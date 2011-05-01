@@ -12,7 +12,6 @@
 	$('#contestsList').hide();
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 	getContests();
-	document.title = "";
 	cmdId = problems.length;
 	$('#tabs').bind('tabsshow', function(event, ui) {
 		if (curProblem.visited)
@@ -108,36 +107,6 @@
 	});
 	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){
-		$('#export' + i).dialog({
-			modal: true,
-			buttons: {
-				Ok: function() {
-					$(this).dialog('close');
-				}
-			}, 
-			autoOpen: false,
-			title: 'Список команд',
-			minWidth: 250,
-			minHeight: 400
-		});
-		$('#import' + i).dialog({
-			modal: true,
-			buttons: {
-				'Load': function() {
-					if (!confirm('Вы уверены, что хотите изменить список команд?'))
-						return;
-					importCommands();
-				},
-				'Cancel': function() {
-					$(this).dialog('close');
-				}
-			}, 
-			autoOpen: false,
-			title: 'Загрузка списка команд',
-			minWidth: 250,
-			minHeight: 400
-			
-		});
 		$('ul, li').disableSelection();
 	}
 });

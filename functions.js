@@ -224,7 +224,7 @@ function list() {return curProblem.cmdList; }
 
 function updated(){
 	var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');
-	var needToClear = false;
+	var needToClear = curProblem.arrow.dead;
 	var j = curProblem.cmdList.length;  //number of first cmd that counters must be changed
 	if(!curProblem.cmdList.length)
 		needToClear = true;
@@ -305,7 +305,9 @@ function drawLabirint(){
 }
 
 function setDefault(f){
-	enableButtons();
+	for (var i = 0; i < btns.length; ++i)
+		$('#btn_' + btns[i] + curProblem.tabIndex).button('enable');	
+	$('#sortable' + curProblem.tabIndex).sortable('enable');
 	for (var i = 0; i < curProblem.map.length; ++i)
 		for (var j = 0; j < curProblem.map[i].length; ++j)
 			curProblem.map[i][j].setDefault();
@@ -343,10 +345,13 @@ function setDefault(f){
 		step = 0;
 		divName = cmdList[0].name;
 	}
+	hideFocus();
 	changeProgressBar();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
-		$('#spinCnt' + el.attr('numId')).attr('cnt', $('#spin' + el.attr('numId')).attr('value'));
+		var newVal = $('#spin' + el.attr('numId')).attr('value');
+		$('#spinCnt' + el.attr('numId')).attr('cnt', newVal);
+		$('#spinCnt' + el.attr('numId')).attr('value', newVal + '/' + newVal);
 		el = el.next();
 	}
 }
@@ -392,19 +397,17 @@ function loop(cnt, i){
 		changeCmdHighlight(divN());
 	if (divN())
 		$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
-	if (curProblem.arrow.dead)
-		return;
-	setTimeout(function() { nextStep(cnt, ++i); }, curProblem.speed);	
+	nextStep(cnt, ++i);	
 }
 
 function changeProgressBar(){
 	if (curProblem.maxCmd){
-		$('#curStep' + curProblem.tabIndex).attr('value', curProblem.divIndex);
+		$('#curStep' + curProblem.tabIndex).text(curProblem.divIndex);
 		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.divIndex / curProblem.maxCmd * 100);
 	} 
 	else if (curProblem.maxStep){
-		$('#curStep' + curProblem.tabIndex).attr('value', curProblem.step + 1);
-		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  (curProblem.step + 1) / curProblem.maxStep * 100);
+		$('#curStep' + curProblem.tabIndex).text(curProblem.step);
+		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.step  / curProblem.maxStep * 100);
 	}
 }
 
@@ -421,6 +424,7 @@ function nextCmd(){
 		}
 		if (divI() == list().length){
 			curProblem.cmdListEnded = true;
+			changeProgressBar();
 			return false;
 		}
 		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
@@ -433,23 +437,38 @@ function nextCmd(){
 	return true;
 }
 
+function hideFocus(){
+	for (var k = 0; k < btns.length; ++k)
+		$('#btn_' + btns[k] + curProblem.tabIndex).removeClass('ui-state-focus').removeClass('ui-state-hover'); 
+}
+
 function nextStep(cnt, i){
 	if (curProblem.arrow.dead || curProblem.stopped){
-		if (curProblem.arrow.dead && !curProblem.speed){
-			curProblem.speed = 300;
-			setCounters(0, true);
-			var lastCmd = (divI() >= list().length) ? 
-				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
-			if (!isCmdHighlighted(lastCmd))
-				changeCmdHighlight(lastCmd);
-			drawLabirint();
+		if (curProblem.arrow.dead){
+			for (var i = 0; i < btns.length; ++i)
+				$('#btn_' + btns[i] + curProblem.tabIndex).button('disable');
+			$('#btn_stop' + curProblem.tabIndex).button('enable');
+			$('#sortable' + curProblem.tabIndex).sortable('enable');
+			if (!curProblem.speed){
+				curProblem.speed = 300;
+				setCounters(0, true);
+				var lastCmd = (divI() >= list().length) ? 
+					$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
+				if (!isCmdHighlighted(lastCmd))
+					changeCmdHighlight(lastCmd);
+				drawLabirint();
+			}
 		}
+		curProblem.playing = false;
+		nextCmd();
+		hideFocus();
 		return;
 	}
 	if ((!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
-		loop(cnt, i);
+		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
 	else {
 		curProblem.playing = false;
+		hideFocus();
 		enableButtons();
 		if (!curProblem.speed){
 			curProblem.speed = 300;

@@ -53,3 +53,5 @@ var miny = 0;
 var btnsPlay = new Array('play', 'next', 'prev', 'fast');
 var btns = new Array('play', 'pause', 'stop', 'prev', 'next', 'fast');
 var buttonClass = 'ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all';
+var buttonClassPlay = 'ui-button ui-button-icon-only ui-widget ui-state-default ui-corner-all';
+var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];

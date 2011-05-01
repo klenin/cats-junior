@@ -20,6 +20,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+function  getPageSize(){
+	var xScroll, yScroll;
+
+	if (window.innerHeight && window.scrollMaxY) {
+		xScroll = document.body.scrollWidth;
+		yScroll = window.innerHeight + window.scrollMaxY;
+	} else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
+		xScroll = document.body.scrollWidth;
+		yScroll = document.body.scrollHeight;
+	} else if (document.documentElement && document.documentElement.scrollHeight > document.documentElement.offsetHeight){ // Explorer 6 strict mode
+		xScroll = document.documentElement.scrollWidth;
+		yScroll = document.documentElement.scrollHeight;
+	} else { // Explorer Mac...would also work in Mozilla and Safari
+		xScroll = document.body.offsetWidth;
+		yScroll = document.body.offsetHeight;
+	}
+
+	var windowWidth, windowHeight;
+	if (self.innerHeight) { // all except Explorer
+		windowWidth = self.innerWidth;
+		windowHeight = self.innerHeight;
+	} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
+		windowWidth = document.documentElement.clientWidth;
+		windowHeight = document.documentElement.clientHeight;
+	} else if (document.body) { // other Explorers
+		windowWidth = document.body.clientWidth;
+		windowHeight = document.body.clientHeight;
+	}
+
+	// for small pages with total height less then height of the viewport
+	if(yScroll < windowHeight){
+		pageHeight = windowHeight;
+	} else {
+		pageHeight = yScroll;
+	}
+
+	// for small pages with total width less then width of the viewport
+	if(xScroll < windowWidth){
+		pageWidth = windowWidth;
+	} else {
+		pageWidth = xScroll;
+	}
+
+	return windowWidth;
+}
+
 $.extend($.ui.tabs.prototype, {
 	paging: function(options) {
 		var opts = {
@@ -45,7 +91,7 @@ $.extend($.ui.tabs.prototype, {
 			allTabsWidth = 0, currentPage = 0, maxPageWidth = 0, buttonWidth = 0,
 				pages = new Array(), tabWidths = new Array(), selectedTabWidths = new Array();
 			
-			containerWidth = self.element.width();
+			containerWidth = getPageSize();
 			
 			// loops through LIs, get width of each tab when selected and unselected.
 			var maxDiff = 0;  // the max difference between a selected and unselected tab
@@ -55,21 +101,18 @@ $.extend($.ui.tabs.prototype, {
 					tabWidths[i] = self.lis.eq(i).removeClass('ui-tabs-selected').outerWidth({ margin: true });
 					self.lis.eq(i).addClass('ui-tabs-selected');
 					maxDiff = Math.min(maxDiff, Math.abs(selectedTabWidths[i] - tabWidths[i]));
-					allTabsWidth += tabWidths[i];
+					allTabsWidth += tabWidths[i] + 2;
 				} else {
 					tabWidths[i] = $(this).outerWidth({ margin: true });
 					selectedTabWidths[i] = self.lis.eq(i).addClass('ui-tabs-selected').outerWidth({ margin: true });
 					self.lis.eq(i).removeClass('ui-tabs-selected');
 					maxDiff = Math.max(maxDiff, Math.abs(selectedTabWidths[i] - tabWidths[i]));
-					allTabsWidth += tabWidths[i];
+					allTabsWidth += tabWidths[i] + 2;
 				}
 			});
             // fix padding issues with buttons
             // TODO determine a better way to handle this
 			allTabsWidth += maxDiff + ($.browser.msie?4:0) + 9;  
-			if (tabWidths.length == 11){
-				var i = i;
-			}
 			// if the width of all tables is greater than the container's width, calculate the pages
 			if (allTabsWidth > containerWidth) {
 				// create next button			
@@ -131,7 +174,7 @@ $.extend($.ui.tabs.prototype, {
 					disableButton('prev');
 				
 				// calculate the right padding for the next button
-				buttonPadding = containerWidth - maxPageWidth - buttonWidth;
+				buttonPadding = containerWidth - maxPageWidth - buttonWidth - 30;
 				if (buttonPadding > 0) 
 					$('.ui-tabs-paging-next', self.element).css({ paddingRight: buttonPadding + 'px'});
 				
