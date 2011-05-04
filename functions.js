@@ -329,10 +329,6 @@ function setDefault(f){
 			}
 		}
 	highlightOn(curProblem);
-	if (!f)
-		drawLabirint();
-	$("#cons" + curProblem.tabIndex).empty();
-	cmdHighlightOff();
 	with (curProblem){
 		arrow.setDefault();
 		paused = false;
@@ -346,12 +342,18 @@ function setDefault(f){
 		divName = cmdList[0].name;
 	}
 	hideFocus();
-	changeProgressBar();
+	if (!f){
+		drawLabirint();
+		cmdHighlightOff();
+		changeProgressBar();
+	}
+	$("#cons" + curProblem.tabIndex).empty();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		var newVal = $('#spin' + el.attr('numId')).attr('value');
 		$('#spinCnt' + el.attr('numId')).attr('cnt', newVal);
-		$('#spinCnt' + el.attr('numId')).attr('value', newVal + '/' + newVal);
+		if (!f)
+			$('#spinCnt' + el.attr('numId')).attr('value', newVal + '/' + newVal);
 		el = el.next();
 	}
 }
@@ -442,6 +444,17 @@ function hideFocus(){
 		$('#btn_' + btns[k] + curProblem.tabIndex).removeClass('ui-state-focus').removeClass('ui-state-hover'); 
 }
 
+function notSpeed(){
+	curProblem.speed = 300;
+	setCounters(0, true);
+	var lastCmd = (divI() >= list().length) ? 
+		$('#sortable' + curProblem.tabIndex + ' > li:last').attr('id') : divN();
+	if (!isCmdHighlighted(lastCmd))
+		changeCmdHighlight(lastCmd);
+	drawLabirint();
+	changeProgressBar();
+}
+
 function nextStep(cnt, i){
 	if (curProblem.arrow.dead || curProblem.stopped){
 		if (curProblem.arrow.dead){
@@ -449,15 +462,8 @@ function nextStep(cnt, i){
 				$('#btn_' + btns[i] + curProblem.tabIndex).button('disable');
 			$('#btn_stop' + curProblem.tabIndex).button('enable');
 			$('#sortable' + curProblem.tabIndex).sortable('enable');
-			if (!curProblem.speed){
-				curProblem.speed = 300;
-				setCounters(0, true);
-				var lastCmd = (divI() >= list().length) ? 
-					$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
-				if (!isCmdHighlighted(lastCmd))
-					changeCmdHighlight(lastCmd);
-				drawLabirint();
-			}
+			if (!curProblem.speed)
+				notSpeed();
 		}
 		curProblem.playing = false;
 		nextCmd();
@@ -470,15 +476,8 @@ function nextStep(cnt, i){
 		curProblem.playing = false;
 		hideFocus();
 		enableButtons();
-		if (!curProblem.speed){
-			curProblem.speed = 300;
-			setCounters(0, true);
-			var lastCmd = (divI() >= list().length) ? 
-				$('#sortable' + curProblem + ' > li:last').attr('id') : divN();
-			if (!isCmdHighlighted(lastCmd))
-				changeCmdHighlight(lastCmd);
-			drawLabirint();
-		}	
+		if (!curProblem.speed)
+			notSpeed();
 	}
 }
 

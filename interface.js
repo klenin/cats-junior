@@ -229,9 +229,9 @@ function fillTabs(){
 	}
 	$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя", 0);
 	$('#ui-tabs-0').append('<table width = "100%"><tr id = "tab0"><td><div id = "userListDiv"></div></td>');
-	$('#tab0').append('<td valign = "top" align = "right"><button class="' + buttonClass +'" id = "changeContestBtn">' +
-	'<span class="ui-button-text">Выбрать турнир</span></button></td></tr>');
+	$('#tab0').append('<td valign = "top" align = "right"><button id = "changeContestBtn">Выбрать турнир</button></td></tr>');
 	$('#ui-tabs-0').append('</table>');
+	$('#changeContestBtn').button();
 	$('#changeContestBtn').click(function(){
 		$('#contestsList').show(); 
 		$('#changeContest').dialog('open'); 
@@ -257,8 +257,8 @@ function fillTabs(){
 			$('#tdAboutBtn' + i).append('<button id = "aboutBtn' + i +'">?</button>');
 			$('#aboutBtn' + i).button();
 			$('#tdAboutBtn' + i).append('<div id = "forJury' + i + '"></div>');
-			$('#forJury' + i).append('<button class="' + buttonClass +'" id = "exportBtn' + i +'">export</button>');
-			$('#forJury' + i).append('<button class="' + buttonClass +'" id = "importBtn' + i +'">import</button>');
+			$('#forJury' + i).append('<button id = "exportBtn' + i +'">export</button>');
+			$('#forJury' + i).append('<button id = "importBtn' + i +'">import</button>');
 			$('#forJury' + i).append('<div id = "import' + i + '"></div>');
 			$('#forJury' + i).append('<div id = "export' + i + '"></div>');
 			$('#exportBtn' + i).button();
@@ -312,11 +312,10 @@ function fillTabs(){
 				if($.browser.msie)
 					$('#' + divs[j] + i).css('height', '35px');
 			}
-			$('#tdDrop' + i).append('<hr align = "left" width = "270px"><br>');
-			$('#tdDrop' + i).append('Укажите последовательность действий');
 			$('#tdDrop' + i).append('<table><tr><td><ul id = "sortable' + i + 
 				'" class = "ui-sortable sortable"></ul></td></tr></table>');
-			$('#field' + i).append('<table><tr><td><div id="toolbar' + i + '" class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;"></span></td></tr>');
+			$('#field' + i).append('<table id = "tblField' + i + '"></table>');
+			$('#tblField' + i).append('<tr><td width = "100%"><div id="toolbar' + i + '" class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;"></span></td></tr>');
 			$('#toolbar' + i).append('<span id = "toolbarSpan' + i + '"></span>');
 			for (var j = 0; j < btns.length; ++j){
 				$('#toolbarSpan' + i).append('<button id = "btn_' + btns[j] + i + '" name = "' + btns[j] +'">' + btns[j] + '</button>');
@@ -334,16 +333,15 @@ function fillTabs(){
 				$('#curStep' + i).text('0');
 				$('#progressBar' + i).progressbar({value: 0});
 			}
-			$('#field' + i).append('<tr><td id = "tdField' + i + '"></td></tr></table>');
-			$('#console' + i).append('<table><tr><td id = "tdBtnSubmit' + i + '" align = "right"></td></tr><tr><td id = "tdCons' + i + '"></td></tr></table>');
-			$('#tdBtnSubmit' + i).append('<button id = "btn_clear' + i + '">Очистить список команд</button>');
+			$('#tblField' + i).append('<tr><td id = "tdField' + i + '"></td></tr>');
+			$('#console' + i).append('<table><tr><td id = "tdBtnSubmit' + i + 
+					'" align = "right"></td></tr><tr><td id = "tdCons' + i + '"></td></tr></table>');
+			$('#tdBtnSubmit' + i).append('<div><button id = "btn_clear' + i + '">Очистить список команд</button><button id = "submit' + i + '">Отправить решение</button></div>');
 			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
 			$('#btn_clear' + i).click(clearClick);
-			$('#tdBtnSubmit' + i).append('<button id = "submit' + i + '">Отправить решение</button>');
 			$('#submit' + i).button({icons: {primary: 'ui-icon-check'}});
 			$('#submit' + i).click(submitClick);
-			$('#tdCons' + i).append('<textarea rows="34" cols="20" name="cons" id = "cons' + i + 
-				'" class = "cons" disabled readonly></textarea><br>');
+			$('#tdCons' + i).append('<div id = "cons' + i + '" class = "cons" ></div>');
 			fillLabyrinth(problems[i]);
 			$('#tdSt' + i).append(problems[i].statement);
 			$('#forJury' + i).hide();
@@ -534,9 +532,10 @@ function prevClick(){
 		setCounters();
 		return;
 	}
-	disableButtons();
+	++c;
 	--t;
 	setDefault(true);
+	disableButtons();
 	hideCounters();
 	var s = curProblem.speed;
 	curProblem.speed = 0;

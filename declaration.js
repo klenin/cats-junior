@@ -19,7 +19,7 @@ var cmdClassToName = {
 	'right': 'Направо',
 	'wait': 'Ждать'
 };
-var classes = new Array ('forward', 'left', 'right', 'wait');
+var classes = ['forward', 'left', 'right', 'wait'];
 var changeDir = {
 	'forward':{
 		'up': {dx: 0, dy: -1, curDir: 'up'},
@@ -50,8 +50,7 @@ var changeDir = {
 var dirs = {'R': 'right', 'L': 'left', 'U': 'up', 'D': 'down'};
 var maxx = 185;
 var miny = 0;
-var btnsPlay = new Array('play', 'next', 'prev', 'fast');
-var btns = new Array('play', 'pause', 'stop', 'prev', 'next', 'fast');
-var buttonClass = 'ui-button ui-button-text-only ui-widget ui-state-default ui-corner-all';
-var buttonClassPlay = 'ui-button ui-button-icon-only ui-widget ui-state-default ui-corner-all';
+var btnsPlay = ['play', 'next', 'prev', 'fast'];
+var btns = ['play', 'pause', 'stop', 'prev', 'next', 'fast'];
 var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
+var c = 0;
