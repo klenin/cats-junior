@@ -135,7 +135,7 @@ $.extend($.ui.tabs.prototype, {
 				buttonWidth += li.outerWidth({ margin: true });
 				
 				// TODO determine fix for padding issues to next button
-				buttonWidth += 30; 
+				buttonWidth += 50; 
 								
 				var pageIndex = 0, pageWidth = 0, maxTabPadding = 0;
 				
@@ -150,7 +150,7 @@ $.extend($.ui.tabs.prototype, {
 					if (pages[pageIndex] == null) {
 						pages[pageIndex] = { start: i, end: i - 1 };
 					
-					} else if ((i > 0 && (i % opts.tabsPerPage) == 0) || (tabWidths[i] + pageWidth + buttonWidth + 12) > containerWidth) {
+					} else if ((i > 0 && (i % opts.tabsPerPage) == 0) || (tabWidths[i] + pageWidth + buttonWidth + 25) > containerWidth) {
 						if ((pageWidth + maxTabPadding) > maxPageWidth)	
 							maxPageWidth = (pageWidth + maxTabPadding);
 						pageIndex++;
@@ -174,7 +174,7 @@ $.extend($.ui.tabs.prototype, {
 					disableButton('prev');
 				
 				// calculate the right padding for the next button
-				buttonPadding = containerWidth - maxPageWidth - buttonWidth - 30;
+				buttonPadding = containerWidth - maxPageWidth - buttonWidth -50;
 				if (buttonPadding > 0) 
 					$('.ui-tabs-paging-next', self.element).css({ paddingRight: buttonPadding + 'px'});
 				

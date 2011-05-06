@@ -57,5 +57,5 @@
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,
-	"maxStep": 65
+	"maxCmdNum": 40
 }
