@@ -265,7 +265,7 @@ function fillTabs(){
 			$('#importBtn' + i).button();
 			$('#exportBtn' + i).click(function() { return exportCommands(); });
 			$('#importBtn' + i).click(function() { return import_(); });
-			$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '></textarea>');
+			$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '"></textarea>');
 			$('#import' + i).hide();
 			$('#export' + i).hide();
 			$('#export' + i).dialog({
@@ -328,8 +328,9 @@ function fillTabs(){
 			}
 			if (problems[i].maxCmdNum || problems[i].maxStep){
 				$('#toolbar' + i).append('<div id = "progressBar' + i + '"></div>');
-				$('#toolbar' + i).append('<span>Затрачено команд: <span id = "curStep' + i + '"></span> из ' + 
-					(problems[i].maxCmdNum ? problems[i].maxCmdNum : problems[i].maxStep) + '</span>');
+				$('#toolbar' + i).append('<span>' + (problems[i].maxCmdNum ? 'Затрачено команд': 
+						'Затрачено шагов') + ': <span id = "curStep' + i + '"></span> из ' + 
+						(problems[i].maxCmdNum ? problems[i].maxCmdNum : problems[i].maxStep) + '</span>');
 				$('#curStep' + i).text('0');
 				$('#progressBar' + i).progressbar({value: 0});
 			}
@@ -395,6 +396,7 @@ function setSpin(){
 }
 
 function import_(){
+	$('#importText' + curProblem.tabIndex).show();
 	$('#import' + curProblem.tabIndex).dialog('open');
 	return false;
 }

@@ -403,9 +403,9 @@ function loop(cnt, i){
 }
 
 function changeProgressBar(){
-	if (curProblem.maxCmd){
+	if (curProblem.maxCmdNum){
 		$('#curStep' + curProblem.tabIndex).text(curProblem.divIndex);
-		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.divIndex / curProblem.maxCmd * 100);
+		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.divIndex / curProblem.maxCmdNum * 100);
 	} 
 	else if (curProblem.maxStep){
 		$('#curStep' + curProblem.tabIndex).text(curProblem.step);
@@ -420,13 +420,14 @@ function nextCmd(){
 		++curProblem.divIndex;
 		curProblem.cmdIndex = 0;
 		++curProblem.step;			
-		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum + 1){
 			var mes = new MessageCmdLimit();
 			curProblem.arrow.dead = true;
 		}
 		if (divI() == list().length){
 			curProblem.cmdListEnded = true;
-			changeProgressBar();
+			if (curProblem.speed)
+				changeProgressBar();
 			return false;
 		}
 		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
@@ -435,7 +436,8 @@ function nextCmd(){
 		++curProblem.cmdIndex;
 		++curProblem.step;
 	}
-	changeProgressBar();
+	if (curProblem.speed)
+		changeProgressBar();
 	return true;
 }
 
