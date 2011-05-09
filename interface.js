@@ -461,6 +461,11 @@ function disableButtons(){
 function callPlay(s){
 	if (!$('#sortable' + curProblem.tabIndex).sortable('toArray').length || curProblem.arrow.dead)
 		return;
+	if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+		var mes = new MessageCmdLimit();
+		curProblem.arrow.dead = true;
+		return;
+	}
 	curProblem.paused = false;
 	curProblem.stopped = false;
 	disableButtons();
@@ -503,6 +508,14 @@ function pauseClick(){
 }
 
 function nextClick(){
+	if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+		var mes = new MessageCmdLimit();
+		curProblem.arrow.dead = true;
+		changeProgressBar();
+		if (curProblem.arrow.dead)
+			heroIsDead();
+		return;
+	}
 	if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
 		curProblem.divIndex = list().length;
 		++curProblem.step;
@@ -520,10 +533,10 @@ function nextClick(){
 	curProblem.paused = false;
 	curProblem.stopped = false;
 	curProblem.speed = 0;
+	curProblem.nextOrPrev = true;
 	if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
 		changeCmdHighlight(curProblem.cmdList[divI()- 1].name);	
 	loop(1);
-	nextCmd();
 }
 
 function prevClick(){
@@ -542,6 +555,6 @@ function prevClick(){
 	var s = curProblem.speed;
 	curProblem.speed = 0;
 	curProblem.playing = true;
+	curProblem.nextOrPrev = true;
 	loop(t);
-	nextCmd();
 }

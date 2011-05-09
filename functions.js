@@ -341,11 +341,12 @@ function setDefault(f){
 		divIndex = 0;
 		step = 0;
 		divName = cmdList[0].name;
+		nextOrPrev = false;
 	}
 	hideFocus();
+	cmdHighlightOff();
 	if (!f){
 		drawLabirint();
-		cmdHighlightOff();
 		changeProgressBar();
 	}
 	$("#cons" + curProblem.tabIndex).empty();
@@ -394,12 +395,12 @@ function loop(cnt, i){
 		var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
 		$('#spinCnt' + numId).attr('cnt', newCnt);
 	}
-	if (!curProblem.speed || (i >= cnt))
-		return nextStep(cnt, ++i);
-	if (newCmd || cmd() == 0)
-		changeCmdHighlight(divN());
-	if (divN())
-		$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+	if (curProblem.speed && (!cnt || (i < cnt))){
+		if (newCmd || cmd() == 0)
+			changeCmdHighlight(divN());
+		if (divN())
+			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+	}
 	nextStep(cnt, ++i);	
 }
 
@@ -414,23 +415,38 @@ function changeProgressBar(){
 	}
 }
 
+function heroIsDead(){
+	for (var i = 0; i < btns.length; ++i)
+		$('#btn_' + btns[i] + curProblem.tabIndex).button('disable');
+	$('#btn_stop' + curProblem.tabIndex).button('enable');
+	$('#sortable' + curProblem.tabIndex).sortable('enable');
+	if (!curProblem.speed)
+		notSpeed();
+	curProblem.playing = false;
+	hideFocus();
+}
+
 function nextCmd(){
 	if (divI() >= list().length)
 		return false;
 	if (cmd() == list()[divI()].cnt - 1){
 		++curProblem.divIndex;
 		curProblem.cmdIndex = 0;
-		++curProblem.step;			
-		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum + 1){
-			var mes = new MessageCmdLimit();
-			curProblem.arrow.dead = true;
-		}
+		++curProblem.step;	
 		if (divI() == list().length){
 			curProblem.cmdListEnded = true;
 			if (curProblem.speed)
 				changeProgressBar();
 			return false;
 		}
+		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+			var mes = new MessageCmdLimit();
+			curProblem.arrow.dead = true;
+			changeProgressBar();
+			if (curProblem.arrow.dead)
+				heroIsDead();
+			return false;
+		}	
 		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
 	}
 	else {
@@ -460,20 +476,14 @@ function notSpeed(){
 
 function nextStep(cnt, i){
 	if (curProblem.arrow.dead || curProblem.stopped){
-		if (curProblem.arrow.dead){
-			for (var i = 0; i < btns.length; ++i)
-				$('#btn_' + btns[i] + curProblem.tabIndex).button('disable');
-			$('#btn_stop' + curProblem.tabIndex).button('enable');
-			$('#sortable' + curProblem.tabIndex).sortable('enable');
-			if (!curProblem.speed)
-				notSpeed();
-		}
+		if (curProblem.arrow.dead)
+			heroIsDead();
 		curProblem.playing = false;
 		nextCmd();
 		hideFocus();
 		return;
 	}
-	if ((!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
+	if ( (!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
 		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
 	else {
 		curProblem.playing = false;
@@ -481,6 +491,9 @@ function nextStep(cnt, i){
 		enableButtons();
 		if (!curProblem.speed)
 			notSpeed();
+		if (curProblem.nextOrPrev)
+			nextCmd();
+		curProblem.nextOrPrev = false;
 	}
 }
 
