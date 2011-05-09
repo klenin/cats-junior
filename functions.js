@@ -241,6 +241,7 @@ function updated(){
 						divIndex = i;
 						cmdIndex = c - 1;
 						divName = arr[i];
+						changeProgressBar();
 					}
 					var numId = $('#' + arr[i]).attr('numId');
 					$('#spinCnt' + numId).attr('cnt', c - curProblem.cmdList[i].cnt);
@@ -255,13 +256,13 @@ function updated(){
 			else
 				if (i == divI()){     //parameters of last executed cmd were changed
 					if (curProblem.cmdList[i].name == arr[i]){   //if counter was changed
-						if (curProblem.cmdList[i].cnt > c)
+						if (curProblem.cmdIndex >= c)
 							needToClear = true;
 						else{   //change the value of counter
 							var numId = $('#' + arr[i]).attr('numId');
-							$('#spinCnt' + numId).attr('cnt', parseInt($('#spinCnt' + numId).attr('cnt')) + 1);
+							$('#spinCnt' + numId).attr('cnt', (c - curProblem.cmdIndex));
 							$('#spinCnt' + numId).attr('value', 
-								$('#spinCnt' + numId).attr('cnt') + '/' + $('#spin' + numId).attr('value'));	
+								(c - curProblem.cmdIndex) + '/' + $('#spin' + numId).attr('value'));	
 						} 
 					}
 					else	
