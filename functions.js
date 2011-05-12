@@ -28,6 +28,9 @@ function callSubmit_(serv, path, submitData, callback){
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 		success: function(data){
 			callback(data);
+		},
+		error: function(data){
+			alert(data);
 		}
 	});  
 }

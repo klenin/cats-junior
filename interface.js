@@ -101,37 +101,33 @@ function changeUser(){
 }
 
 function submit(data, sep, l, submitStr){
-	if (atHome){
-		callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';json=1;', submitStr, function(data){
-			if (data.error == 'bad sid'){
-				if (curUser.jury) {
-					$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
-					$('#enterPassword').dialog('open');
-					if (confirm('Переотправить решение?'))
-						submit(data, sep, l, submitStr);
-				}					
-				else
-					login(function() {submit(data, sep, l, submitStr)});
-			}
-			alert('Решение отослано на проверку');
-		});  
-	}
-	else
-	callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
-			+ sid + ';cid=' + cid, sep, l, function(data){
+	callScript(pathPref + 'f=contests;filter=json;sid=' + sid + ';json=1;', function(data){
 		if (data.error == 'bad sid'){
 			if (curUser.jury) {
+				$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
+					if (logined && confirm('Переотправить решение?'))
+						submit(data, sep, l, submitStr);	
+					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
+				});
 				$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
 				$('#enterPassword').dialog('open');
-				if (confirm('Переотправить решение?'))
-					submit(data, sep, l);
 			}					
 			else
-				login(function() {submit(data, sep, l)});
+				login(function() {submit(data, sep, l, submitStr)});
+		} 
+		else{
+			if (atHome){
+				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';json=1;', submitStr, function(data){
+					alert('Решение отослано на проверку');
+				});  
+			}
+			else
+			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', data,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
+					+ sid + ';cid=' + cid, sep, l, function(data){
+				alert('Решение отослано на проверку');
+			});
 		}
-		alert('Решение отослано на проверку');
-		//submit(data, sep, l);
-	});
+	})
 }
 
 submitClick = function(){
