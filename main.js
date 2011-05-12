@@ -67,15 +67,12 @@
 			return false;
 		});
 	});  
-	$('#about').dialog({
+	$('#about').load('about.html').dialog({
 		modal: true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog('close');
-			}
-		}, 
 		autoOpen: false,
-		title: 'О системе'
+		title: 'О системе',
+		width: 700,
+		height: 700
 	});
 	$('#enterPassword').dialog({
 		modal: true,
@@ -105,7 +102,6 @@
 		}, 
 		autoOpen: false
 	});
-	$('#about').html('Здесь будет help и информация о системе');
 	for (var i = 0; i < problems.length; ++i){
 		$('ul, li').disableSelection();
 	}

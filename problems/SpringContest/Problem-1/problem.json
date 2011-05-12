@@ -24,7 +24,8 @@
 		"path": [
 			{"x": 2, "y": 2, "dir": "D", "initCnt": 2}, 
 			{"x": 2, "y": 4, "dir": "U", "initCnt": 3},
-			{"x": 2, "y": 1, "dir": "D", "initCnt": 3}
+			{"x": 2, "y": 1, "dir": "D", "initCnt": 3},
+			{"x": 2, "y": 4, "dir": "U", "initCnt": 2}
 			],
 		"looped": true,
 		"die": true
@@ -34,7 +35,7 @@
 		"path": [
 			{"x": 4, "y": 3, "dir": "D", "initCnt": 1}, 
 			{"x": 4, "y": 4, "dir": "U", "initCnt": 3}, 
-			{"x": 4, "y": 1, "dir": "D", "initCnt": 3}
+			{"x": 4, "y": 1, "dir": "D", "initCnt": 2}
 			],
 		"looped": true,
 		"die": true

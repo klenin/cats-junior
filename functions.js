@@ -224,7 +224,7 @@ function list() {return curProblem.cmdList; }
 
 function updated(){
 	var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');
-	var needToClear = curProblem.arrow.dead;
+	var needToClear = curProblem.arrow.dead || (curProblem.cmdListEnded && arr.length < divI());
 	var j = curProblem.cmdList.length;  //number of first cmd that counters must be changed
 	if(!curProblem.cmdList.length)
 		needToClear = true;
@@ -340,7 +340,7 @@ function setDefault(f){
 		cmdIndex = 0;
 		divIndex = 0;
 		step = 0;
-		divName = cmdList[0].name;
+		divName = cmdList.length ? cmdList[0].name : "";
 		nextOrPrev = false;
 	}
 	hideFocus();

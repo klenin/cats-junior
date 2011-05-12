@@ -213,8 +213,8 @@ public class Main {
                 ++index;
            }
          c = nextDirect("forward", table.get(path.get(index).dir));
-         x = path.get(index).x + c.x;
-         y = path.get(index).y + c.y;
+         x += c.x;
+         y += c.y;
          ++path.get(index).cnt;
        }
     }
@@ -259,9 +259,10 @@ public class Main {
             isWall = wall;
         }
         public boolean mayPush(Cell cell){
+            if (isWall)
+                return false;
             for (int i = 0; i < cells.size(); ++i)
-                if (cells.get(i).x == cell.x && cells.get(i).y == cell.y &&
-                cells.get(i).zIndex >= cell.zIndex)
+                if (cells.get(i).zIndex >= cell.zIndex)
                     return false;
             return true;
         }
@@ -289,6 +290,7 @@ public class Main {
                    swap(arr, j, j+1);
     }
     public boolean nextStep(int i, String direct){
+        boolean result = true;
         try{
         Coord c = nextDirect(direct, curDirect);
         dx = c.x;
@@ -297,7 +299,6 @@ public class Main {
         life  += dLife;
         int c_x = curX + dx;
         int c_y = curY + dy;
-        boolean result = true;
         boolean changeCoord = true;
         if (!(c_x < 0 || c_x >= field[0].length || c_y < 0 || c_y >= field.length)){
             FieldElem elem = field[c_y][c_x];
@@ -312,8 +313,10 @@ public class Main {
                     changeCoord = false;
                     break;
                 }
-                if (elem.cells.get(j) instanceof Monster)
-                    return false;
+                if (elem.cells.get(j) instanceof Monster){
+                    result = false;
+                    return result;
+                }
                 if (elem.cells.get(j) instanceof Box){
                     int tx = c_x + dx;
                     int ty = c_y + dy;
@@ -322,12 +325,12 @@ public class Main {
                     if (!f){
                         FieldElem el1 = field[ty][tx];
                         if (el1.mayPush(box)){
-                            el1.cells.remove(box);
+                            elem.cells.remove(box);
                             box.x = tx;
                             box.y = ty;
-                            elem.cells.add(box);
-                            pnts += elem.cells.get(j).points;
-                            life += elem.cells.get(j).dLife;
+                            el1.cells.add(box);
+                            pnts += box.points;
+                            life += box.dLife;
                             continue;
                         }
                          else
@@ -361,22 +364,24 @@ public class Main {
             Monster monster = monsters[k];
             Coord c1 = monster.tryNextStep();
             if (field[c1.y][c1.x].mayPush(monster)){
-                if (c1.y == curY && c1.x == curX)
-                    return false;
+                if (c1.y == curY && c1.x == curX){
+                    result = false;
+                    return result;
+                }
                 field[monster.y][monster.x].cells.remove(monster);
                 monster.nextStep();
                 field[c1.y][c1.x].cells.add(monster);
             }
         }
         if (life == 0 || ++steps > maxStep){
-            return false;
+            result = false;
+            return result;
         }
         } catch (Exception exept) {
           exept.printStackTrace();
           System.exit(216);
-        } finally{
-            return true;
         }
+        return result;
     }
     private void myAssert(boolean expr, String message) {
         if (!expr) {
@@ -403,10 +408,10 @@ public class Main {
                 life = problem.getInt("startLife");
             if (problem.has("dLife"))
                 dLife = problem.getInt("dLife");
-			if (problem.has("maxCmdNum"))
+            if (problem.has("maxCmdNum"))
                 maxCmdNum = problem.getInt("maxCmdNum");
             else if (problem.has("maxStep"))
-				maxStep = problem.getInt("maxStep");
+		maxStep = problem.getInt("maxStep");
             if (problem.has("startPoints"))
                 startPoints = problem.getInt("startPoints");
             pnts = startPoints;
@@ -471,13 +476,13 @@ public class Main {
             fileInString = baos.toString("utf-8");
             sol = new JSONArray(fileInString);
             for (int i = 0; i < sol.length(); ++i){
-				if (i + 1 > maxCmdNum)
-					break;
+                if (i + 1 > maxCmdNum)
+                        break;
                 String direct = ((JSONObject)sol.get(i)).getString("dir");
                 Integer cnt = ((JSONObject)sol.get(i)).getInt("cnt");
                 int j = 0;
                 for (j = 0; j < cnt; ++j)
-					if (!nextStep(curI++, direct))
+                    if (!nextStep(curI++, direct))
                         break;
                 if (j != cnt)
                     break;

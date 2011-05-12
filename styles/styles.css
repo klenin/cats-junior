@@ -100,7 +100,7 @@ div.up{ background: url('../images/hero_up.png') 50% 50% no-repeat; }
 div.down{ background: url('../images/hero_down.png') 50% 50% no-repeat; }
 div.left{ background: url('../images/hero_left.png') 50% 50% no-repeat; }
 div.right{ background: url('../images/hero_right.png') 50% 50% no-repeat; }
-div.star{ background: url('../images/StarAqua.png') 50% 50% no-repeat; }
+div.star{ background: url('../images/star.png') 50% 50% no-repeat; }
 div.BigStar{ background: url('../images/BigStar.png') 50% 50% no-repeat; }
 div.MiddleStar{ background: url('../images/MiddleStar.png') 50% 50% no-repeat; }
 div.box{	background: url('../images/box.png') 50% 50% no-repeat; }
