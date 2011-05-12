@@ -7,11 +7,11 @@
 	"specSymbols": [
 		{
 			"symbol": "*",
-			"count": 5,
+			"count": 3,
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 10,
+			"points": 30,
 			"dLife": 0
 		}
 	],

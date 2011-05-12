@@ -14,7 +14,7 @@
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 10,
+			"points": 30,
 			"dLife": 0
 		}
 	],

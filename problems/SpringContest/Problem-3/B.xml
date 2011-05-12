@@ -7,9 +7,7 @@
 
 <ProblemStatement>
 <p>
-Необходимо набрать максимальное количество очков
-</p><p>
-</p><p>
+За каждую звездочку получаете 30 очков.
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
@@ -40,6 +38,6 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 <Import guid="algBaseCheker" type="checker"/>
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "10"><In src="problem.json"/></Test>
+<Test rank="1" points = "90"><In src="problem.json"/></Test>
 </Problem>
 </CATS>

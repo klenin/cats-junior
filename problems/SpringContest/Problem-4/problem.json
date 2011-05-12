@@ -12,11 +12,11 @@
 	"specSymbols": [
 		{
 			"symbol": "*",
-			"count": 3,
+			"count": 4,
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 10,
+			"points": 25,
 			"dLife": 0, 
 			"zIndex": 2 
 		},

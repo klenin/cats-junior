@@ -26,6 +26,8 @@ function login(callback){
 		if(curUser.jury){
 			curUser.passwd = '';
 			$('#password').attr('value', '');
+			for (var i = 0; i < problems.length; ++i)
+				$('#forJury' + i).show();
 		}
 		logined = true;
 		callback();
@@ -56,8 +58,6 @@ function chooseUser(){
 					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
 				});
 				$('#enterPassword').dialog('open') ;
-				for (var i = 0; i < problems.length; ++i)
-					$('#forJury' + i).show();
 			}
 			else
 				login(showNewUser);

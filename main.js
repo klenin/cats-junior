@@ -10,6 +10,7 @@
 	$('#changeContest').hide();
 	$('#enterPassword').hide();
 	$('#contestsList').hide();
+	$('#about').hide();
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 	getContests();
 	cmdId = problems.length;
@@ -67,13 +68,16 @@
 			return false;
 		});
 	});  
-	$('#about').load('about.html').dialog({
+	$('#about').dialog({
 		modal: true,
 		autoOpen: false,
-		title: 'О системе',
 		width: 700,
-		height: 700
+		height: 700,
+		open: function(){
+			$('#accordion').accordion();
+		}
 	});
+	//$("#accordion").accordion();
 	$('#enterPassword').dialog({
 		modal: true,
 		buttons: {

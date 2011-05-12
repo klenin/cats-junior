@@ -7,10 +7,8 @@
 
 <ProblemStatement>
 <p>
-Необходимо набрать максимальное количество очков
-</p><p>
-</p><p>
-</p>
+Нужно набрать максимальное количество очков, затратив при этом не более, чем указанное количество команд.</p>
+<p>За каждый собранный бонус игрок получает 30 очков.</p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
 <InputFormat>
@@ -40,6 +38,6 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 <Import guid="algBaseCheker" type="checker"/>
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "10"><In src="problem.json"/></Test>
+<Test rank="1" points = "150"><In src="problem.json"/></Test>
 </Problem>
 </CATS>
