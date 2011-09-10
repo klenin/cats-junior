@@ -1,0 +1,1 @@
+[{"dir":"forward","cnt":"3"},{"dir":"wait","cnt":"2"},{"dir":"forward","cnt":"3"},{"dir":"right","cnt":"1"},{"dir":"forward","cnt":"3"}]

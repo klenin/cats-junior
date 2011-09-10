@@ -1,0 +1,7 @@
+*.pyc
+skulpt/.hg
+skulpt/doc
+skulpt/example
+skulpt/gen
+skulpt/support
+skulpt/test

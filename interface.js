@@ -218,6 +218,28 @@ function changeContest(){
 	}
 }
 
+function outf(text)
+{
+	text = text.replace(/</g, '&lt;');
+	$('#codeRes').append(text);
+}
+
+function tryCode()
+{
+	var output = $('#codeRes');
+	output.html('');
+	Sk.configure({output:outf});
+	try {
+		var module = Sk.importMainWithBody("<stdin>", false, $('#pythonCode').val());
+		var obj = module.tp$getattr('a');
+		var runMethod = obj.tp$getattr('run');
+		var ret = Sk.misceval.callsim(runMethod, 10);
+		alert(ret);
+	} catch (e) {
+		alert(e);
+	}
+}
+
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -361,7 +383,13 @@ function fillTabs(){
 			$('#tabs').tabs('remove', i);
 		}
 	}
-
+	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test python', (problems.length + 2));
+	$('#ui-tabs-' + (problems.length + 2)).append('<form id = "pythonForm"></form>');
+	$('#pythonForm').append('<textarea id = "pythonCode"></textarea>');
+	$('#pythonForm').append('<button id = "tryCode"></button>');
+	$('#ui-tabs-' + (problems.length + 2)).append('<pre id = "codeRes"></pre>');
+	$('#tryCode').button();
+	$('#tryCode').click(tryCode);
 }
 
 function exportCommands(){

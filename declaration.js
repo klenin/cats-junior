@@ -54,3 +54,4 @@ var btnsPlay = ['play', 'next', 'prev', 'fast'];
 var btns = ['play', 'pause', 'stop', 'prev', 'next', 'fast'];
 var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
 var c = 0;
+var curDebugState;
