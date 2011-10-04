@@ -6,3 +6,11 @@ skulpt/gen
 skulpt/support
 skulpt/test
 skulpt/src/lib
+/import/CodeMirror/test
+/import/CodeMirror/css
+/import/CodeMirror/demo
+/import/skulpt/test
+/import/skulpt/.hg
+/import/skulpt/doc
+/import/skulpt/example
+/import/skulpt/support

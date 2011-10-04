@@ -1,4 +1,17 @@
-﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
+﻿
+onmessage = function(e){
+  if ( e.data === "start" ) {
+    // Do some computation
+    done()
+  }
+};
+
+function done(){
+  // Send back the results to the parent page
+  postMessage("done");
+}
+
+var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
 function fillLabyrinth(problem){
 	highlightOn(problem);
 	var l = problem.tabIndex;
@@ -218,6 +231,8 @@ function changeContest(){
 	}
 }
 
+var curCodeMirror;
+
 function outf(text)
 {
 	text = text.replace(/</g, '&lt;');
@@ -229,17 +244,24 @@ function tryCode()
 	var output = $('#codeRes');
 	output.html('');
 	Sk.configure({output:outf});
+	input = curCodeMirror.getValue();
 	try {
-		var module = Sk.importMainWithBody("<stdin>", false, $('#pythonCode').val());
+		var module = Sk.importMainWithBody("<stdin>", false, input);
 		var obj = module.tp$getattr('a');
 		var runMethod = obj.tp$getattr('run');
 		var ret = Sk.misceval.callsim(runMethod, 10);
-		alert(ret);
+		/*var worker = new Worker("import/skulpt/dist/skulpt.js");
+		// Watch for messages from the worker
+		worker.onmessage = function(e){
+		  // The message from the client:
+		  alert(e.data)
+		};
+
+		worker.postMessage("start__");*/
 	} catch (e) {
 		alert(e);
 	}
 }
-
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -383,13 +405,30 @@ function fillTabs(){
 			$('#tabs').tabs('remove', i);
 		}
 	}
-	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test python', (problems.length + 2));
+	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<form id = "pythonForm"></form>');
-	$('#pythonForm').append('<textarea id = "pythonCode"></textarea>');
-	$('#pythonForm').append('<button id = "tryCode"></button>');
-	$('#ui-tabs-' + (problems.length + 2)).append('<pre id = "codeRes"></pre>');
-	$('#tryCode').button();
-	$('#tryCode').click(tryCode);
+	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
+	$('#code').append('class Test:\n' +
+					'\tdef run(self, b):\n' +
+					'\t\tself.a = 10 + b\n' +
+					'\t\treturn self.a\n\n' + 
+					'print "Hello World"\n' + 
+					'a = Test()');
+	curCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
+							lineNumbers: true,
+							onGutterClick: function(cm, n) {
+								var info = cm.lineInfo(n);
+									if (info.markerText)
+										cm.clearMarker(n);
+									else
+									cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
+							}
+						});
+	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
+	$('#pythonForm').append('<pre id = "codeRes"></pre>');
+	$('#btnPython').button();
+	$('#btnPython').click(tryCode);
+
 }
 
 function exportCommands(){

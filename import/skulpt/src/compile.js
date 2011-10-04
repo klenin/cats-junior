@@ -1466,7 +1466,7 @@ Compiler.prototype.vseqstmt = function(stmts)
 {
     for (var i = 0; i < stmts.length; ++i) 
 	{
-		out("nextExecCmdSkulpt(" + stmts[i].lineno + ");");
+		out("alert(" + stmts[i].lineno + ");");
 		this.vstmt(stmts[i]);
 	}
 };
@@ -1661,7 +1661,7 @@ Compiler.prototype.cbody = function(stmts)
 {
     for (var i = 0; i < stmts.length; ++i)
 	{
-		out("nextExecCmdSkulpt(" + stmts[i].lineno + ");");
+		out("alert(" + stmts[i].lineno + ");");
         this.vstmt(stmts[i]);
 	}
 };

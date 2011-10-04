@@ -120,11 +120,11 @@ def debugbrowser():
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" >
         <title>Skulpt test</title>
-        <link rel="stylesheet" href="../closure-library/closure/goog/demos/css/demo.css"> 
-        <link rel="stylesheet" href="../closure-library/closure/goog/css/menu.css"> 
-        <link rel="stylesheet" href="../closure-library/closure/goog/css/menuitem.css"> 
-        <link rel="stylesheet" href="../closure-library/closure/goog/css/menuseparator.css"> 
-        <link rel="stylesheet" href="../closure-library/closure/goog/css/combobox.css"> 
+        <link rel="stylesheet" href="../closure-library/closure/goog/demos/css/demo.css">
+        <link rel="stylesheet" href="../closure-library/closure/goog/css/menu.css">
+        <link rel="stylesheet" href="../closure-library/closure/goog/css/menuitem.css">
+        <link rel="stylesheet" href="../closure-library/closure/goog/css/menuseparator.css">
+        <link rel="stylesheet" href="../closure-library/closure/goog/css/combobox.css">
         <style>
             .type { font-size:14px; font-weight:bold; font-family:arial; background-color:#f7f7f7; text-align:center }
         </style>
@@ -133,7 +133,7 @@ def debugbrowser():
     </head>
 
     <body onload="testsMain()">
-        <canvas id="__webglhelpercanvas" style="border: none;" width="500" height="500"></canvas> 
+        <canvas id="__webglhelpercanvas" style="border: none;" width="500" height="500"></canvas>
         <table>
         <tr>
             <td>
@@ -328,7 +328,9 @@ def dist():
     # make combined version
     #uncompfn = "dist/skulpt-uncomp.js"
     compfn = "dist/skulpt.js"
+    compfnw = "dist\\skulpt.js"
     builtinfn = "dist/builtin.js"
+    builtinfnw = "dist\\builtin.js"
     #open(uncompfn, "w").write(combined)
     #os.system("chmod 444 dist/skulpt-uncomp.js") # just so i don't mistakenly edit it all the time
 
@@ -344,12 +346,15 @@ def dist():
     # compress
     uncompfiles = ' '.join(['--js ' + x for x in getFileList('dist')])
     print ". Compressing..."
-    ret = os.system("java -jar support/closure-compiler/compiler.jar --define goog.DEBUG=false --output_wrapper \"(function(){%%output%%}());\" --compilation_level SIMPLE_OPTIMIZATIONS --jscomp_error accessControls --jscomp_error checkRegExp --jscomp_error checkTypes --jscomp_error checkVars --jscomp_error deprecated --jscomp_off fileoverviewTags --jscomp_error invalidCasts --jscomp_error missingProperties --jscomp_error nonStandardJsDocs --jscomp_error strictModuleDepCheck --jscomp_error undefinedVars --jscomp_error unknownDefines --jscomp_error visibility %s --js_output_file %s" % (uncompfiles, compfn)) 
+    print os.getcwd()
+    t = "java -jar support/closure-compiler/compiler.jar --define goog.DEBUG=false --output_wrapper \"(function(){%%output%%}());\" --compilation_level SIMPLE_OPTIMIZATIONS --jscomp_error accessControls --jscomp_error checkRegExp --jscomp_error checkTypes --jscomp_error checkVars --jscomp_error deprecated --jscomp_off fileoverviewTags --jscomp_error invalidCasts --jscomp_error missingProperties --jscomp_error nonStandardJsDocs --jscomp_error strictModuleDepCheck --jscomp_error undefinedVars --jscomp_error unknownDefines --jscomp_error visibility %s --js_output_file %s" % (uncompfiles, compfn)
+    print t
+    ret = os.system(t)
     # to disable asserts
-    # --define goog.DEBUG=false 
+    # --define goog.DEBUG=false
     #
     # to make a file that for ff plugin, not sure of format
-    # --create_source_map dist/srcmap.txt 
+    # --create_source_map dist/srcmap.txt
     #
     # --jscomp_error accessControls --jscomp_error checkRegExp --jscomp_error checkTypes --jscomp_error checkVars --jscomp_error deprecated --jscomp_error fileoverviewTags --jscomp_error invalidCasts --jscomp_error missingProperties --jscomp_error nonStandardJsDocs --jscomp_error strictModuleDepCheck --jscomp_error undefinedVars --jscomp_error unknownDefines --jscomp_error visibility
     #
@@ -364,7 +369,8 @@ def dist():
         print "Tests failed on compressed version."
         raise SystemExit()
 
-    ret = os.system("cp %s dist/tmp.js" % compfn)
+    print "copy %s dist\\tmp.js" % compfnw
+    ret = os.system("copy %s dist\\tmp.js" % compfnw)
     if ret != 0:
         print "Couldn't copy for gzip test."
         raise SystemExit()
@@ -382,8 +388,8 @@ def dist():
         print ". Wrote %s" % builtinfn
 
     # update doc copy
-    ret = os.system("cp %s doc/static/skulpt.js" % compfn)
-    ret |= os.system("cp %s doc/static/builtin.js" % builtinfn)
+    ret = os.system("copy %s doc\\static\\skulpt.js" % compfnw)
+    ret |= os.system("copy %s doc\\static\\builtin.js" % builtinfnw)
     if ret != 0:
         print "Couldn't copy to docs dir."
         raise SystemExit()
@@ -653,7 +659,7 @@ if __name__ == "__main__":
         print "usage: m {test|dist|regenparser|regentests|regenasttests|regenruntests|regensymtabtests|upload|doctest|nrt|run|runopt|vmwareregr|browser|shell|debugbrowser|vfs|host}"
         sys.exit(1)
     if len(sys.argv) < 2:
-        cmd = "test"
+        cmd = "dist"
     else:
         cmd = sys.argv[1]
     if cmd == "test":
