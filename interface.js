@@ -250,14 +250,6 @@ function tryCode()
 		var obj = module.tp$getattr('a');
 		var runMethod = obj.tp$getattr('run');
 		var ret = Sk.misceval.callsim(runMethod, 10);
-		/*var worker = new Worker("import/skulpt/dist/skulpt.js");
-		// Watch for messages from the worker
-		worker.onmessage = function(e){
-		  // The message from the client:
-		  alert(e.data)
-		};
-
-		worker.postMessage("start__");*/
 	} catch (e) {
 		alert(e);
 	}
@@ -410,8 +402,9 @@ function fillTabs(){
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
 	$('#code').append('class Test:\n' +
 					'\tdef run(self, b):\n' +
-					'\t\tself.a = 10 + b\n' +
-					'\t\treturn self.a\n\n' + 
+					'\t\tif b > 15:\n' +
+					'\t\t\tprint 10\n' + 
+					'\t\tprint 15\n\n' + 
 					'print "Hello World"\n' + 
 					'a = Test()');
 	curCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
