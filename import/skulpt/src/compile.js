@@ -1,3 +1,58 @@
+var Statement = $.inherit({
+	__constructor: function(line, stmtno, stmt) 
+	{
+		this.line = line;
+		this.stmtno = stmtno
+		this.stmt = stmt;
+	},
+	nextStmt: function()
+	{
+		return this.stmtno + 1;
+	}
+});
+
+var GotoStatement = $.inherit(Statement, 
+{
+	__constructor: function(line, stmt, stmtno, gotoStmt) 
+	{
+		this.__base(line, stmtno, stmt);
+		this.gotoStmt = gotoStmt;
+	},
+	nextStmt: function()
+	{
+		return this.gotoStmt;
+	}
+});
+
+var NotCondGotoStatement = $.inherit(GotoStatement, 
+{
+	__constructor: function(line, stmt, stmtno, gotoStmt, cond) 
+	{
+		this.__base(line, stmtno, stmt, gotoStmt);
+		this.cond = cond;
+	},
+	nextStmt: function()
+	{
+		if (eval(cond))
+			return this.__base();
+		return this.stmtno + 1;
+	}
+});
+
+var NotCondGotoStatement = $.inherit(NotCondGotoStatement, 
+{
+	__constructor: function(line, stmt, stmtno, gotoStmt, cond) 
+	{
+		this.__base(line, stmtno, stmt, gotoStmt, cond);
+	},
+	nextStmt: function()
+	{
+		if (!eval(cond))
+			return this.gotoStmt;
+		return this.stmtno + 1;
+	}
+});
+
 /** @param {...*} x */
 var out;
 
@@ -26,6 +81,7 @@ function Compiler(filename, st, flags, sourceCodeForAnnotation)
     this.allUnits = [];
 
     this.source = sourceCodeForAnnotation ? sourceCodeForAnnotation.split("\n") : false;
+	this.statements = [];
 }
 
 /**
@@ -488,7 +544,7 @@ Compiler.prototype.vexpr = function(e, data, augstoreval)
                 return "Sk.longFromStr('" + e.n.tp$str().v + "')";
             goog.asserts.fail("unhandled Num type");
         case Str:
-            return this._gr('str', "new Sk.builtins['str'](", e.s['$r']().v, ")");
+            return this._gr('str', "new Sk.builtins['str'](", e.s['$r']().v, ")");;
         case Attribute:
             var val;
             if (e.ctx !== AugStore)
@@ -738,13 +794,15 @@ Compiler.prototype.cif = function(s)
 
         var test = this.vexpr(s.test);
         this._jumpfalse(this.vexpr(s.test), next);
-        this.vseqstmt(s.body);
+        ifStatement = this.vseqstmt(s.body);
         this._jump(end);
 
         this.setBlock(next);
         if (s.orelse)
-            this.vseqstmt(s.orelse);
+            elseStatement = this.vseqstmt(s.orelse);
         this._jump(end);
+		this.statements.push(new CondGotoStatement(s.lineno, ifStatement, this.statements.length, ifStatement.stmtno, test)); 
+		this.statements.push(new NotCondGotoStatement(s.lineno, elseStatement, this.statements.length, elseStatement.stmtno, test)); 
     }
     this.setBlock(end);
 
@@ -1397,7 +1455,7 @@ Compiler.prototype.vstmt = function(s)
     switch (s.constructor)
     {
         case FunctionDef:
-            this.cfunction(s);
+			this.statements.push(new Statement(s.lineno, this.statements.length, this.cfunction(s)));
             break;
         case ClassDef:
             this.cclass(s);
@@ -1406,9 +1464,11 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-                out("return ", this.vexpr(s.value), ";");
+				result = "return ", this.vexpr(s.value), ";";
             else
-                out("return null;");
+                result = "return null;";
+			out(result);
+			this.statements.push(new Statement(s.lineno, this.statements.length, result));
             break;
         case Delete_:
             this.vseqexpr(s.targets);
@@ -1417,12 +1477,12 @@ Compiler.prototype.vstmt = function(s)
             var n = s.targets.length;
             var val = this.vexpr(s.value);
             for (var i = 0; i < n; ++i)
-                this.vexpr(s.targets[i], val);
+				this.statements.push(new Statement(s.lineno, this.statements.length, this.vexpr(s.targets[i], val)));
             break;
         case AugAssign:
             return this.caugassign(s);
         case Print:
-            this.cprint(s);
+			this.statements.push(new Statement(s.lineno, this.statements.length, this.cprint(s)));
             break;
         case For_:
             return this.cfor(s);
@@ -1445,7 +1505,7 @@ Compiler.prototype.vstmt = function(s)
         case Global:
             break;
         case Expr:
-            this.vexpr(s.value);
+			this.statements.push(new Statement(s.lineno, this.statements.length, this.vexpr(s.value)));
             break;
         case Pass:
             break;
@@ -1466,7 +1526,6 @@ Compiler.prototype.vseqstmt = function(stmts)
 {
     for (var i = 0; i < stmts.length; ++i) 
 	{
-        out("alert(" + stmts[i].lineno + ");");
 		this.vstmt(stmts[i]);
 	}
 };
@@ -1661,7 +1720,6 @@ Compiler.prototype.cbody = function(stmts)
 {
     for (var i = 0; i < stmts.length; ++i)
 	{
-        out("alert(" + stmts[i].lineno + ");");
 		this.vstmt(stmts[i]);
 	}
 };
@@ -1676,9 +1734,13 @@ Compiler.prototype.cprint = function(s)
     var n = s.values.length;
     // todo; dest disabled
     for (var i = 0; i < n; ++i)
+	{
         out('Sk.misceval.print_(', /*dest, ',',*/ "new Sk.builtins['str'](", this.vexpr(s.values[i]), ').v);');
+	}
     if (s.nl)
+	{
         out('Sk.misceval.print_(', /*dest, ',*/ '"\\n");');
+	}
 };
 
 Compiler.prototype.cmod = function(mod)
@@ -1721,10 +1783,11 @@ Sk.compile = function(source, filename, mode)
     var st = Sk.symboltable(ast, filename);
     var c = new Compiler(filename, st, 0, source); // todo; CO_xxx
     var funcname = c.cmod(ast);
-    var ret = c.result.join('');
+    var ret = c.result;
     return {
         funcname: funcname,
-        code: ret
+        code: ret,
+		ast: ast
     };
 };
 

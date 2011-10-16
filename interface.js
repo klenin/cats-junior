@@ -1,17 +1,4 @@
-﻿
-onmessage = function(e){
-  if ( e.data === "start" ) {
-    // Do some computation
-    done()
-  }
-};
-
-function done(){
-  // Send back the results to the parent page
-  postMessage("done");
-}
-
-var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
+﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
 function fillLabyrinth(problem){
 	highlightOn(problem);
 	var l = problem.tabIndex;
@@ -247,9 +234,25 @@ function tryCode()
 	input = curCodeMirror.getValue();
 	try {
 		var module = Sk.importMainWithBody("<stdin>", false, input);
-		var obj = module.tp$getattr('a');
-		var runMethod = obj.tp$getattr('run');
-		var ret = Sk.misceval.callsim(runMethod, 10);
+		//var obj = module.tp$getattr('a');
+		/*$.ajax({  
+			async: false,
+			url: 'http://localhost/courseWork/ev/server/',
+			type: 'POST',
+			data: module.$js,  
+			success: function(data){
+				worker = new Worker(data);
+				worker.onmessage = function(e) {  
+					alert(e.data);  
+				};  
+				worker.postMessage("sent!"); 
+			},
+			error: function(data){
+				alert(data);
+		}
+	});  */
+		//var runMethod = obj.tp$getattr('run');
+		//var ret = Sk.misceval.callsim(runMethod, 10);
 	} catch (e) {
 		alert(e);
 	}
