@@ -17,17 +17,19 @@ Sk.abstr.binop_type_error = function(v, w, name)
 };
 
 // this can't be a table for closure
+// bnm -- this seems like the most logical place to add support for user defined
+//        operators. (__xxx__ that I've defined in my own class)
 Sk.abstr.boNameToSlotFunc_ = function(obj, name)
 {
     switch (name)
     {
-        case "Add": return obj.nb$add;
-        case "Sub": return obj.nb$subtract;
-        case "Mult": return obj.nb$multiply;
-        //case "Div": return obj.nb$divide;
-        //case "FloorDiv": return obj.nb$floor_divide;
-        case "Mod": return obj.nb$remainder;
-        case "Pow": return obj.nb$power;
+        case "Add": return obj.nb$add ? obj.nb$add : obj['__add__'];
+        case "Sub": return obj.nb$subtract ? obj.nb$subtract : obj['__sub__'];
+        case "Mult": return obj.nb$multiply ? obj.nb$multiply : obj['__mul__'];
+        case "Div": return obj.nb$divide ? obj.nb$divide : obj['__div__'];
+        case "FloorDiv": return obj.nb$floor_divide ? obj.nb$floor_divide : obj['__floordiv__'];
+        case "Mod": return obj.nb$remainder ? obj.nb$remainder : obj['__mod__'];
+        case "Pow": return obj.nb$power ? obj.nb$power : obj['__pow__'];
         //case "LShift": return obj.nb$lshift;
         //case "RShift": return obj.nb$rshift;
         //case "BitAnd": return obj.nb$and;
@@ -59,14 +61,22 @@ Sk.abstr.binary_op_ = function(v, w, opname)
     var ret;
     var vop = Sk.abstr.boNameToSlotFunc_(v, opname);
     if (vop !== undefined)
-    {
-        ret = vop.call(v, w);
+    {	
+		if (vop.call)
+        	ret = vop.call(v, w);
+		else {  // assume that vop is an __xxx__ type method
+			ret = Sk.misceval.callsim(vop,v,w)
+		}
         if (ret !== undefined) return ret;
     }
     var wop = Sk.abstr.boNameToSlotFunc_(w, opname);
     if (wop !== undefined)
     {
-        ret = wop.call(w, v);
+		if (wop.call)
+        	ret = wop.call(w, v);
+		else { // assume that wop is an __xxx__ type method
+			ret = Sk.misceval.callsim(wop,w,v)
+		}
         if (ret !== undefined) return ret;
     }
 

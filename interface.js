@@ -225,34 +225,29 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
+var finalcode, $blk, $exc, $gbl, $loc = $gbl;
 
+function tryNextStep()
+{
+	if ($blk >= 0)
+		eval(finalcode.code);
+	else
+		alert('finished');
+}
 function tryCode()
 {
 	var output = $('#codeRes');
 	output.html('');
 	Sk.configure({output:outf});
-	input = curCodeMirror.getValue();
+	var input = curCodeMirror.getValue();
 	try {
-		var module = Sk.importMainWithBody("<stdin>", false, input);
-		//var obj = module.tp$getattr('a');
-		/*$.ajax({  
-			async: false,
-			url: 'http://localhost/courseWork/ev/server/',
-			type: 'POST',
-			data: module.$js,  
-			success: function(data){
-				worker = new Worker(data);
-				worker.onmessage = function(e) {  
-					alert(e.data);  
-				};  
-				worker.postMessage("sent!"); 
-			},
-			error: function(data){
-				alert(data);
-		}
-	});  */
-		//var runMethod = obj.tp$getattr('run');
-		//var ret = Sk.misceval.callsim(runMethod, 10);
+		//$loc.a = 10;
+
+		finalcode = Sk.importMainWithBody("<stdin>", false, input);
+		$blk = finalcode.compiled.blk, 
+		$exc = [], 
+		$gbl = {}, 
+		$loc = $gbl;
 	} catch (e) {
 		alert(e);
 	}
@@ -403,13 +398,12 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<form id = "pythonForm"></form>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('class Test:\n' +
-					'\tdef run(self, b):\n' +
-					'\t\tif b > 15:\n' +
-					'\t\t\tprint 10\n' + 
-					'\t\tprint 15\n\n' + 
-					'print "Hello World"\n' + 
-					'a = Test()');
+	$('#code').append('a = 5\n' +
+					'if a > 5:\n' +
+					'\tprint 10\n' +
+					'else:\n' + 
+					'\tprint 28\n' +
+					'a = 9');
 	curCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
 							lineNumbers: true,
 							onGutterClick: function(cm, n) {
@@ -421,9 +415,12 @@ function fillTabs(){
 							}
 						});
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
+	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
 	$('#pythonForm').append('<pre id = "codeRes"></pre>');
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
+	$('#btnPythonNext').button();
+	$('#btnPythonNext').click(tryNextStep);
 
 }
 

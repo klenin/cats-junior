@@ -1,58 +1,3 @@
-var Statement = $.inherit({
-	__constructor: function(line, stmtno, stmt) 
-	{
-		this.line = line;
-		this.stmtno = stmtno
-		this.stmt = stmt;
-	},
-	nextStmt: function()
-	{
-		return this.stmtno + 1;
-	}
-});
-
-var GotoStatement = $.inherit(Statement, 
-{
-	__constructor: function(line, stmt, stmtno, gotoStmt) 
-	{
-		this.__base(line, stmtno, stmt);
-		this.gotoStmt = gotoStmt;
-	},
-	nextStmt: function()
-	{
-		return this.gotoStmt;
-	}
-});
-
-var NotCondGotoStatement = $.inherit(GotoStatement, 
-{
-	__constructor: function(line, stmt, stmtno, gotoStmt, cond) 
-	{
-		this.__base(line, stmtno, stmt, gotoStmt);
-		this.cond = cond;
-	},
-	nextStmt: function()
-	{
-		if (eval(cond))
-			return this.__base();
-		return this.stmtno + 1;
-	}
-});
-
-var NotCondGotoStatement = $.inherit(NotCondGotoStatement, 
-{
-	__constructor: function(line, stmt, stmtno, gotoStmt, cond) 
-	{
-		this.__base(line, stmtno, stmt, gotoStmt, cond);
-	},
-	nextStmt: function()
-	{
-		if (!eval(cond))
-			return this.gotoStmt;
-		return this.stmtno + 1;
-	}
-});
-
 /** @param {...*} x */
 var out;
 
@@ -81,7 +26,6 @@ function Compiler(filename, st, flags, sourceCodeForAnnotation)
     this.allUnits = [];
 
     this.source = sourceCodeForAnnotation ? sourceCodeForAnnotation.split("\n") : false;
-	this.statements = [];
 }
 
 /**
@@ -155,7 +99,7 @@ Compiler.prototype.annotateSource = function(ast)
 Compiler.prototype.gensym = function(hint)
 {
     hint = hint || '';
-    hint = '$' + hint;
+    hint = '$loc.' + hint;
     hint += this.gensymcount++;
     return hint;
 };
@@ -211,7 +155,7 @@ function mangleName(priv, ident)
 Compiler.prototype._gr = function(hint, rest)
 {
     var v = this.gensym(hint);
-    out("var ", v, "=");
+    out(v, " = ");
     for (var i = 1; i < arguments.length; ++i)
     {
         out(arguments[i]);
@@ -222,24 +166,29 @@ Compiler.prototype._gr = function(hint, rest)
 
 Compiler.prototype._jumpfalse = function(test, block)
 {
-    var cond = this._gr('jfalse', "(", test, "===false||!Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test failed */$blk=", block, ";continue;}");
+    var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
+    out("if(", cond, "){/*test failed */$blk = ", block, ";break;}");
 };
 
 Compiler.prototype._jumpundef = function(test, block)
 {
-    out("if(", test, "===undefined){$blk=", block, ";continue;}");
+    out("if(", test, " === undefined){$blk = ", block, ";break;}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
 {
-    var cond = this._gr('jtrue', "(", test, "===true||Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test passed */$blk=", block, ";continue;}");
+    var cond = this._gr('jtrue', "(", test, " === true || Sk.misceval.isTrue(", test, "))");
+    out("if(", cond, "){/*test passed */$blk = ", block, ";break;}");
 };
 
 Compiler.prototype._jump = function(block)
 {
-    out("$blk=", block, ";/* jump */continue;");
+    out("$blk = ", block, ";/* jump */break;");
+};
+
+Compiler.prototype.__jump = function(block)
+{
+    out("$blk = ", block, ";/* jump */return;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -249,7 +198,7 @@ Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
     {
         for (var i = 0; i < e.elts.length; ++i)
         {
-            this.vexpr(e.elts[i], "Sk.abstr.objectGetItem(" + data + "," + i + ")");
+            this.vexpr(e.elts[i], "Sk.abstr.objectGetItem(" + data + ", " + i + ")");
         }
     }
     else if (e.ctx === Load)
@@ -544,7 +493,7 @@ Compiler.prototype.vexpr = function(e, data, augstoreval)
                 return "Sk.longFromStr('" + e.n.tp$str().v + "')";
             goog.asserts.fail("unhandled Num type");
         case Str:
-            return this._gr('str', "new Sk.builtins['str'](", e.s['$r']().v, ")");;
+            return this._gr('str', "new Sk.builtins['str'](", e.s['$r']().v, ")");
         case Attribute:
             var val;
             if (e.ctx !== AugStore)
@@ -726,7 +675,7 @@ Compiler.prototype.endExcept = function()
 {
     out("$exc.pop();}catch($err){");
     out("$blk=$exc.pop();");
-    out("continue;}");
+    out("break;}");
 };
 
 Compiler.prototype.outputLocals = function(unit)
@@ -747,7 +696,7 @@ Compiler.prototype.outputLocals = function(unit)
         }
     }
     if (output.length > 0)
-        return "var " + output.join(",") + "; /* locals */";
+        return output.join(",") + "; /* locals */";
     return "";
 };
 
@@ -780,7 +729,7 @@ Compiler.prototype.cif = function(s)
     var constant = this.exprConstant(s.test);
     if (constant === 0)
     {
-        if (s.orelse)
+        if (s.orelse) 
             this.vseqstmt(s.orelse);
     }
     else if (constant === 1)
@@ -794,15 +743,13 @@ Compiler.prototype.cif = function(s)
 
         var test = this.vexpr(s.test);
         this._jumpfalse(this.vexpr(s.test), next);
-        ifStatement = this.vseqstmt(s.body);
+        this.vseqstmt(s.body);
         this._jump(end);
 
         this.setBlock(next);
         if (s.orelse)
-            elseStatement = this.vseqstmt(s.orelse);
+            this.vseqstmt(s.orelse);
         this._jump(end);
-		this.statements.push(new CondGotoStatement(s.lineno, ifStatement, this.statements.length, ifStatement.stmtno, test)); 
-		this.statements.push(new NotCondGotoStatement(s.lineno, elseStatement, this.statements.length, elseStatement.stmtno, test)); 
     }
     this.setBlock(end);
 
@@ -969,7 +916,8 @@ Compiler.prototype.cassert = function(s)
     var end = this.newBlock("end");
     this._jumptrue(test, end);
     // todo; exception handling
-    out("throw new Sk.builtins['AssertionError'](", s.msg ? this.vexpr(s.msg) : "", ");");
+    // maybe replace with goog.asserts.fail?? or just an alert?
+    out("throw new Sk.builtins.AssertionError(", s.msg ? this.vexpr(s.msg) : "", ");");
     this.setBlock(end);
 };
 
@@ -1257,7 +1205,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // yields.
     //
     // todo; possibly this should be outside?
-    //
+    // 
     var frees = "";
     if (hasFree)
     {
@@ -1455,7 +1403,7 @@ Compiler.prototype.vstmt = function(s)
     switch (s.constructor)
     {
         case FunctionDef:
-			this.statements.push(new Statement(s.lineno, this.statements.length, this.cfunction(s)));
+            this.cfunction(s);
             break;
         case ClassDef:
             this.cclass(s);
@@ -1464,11 +1412,9 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-				result = "return ", this.vexpr(s.value), ";";
+                out("return ", this.vexpr(s.value), ";");
             else
-                result = "return null;";
-			out(result);
-			this.statements.push(new Statement(s.lineno, this.statements.length, result));
+                out("return null;");
             break;
         case Delete_:
             this.vseqexpr(s.targets);
@@ -1477,12 +1423,12 @@ Compiler.prototype.vstmt = function(s)
             var n = s.targets.length;
             var val = this.vexpr(s.value);
             for (var i = 0; i < n; ++i)
-				this.statements.push(new Statement(s.lineno, this.statements.length, this.vexpr(s.targets[i], val)));
+                this.vexpr(s.targets[i], val);
             break;
         case AugAssign:
             return this.caugassign(s);
         case Print:
-			this.statements.push(new Statement(s.lineno, this.statements.length, this.cprint(s)));
+            this.cprint(s);
             break;
         case For_:
             return this.cfor(s);
@@ -1505,7 +1451,7 @@ Compiler.prototype.vstmt = function(s)
         case Global:
             break;
         case Expr:
-			this.statements.push(new Statement(s.lineno, this.statements.length, this.vexpr(s.value)));
+            this.vexpr(s.value);
             break;
         case Pass:
             break;
@@ -1524,12 +1470,18 @@ Compiler.prototype.vstmt = function(s)
 
 Compiler.prototype.vseqstmt = function(stmts)
 {
+	var block;
     for (var i = 0; i < stmts.length; ++i) 
-	{
+    {
+    	if(i)
+		{
+			block = this.newBlock();
+			this._jump(block)
+			this.setBlock(block);
+    	}
 		this.vstmt(stmts[i]);
-	}
+    }
 };
-
 var OP_FAST = 0;
 var OP_GLOBAL = 1;
 var OP_DEREF = 2;
@@ -1633,7 +1585,7 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore)
                 case Load:
                     var v = this.gensym('loadname');
                     // can't be || for loc.x = 0 or null
-                    out("var ", v, "=", mangled, "!==undefined?",mangled,":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
+                    out(v, "=", mangled, "!==undefined?",mangled,":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
                     return v;
                 case Store:
                     out(mangled, "=", dataToStore, ";");
@@ -1718,10 +1670,17 @@ Compiler.prototype.exitScope = function()
 
 Compiler.prototype.cbody = function(stmts)
 {
-    for (var i = 0; i < stmts.length; ++i)
-	{
+	var block;
+    for (var i = 0; i < stmts.length; ++i) 
+    {
+    	if(i)
+		{
+			block = this.newBlock();
+			this._jump(block)
+			this.setBlock(block);
+    	}
 		this.vstmt(stmts[i]);
-	}
+    }
 };
 
 Compiler.prototype.cprint = function(s)
@@ -1734,13 +1693,9 @@ Compiler.prototype.cprint = function(s)
     var n = s.values.length;
     // todo; dest disabled
     for (var i = 0; i < n; ++i)
-	{
         out('Sk.misceval.print_(', /*dest, ',',*/ "new Sk.builtins['str'](", this.vexpr(s.values[i]), ').v);');
-	}
     if (s.nl)
-	{
         out('Sk.misceval.print_(', /*dest, ',*/ '"\\n");');
-	}
 };
 
 Compiler.prototype.cmod = function(mod)
@@ -1750,16 +1705,16 @@ Compiler.prototype.cmod = function(mod)
     var modf = this.enterScope(new Sk.builtin.str("<module>"), mod, 0);
 
     var entryBlock = this.newBlock('module entry');
-    this.u.prefixCode = "var " + modf + "=(function($modname){";
-    this.u.varDeclsCode = "var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
-    this.u.switchCode = "while(true){switch($blk){";
-    this.u.suffixCode = "}}});";
+    this.u.prefixCode = "";//"var " + modf + "=(function(){";
+    this.u.varDeclsCode = "";//"var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
+    this.u.switchCode = "switch($blk){";
+    this.u.suffixCode = "}"//"}});";
 
     switch (mod.constructor)
     {
         case Module:
             this.cbody(mod.body);
-            out("return $loc;");
+            out("$blk = -1; break;");
             break;
         default:
             goog.asserts.fail("todo; unhandled case in compilerMod");
@@ -1783,11 +1738,11 @@ Sk.compile = function(source, filename, mode)
     var st = Sk.symboltable(ast, filename);
     var c = new Compiler(filename, st, 0, source); // todo; CO_xxx
     var funcname = c.cmod(ast);
-    var ret = c.result;
+    var ret = c.result.join('');
     return {
         funcname: funcname,
         code: ret,
-		ast: ast
+        blk: 0//
     };
 };
 

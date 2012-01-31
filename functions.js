@@ -5,7 +5,10 @@
 			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: function(data){callback(data);}
+			success: function(data){callback(data);},
+			error: function(jqXHR, textStatus, errorThrown) {
+				alert(jqXHR, textStatus, errorThrown);
+			}
 		});
 	} 
 	else{

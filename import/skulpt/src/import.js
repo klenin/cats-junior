@@ -144,11 +144,10 @@ Sk.importModuleInternal_ = function(name, dumpJS, modname, suppliedPyBody)
             co = Sk.compile(Sk.read(filename), filename, "exec");
         }
     }
-	module.$ast = co.ast;
-	module.$code = co.code;
+
     module.$js = co.code; // todo; only in DEBUG?
     var finalcode = co.code;
-
+	return {'code': finalcode, 'compiled': co};
     //if (!COMPILED)
     {
         if (dumpJS)
@@ -174,13 +173,18 @@ Sk.importModuleInternal_ = function(name, dumpJS, modname, suppliedPyBody)
 
     var namestr = "new Sk.builtin.str('" + modname + "')";
     finalcode += "\n" + co.funcname + "(" + namestr + ");";
-    var modlocs = finalcode;
+	
+	/*var $blk = co.blk, 
+		$exc = [], 
+		$gbl = {}, 
+		$loc = $gbl;
+    var modlocs = goog.global.eval(finalcode);
 
     // pass in __name__ so the module can set it (so that the code can access
     // it), but also set it after we're done so that builtins don't have to
     // remember to do it.
     if (!modlocs['__name__'])
-		modlocs['__name__'] = new Sk.builtin.str(modname);
+        modlocs['__name__'] = new Sk.builtin.str(modname);
 
     module['$d'] = modlocs;
 
@@ -196,7 +200,7 @@ Sk.importModuleInternal_ = function(name, dumpJS, modname, suppliedPyBody)
 
     //print("name", name, "modname", modname, "returning leaf");
     // otherwise we return the actual module that we just imported
-    return module;
+    return module;*/
 };
 
 /**
