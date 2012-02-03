@@ -225,14 +225,21 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $blk, $exc, $gbl, $loc = $gbl;
+var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno;
 
 function tryNextStep()
 {
 	if ($blk >= 0)
+	{
+		curCodeMirror.setLineClass($lineno, null);
 		eval(finalcode.code);
+		curCodeMirror.setLineClass($lineno, 'cm-curline');
+	}
 	else
+	{
+		curCodeMirror.setLineClass($lineno, null);
 		alert('finished');
+	}
 }
 function tryCode()
 {
@@ -248,6 +255,7 @@ function tryCode()
 		$exc = [], 
 		$gbl = {}, 
 		$loc = $gbl;
+		$lineno = 0;
 	} catch (e) {
 		alert(e);
 	}

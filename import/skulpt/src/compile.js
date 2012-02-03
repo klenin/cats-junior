@@ -93,6 +93,7 @@ Compiler.prototype.annotateSource = function(ast)
         out("\n//\n// line ", lineno, ":\n// ", this.getSourceLine(lineno), "\n// ");
         for (var i = 0; i < col_offset; ++i) out(" ");
         out("^\n//\n");
+		out('$lineno = ' + (lineno - 1) + ';');
     }
 };
 
@@ -162,7 +163,7 @@ Compiler.prototype._gr = function(hint, rest)
     }
     out(";");
     return v;
-}
+};
 
 Compiler.prototype._jumpfalse = function(test, block)
 {
@@ -619,7 +620,7 @@ Compiler.prototype.newBlock = function(name)
     this.u.blocks[ret]._name = name || '<unnamed>';
     return ret;
 };
-Compiler.prototype.setBlock = function(n)
+Compiler.prototype.setBlock = function(n, lineno)
 {
     goog.asserts.assert(n >= 0 && n < this.u.blocknum);
     this.u.curblock = n;
@@ -738,7 +739,7 @@ Compiler.prototype.cif = function(s)
     }
     else
     {
-        var end = this.newBlock('end of if');
+        /*var end = this.newBlock('end of if');
         var next = this.newBlock('next branch of if');
 
         var test = this.vexpr(s.test);
@@ -749,7 +750,32 @@ Compiler.prototype.cif = function(s)
         this.setBlock(next);
         if (s.orelse)
             this.vseqstmt(s.orelse);
+        this._jump(end);*/
+        var next = this.newBlock('next branch of if');
+		var elseBlock = undefined; 
+		if (s.orelse)
+			elseBlock = this.newBlock('alternative branch of if');
+
+        var test = this.vexpr(s.test);
+		this._jumptrue(test, next);
+		if (elseBlock != undefined)
+			this._jumpfalse(test, elseBlock);
+		
+		this.setBlock(next);
+		this.vseqstmt(s.body);
+
+		var end = this.newBlock('end of if');
+		
         this._jump(end);
+
+		if (elseBlock != undefined)
+		{
+		    this.setBlock(elseBlock);
+		    if (s.orelse)
+		        this.vseqstmt(s.orelse);
+		    this._jump(end);
+		}
+        
     }
     this.setBlock(end);
 
@@ -1262,6 +1288,7 @@ Compiler.prototype.cifexp = function(e)
 
     this.setBlock(next);
     out(ret, '=', this.vexpr(e.orelse), ';');
+	out('$lineno = ' );
     this._jump(end);
 
     this.setBlock(end);
@@ -1473,13 +1500,14 @@ Compiler.prototype.vseqstmt = function(stmts)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if(i)
+    	if (i && stmts[i].constructor != If_)
 		{
 			block = this.newBlock();
 			this._jump(block)
-			this.setBlock(block);
+			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
+		out('$lineno = ' + (stmts[i].lineno - 1) + ';');
     }
 };
 var OP_FAST = 0;
@@ -1673,13 +1701,14 @@ Compiler.prototype.cbody = function(stmts)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if(i)
+    	if (i && stmts[i - 1].constructor != If_)
 		{
 			block = this.newBlock();
 			this._jump(block)
-			this.setBlock(block);
+			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
+		out('$lineno = ' + (stmts[i].lineno - 1) + ';');
     }
 };
 
