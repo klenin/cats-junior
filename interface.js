@@ -225,14 +225,19 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno;
+var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno, $expr;
 
 function tryNextStep()
 {
 	if ($blk >= 0)
 	{
 		curCodeMirror.setLineClass($lineno, null);
-		eval(finalcode.code);
+		$expr = 1; //cheat
+		while($expr)
+		{
+			$expr = 0;
+			eval(finalcode.code);
+		}
 		curCodeMirror.setLineClass($lineno, 'cm-curline');
 	}
 	else
@@ -256,6 +261,7 @@ function tryCode()
 		$gbl = {}, 
 		$loc = $gbl;
 		$lineno = 0;
+		//$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
 	}
@@ -411,7 +417,8 @@ function fillTabs(){
 					'\tprint 10\n' +
 					'else:\n' + 
 					'\tprint 28\n' +
-					'a = 9');
+					'a = 9\n' +
+					'print a > 5 and a < 18');
 	curCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
 							lineNumbers: true,
 							onGutterClick: function(cm, n) {
@@ -425,6 +432,7 @@ function fillTabs(){
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
 	$('#pythonForm').append('<pre id = "codeRes"></pre>');
+	$('#pythonForm').append('<pre id = "codeRes1"></pre>');
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();

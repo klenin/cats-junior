@@ -289,11 +289,12 @@ Compiler.prototype.cyield = function(e)
     out("return [/*resume*/", nextBlock, ",/*ret*/", val, "];");
     this.setBlock(nextBlock);
     return '$gen.gi$sentvalue'; // will either be null if none sent, or the value from gen.send(value)
-}
+};
 
 Compiler.prototype.ccompare = function(e)
 {
     goog.asserts.assert(e.ops.length === e.comparators.length);
+	out ('$expr = 1;');
     var cur = this.vexpr(e.left);
     var n = e.ops.length;
     var done = this.newBlock("done");
@@ -309,6 +310,7 @@ Compiler.prototype.ccompare = function(e)
     }
     this._jump(done);
     this.setBlock(done);
+	out ('$expr = 1;');
     return fres;
 };
 
@@ -418,6 +420,7 @@ Compiler.prototype.chandlesubscr = function(kindname, ctx, obj, subs, data)
 Compiler.prototype.cboolop = function(e)
 {
     goog.asserts.assert(e instanceof BoolOp);
+	out ('$expr = 1;');
     var jtype;
     var ifFailed;
     if (e.op === And)
@@ -440,6 +443,7 @@ Compiler.prototype.cboolop = function(e)
     }
     this._jump(end);
     this.setBlock(end);
+	out ('$expr = 1;');
     return retval;
 };
 
@@ -550,6 +554,8 @@ Compiler.prototype.vexpr = function(e, data, augstoreval)
         default:
             goog.asserts.fail("unhandled case in vexpr");
     }
+	//if (parent)
+		//out('$expr = 0;');
 };
 
 /**
@@ -615,6 +621,8 @@ Compiler.prototype.exprConstant = function(e)
 
 Compiler.prototype.newBlock = function(name)
 {
+	if (this.u.blocknum)
+		out ('\n');
     var ret = this.u.blocknum++;
     this.u.blocks[ret] = [];
     this.u.blocks[ret]._name = name || '<unnamed>';
@@ -717,7 +725,7 @@ Compiler.prototype.outputAllUnits = function()
             ret += "case " + i + ": /* --- " + blocks[i]._name + " --- */";
             ret += blocks[i].join('');
 
-            ret += "goog.asserts.fail('unterminated block');";
+            ret += "goog.asserts.fail('unterminated block');\n";
         }
         ret += unit.suffixCode;
     }
@@ -751,12 +759,12 @@ Compiler.prototype.cif = function(s)
         if (s.orelse)
             this.vseqstmt(s.orelse);
         this._jump(end);*/
-        var next = this.newBlock('next branch of if');
+        var test = this.vexpr(s.test, null, null, this);
+		out ('$expr = 0;')
+		var next = this.newBlock('next branch of if');
 		var elseBlock = undefined; 
 		if (s.orelse)
 			elseBlock = this.newBlock('alternative branch of if');
-
-        var test = this.vexpr(s.test);
 		this._jumptrue(test, next);
 		if (elseBlock != undefined)
 			this._jumpfalse(test, elseBlock);
@@ -1451,6 +1459,7 @@ Compiler.prototype.vstmt = function(s)
             var val = this.vexpr(s.value);
             for (var i = 0; i < n; ++i)
                 this.vexpr(s.targets[i], val);
+			out('$expr = 0;');
             break;
         case AugAssign:
             return this.caugassign(s);
@@ -1723,6 +1732,7 @@ Compiler.prototype.cprint = function(s)
     // todo; dest disabled
     for (var i = 0; i < n; ++i)
         out('Sk.misceval.print_(', /*dest, ',',*/ "new Sk.builtins['str'](", this.vexpr(s.values[i]), ').v);');
+	out ('$expr = 0;')
     if (s.nl)
         out('Sk.misceval.print_(', /*dest, ',*/ '"\\n");');
 };
