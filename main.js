@@ -5,6 +5,10 @@
 				curProblemIndex = ui.index - 1;
 				curProblem = problems[curProblemIndex];
 			}
+			if (ui.index == (problems.length + 2))
+			{
+				setTimeout("curCodeMirror.refresh()", 100);
+			}
 		}
 	});
 	$('#changeContest').hide();
@@ -17,6 +21,7 @@
 	$('#tabs').bind('tabsshow', function(event, ui) {
 		if (curProblem.visited)
 			return;
+		//curProblem = {};
 		curProblem.visited = 1;
 		$('#sortable' + curProblem.tabIndex).sortable({
 			revert: false,

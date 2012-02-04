@@ -410,7 +410,7 @@ function fillTabs(){
 		}
 	}
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
-	$('#ui-tabs-' + (problems.length + 2)).append('<form id = "pythonForm"></form>');
+	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
 	$('#code').append('a = 5\n' +
 					'if a > 5:\n' +
@@ -419,16 +419,22 @@ function fillTabs(){
 					'\tprint 28\n' +
 					'a = 9\n' +
 					'print a > 5 and a < 18');
-	curCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"), {
-							lineNumbers: true,
-							onGutterClick: function(cm, n) {
-								var info = cm.lineInfo(n);
-									if (info.markerText)
-										cm.clearMarker(n);
-									else
-									cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
-							}
-						});
+	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
+		lineNumbers: true,
+		onGutterClick: function(cm, n) {
+			var info = cm.lineInfo(n);
+				if (info.markerText)
+					cm.clearMarker(n);
+				else
+				cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
+		},
+	    mode: {name: "python",
+           version: 2,
+           singleLineStringErrors: false},
+        indentUnit: 4,
+        tabMode: "shift",
+        matchBrackets: true
+	});
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
 	$('#pythonForm').append('<pre id = "codeRes"></pre>');
