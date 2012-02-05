@@ -225,24 +225,26 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno, $expr;
+var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno, $expr, blocks, nextline;
 
 function tryNextStep()
 {
 	if ($blk >= 0)
 	{
-		curCodeMirror.setLineClass($lineno, null);
-		$expr = 1; //cheat
-		while($expr)
+		curCodeMirror.setLineClass(nextline, null);
+		while (1)
 		{
-			$expr = 0;
 			eval(finalcode.code);
+			if (!finalcode.compiled.blocks[$blk].expr)
+				break;
 		}
-		curCodeMirror.setLineClass($lineno, 'cm-curline');
+		if ($blk >= 0)
+			nextline = finalcode.compiled.blocks[$blk].lineno;
+		curCodeMirror.setLineClass(nextline, 'cm-curline');
 	}
 	else
 	{
-		curCodeMirror.setLineClass($lineno, null);
+		curCodeMirror.setLineClass(nextline, null);
 		alert('finished');
 	}
 }
@@ -257,10 +259,13 @@ function tryCode()
 
 		finalcode = Sk.importMainWithBody("<stdin>", false, input);
 		$blk = finalcode.compiled.blk, 
+		blocks = finalcode.compiled.blocks,
 		$exc = [], 
 		$gbl = {}, 
 		$loc = $gbl;
 		$lineno = 0;
+		nextline = finalcode.compiled.blocks[$blk].lineno;
+		curCodeMirror.setLineClass(nextline, 'cm-curline');
 		//$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
@@ -413,12 +418,11 @@ function fillTabs(){
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
 	$('#code').append('a = 5\n' +
-					'if a > 5:\n' +
-					'\tprint 10\n' +
-					'else:\n' + 
+					'if a < 7:\n' +
+					'\tprint 25\n' +
+					'else: \n' +
 					'\tprint 28\n' +
-					'a = 9\n' +
-					'print a > 5 and a < 18');
+					'a = 9\n');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {

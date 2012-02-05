@@ -93,7 +93,7 @@ Compiler.prototype.annotateSource = function(ast)
         out("\n//\n// line ", lineno, ":\n// ", this.getSourceLine(lineno), "\n// ");
         for (var i = 0; i < col_offset; ++i) out(" ");
         out("^\n//\n");
-		out('$lineno = ' + (lineno - 1) + ';');
+		this.u.blocks[this.u.curblock].lineno = lineno - 1;
     }
 };
 
@@ -294,7 +294,7 @@ Compiler.prototype.cyield = function(e)
 Compiler.prototype.ccompare = function(e)
 {
     goog.asserts.assert(e.ops.length === e.comparators.length);
-	out ('$expr = 1;');
+	this.u.blocks[this.u.curblock].expr = 1;
     var cur = this.vexpr(e.left);
     var n = e.ops.length;
     var done = this.newBlock("done");
@@ -310,7 +310,7 @@ Compiler.prototype.ccompare = function(e)
     }
     this._jump(done);
     this.setBlock(done);
-	out ('$expr = 1;');
+	this.u.blocks[this.u.curblock].expr = 1;
     return fres;
 };
 
@@ -420,7 +420,7 @@ Compiler.prototype.chandlesubscr = function(kindname, ctx, obj, subs, data)
 Compiler.prototype.cboolop = function(e)
 {
     goog.asserts.assert(e instanceof BoolOp);
-	out ('$expr = 1;');
+	this.u.blocks[this.u.curblock].expr = 1;
     var jtype;
     var ifFailed;
     if (e.op === And)
@@ -443,7 +443,7 @@ Compiler.prototype.cboolop = function(e)
     }
     this._jump(end);
     this.setBlock(end);
-	out ('$expr = 1;');
+	this.u.blocks[this.u.curblock].expr = 1;
     return retval;
 };
 
@@ -760,7 +760,8 @@ Compiler.prototype.cif = function(s)
             this.vseqstmt(s.orelse);
         this._jump(end);*/
         var test = this.vexpr(s.test, null, null, this);
-		out ('$expr = 0;')
+		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
+		this.u.blocks[this.u.curblock].expr = 0;
 		var next = this.newBlock('next branch of if');
 		var elseBlock = undefined; 
 		if (s.orelse)
@@ -768,7 +769,7 @@ Compiler.prototype.cif = function(s)
 		this._jumptrue(test, next);
 		if (elseBlock != undefined)
 			this._jumpfalse(test, elseBlock);
-		
+		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 		this.setBlock(next);
 		this.vseqstmt(s.body);
 
@@ -800,6 +801,7 @@ Compiler.prototype.cwhile = function(s)
     else
     {
         var top = this.newBlock('while test');
+		this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
         this._jump(top);
         this.setBlock(top);
 
@@ -807,7 +809,9 @@ Compiler.prototype.cwhile = function(s)
         var orelse = s.orelse.length > 0 ? this.newBlock('while orelse') : null;
         var body = this.newBlock('while body');
 
-        this._jumpfalse(this.vexpr(s.test), orelse ? orelse : next);
+		var test = this.vexpr(s.test);
+		//out('$expr = 0;');
+        this._jumpfalse(test, orelse ? orelse : next);
         this._jump(body);
 
         this.pushBreakBlock(next);
@@ -1296,7 +1300,6 @@ Compiler.prototype.cifexp = function(e)
 
     this.setBlock(next);
     out(ret, '=', this.vexpr(e.orelse), ';');
-	out('$lineno = ' );
     this._jump(end);
 
     this.setBlock(end);
@@ -1459,7 +1462,7 @@ Compiler.prototype.vstmt = function(s)
             var val = this.vexpr(s.value);
             for (var i = 0; i < n; ++i)
                 this.vexpr(s.targets[i], val);
-			out('$expr = 0;');
+			this.u.blocks[this.u.curblock].expr = 0;
             break;
         case AugAssign:
             return this.caugassign(s);
@@ -1509,14 +1512,15 @@ Compiler.prototype.vseqstmt = function(stmts)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if (i && stmts[i].constructor != If_)
+    	if (i && stmts[i - 1].constructor != If_)
 		{
+			//out('$nextlineno = ' + (stmts[i].lineno - 1) + ';'); //cheat
 			block = this.newBlock();
 			this._jump(block)
 			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
-		out('$lineno = ' + (stmts[i].lineno - 1) + ';');
+		this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
     }
 };
 var OP_FAST = 0;
@@ -1712,12 +1716,13 @@ Compiler.prototype.cbody = function(stmts)
     {
     	if (i && stmts[i - 1].constructor != If_)
 		{
+			//out('$nextlineno = ' + (stmts[i].lineno - 1) + ';'); //cheat
 			block = this.newBlock();
 			this._jump(block)
 			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
-		out('$lineno = ' + (stmts[i].lineno - 1) + ';');
+		this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
     }
 };
 
@@ -1732,7 +1737,7 @@ Compiler.prototype.cprint = function(s)
     // todo; dest disabled
     for (var i = 0; i < n; ++i)
         out('Sk.misceval.print_(', /*dest, ',',*/ "new Sk.builtins['str'](", this.vexpr(s.values[i]), ').v);');
-	out ('$expr = 0;')
+	this.u.blocks[this.u.curblock].expr = 0;
     if (s.nl)
         out('Sk.misceval.print_(', /*dest, ',*/ '"\\n");');
 };
@@ -1781,6 +1786,7 @@ Sk.compile = function(source, filename, mode)
     return {
         funcname: funcname,
         code: ret,
+        blocks: c.allUnits[0].blocks,
         blk: 0//
     };
 };
