@@ -417,12 +417,10 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('a = 5\n' +
-					'if a < 7:\n' +
-					'\tprint 25\n' +
-					'else: \n' +
-					'\tprint 28\n' +
-					'a = 9\n');
+	$('#code').append('i = 0\n' +
+					'while i < 4:\n' +
+					'\tprint i\n' +
+					'\ti += 1\n');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {

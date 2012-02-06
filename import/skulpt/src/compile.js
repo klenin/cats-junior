@@ -800,29 +800,30 @@ Compiler.prototype.cwhile = function(s)
     }
     else
     {
-        var top = this.newBlock('while test');
-		this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
-        this._jump(top);
-        this.setBlock(top);
+    	var header = this.u.curblock;
+    	var test = this.vexpr(s.test);
+		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
+		this.u.blocks[this.u.curblock].expr = 0;
 
         var next = this.newBlock('after while');
         var orelse = s.orelse.length > 0 ? this.newBlock('while orelse') : null;
         var body = this.newBlock('while body');
 
-		var test = this.vexpr(s.test);
 		//out('$expr = 0;');
         this._jumpfalse(test, orelse ? orelse : next);
         this._jump(body);
 
-        this.pushBreakBlock(next);
-        this.pushContinueBlock(top);
+        //this.pushBreakBlock(next);
+        //this.pushContinueBlock(header);
+
+		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 
         this.setBlock(body);
         this.vseqstmt(s.body);
-        this._jump(top);
+        this._jump(header);
 
-        this.popContinueBlock();
-        this.popBreakBlock();
+        //this.popContinueBlock();
+        //this.popBreakBlock();
 
         if (s.orelse.length > 0)
         {
@@ -831,6 +832,7 @@ Compiler.prototype.cwhile = function(s)
         }
 
         this.setBlock(next);
+		this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
     }
 };
 
