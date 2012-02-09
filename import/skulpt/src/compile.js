@@ -165,10 +165,11 @@ Compiler.prototype._gr = function(hint, rest)
     return v;
 };
 
-Compiler.prototype._jumpfalse = function(test, block)
+Compiler.prototype._jumpfalse = function(test, block, e)
 {
     var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test failed */$blk = ", block, ";break;}");
+    out("if(", cond, "){/*test failed */$blk = ", block, ";",
+		(e != undefined ? ("$expr = " + e + ";") : "" ),"break;}");
 };
 
 Compiler.prototype._jumpundef = function(test, block, e)
@@ -805,7 +806,7 @@ Compiler.prototype.cwhile = function(s)
         var orelse = s.orelse.length > 0 ? this.newBlock('while orelse') : null;
         var body = this.newBlock('while body');
 
-        this._jumpfalse(test, orelse ? orelse : next);
+        this._jumpfalse(test, orelse ? orelse : next, 1);
         this._jump(body);
 
         this.pushBreakBlock(next);
