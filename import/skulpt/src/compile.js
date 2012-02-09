@@ -733,6 +733,7 @@ Compiler.prototype.cif = function(s)
 {
     goog.asserts.assert(s instanceof If_);
     var constant = this.exprConstant(s.test);
+	var end = this.newBlock('end of if');
     if (constant === 0)
     {
         if (s.orelse) 
@@ -744,18 +745,6 @@ Compiler.prototype.cif = function(s)
     }
     else
     {
-        /*var end = this.newBlock('end of if');
-        var next = this.newBlock('next branch of if');
-
-        var test = this.vexpr(s.test);
-        this._jumpfalse(this.vexpr(s.test), next);
-        this.vseqstmt(s.body);
-        this._jump(end);
-
-        this.setBlock(next);
-        if (s.orelse)
-            this.vseqstmt(s.orelse);
-        this._jump(end);*/
         var test = this.vexpr(s.test, null, null, this);
 		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 		this.u.blocks[this.u.curblock].expr = 0;
@@ -770,8 +759,6 @@ Compiler.prototype.cif = function(s)
 		this.setBlock(next);
 		this.vseqstmt(s.body);
 
-		var end = this.newBlock('end of if');
-		
         this._jump(end);
 
 		if (elseBlock != undefined)
@@ -784,7 +771,6 @@ Compiler.prototype.cif = function(s)
         
     }
     this.setBlock(end);
-
 };
 
 Compiler.prototype.cwhile = function(s)
@@ -861,7 +847,7 @@ Compiler.prototype.cfor = function(s)
     var nexti = this._gr('next', "Sk.abstr.iternext(", iter, ")");
 
     var cleanup = this.newBlock('for cleanup');
-    this._jumpundef(nexti, cleanup, 1); // todo; this should be handled by StopIteration
+    this._jumpundef(nexti, cleanup); // todo; this should be handled by StopIteration
     var target = this.vexpr(s.target, nexti);
 	this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 
@@ -886,7 +872,7 @@ Compiler.prototype.cfor = function(s)
     this._jump(end);
 
     this.setBlock(end);
-	this.u.blocks[this.u.curblock].expr = 1;
+	//this.u.blocks[this.u.curblock].expr = 1;
 };
 
 Compiler.prototype.craise = function(s)
@@ -1522,13 +1508,13 @@ Compiler.prototype.vseqstmt = function(stmts)
     {
     	if (i && stmts[i - 1].constructor != If_)
 		{
-			//out('$nextlineno = ' + (stmts[i].lineno - 1) + ';'); //cheat
 			block = this.newBlock();
 			this._jump(block)
 			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
-		this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
+		if (stmts[i].constructor != If_)
+			this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
     }
 };
 var OP_FAST = 0;
@@ -1724,13 +1710,13 @@ Compiler.prototype.cbody = function(stmts)
     {
     	if (i && stmts[i - 1].constructor != If_)
 		{
-			//out('$nextlineno = ' + (stmts[i].lineno - 1) + ';'); //cheat
 			block = this.newBlock();
 			this._jump(block)
 			this.setBlock(block);		
     	}
 		this.vstmt(stmts[i]);
-		this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
+		if (stmts[i].constructor != If_)
+			this.u.blocks[this.u.curblock].lineno = stmts[i].lineno - 1;
     }
 };
 
