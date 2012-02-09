@@ -171,9 +171,10 @@ Compiler.prototype._jumpfalse = function(test, block)
     out("if(", cond, "){/*test failed */$blk = ", block, ";break;}");
 };
 
-Compiler.prototype._jumpundef = function(test, block)
+Compiler.prototype._jumpundef = function(test, block, e)
 {
-    out("if(", test, " === undefined){$blk = ", block, ";break;}");
+    out("if(", test, " === undefined){$blk = ", block, ";",
+		(e != undefined ? ("$expr = " + e + ";") : "" ),"break;}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
@@ -185,11 +186,6 @@ Compiler.prototype._jumptrue = function(test, block)
 Compiler.prototype._jump = function(block)
 {
     out("$blk = ", block, ";/* jump */break;");
-};
-
-Compiler.prototype.__jump = function(block)
-{
-    out("$blk = ", block, ";/* jump */return;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -809,12 +805,11 @@ Compiler.prototype.cwhile = function(s)
         var orelse = s.orelse.length > 0 ? this.newBlock('while orelse') : null;
         var body = this.newBlock('while body');
 
-		//out('$expr = 0;');
         this._jumpfalse(test, orelse ? orelse : next);
         this._jump(body);
 
-        //this.pushBreakBlock(next);
-        //this.pushContinueBlock(header);
+        this.pushBreakBlock(next);
+        this.pushContinueBlock(header);
 
 		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 
@@ -822,8 +817,8 @@ Compiler.prototype.cwhile = function(s)
         this.vseqstmt(s.body);
         this._jump(header);
 
-        //this.popContinueBlock();
-        //this.popBreakBlock();
+        this.popContinueBlock();
+        this.popBreakBlock();
 
         if (s.orelse.length > 0)
         {
@@ -839,7 +834,6 @@ Compiler.prototype.cwhile = function(s)
 Compiler.prototype.cfor = function(s)
 {
     var start = this.newBlock('for start');
-    var cleanup = this.newBlock('for cleanup');
     var end = this.newBlock('for end');
 
     this.pushBreakBlock(end);
@@ -847,6 +841,8 @@ Compiler.prototype.cfor = function(s)
 
     // get the iterator
     var toiter = this.vexpr(s.iter);
+	this.u.blocks[this.u.curblock].expr = 1;
+
     var iter;
     if (this.u.ste.generator)
     {
@@ -857,16 +853,21 @@ Compiler.prototype.cfor = function(s)
     }
     else
         iter = this._gr("iter", "Sk.abstr.iter(", toiter, ")");
-
+	
     this._jump(start);
-
     this.setBlock(start);
-
     // load targets
     var nexti = this._gr('next', "Sk.abstr.iternext(", iter, ")");
-    this._jumpundef(nexti, cleanup); // todo; this should be handled by StopIteration
-    var target = this.vexpr(s.target, nexti);
 
+    var cleanup = this.newBlock('for cleanup');
+    this._jumpundef(nexti, cleanup, 1); // todo; this should be handled by StopIteration
+    var target = this.vexpr(s.target, nexti);
+	this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
+
+    var body = this.newBlock('for body');
+	this._jump(body);
+	this.setBlock(body);
+	this.u.blocks[this.u.curblock].expr = 0;
     // execute body
     this.vseqstmt(s.body);
     
@@ -874,13 +875,17 @@ Compiler.prototype.cfor = function(s)
     this._jump(start);
 
     this.setBlock(cleanup);
+	this.u.blocks[this.u.curblock].expr = 1;
+
     this.popContinueBlock();
     this.popBreakBlock();
 
     this.vseqstmt(s.orelse);
+
     this._jump(end);
 
     this.setBlock(end);
+	this.u.blocks[this.u.curblock].expr = 1;
 };
 
 Compiler.prototype.craise = function(s)

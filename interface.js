@@ -231,20 +231,30 @@ function tryNextStep()
 {
 	if ($blk >= 0)
 	{
-		curCodeMirror.setLineClass(nextline, null);
-		while (1)
+		if (nextline != undefined)
+			curCodeMirror.setLineClass(nextline, null);
+		var e = 1;
+		while ($blk >= 0 && (e || $expr))
 		{
+			$expr = 0;
+			e = finalcode.compiled.blocks[$blk].expr;
 			eval(finalcode.code);
-			if (!finalcode.compiled.blocks[$blk].expr)
-				break;
 		}
 		if ($blk >= 0)
 			nextline = finalcode.compiled.blocks[$blk].lineno;
-		curCodeMirror.setLineClass(nextline, 'cm-curline');
+		if (nextline != undefined)
+			curCodeMirror.setLineClass(nextline, 'cm-curline');
+		if ($blk < 0)
+		{
+			if (nextline != undefined)
+				curCodeMirror.setLineClass(nextline, null);
+			alert('finished');
+		}
 	}
 	else
 	{
-		curCodeMirror.setLineClass(nextline, null);
+		if (nextline != undefined)
+			curCodeMirror.setLineClass(nextline, null);
 		alert('finished');
 	}
 }
@@ -417,10 +427,9 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('i = 0\n' +
-					'while i < 4:\n' +
-					'\tprint i\n' +
-					'\ti += 1\n');
+	$('#code').append('for i in range(3):\n' +
+					'\tprint i\n'+
+					'\tprint i\n');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {
