@@ -265,8 +265,6 @@ function tryCode()
 	Sk.configure({output:outf});
 	var input = curCodeMirror.getValue();
 	try {
-		//$loc.a = 10;
-
 		finalcode = Sk.importMainWithBody("<stdin>", false, input);
 		$blk = finalcode.compiled.blk, 
 		blocks = finalcode.compiled.blocks,
@@ -427,9 +425,16 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('for i in range(3):\n' +
-					'\tprint i\n'+
-					'\tprint i\n');
+	$('#code').append('i = 0\n' +
+					'while i < 2:\n' +
+					'\tprint i\n' +
+					'\ti += 1\n' +
+					'for j in range(2):\n' +
+					'\tprint j\n'+
+					'if i < j or j < i:\n' +
+					'\tprint i\n' +
+					'else:\n' +
+					'\tprint j\n');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {

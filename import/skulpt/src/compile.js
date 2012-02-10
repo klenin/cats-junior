@@ -820,6 +820,7 @@ Compiler.prototype.cwhile = function(s)
 
 Compiler.prototype.cfor = function(s)
 {
+	var line = this.u.lineno - 1;
     var start = this.newBlock('for start');
     var end = this.newBlock('for end');
 
@@ -847,7 +848,7 @@ Compiler.prototype.cfor = function(s)
     var nexti = this._gr('next', "Sk.abstr.iternext(", iter, ")");
 
     var cleanup = this.newBlock('for cleanup');
-    this._jumpundef(nexti, cleanup); // todo; this should be handled by StopIteration
+    this._jumpundef(nexti, cleanup, 1); // todo; this should be handled by StopIteration
     var target = this.vexpr(s.target, nexti);
 	this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 
@@ -862,7 +863,6 @@ Compiler.prototype.cfor = function(s)
     this._jump(start);
 
     this.setBlock(cleanup);
-	this.u.blocks[this.u.curblock].expr = 1;
 
     this.popContinueBlock();
     this.popBreakBlock();
@@ -872,7 +872,8 @@ Compiler.prototype.cfor = function(s)
     this._jump(end);
 
     this.setBlock(end);
-	//this.u.blocks[this.u.curblock].expr = 1;
+	//this.u.blocks[this.u.curblock].lineno = line;
+
 };
 
 Compiler.prototype.craise = function(s)
@@ -1708,7 +1709,7 @@ Compiler.prototype.cbody = function(stmts)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if (i && stmts[i - 1].constructor != If_)
+    	if (i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_)
 		{
 			block = this.newBlock();
 			this._jump(block)
