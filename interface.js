@@ -225,7 +225,7 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $blk, $exc, $gbl, $loc = $gbl, $lineno, $expr, blocks, nextline;
+var finalcode, $blk, $gbl, $loc, $expr, $scope, nextline;
 
 function tryNextStep()
 {
@@ -237,11 +237,11 @@ function tryNextStep()
 		while ($blk >= 0 && (e || $expr))
 		{
 			$expr = 0;
-			e = finalcode.compiled.blocks[$blk].expr;
+			e = finalcode.compiled.scopes[$scope].blocks[$blk].expr;
 			eval(finalcode.code);
 		}
 		if ($blk >= 0)
-			nextline = finalcode.compiled.blocks[$blk].lineno;
+			nextline = finalcode.compiled.scopes[$scope].blocks[$blk].lineno;
 		if (nextline != undefined)
 			curCodeMirror.setLineClass(nextline, 'cm-curline');
 		if ($blk < 0)
@@ -266,13 +266,16 @@ function tryCode()
 	var input = curCodeMirror.getValue();
 	try {
 		finalcode = Sk.importMainWithBody("<stdin>", false, input);
-		$blk = finalcode.compiled.blk, 
-		blocks = finalcode.compiled.blocks,
-		$exc = [], 
-		$gbl = {}, 
+		$scope = 0,
+		$blk =  0,
+		$gbl = {},
 		$loc = $gbl;
-		$lineno = 0;
-		nextline = finalcode.compiled.blocks[$blk].lineno;
+		nextline = finalcode.compiled.scopes[$scope].firstlineno;
+		for (var i = 0; i < finalcode.compiled.scopes.length; ++i)
+		{
+			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
+			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.loc = {};');
+		}
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
 		//$('#codeRes1').html(finalcode.code);
 	} catch (e) {

@@ -100,7 +100,7 @@ Compiler.prototype.annotateSource = function(ast)
 Compiler.prototype.gensym = function(hint)
 {
     hint = hint || '';
-    hint = '$loc.' + hint;
+    hint =  '$loc.' + this.u.scopename + '.loc.' + hint;
     hint += this.gensymcount++;
     return hint;
 };
@@ -836,7 +836,7 @@ Compiler.prototype.cfor = function(s)
     {
         // if we're in a generator, we have to store the iterator to a local
         // so it's preserved (as we cross blocks here and assume it survives)
-        iter = "$loc." + this.gensym("iter");
+        iter = '$loc.' + this.u.scopename + '.loc.' + this.gensym("iter");
         out(iter, "=Sk.abstr.iter(", toiter, ");");
     }
     else
@@ -1316,12 +1316,12 @@ Compiler.prototype.cgenexpgen = function(generators, genIndex, elt)
         // the outer most iterator is evaluated in the scope outside so we
         // have to evaluate it outside and store it into the generator as a
         // local, which we retrieve here.
-        iter = "$loc.$iter0";
+        iter = '$loc.' + this.u.scopename + ".loc.$iter0";
     }
     else
     {
         var toiter = this.vexpr(ge.iter);
-        iter = "$loc." + this.gensym("iter");
+        iter = '$loc.' + this.u.scopename + ".loc." + this.gensym("iter");
         out(iter, "=", "Sk.abstr.iter(", toiter, ");");
     }
     this._jump(start);
@@ -1593,7 +1593,7 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore)
     // to actual JS stack variables.
     var mangledNoPre = mangled;
     if (this.u.ste.generator || this.u.ste.blockType !== FunctionBlock)
-        mangled = "$loc." + mangled;
+        mangled = '$loc.' + this.u.scopename + ".loc." + mangled;
     else if (optype === OP_FAST || optype === OP_NAME)
         this.u.localnames.push(mangled);
 
@@ -1678,7 +1678,7 @@ Compiler.prototype.enterScope = function(name, key, lineno)
 
     this.stack.push(this.u);
     this.allUnits.push(u);
-    var scopeName = this.gensym('scope');
+    var scopeName = 'scope' + this.gensymcount++;
     u.scopename = scopeName;
 
     this.u = u;
@@ -1781,8 +1781,7 @@ Sk.compile = function(source, filename, mode)
     return {
         funcname: funcname,
         code: ret,
-        blocks: c.allUnits[0].blocks,
-        blk: 0//
+        scopes: c.allUnits
     };
 };
 
