@@ -168,25 +168,25 @@ Compiler.prototype._gr = function(hint, rest)
 Compiler.prototype._jumpfalse = function(test, block, e)
 {
     var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test failed */$blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ), (this.nestlevel > 1 ? "continue" : "break"), ";}");
+    out("if(", cond, "){/*test failed */$loc." + this.u.scopename + ".blk = ", block, ";",
+		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumpundef = function(test, block, e)
 {
-    out("if(", test, " === undefined){$blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ),(this.nestlevel > 1 ? "continue" : "break"), ";}");
+    out("if(", test, " === undefined){$loc." + this.u.scopename + ".blk = ", block, ";",
+		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
 {
     var cond = this._gr('jtrue', "(", test, " === true || Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test passed */$blk = ", block, ";", (this.nestlevel > 1 ? "continue" : "break"), ";}");
+    out("if(", cond, "){/*test passed */$loc." + this.u.scopename + ".blk = ", block, ";break;}");
 };
 
 Compiler.prototype._jump = function(block)
 {
-    out("$blk = ", block, ";/* jump */", (this.nestlevel > 1 ? "continue" : "break"), ";");
+    out("$loc." + this.u.scopename + ".blk = ", block, ";/* jump */break;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -709,12 +709,18 @@ Compiler.prototype.outputLocals = function(unit)
 Compiler.prototype.outputAllUnits = function()
 {
     var ret = '';
-    for (var j = this.allUnits.length - 1; j >= 0; --j)
-    {
-        var unit = this.allUnits[j];
+	for (var j = this.allUnits.length - 1; j > 0; --j)
+	{
+		var unit = this.allUnits[j];
         ret += unit.prefixCode;
-        //ret += this.outputLocals(unit);
         ret += unit.varDeclsCode;
+		ret += '});';
+	}
+	ret += 'switch($scope){\n'
+    for (var j = 0; j < this.allUnits.length; ++j)
+    {
+    	var unit = this.allUnits[j];
+     	ret += 'case ' + j + ':\n' ;
         ret += unit.switchCode;
         var blocks = unit.blocks;
         for (var i = 0; i < blocks.length; ++i)
@@ -725,7 +731,9 @@ Compiler.prototype.outputAllUnits = function()
             ret += "goog.asserts.fail('unterminated block');\n";
         }
         ret += unit.suffixCode;
+		ret += 'break;\n';
     }
+	ret += '}';
     return ret;
 };
 
@@ -1072,8 +1080,17 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     // enter the new scope, and create the first block
     //
+    var parentScope;
+    for (var i = 0; i < this.allUnits.length; ++i)
+	{
+		if (this.allUnits[i].scopename == this.u.scopename)
+		{
+			parentScope = i;
+			break;
+		}
+	}
     var scopename = this.enterScope(coname, n, n.lineno);
-
+	this.u.parentScope = parentScope;
     var isGenerator = this.u.ste.generator;
     var hasFree = this.u.ste.hasFree;
     var hasCell = this.u.ste.childHasFree;
@@ -1120,13 +1137,14 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 
     // note special usage of 'this' to avoid having to slice globals into
     // all function invocations in call
-    this.u.varDeclsCode += "var $blk=" + entryBlock + ', $gbl = this;';//+ ",$exc=[],$loc=" + locals + cells + "";
+    this.u.varDeclsCode += "$loc." + scopename + ".blk=" + entryBlock + ';';//+ ",$exc=[],$loc=" + locals + cells + "";
 	for (var i = 0; args && i < args.args.length; ++i)
 	{
 		this.u.varDeclsCode += this.nameop(args.args[i].id, Load) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
-
+	this.u.varDeclsCode += '$loc.' + scopename + '.parent = ' + this.u.parentScope + ';'; 
+	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
     //
     // copy all parameters that are also cells into the cells dict. this is so
     // they can be accessed correctly by nested scopes.
@@ -1175,8 +1193,8 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     // finally, set up the block switch that the jump code expects
     //
-    this.u.switchCode += "while(true){switch($blk){";
-    this.u.suffixCode = "}break;}});";
+    this.u.switchCode += "switch($loc." + scopename + ".blk){";
+    this.u.suffixCode = "};";
 
     //
     // jump back to the handler so it can do the main actual work of the
@@ -1270,7 +1288,7 @@ Compiler.prototype.cfunction = function(s)
     var funcorgen = this.buildcodeobj(s, s.name, s.decorator_list, s.args, function(scopename)
             {
                 this.vseqstmt(s.body);
-                out("return null;"); // if we fall off the bottom, we want the ret to be None
+                out("$scope = " + this.u.parent + ";\n"); // if we fall off the bottom, we want the ret to be None
             });
     this.nameop(s.name, Store, funcorgen);
 };
@@ -1602,7 +1620,7 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore)
     else if (optype === OP_FAST || optype === OP_NAME)
     {
     	mangled = ctx == Param ? mangled : '$loc.' + this.u.scopename + ".loc." + mangled;
-        this.u.localnames.push(mangled);
+        //this.u.localnames.push(mangled);
     }
 
     switch (optype)
@@ -1754,14 +1772,14 @@ Compiler.prototype.cmod = function(mod)
     var entryBlock = this.newBlock('module entry');
     this.u.prefixCode = "";//"var " + modf + "=(function(){";
     this.u.varDeclsCode = "";//"var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
-    this.u.switchCode = "switch($blk){";
+    this.u.switchCode = "switch($loc." + modf + ".blk){";
     this.u.suffixCode = "}"//"}});";
 
     switch (mod.constructor)
     {
         case Module:
             this.cbody(mod.body);
-            out("$blk = -1; break;");
+            out("$loc." + modf + ".blk = -1; break;");
             break;
         default:
             goog.asserts.fail("todo; unhandled case in compilerMod");

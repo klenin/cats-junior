@@ -225,26 +225,36 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $blk, $gbl, $loc, $expr, $scope, nextline;
+var finalcode, $gbl, $loc, $expr, $scope, nextline;
+
+function getCurBlock()
+{
+	return eval('$loc.' + finalcode.compiled.scopes[$scope].scopename + '.blk');
+}
+
+function getScope()
+{
+	return finalcode.compiled.scopes[$scope];
+}
 
 function tryNextStep()
 {
-	if ($blk >= 0)
+	if (getCurBlock() >= 0)
 	{
 		if (nextline != undefined)
 			curCodeMirror.setLineClass(nextline, null);
 		var e = 1;
-		while ($blk >= 0 && (e || $expr))
+		while (getCurBlock() >= 0 && (e || $expr))
 		{
 			$expr = 0;
-			e = finalcode.compiled.scopes[$scope].blocks[$blk].expr;
+			e = getScope().blocks[getCurBlock()].expr;
 			eval(finalcode.code);
 		}
-		if ($blk >= 0)
-			nextline = finalcode.compiled.scopes[$scope].blocks[$blk].lineno;
+		if (getCurBlock() >= 0)
+			nextline = getScope().blocks[getCurBlock()].lineno;
 		if (nextline != undefined)
 			curCodeMirror.setLineClass(nextline, 'cm-curline');
-		if ($blk < 0)
+		if (getCurBlock() < 0)
 		{
 			if (nextline != undefined)
 				curCodeMirror.setLineClass(nextline, null);
@@ -258,6 +268,7 @@ function tryNextStep()
 		alert('finished');
 	}
 }
+
 function tryCode()
 {
 	var output = $('#codeRes');
@@ -267,21 +278,22 @@ function tryCode()
 	try {
 		finalcode = Sk.importMainWithBody("<stdin>", false, input);
 		$scope = 0,
-		$blk =  0,
 		$gbl = {},
 		$loc = $gbl;
-		nextline = finalcode.compiled.scopes[$scope].firstlineno;
 		for (var i = 0; i < finalcode.compiled.scopes.length; ++i)
 		{
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.loc = {};');
 		}
+		$loc.scope0.blk = 0;
+		nextline = getScope().blocks[getCurBlock()].lineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
 		//$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
 	}
 }
+
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -428,16 +440,11 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('i = 0\n' +
-					'while i < 2:\n' +
-					'\tprint i\n' +
-					'\ti += 1\n' +
-					'for j in range(2):\n' +
-					'\tprint j\n'+
-					'if i < j or j < i:\n' +
-					'\tprint i\n' +
-					'else:\n' +
-					'\tprint j\n');
+	$('#code').append('def pr(a):\n' +
+					'\tprint a\n' +
+					'\treturn 5\n\n' +
+					'a = 7\n' +
+					'pr(a)');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {
