@@ -169,24 +169,24 @@ Compiler.prototype._jumpfalse = function(test, block, e)
 {
     var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
     out("if(", cond, "){/*test failed */$blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ),"break;}");
+		(e != undefined ? ("$expr = " + e + ";") : "" ), (this.nestlevel > 1 ? "continue" : "break"), ";}");
 };
 
 Compiler.prototype._jumpundef = function(test, block, e)
 {
     out("if(", test, " === undefined){$blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ),"break;}");
+		(e != undefined ? ("$expr = " + e + ";") : "" ),(this.nestlevel > 1 ? "continue" : "break"), ";}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
 {
     var cond = this._gr('jtrue', "(", test, " === true || Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test passed */$blk = ", block, ";break;}");
+    out("if(", cond, "){/*test passed */$blk = ", block, ";", (this.nestlevel > 1 ? "continue" : "break"), ";}");
 };
 
 Compiler.prototype._jump = function(block)
 {
-    out("$blk = ", block, ";/* jump */break;");
+    out("$blk = ", block, ";/* jump */", (this.nestlevel > 1 ? "continue" : "break"), ";");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -709,11 +709,11 @@ Compiler.prototype.outputLocals = function(unit)
 Compiler.prototype.outputAllUnits = function()
 {
     var ret = '';
-    for (var j = 0; j < this.allUnits.length; ++j)
+    for (var j = this.allUnits.length - 1; j >= 0; --j)
     {
         var unit = this.allUnits[j];
         ret += unit.prefixCode;
-        ret += this.outputLocals(unit);
+        //ret += this.outputLocals(unit);
         ret += unit.varDeclsCode;
         ret += unit.switchCode;
         var blocks = unit.blocks;
@@ -1083,7 +1083,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     // the header of the function, and arguments
     //
-    this.u.prefixCode = "var " + scopename + "=(function " + this.niceName(coname.v) + "$(";
+    this.u.prefixCode = "var " + scopename + "=(function " + /*this.niceName(coname.v)*/coname.v  + "$(";
 
     var funcArgs = [];
     if (isGenerator)
@@ -1120,7 +1120,12 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 
     // note special usage of 'this' to avoid having to slice globals into
     // all function invocations in call
-    this.u.varDeclsCode += "var $blk=" + entryBlock + ",$exc=[],$loc=" + locals + cells + ",$gbl=this;";
+    this.u.varDeclsCode += "var $blk=" + entryBlock + ', $gbl = this;';//+ ",$exc=[],$loc=" + locals + cells + "";
+	for (var i = 0; args && i < args.args.length; ++i)
+	{
+		this.u.varDeclsCode += this.nameop(args.args[i].id, Load) + " = " + 
+			this.nameop(args.args[i].id, Param) + ";";
+	}
 
     //
     // copy all parameters that are also cells into the cells dict. this is so
@@ -1593,9 +1598,12 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore)
     // to actual JS stack variables.
     var mangledNoPre = mangled;
     if (this.u.ste.generator || this.u.ste.blockType !== FunctionBlock)
-        mangled = '$loc.' + this.u.scopename + ".loc." + mangled;
+        mangled = '$loc.' + this.u.scopename + ".loc." + mangled; //?
     else if (optype === OP_FAST || optype === OP_NAME)
+    {
+    	mangled = ctx == Param ? mangled : '$loc.' + this.u.scopename + ".loc." + mangled;
         this.u.localnames.push(mangled);
+    }
 
     switch (optype)
     {
