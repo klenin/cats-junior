@@ -1468,9 +1468,9 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-                out("return ", this.vexpr(s.value), ";");
+                out("$loc.", this.u.scopename, ".result = ", this.vexpr(s.value), ";");
             else
-                out("return null;");
+                out("$loc.", this.u.scopename, ".result = null;");
             break;
         case Delete_:
             this.vseqexpr(s.targets);
