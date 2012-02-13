@@ -159,7 +159,27 @@ Compiler.prototype._gr = function(hint, rest)
     out(v, " = ");
     for (var i = 1; i < arguments.length; ++i)
     {
+    	if (i == 4 && name)
+		{
+			out('"' + v + '", ');
+		}
         out(arguments[i]);
+    }
+    out(";");
+    return v;
+};
+
+Compiler.prototype._gr_ = function(hint, rest)
+{
+    var v = this.gensym(hint);
+    out(v, " = ");
+    for (var i = 1; i < arguments.length; ++i)
+    {
+        out(arguments[i]);
+		if (i == 2)
+		{
+			out(", $scope, '" + v + "'");
+		}
     }
     out(";");
     return v;
@@ -335,7 +355,13 @@ Compiler.prototype.ccall = function(e)
     }
     else
     {
-        return this._gr('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
+		block = this.newBlock();
+		out("$loc." + this.u.scopename + ".blk = ", block, ";\n"); //we don't need to break;
+        var call = this._gr_('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
+		out("break;\n");
+		this.setBlock(block);	
+		this.u.blocks[this.u.curblock].lineno = e.lineno;
+		return call;
     }
 };
 
@@ -1101,7 +1127,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // the header of the function, and arguments
     //
     this.u.prefixCode = "var " + scopename + "=(function " + /*this.niceName(coname.v)*/coname.v  + "$(";
-
+	this.u.prefixCode += "parent, call, "
     var funcArgs = [];
     if (isGenerator)
         funcArgs.push("$gen");
@@ -1143,7 +1169,8 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 		this.u.varDeclsCode += this.nameop(args.args[i].id, Load) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
-	this.u.varDeclsCode += '$loc.' + scopename + '.parent = ' + this.u.parentScope + ';'; 
+	this.u.varDeclsCode += '$loc.' + scopename + '.parent = parent;'; 
+	this.u.varDeclsCode += '$loc.' + scopename + '.call = call;'; 
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
     //
     // copy all parameters that are also cells into the cells dict. this is so
@@ -1288,7 +1315,8 @@ Compiler.prototype.cfunction = function(s)
     var funcorgen = this.buildcodeobj(s, s.name, s.decorator_list, s.args, function(scopename)
             {
                 this.vseqstmt(s.body);
-                out("$scope = " + this.u.parent + ";\n"); // if we fall off the bottom, we want the ret to be None
+                out("$scope = " + this.u.parentScope + ";\n"); // if we fall off the bottom, we want the ret to be None
+                out("break;\n")
             });
     this.nameop(s.name, Store, funcorgen);
 };
@@ -1468,9 +1496,9 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-                out("$loc.", this.u.scopename, ".result = ", this.vexpr(s.value), ";");
+				out('eval($loc.', this.u.scopename, '.call + " = ', this.vexpr(s.value),';");');
             else
-                out("$loc.", this.u.scopename, ".result = null;");
+				out('eval($loc.', this.u.scopename, '.call + " = null;");');
             break;
         case Delete_:
             this.vseqexpr(s.targets);

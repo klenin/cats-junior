@@ -288,7 +288,7 @@ function tryCode()
 		$loc.scope0.blk = 0;
 		nextline = getScope().blocks[getCurBlock()].lineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
-		//$('#codeRes1').html(finalcode.code);
+		$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
 	}
@@ -444,7 +444,7 @@ function fillTabs(){
 					'\tprint a\n' +
 					'\treturn 5\n\n' +
 					'a = 7\n' +
-					'pr(a)');
+					'print pr(a)');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {
