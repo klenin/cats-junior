@@ -1166,7 +1166,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     this.u.varDeclsCode += "$loc." + scopename + ".blk=" + entryBlock + ';';//+ ",$exc=[],$loc=" + locals + cells + "";
 	for (var i = 0; args && i < args.args.length; ++i)
 	{
-		this.u.varDeclsCode += this.nameop(args.args[i].id, Load) + " = " + 
+		this.u.varDeclsCode += this.nameop(args.args[i].id, Load, undefined, true) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
 	this.u.varDeclsCode += '$loc.' + scopename + '.parent = parent;'; 
@@ -1312,12 +1312,19 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 Compiler.prototype.cfunction = function(s)
 {
     goog.asserts.assert(s instanceof FunctionDef);
+	this.u.blocks[this.u.curblock].expr = 1;
     var funcorgen = this.buildcodeobj(s, s.name, s.decorator_list, s.args, function(scopename)
-            {
-                this.vseqstmt(s.body);
-                out("$scope = " + this.u.parentScope + ";\n"); // if we fall off the bottom, we want the ret to be None
-                out("break;\n")
-            });
+    {
+    	for (var i = 0; s.args && i < s.args.args.length; ++i)
+		{
+			this.u.varDeclsCode += this.nameop(s.args.args[i].id, Load) + " = " + 
+				this.nameop(s.args.args[i].id, Load, undefined, true) + ";";
+		}
+    	this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
+        this.vseqstmt(s.body, true);
+        out("$scope = " + this.u.parentScope + ";\n"); // if we fall off the bottom, we want the ret to be None
+        out("break;\n")
+    });
     this.nameop(s.name, Store, funcorgen);
 };
 
@@ -1553,12 +1560,12 @@ Compiler.prototype.vstmt = function(s)
     }
 };
 
-Compiler.prototype.vseqstmt = function(stmts)
+Compiler.prototype.vseqstmt = function(stmts, isFunc)
 {
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if (i && stmts[i - 1].constructor != If_)
+    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_) || isFunc)
 		{
 			block = this.newBlock();
 			this._jump(block)
@@ -1592,7 +1599,7 @@ Compiler.prototype.isCell = function(name)
  * @param {Object} ctx
  * @param {string=} dataToStore
  */
-Compiler.prototype.nameop = function(name, ctx, dataToStore)
+Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
 {
     if ((ctx === Store || ctx === AugStore || ctx === Del) && name.v === "__debug__")
         this.error("can not assign to __debug__");
@@ -1647,8 +1654,8 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore)
         mangled = '$loc.' + this.u.scopename + ".loc." + mangled; //?
     else if (optype === OP_FAST || optype === OP_NAME)
     {
-    	mangled = ctx == Param ? mangled : '$loc.' + this.u.scopename + ".loc." + mangled;
-        //this.u.localnames.push(mangled);
+    	if ( ctx != Param )
+			mangled = '$loc.' + this.u.scopename + (funcArg ? ".param." : ".loc.") + mangled;
     }
 
     switch (optype)
@@ -1813,7 +1820,9 @@ Compiler.prototype.cmod = function(mod)
             goog.asserts.fail("todo; unhandled case in compilerMod");
     }
     this.exitScope();
-
+	for (var i = 0; i < mod.body.length && mod.body[i]._astname == "FunctionDef"; ++i );
+	//this.allUnits[0].firstblock = i < mod.body.length ? i : -1;
+	this.allUnits[0].firstlineno = i < mod.body.length ? this.allUnits[0].blocks[i].lineno : -1;
     this.result.push(this.outputAllUnits());
     return modf;
 };

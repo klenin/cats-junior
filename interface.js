@@ -284,14 +284,24 @@ function tryCode()
 		{
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.loc = {};');
+			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.param = {};');
+
 		}
 		$loc.scope0.blk = 0;
-		nextline = getScope().blocks[getCurBlock()].lineno;
+		nextline = getScope().firstlineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
 		$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
 	}
+}
+
+function showHideCode()
+{
+	if ($('#showHide').attr('checked'))
+		$('#codeRes1').hide();
+	else
+		$('#codeRes1').show();
 }
 
 function fillTabs(){
@@ -464,12 +474,12 @@ function fillTabs(){
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
 	$('#pythonForm').append('<pre id = "codeRes"></pre>');
+	$('#pythonForm').append('<input type = "checkbox" onchange = "showHideCode()" id = "showHide">Show/hide code</input>');
 	$('#pythonForm').append('<pre id = "codeRes1"></pre>');
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();
 	$('#btnPythonNext').click(tryNextStep);
-
 }
 
 function exportCommands(){
