@@ -67,11 +67,18 @@ function CompilerUnit()
     this.finallyBlocks = [];
 }
 
-function CompilerUnit.prototype.getCurrentLevel()
+Compiler.prototype.getCurrentLevel = function(scope)
 {
-	var lastIndex = eval('$loc.' + this.u.scopename + '.stack.length') - 1;
-	return '$loc.' + this.u.scopename + '.stack[' + lastIndex + ']';
+	var scopename = scope != undefined ? scope : this.u.scopename;
+	var lastIndex = eval() - 1;
+	return "$loc." + scopename + ".stack[$loc." + scopename + ".stack.length - 1]";
 }
+
+Compiler.prototype.getStack = function(scope)
+{
+	return '$loc.' + (scope != undefined ? scope : this.u.scopename) + '.stack';
+}
+
 
 CompilerUnit.prototype.activateScope = function()
 {
@@ -1169,14 +1176,14 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 
     // note special usage of 'this' to avoid having to slice globals into
     // all function invocations in call
-    this.u.varDeclsCode += this.getCurrentLevel() + ".blk=" + entryBlock + ';';//+ ",$exc=[],$loc=" + locals + cells + "";
+    this.u.varDeclsCode += this.getStack(scopename) + ".push({'loc': {}, 'param': {}, 'blk': " + entryBlock + " });"
 	for (var i = 0; args && i < args.args.length; ++i)
 	{
 		this.u.varDeclsCode += this.nameop(args.args[i].id, Load, undefined, true) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
-	this.u.varDeclsCode += this.getCurrentLevel() + '.parent = parent;'; 
-	this.u.varDeclsCode += this.getCurrentLevel() +'.call = call;'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = parent;'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = call;'; 
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
     //
     // copy all parameters that are also cells into the cells dict. this is so
@@ -1226,7 +1233,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     // finally, set up the block switch that the jump code expects
     //
-    this.u.switchCode += "switch(" + this.getCurrentLevel() + ".blk){";
+    this.u.switchCode += "switch(" + this.getCurrentLevel(scopename) + ".blk){";
     this.u.suffixCode = "};";
 
     //
@@ -1512,6 +1519,7 @@ Compiler.prototype.vstmt = function(s)
 				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");');
             else
 				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
+			out('eval("', this.getStack(), '.pop();");');
             break;
         case Delete_:
             this.vseqexpr(s.targets);
@@ -1813,21 +1821,20 @@ Compiler.prototype.cmod = function(mod)
     var entryBlock = this.newBlock('module entry');
     this.u.prefixCode = "";//"var " + modf + "=(function(){";
     this.u.varDeclsCode = "";//"var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
-    this.u.switchCode = "switch($loc." + modf + "stack[0].blk){"; //
+    this.u.switchCode = "switch(" + this.getCurrentLevel(modf) + ".blk){"; //
     this.u.suffixCode = "}"//"}});";
 
     switch (mod.constructor)
     {
         case Module:
             this.cbody(mod.body);
-            out("$loc." + modf + ".blk = -1; break;");
+            out(this.getCurrentLevel(modf) + ".blk = -1; break;");
             break;
         default:
             goog.asserts.fail("todo; unhandled case in compilerMod");
     }
     this.exitScope();
 	for (var i = 0; i < mod.body.length && mod.body[i]._astname == "FunctionDef"; ++i );
-	//this.allUnits[0].firstblock = i < mod.body.length ? i : -1;
 	this.allUnits[0].firstlineno = i < mod.body.length ? this.allUnits[0].blocks[i].lineno : -1;
     this.result.push(this.outputAllUnits());
     return modf;
