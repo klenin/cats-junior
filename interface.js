@@ -283,10 +283,10 @@ function tryCode()
 		for (var i = 0; i < finalcode.compiled.scopes.length; ++i)
 		{
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
-			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.loc = {};');
-			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.param = {};');
-
+			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.stack = [];');
 		}
+		eval('$loc.scope0.stack[0].loc = {};');
+		eval('$loc.scope0.stack[0].param = {};');
 		$loc.scope0.blk = 0;
 		nextline = getScope().firstlineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');

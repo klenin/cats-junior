@@ -67,6 +67,12 @@ function CompilerUnit()
     this.finallyBlocks = [];
 }
 
+function CompilerUnit.prototype.getCurrentLevel()
+{
+	var lastIndex = eval('$loc.' + this.u.scopename + '.stack.length') - 1;
+	return '$loc.' + this.u.scopename + '.stack[' + lastIndex + ']';
+}
+
 CompilerUnit.prototype.activateScope = function()
 {
     var self = this;
@@ -100,7 +106,7 @@ Compiler.prototype.annotateSource = function(ast)
 Compiler.prototype.gensym = function(hint)
 {
     hint = hint || '';
-    hint =  '$loc.' + this.u.scopename + '.loc.' + hint;
+    hint =  this.getCurrentLevel() + '.loc.' + hint;
     hint += this.gensymcount++;
     return hint;
 };
@@ -188,25 +194,25 @@ Compiler.prototype._gr_ = function(hint, rest)
 Compiler.prototype._jumpfalse = function(test, block, e)
 {
     var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test failed */$loc." + this.u.scopename + ".blk = ", block, ";",
+    out("if(", cond, "){/*test failed */" + this.getCurrentLevel() + ".blk = ", block, ";",
 		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumpundef = function(test, block, e)
 {
-    out("if(", test, " === undefined){$loc." + this.u.scopename + ".blk = ", block, ";",
+    out("if(", test, " === undefined){" + this.getCurrentLevel() + ".blk = ", block, ";",
 		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
 {
     var cond = this._gr('jtrue', "(", test, " === true || Sk.misceval.isTrue(", test, "))");
-    out("if(", cond, "){/*test passed */$loc." + this.u.scopename + ".blk = ", block, ";break;}");
+    out("if(", cond, "){/*test passed */" + this.getCurrentLevel() + ".blk = ", block, ";break;}");
 };
 
 Compiler.prototype._jump = function(block)
 {
-    out("$loc." + this.u.scopename + ".blk = ", block, ";/* jump */break;");
+    out(this.getCurrentLevel() + ".blk = ", block, ";/* jump */break;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -356,7 +362,7 @@ Compiler.prototype.ccall = function(e)
     else
     {
 		block = this.newBlock();
-		out("$loc." + this.u.scopename + ".blk = ", block, ";\n"); //we don't need to break;
+		out(this.getCurrentLevel() + ".blk = ", block, ";\n"); //we don't need to break;
         var call = this._gr_('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
 		out("break;\n");
 		this.setBlock(block);	
@@ -870,7 +876,7 @@ Compiler.prototype.cfor = function(s)
     {
         // if we're in a generator, we have to store the iterator to a local
         // so it's preserved (as we cross blocks here and assume it survives)
-        iter = '$loc.' + this.u.scopename + '.loc.' + this.gensym("iter");
+        iter = this.getCurrentLevel() + '.loc.' + + this.gensym("iter");
         out(iter, "=Sk.abstr.iter(", toiter, ");");
     }
     else
@@ -1163,14 +1169,14 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 
     // note special usage of 'this' to avoid having to slice globals into
     // all function invocations in call
-    this.u.varDeclsCode += "$loc." + scopename + ".blk=" + entryBlock + ';';//+ ",$exc=[],$loc=" + locals + cells + "";
+    this.u.varDeclsCode += this.getCurrentLevel() + ".blk=" + entryBlock + ';';//+ ",$exc=[],$loc=" + locals + cells + "";
 	for (var i = 0; args && i < args.args.length; ++i)
 	{
 		this.u.varDeclsCode += this.nameop(args.args[i].id, Load, undefined, true) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
-	this.u.varDeclsCode += '$loc.' + scopename + '.parent = parent;'; 
-	this.u.varDeclsCode += '$loc.' + scopename + '.call = call;'; 
+	this.u.varDeclsCode += this.getCurrentLevel() + '.parent = parent;'; 
+	this.u.varDeclsCode += this.getCurrentLevel() +'.call = call;'; 
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
     //
     // copy all parameters that are also cells into the cells dict. this is so
@@ -1220,7 +1226,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     // finally, set up the block switch that the jump code expects
     //
-    this.u.switchCode += "switch($loc." + scopename + ".blk){";
+    this.u.switchCode += "switch(" + this.getCurrentLevel() + ".blk){";
     this.u.suffixCode = "};";
 
     //
@@ -1374,12 +1380,12 @@ Compiler.prototype.cgenexpgen = function(generators, genIndex, elt)
         // the outer most iterator is evaluated in the scope outside so we
         // have to evaluate it outside and store it into the generator as a
         // local, which we retrieve here.
-        iter = '$loc.' + this.u.scopename + ".loc.$iter0";
+        iter = this.getCurrentLevel() + '.loc.' + "$iter0";
     }
     else
     {
         var toiter = this.vexpr(ge.iter);
-        iter = '$loc.' + this.u.scopename + ".loc." + this.gensym("iter");
+        iter = this.getCurrentLevel() + '.loc.' + this.gensym("iter");
         out(iter, "=", "Sk.abstr.iter(", toiter, ");");
     }
     this._jump(start);
@@ -1503,9 +1509,9 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-				out('eval($loc.', this.u.scopename, '.call + " = ', this.vexpr(s.value),';");');
+				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");');
             else
-				out('eval($loc.', this.u.scopename, '.call + " = null;");');
+				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
             break;
         case Delete_:
             this.vseqexpr(s.targets);
@@ -1651,11 +1657,11 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
     // to actual JS stack variables.
     var mangledNoPre = mangled;
     if (this.u.ste.generator || this.u.ste.blockType !== FunctionBlock)
-        mangled = '$loc.' + this.u.scopename + ".loc." + mangled; //?
+        mangled =this.getCurrentLevel() + '.loc.' + mangled; //?
     else if (optype === OP_FAST || optype === OP_NAME)
     {
     	if ( ctx != Param )
-			mangled = '$loc.' + this.u.scopename + (funcArg ? ".param." : ".loc.") + mangled;
+			mangled = this.getCurrentLevel() + (funcArg ? '.param.' : '.loc.') + mangled;
     }
 
     switch (optype)
@@ -1807,7 +1813,7 @@ Compiler.prototype.cmod = function(mod)
     var entryBlock = this.newBlock('module entry');
     this.u.prefixCode = "";//"var " + modf + "=(function(){";
     this.u.varDeclsCode = "";//"var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
-    this.u.switchCode = "switch($loc." + modf + ".blk){";
+    this.u.switchCode = "switch($loc." + modf + "stack[0].blk){"; //
     this.u.suffixCode = "}"//"}});";
 
     switch (mod.constructor)
