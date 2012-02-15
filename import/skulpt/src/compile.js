@@ -1230,6 +1230,67 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
         this.u.varDeclsCode += kwarg.v + "=new Sk.builtins['dict']($kwa);";
     }
 
+//
+    // attach the default values we evaluated at the beginning to the code
+    // object so that it can get at them to set any arguments that are left
+    // unset.
+    //
+    if (defaults.length > 0)
+        out(scopename, ".$defaults=[", defaults.join(','), "];");
+
+
+    //
+    // attach co_varnames (only the argument names) for keyword argument
+    // binding.
+    //
+    if (argnames)
+    {
+        out(scopename, ".co_varnames=['", argnames, "'];");
+    }
+
+    //
+    // attach flags
+    //
+    if (kwarg)
+    {
+        out(scopename, ".co_kwargs=1;");
+    }
+
+    //
+    // build either a 'function' or 'generator'. the function is just a simple
+    // constructor call. the generator is more complicated. it needs to make a
+    // new generator every time it's called, so the thing that's returned is
+    // actually a function that makes the generator (and passes arguments to
+    // the function onwards to the generator). this should probably actually
+    // be a function object, rather than a js function like it is now. we also
+    // have to build the argument names to pass to the generator because it
+    // needs to store all locals into itself so that they're maintained across
+    // yields.
+    //
+    // todo; possibly this should be outside?
+    // 
+    var frees = "";
+    if (hasFree)
+    {
+        frees = ",$cell";
+        // if the scope we're in where we're defining this one has free
+        // vars, they may also be cell vars, so we pass those to the
+        // closure too.
+        var containingHasFree = this.u.ste.hasFree;
+        if (containingHasFree)
+            frees += ",$free";
+    }
+	var funcorgen;
+    if (isGenerator)
+        if (args && args.args.length > 0)
+            funcorgen = this._gr("gener", "(function(){var $origargs=Array.prototype.slice.call(arguments);return new Sk.builtins['generator'](", scopename, ",$gbl,$origargs", frees, ");})");
+        else
+            funcorgen = this._gr("gener", "(function(){return new Sk.builtins['generator'](", scopename, ",$gbl,[]", frees, ");})");
+    else
+        funcorgen = this._gr("funcobj", "new Sk.builtins['function'](", scopename, ",$gbl", frees ,")");
+
+    this.nameop(coname, Store, funcorgen);
+
     //
     // finally, set up the block switch that the jump code expects
     //
