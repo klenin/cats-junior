@@ -191,7 +191,7 @@ Compiler.prototype._gr_ = function(hint, rest)
         out(arguments[i]);
 		if (i == 2)
 		{
-			out(", $scope, '" + v + "'");
+			out(", $scope, $scopename, '" + v + "'");
 		}
     }
     out(";");
@@ -1140,7 +1140,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // the header of the function, and arguments
     //
     this.u.prefixCode = "var " + scopename + "=(function " + /*this.niceName(coname.v)*/coname.v  + "$(";
-	this.u.prefixCode += "parent, call, "
+	this.u.prefixCode += "parent, parentName, call "
     var funcArgs = [];
     if (isGenerator)
         funcArgs.push("$gen");
@@ -1183,8 +1183,10 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 			this.nameop(args.args[i].id, Param) + ";";
 	}
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = parent;'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName = parentName;'; 
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = call;'; 
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
+	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
     //
     // copy all parameters that are also cells into the cells dict. this is so
     // they can be accessed correctly by nested scopes.
@@ -1229,67 +1231,6 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     {
         this.u.varDeclsCode += kwarg.v + "=new Sk.builtins['dict']($kwa);";
     }
-
-//
-    // attach the default values we evaluated at the beginning to the code
-    // object so that it can get at them to set any arguments that are left
-    // unset.
-    //
-    if (defaults.length > 0)
-        out(scopename, ".$defaults=[", defaults.join(','), "];");
-
-
-    //
-    // attach co_varnames (only the argument names) for keyword argument
-    // binding.
-    //
-    if (argnames)
-    {
-        out(scopename, ".co_varnames=['", argnames, "'];");
-    }
-
-    //
-    // attach flags
-    //
-    if (kwarg)
-    {
-        out(scopename, ".co_kwargs=1;");
-    }
-
-    //
-    // build either a 'function' or 'generator'. the function is just a simple
-    // constructor call. the generator is more complicated. it needs to make a
-    // new generator every time it's called, so the thing that's returned is
-    // actually a function that makes the generator (and passes arguments to
-    // the function onwards to the generator). this should probably actually
-    // be a function object, rather than a js function like it is now. we also
-    // have to build the argument names to pass to the generator because it
-    // needs to store all locals into itself so that they're maintained across
-    // yields.
-    //
-    // todo; possibly this should be outside?
-    // 
-    var frees = "";
-    if (hasFree)
-    {
-        frees = ",$cell";
-        // if the scope we're in where we're defining this one has free
-        // vars, they may also be cell vars, so we pass those to the
-        // closure too.
-        var containingHasFree = this.u.ste.hasFree;
-        if (containingHasFree)
-            frees += ",$free";
-    }
-	var funcorgen;
-    if (isGenerator)
-        if (args && args.args.length > 0)
-            funcorgen = this._gr("gener", "(function(){var $origargs=Array.prototype.slice.call(arguments);return new Sk.builtins['generator'](", scopename, ",$gbl,$origargs", frees, ");})");
-        else
-            funcorgen = this._gr("gener", "(function(){return new Sk.builtins['generator'](", scopename, ",$gbl,[]", frees, ");})");
-    else
-        funcorgen = this._gr("funcobj", "new Sk.builtins['function'](", scopename, ",$gbl", frees ,")");
-
-    this.nameop(coname, Store, funcorgen);
 
     //
     // finally, set up the block switch that the jump code expects
@@ -1396,7 +1337,6 @@ Compiler.prototype.cfunction = function(s)
 		}
     	this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
         this.vseqstmt(s.body, true);
-        out("$scope = " + this.u.parentScope + ";\n"); // if we fall off the bottom, we want the ret to be None
         out("break;\n")
     });
     this.nameop(s.name, Store, funcorgen);
@@ -1580,6 +1520,8 @@ Compiler.prototype.vstmt = function(s)
 				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");');
             else
 				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
+	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
+			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
 			out('eval("', this.getStack(), '.pop();");');
             break;
         case Delete_:
@@ -1705,10 +1647,10 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
             if (this.u.ste.blockType === FunctionBlock && !this.u.ste.generator)
                 optype = OP_FAST;
             break;
-        case GLOBAL_IMPLICIT:
+        /*case GLOBAL_IMPLICIT:
             if (this.u.ste.blockType === FunctionBlock)
                 optype = OP_GLOBAL;
-            break;
+            break;*/
         case GLOBAL_EXPLICIT:
             optype = OP_GLOBAL;
         default:
@@ -1757,7 +1699,18 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
                 case Load:
                     var v = this.gensym('loadname');
                     // can't be || for loc.x = 0 or null
-                    out(v, "=", mangled, "!==undefined?",mangled,":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
+                    out("var t_scope = $scope, t_scopename = $scopename;\n");
+					out("while (", 
+						'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")',
+						" == undefined &&",
+						'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parent != undefined"))',
+						'{t_scope = eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parent");\n',
+						't_scopename = eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parentName");}')
+                    out(v, "=", 
+                    	'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")', 
+                    	"!==undefined?",
+                    	'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")',
+                    	":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
                     return v;
                 case Store:
                     out(mangled, "=", dataToStore, ";");
@@ -1878,10 +1831,10 @@ Compiler.prototype.cmod = function(mod)
     //print("-----");
     //print(Sk.astDump(mod));
     var modf = this.enterScope(new Sk.builtin.str("<module>"), mod, 0);
-
     var entryBlock = this.newBlock('module entry');
-    this.u.prefixCode = "";//"var " + modf + "=(function(){";
-    this.u.varDeclsCode = "";//"var $blk=" + entryBlock + ",$exc=[],$gbl={},$loc=$gbl;$gbl.__name__=$modname;";
+	var lvl = this.getCurrentLevel(modf);
+    this.u.prefixCode = "";
+    this.u.varDeclsCode =  lvl + ".blk = 0; $scope = 0; $scopename = '" + modf + "';";
     this.u.switchCode = "switch(" + this.getCurrentLevel(modf) + ".blk){"; //
     this.u.suffixCode = "}"//"}});";
 

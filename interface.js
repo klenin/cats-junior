@@ -225,7 +225,7 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $gbl, $loc, $expr, $scope, nextline;
+var finalcode, $gbl, $loc, $expr, $scope, nextline, $scopename;
 
 function getCurBlock()
 {
@@ -289,6 +289,7 @@ function tryCode()
 		eval('$loc.scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
 		nextline = getScope().firstlineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
+		$scopename = finalcode.compiled.scopes[0].scopename;
 		$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
@@ -449,11 +450,11 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('def pr(a):\n' +
+	$('#code').append('def pr():\n' +
 					'\tprint a\n' +
 					'\treturn 5\n\n' +
 					'a = 7\n' +
-					'print pr(a)');
+					'print pr()');
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {
