@@ -191,7 +191,7 @@ Compiler.prototype._gr_ = function(hint, rest)
         out(arguments[i]);
 		if (i == 2)
 		{
-			out(", $scope, $scopename, '" + v + "'");
+			out(", $scope, $scopename, $scopestack, '" + v + "'");
 		}
     }
     out(";");
@@ -1140,7 +1140,9 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // the header of the function, and arguments
     //
     this.u.prefixCode = "var " + scopename + "=(function " + /*this.niceName(coname.v)*/coname.v  + "$(";
-	this.u.prefixCode += "parent, parentName, call "
+	this.u.prefixCode += "parent, parentName, parentStack, call";
+	if (args.args.length)
+		this.u.prefixCode += ", ";
     var funcArgs = [];
     if (isGenerator)
         funcArgs.push("$gen");
@@ -1184,9 +1186,11 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 	}
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = parent;'; 
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName = parentName;'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = parentStack;'; 
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = call;'; 
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
 	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
+	this.u.varDeclsCode += '$scopestack = $loc.' + scopename +'.stack.length - 1;';
     //
     // copy all parameters that are also cells into the cells dict. this is so
     // they can be accessed correctly by nested scopes.
@@ -1522,6 +1526,7 @@ Compiler.prototype.vstmt = function(s)
 				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
 	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
 			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
+			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n"); 
 			out('eval("', this.getStack(), '.pop();");');
             break;
         case Delete_:
@@ -1699,17 +1704,19 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
                 case Load:
                     var v = this.gensym('loadname');
                     // can't be || for loc.x = 0 or null
-                    out("var t_scope = $scope, t_scopename = $scopename;\n");
+                    out("var t_scope = $scope, t_scopename = $scopename, t_scopestack = $scopestack;\n");
 					out("while (", 
-						'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")',
-						" == undefined &&",
-						'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parent != undefined"))',
-						'{t_scope = eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parent");\n',
-						't_scopename = eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].parentName");}')
+						'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
+						" == undefined && \n",
+						'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentStack != undefined"))\n',
+						'{t_scope = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parent");\n',
+						'var nm = t_scopename;',
+						't_scopename = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentName");\n',
+						't_scopestack = eval("$loc." + nm + ".stack[" + t_scopestack + "].parentStack");}')
                     out(v, "=", 
-                    	'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")', 
+                    	'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")', 
                     	"!==undefined?",
-                    	'eval("$loc." + t_scopename + ".stack[$loc." + t_scopename + ".stack.length - 1].loc." + "' + mangledNoPre + '")',
+                    	'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
                     	":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
                     return v;
                 case Store:
@@ -1834,7 +1841,7 @@ Compiler.prototype.cmod = function(mod)
     var entryBlock = this.newBlock('module entry');
 	var lvl = this.getCurrentLevel(modf);
     this.u.prefixCode = "";
-    this.u.varDeclsCode =  lvl + ".blk = 0; $scope = 0; $scopename = '" + modf + "';";
+    this.u.varDeclsCode =  lvl + ".blk = 0; $scope = 0; $scopestack = 0; $scopename = '" + modf + "';";
     this.u.switchCode = "switch(" + this.getCurrentLevel(modf) + ".blk){"; //
     this.u.suffixCode = "}"//"}});";
 

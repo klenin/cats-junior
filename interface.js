@@ -225,7 +225,7 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $gbl, $loc, $expr, $scope, nextline, $scopename;
+var finalcode, $gbl, $loc, $expr, $scope, nextline, $scopename, $scopestack;
 
 function getCurBlock()
 {
@@ -290,6 +290,7 @@ function tryCode()
 		nextline = getScope().firstlineno;
 		curCodeMirror.setLineClass(nextline, 'cm-curline');
 		$scopename = finalcode.compiled.scopes[0].scopename;
+		$scopestack = 0;
 		$('#codeRes1').html(finalcode.code);
 	} catch (e) {
 		alert(e);
