@@ -1341,6 +1341,14 @@ Compiler.prototype.cfunction = function(s)
 		}
     	this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
         this.vseqstmt(s.body, true);
+		if (s.body[s.body.length - 1] != Return_)
+		{
+			out('eval(' + this.getCurrentLevel() + '.call + " = null;");'); //repeated code!!!!!
+	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
+			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
+			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n"); 
+			out('eval("', this.getStack(), '.pop();");');
+		}
         out("break;\n")
     });
     this.nameop(s.name, Store, funcorgen);
