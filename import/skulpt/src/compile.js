@@ -797,11 +797,13 @@ Compiler.prototype.cif = function(s)
 		this.u.blocks[this.u.curblock].expr = 0;
 		var next = this.newBlock('next branch of if');
 		var elseBlock = undefined; 
-		if (s.orelse)
+		if (s.orelse != undefined && s.orelse.length)
 			elseBlock = this.newBlock('alternative branch of if');
 		this._jumptrue(test, next);
 		if (elseBlock != undefined)
 			this._jumpfalse(test, elseBlock);
+		else
+			this._jump(end);
 		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 		this.setBlock(next);
 		this.vseqstmt(s.body);
@@ -1595,7 +1597,7 @@ Compiler.prototype.vseqstmt = function(stmts, isFunc)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_) || isFunc)
+    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_))// || isFunc??? what for???
 		{
 			block = this.newBlock();
 			this._jump(block)
