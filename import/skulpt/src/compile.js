@@ -1336,8 +1336,8 @@ Compiler.prototype.cfunction = function(s)
     {
     	for (var i = 0; s.args && i < s.args.args.length; ++i)
 		{
-			this.u.varDeclsCode += this.nameop(s.args.args[i].id, Load) + " = " + 
-				this.nameop(s.args.args[i].id, Load, undefined, true) + ";";
+			out(this.nameop(s.args.args[i].id, Load) + " = " + 
+				this.nameop(s.args.args[i].id, Load, undefined, true) + ";");
 		}
     	this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
         this.vseqstmt(s.body, true);
