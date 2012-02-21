@@ -1,0 +1,2 @@
+for cm in ['a', 'b', 'c']:
+    print cm

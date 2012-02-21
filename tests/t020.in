@@ -1,0 +1,8 @@
+def foo(a):
+    print 1
+    if a < 5:
+        return a
+    else:
+        return a - 2
+
+print foo(6)

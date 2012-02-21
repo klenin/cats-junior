@@ -1597,7 +1597,7 @@ Compiler.prototype.vseqstmt = function(stmts, isFunc)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_))// || isFunc??? what for???
+    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_)|| isFunc && !i)
 		{
 			block = this.newBlock();
 			this._jump(block)

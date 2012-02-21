@@ -1,0 +1,8 @@
+def foo(a):
+    print bar(a)
+    
+def bar(a):
+    return a
+    
+    
+foo(1)

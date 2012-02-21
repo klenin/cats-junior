@@ -1,0 +1,5 @@
+a = 5
+if a < 7 or a + 4 > 8:
+    print 7
+else:
+    print 5
