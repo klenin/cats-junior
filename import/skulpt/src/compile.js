@@ -1343,13 +1343,13 @@ Compiler.prototype.cfunction = function(s)
 		}
     	this.u.blocks[this.u.curblock].lineno = s.lineno - 1;
         this.vseqstmt(s.body, true);
-		if (s.body[s.body.length - 1] != Return_)
+		if (s.body[s.body.length - 1]._astname != "Return")
 		{
-			out('eval(' + this.getCurrentLevel() + '.call + " = null;");'); //repeated code!!!!!
+			out('eval(' + this.getCurrentLevel() + '.call + " = null;");\n'); //repeated code!!!!!
 	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
 			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
-			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n"); 
-			out('eval("', this.getStack(), '.pop();");');
+			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n");
+			out('eval("', this.getStack(), '.pop();");\n'); 
 		}
         out("break;\n")
     });
@@ -1531,13 +1531,14 @@ Compiler.prototype.vstmt = function(s)
             if (this.u.ste.blockType !== FunctionBlock)
                 throw new SyntaxError("'return' outside function");
             if (s.value)
-				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");');
+				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");\n');
             else
 				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
 	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
 			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
-			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n"); 
-			out('eval("', this.getStack(), '.pop();");');
+			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n");
+			out('eval("', this.getStack(), '.pop();");\n');
+			out("break;\n")
             break;
         case Delete_:
             this.vseqexpr(s.targets);
