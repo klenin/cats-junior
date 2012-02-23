@@ -217,9 +217,9 @@ Compiler.prototype._jumptrue = function(test, block)
     out("if(", cond, "){/*test passed */" + this.getCurrentLevel() + ".blk = ", block, ";break;}");
 };
 
-Compiler.prototype._jump = function(block)
+Compiler.prototype._jump = function(block, expr)
 {
-    out(this.getCurrentLevel() + ".blk = ", block, ";/* jump */break;");
+    out(this.getCurrentLevel() + ".blk = ", block, ";", (expr != undefined ? ("$expr = " + expr + ";") : ""), "/* jump */break;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -803,19 +803,21 @@ Compiler.prototype.cif = function(s)
 		if (elseBlock != undefined)
 			this._jumpfalse(test, elseBlock);
 		else
-			this._jump(end);
+		{
+			this._jump(end, 1);
+		}
 		this.u.blocks[this.u.curblock].lineno = this.u.lineno - 1;
 		this.setBlock(next);
 		this.vseqstmt(s.body);
 
-        this._jump(end);
+        this._jump(end, 1);
 
 		if (elseBlock != undefined)
 		{
 		    this.setBlock(elseBlock);
 		    if (s.orelse)
 		        this.vseqstmt(s.orelse);
-		    this._jump(end);
+		    this._jump(end, 1);
 		}
         
     }
@@ -1597,7 +1599,7 @@ Compiler.prototype.vseqstmt = function(stmts, isFunc)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if ((i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_)|| isFunc && !i)
+    	if (i || isFunc && !i)
 		{
 			block = this.newBlock();
 			this._jump(block)
@@ -1815,7 +1817,7 @@ Compiler.prototype.cbody = function(stmts)
 	var block;
     for (var i = 0; i < stmts.length; ++i) 
     {
-    	if (i && stmts[i - 1].constructor != If_ && stmts[i - 1].constructor != For_)
+    	if (i)
 		{
 			block = this.newBlock();
 			this._jump(block)
