@@ -182,19 +182,20 @@ Compiler.prototype._gr = function(hint, rest)
     return v;
 };
 
-Compiler.prototype._gr_ = function(hint, rest)
+Compiler.prototype._gr_ = function(c, hint, rest)
 {
     var v = this.gensym(hint);
+	out("if(eval(" + c + ") != undefined){")
     out(v, " = ");
-    for (var i = 1; i < arguments.length; ++i)
-    {
+	for (var i = 2; i < arguments.length - 1; ++i)
         out(arguments[i]);
-		if (i == 2)
-		{
-			out(", $scope, $scopename, $scopestack, '" + v + "'");
-		}
-    }
-    out(";");
+		out((arguments.length ? ", " : "") + "$scope, $scopename, $scopestack, '" + v + "'");
+	out(");}\n");
+	out("else\n{");
+    out(v, " = ");
+	for (var i = 2; i < arguments.length - 1; ++i)
+        out(arguments[i]);
+	out(");\n$expr = 1;}\n")
     return v;
 };
 
@@ -346,7 +347,7 @@ Compiler.prototype.ccompare = function(e)
 
 Compiler.prototype.ccall = function(e)
 {
-    var func = this.vexpr(e.func);
+    var func = this.vexpr(e.func, undefined, undefined, undefined, true);
     var args = this.vseqexpr(e.args);
     //print(JSON.stringify(e, null, 2));
     if (e.keywords.length > 0 || e.starargs || e.kwargs)
@@ -370,10 +371,16 @@ Compiler.prototype.ccall = function(e)
     {
 		block = this.newBlock();
 		out(this.getCurrentLevel() + ".blk = ", block, ";\n"); //we don't need to break;
-        var call = this._gr_('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
+		c = '1';
+		if (func.length)
+		{
+			c = func[1];
+			func = func[0];
+		}
+        var call = this._gr_(c, 'call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
 		out("break;\n");
 		this.setBlock(block);	
-		this.u.blocks[this.u.curblock].lineno = e.lineno;
+		this.u.blocks[this.u.curblock].lineno = e.lineno - 1;
 		return call;
     }
 };
@@ -495,7 +502,7 @@ Compiler.prototype.cboolop = function(e)
  * @param {Object=} augstoreval value to store to for an aug operation (not
  * vexpr'd yet)
  */
-Compiler.prototype.vexpr = function(e, data, augstoreval)
+Compiler.prototype.vexpr = function(e, data, augstoreval, arg1, arg2)
 {
     if (e.lineno > this.u.lineno)
     {
@@ -582,7 +589,7 @@ Compiler.prototype.vexpr = function(e, data, augstoreval)
             }
             break;
         case Name:
-            return this.nameop(e.id, e.ctx, data);
+            return this.nameop(e.id, e.ctx, data, arg1, arg2);
         case List:
             return this.ctupleorlist(e, data, 'list');
         case Tuple:
@@ -1142,9 +1149,6 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // the header of the function, and arguments
     //
     this.u.prefixCode = "var " + scopename + "=(function " + /*this.niceName(coname.v)*/coname.v  + "$(";
-	this.u.prefixCode += "parent, parentName, parentStack, call";
-	if (args.args.length)
-		this.u.prefixCode += ", ";
     var funcArgs = [];
     if (isGenerator)
         funcArgs.push("$gen");
@@ -1158,7 +1162,9 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     if (hasFree)
         funcArgs.push("$free");
     this.u.prefixCode += funcArgs.join(",");
-
+	if (args.args.length)
+		this.u.prefixCode += ", ";
+	this.u.prefixCode += "parent, parentName, parentStack, call";
     this.u.prefixCode += "){";
 
     if (isGenerator) this.u.prefixCode += "\n// generator\n";
@@ -1632,7 +1638,7 @@ Compiler.prototype.isCell = function(name)
  * @param {Object} ctx
  * @param {string=} dataToStore
  */
-Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
+Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg, isFunc)
 {
     if ((ctx === Store || ctx === AugStore || ctx === Del) && name.v === "__debug__")
         this.error("can not assign to __debug__");
@@ -1729,7 +1735,7 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg)
                     	"!==undefined?",
                     	'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
                     	":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
-                    return v;
+                    return isFunc ? [v, '"$loc." + t_scopename + ".stack[" + t_scopestack + "].loc.' + mangledNoPre + '"'] : v;
                 case Store:
                     out(mangled, "=", dataToStore, ";");
                     break;
