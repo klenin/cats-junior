@@ -305,6 +305,11 @@ function showHideCode()
 		$('#codeRes1').show();
 }
 
+function testChanged()
+{
+	curCodeMirror.setValue(tests[$('#selectTest :selected').val()]);
+}
+
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -451,12 +456,12 @@ function fillTabs(){
 	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-	$('#code').append('def pr(a):\n' +
-					'\tprint a\n' +
-					'\tif a < 3:\n' +
-					'\t\tpr(a + 1)\n' +
-					'\tprint a\n\n' +
-					'pr(1)');
+	$('#pythonForm').append('<select id = "selectTest" name = "selectTest" onchange = "testChanged()"></select>');
+	for(var i = 0; i < TESTS_NUM; i++)
+	{
+		$('#selectTest').append('<option id = "test' + i + '" value = "' + i + '">' + (i + 1) + '</option>');
+	}
+	$('#code').append(tests[0]);
 	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {

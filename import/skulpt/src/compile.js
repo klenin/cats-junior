@@ -919,9 +919,7 @@ Compiler.prototype.cfor = function(s)
     this.popBreakBlock();
 
     this.vseqstmt(s.orelse);
-
-    this._jump(end);
-
+	this._jump(end, !s.orelse || s.orelse && !s.orelse.length);
     this.setBlock(end);
 	//this.u.blocks[this.u.curblock].lineno = line;
 
