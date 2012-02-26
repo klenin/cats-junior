@@ -185,17 +185,16 @@ Compiler.prototype._gr = function(hint, rest)
 Compiler.prototype._gr_ = function(c, hint, rest)
 {
     var v = this.gensym(hint);
-	out("if(eval(" + c + ") != undefined){")
+	out("if(eval(" + c + ") != undefined){");
+	out('$loc.parent = $scope;\n');
+	out('$loc.parentName = $scopename;\n');
+	out('$loc.parentStack = $scopestack;\n');
+	out('$loc.call = "', v, '";\n');
+	out('}\n');
     out(v, " = ");
 	for (var i = 2; i < arguments.length - 1; ++i)
         out(arguments[i]);
-		out((arguments.length ? ", " : "") + "$scope, $scopename, $scopestack, '" + v + "'");
-	out(");}\n");
-	out("else\n{");
-    out(v, " = ");
-	for (var i = 2; i < arguments.length - 1; ++i)
-        out(arguments[i]);
-	out(");\n$expr = 1;}\n")
+	out(");\n$expr = 1;\n");
     return v;
 };
 
@@ -1162,9 +1161,6 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     if (hasFree)
         funcArgs.push("$free");
     this.u.prefixCode += funcArgs.join(",");
-	if (args.args.length)
-		this.u.prefixCode += ", ";
-	this.u.prefixCode += "parent, parentName, parentStack, call";
     this.u.prefixCode += "){";
 
     if (isGenerator) this.u.prefixCode += "\n// generator\n";
@@ -1192,10 +1188,19 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 		this.u.varDeclsCode += this.nameop(args.args[i].id, Load, undefined, true) + " = " + 
 			this.nameop(args.args[i].id, Param) + ";";
 	}
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = parent;'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName = parentName;'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = parentStack;'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = call;'; 
+
+	/*	out('$loc.parent = $scope;\n');
+	out('$loc.parentName = $scopename;\n');
+	out('$loc.parentStack = $scopestack;\n');
+	out('$loc.call = ', v, ';\n')*/
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = $loc.parent;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName =$loc. parentName;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = $loc.parentStack;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = $loc.call;\n'; 
+	this.u.varDeclsCode += '$loc.parent = undefined;\n';
+	this.u.varDeclsCode += '$loc.parentName = undefined;\n';
+	this.u.varDeclsCode += '$loc.parentStack = undefined;\n';
+	this.u.varDeclsCode += '$loc.call = undefined;\n';
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
 	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
 	this.u.varDeclsCode += '$scopestack = $loc.' + scopename +'.stack.length - 1;';
@@ -1223,7 +1228,8 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
         for (var i = 0; i < defaults.length; ++i)
         {
             var argname = this.nameop(args.args[i + offset].id, Param);
-            this.u.varDeclsCode += "if(" + argname + "===undefined)" + argname +"=" + scopename+".$defaults[" + i + "];";
+            this.u.varDeclsCode += "if(" + this.getCurrentLevel() + '.param.' + argname + "===undefined)" +
+				this.getCurrentLevel() + '.param.' + argname  + " = $loc." + scopename + '.defaults[' + i + '];';
         }
     }
 
@@ -1283,7 +1289,9 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // unset.
     //
     if (defaults.length > 0)
-        out(scopename, ".$defaults=[", defaults.join(','), "];");
+    {
+        out('$loc.' + scopename + ".defaults=[", defaults.join(','), "];");
+    }
 
 
     //

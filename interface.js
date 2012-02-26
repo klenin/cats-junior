@@ -284,6 +284,7 @@ function tryCode()
 		for (var i = 0; i < finalcode.compiled.scopes.length; ++i)
 		{
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
+			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.defaults = [];');
 			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.stack = [];');
 		}
 		eval('$loc.scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
