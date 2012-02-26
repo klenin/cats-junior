@@ -266,7 +266,9 @@ Compiler.prototype.clistcompgen = function(tmpname, generators, genIndex, elt)
     var toiter = this.vexpr(l.iter);
     var iter = this._gr("iter", "Sk.abstr.iter(", toiter, ")");
     this._jump(start);
+	this.u.blocks[this.u.curblock].expr = 1;
     this.setBlock(start);
+	this.u.blocks[this.u.curblock].expr = 1;
 
     // load targets
     var nexti = this._gr('next', "Sk.abstr.iternext(", iter, ")");
@@ -291,11 +293,14 @@ Compiler.prototype.clistcompgen = function(tmpname, generators, genIndex, elt)
         out(tmpname, ".v.push(", velt, ");"); // todo;
         this._jump(skip);
         this.setBlock(skip);
+		this.u.blocks[this.u.curblock].expr = 1;
+
     }
 
     this._jump(start);
 
     this.setBlock(anchor);
+	this.u.blocks[this.u.curblock].expr = 1;
 
     return tmpname;
 };
