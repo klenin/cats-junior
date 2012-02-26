@@ -370,13 +370,22 @@ Compiler.prototype.ccall = function(e)
     {
 		block = this.newBlock();
 		out(this.getCurrentLevel() + ".blk = ", block, ";\n"); //we don't need to break;
-		c = '1';
-		if (func.length)
+		var call;
+		if (e.func._astname == "Attribute")
+        {
+			call = this._gr('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
+			out("$expr = 1;\n");
+        }
+		else
 		{
-			c = func[1];
-			func = func[0];
+			c = '111';
+			if (func.length)
+			{
+				c = func[1];
+				func = func[0];
+			}
+			call = this._gr_(c, 'call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
 		}
-        var call = this._gr_(c, 'call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
 		out("break;\n");
 		this.setBlock(block);	
 		this.u.blocks[this.u.curblock].lineno = e.lineno - 1;
