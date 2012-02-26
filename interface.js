@@ -249,7 +249,13 @@ function tryNextStep()
 		{
 			$expr = 0;
 			e = getScope().blocks[getCurBlock()].expr;
-			eval(finalcode.code);
+			try
+			{
+				eval(finalcode.code);
+			}catch(e)
+			{
+				alert(e);
+			}
 		}
 		if (getCurBlock() >= 0)
 			nextline = getScope().blocks[getCurBlock()].lineno;
@@ -260,7 +266,7 @@ function tryNextStep()
 			if (nextline != undefined)
 				curCodeMirror.setLineClass(nextline, null);
 			alert('finished');
-		}
+		} 
 	}
 	else
 	{
