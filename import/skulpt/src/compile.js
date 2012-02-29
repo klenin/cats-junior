@@ -1172,8 +1172,8 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
         for (var i = 0; args && i < args.args.length; ++i)
             funcArgs.push(this.nameop(args.args[i].id, Param));
     }
-    if (hasFree)
-        funcArgs.push("$free");
+    /*if (hasFree)
+        funcArgs.push("$free");*/
     this.u.prefixCode += funcArgs.join(",");
     this.u.prefixCode += "){";
 
@@ -1192,7 +1192,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     }
     var cells = "";
     if (hasCell)
-        cells = ",$cell={}";
+        cells = "," + this.getCurrentLevel() + ".cell={}";
 
     // note special usage of 'this' to avoid having to slice globals into
     // all function invocations in call
@@ -1218,15 +1218,18 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
 	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
 	this.u.varDeclsCode += '$scopestack = $loc.' + scopename +'.stack.length - 1;';
+	this.u.varDeclsCode += this.getCurrentLevel() + ".cell={}";
     //
     // copy all parameters that are also cells into the cells dict. this is so
     // they can be accessed correctly by nested scopes.
     //
     for (var i = 0; args && i < args.args.length; ++i)
     {
+    	//
         var id = args.args[i].id;
         if (this.isCell(id))
-            this.u.varDeclsCode += "$cell." + id.v + "=" + id.v + ";";
+            this.u.varDeclsCode += this.getCurrentLevel(scopename) + ".cell." + 
+            	id.v + "=" + this.nameop(args.args[i].id, Load, undefined, true)+ ";\n";
     }
 
     //
@@ -1339,16 +1342,16 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     // todo; possibly this should be outside?
     // 
     var frees = "";
-    if (hasFree)
+    /*if (hasFree)
     {
-        frees = ",$cell";
+        frees = "," + this.getCurrentLevel() + ".cell";
         // if the scope we're in where we're defining this one has free
         // vars, they may also be cell vars, so we pass those to the
         // closure too.
         var containingHasFree = this.u.ste.hasFree;
         if (containingHasFree)
             frees += ",$free";
-    }
+    }*/
     if (isGenerator)
         if (args && args.args.length > 0)
             return this._gr("gener", "(function(){var $origargs=Array.prototype.slice.call(arguments);return new Sk.builtins['generator'](", scopename, ",$gbl,$origargs", frees, ");})");
@@ -1680,13 +1683,13 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg, isFunc)
     {
         case FREE:
             dict = "$free";
-            optype = OP_DEREF;
+            optype = OP_NAME;
             break;
         case CELL:
-            dict = "$cell";
-            optype = OP_DEREF;
+            dict = this.getCurrentLevel() + ".cell";
+            optype = OP_NAME;
             break;
-        case LOCAL:
+        /*case LOCAL:
             // can't do FAST in generators or at module/class scope
             if (this.u.ste.blockType === FunctionBlock && !this.u.ste.generator)
                 optype = OP_FAST;
