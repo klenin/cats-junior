@@ -194,7 +194,7 @@ Compiler.prototype._gr_ = function(c, hint, rest)
     out(v, " = ");
 	for (var i = 2; i < arguments.length - 1; ++i)
         out(arguments[i]);
-	out(");\n$expr = 1;\n");
+	out(");\n");
     return v;
 };
 

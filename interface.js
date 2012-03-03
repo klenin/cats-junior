@@ -258,7 +258,13 @@ function tryNextStep()
 			}
 		}
 		if (getCurBlock() >= 0)
-			nextline = getScope().blocks[getCurBlock()].lineno;
+		{
+			var b = getCurBlock();
+			while(getScope().blocks[b].expr)
+				++b;
+			nextline = getScope().blocks[b].lineno;		
+		}
+			
 		if (nextline != undefined)
 			curCodeMirror.setLineClass(nextline, 'cm-curline');
 		if (getCurBlock() < 0)
