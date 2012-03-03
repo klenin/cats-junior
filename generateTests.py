@@ -1,4 +1,4 @@
-TESTS_NUM = 22;
+TESTS_NUM = 59;
 
 out = open('generatedTests.js', 'w')
 out.write('TESTS_NUM = %s;\n' % TESTS_NUM)

@@ -191,6 +191,7 @@ Compiler.prototype._gr_ = function(c, hint, rest)
 	out('$loc.parentStack = $scopestack;\n');
 	out('$loc.call = "', v, '";\n');
 	out('}\n');
+	out('else $expr = 1;\n')
     out(v, " = ");
 	for (var i = 2; i < arguments.length - 1; ++i)
         out(arguments[i]);
@@ -1208,7 +1209,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 	out('$loc.parentStack = $scopestack;\n');
 	out('$loc.call = ', v, ';\n')*/
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = $loc.parent;\n'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName =$loc. parentName;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName =$loc.parentName;\n'; 
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = $loc.parentStack;\n'; 
 	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = $loc.call;\n'; 
 	this.u.varDeclsCode += '$loc.parent = undefined;\n';
@@ -1218,7 +1219,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
 	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
 	this.u.varDeclsCode += '$scopestack = $loc.' + scopename +'.stack.length - 1;';
-	this.u.varDeclsCode += this.getCurrentLevel() + ".cell={}";
+	this.u.varDeclsCode += this.getCurrentLevel() + ".cell={};\n";
     //
     // copy all parameters that are also cells into the cells dict. this is so
     // they can be accessed correctly by nested scopes.
@@ -1365,6 +1366,7 @@ Compiler.prototype.cfunction = function(s)
 {
     goog.asserts.assert(s instanceof FunctionDef);
 	this.u.blocks[this.u.curblock].expr = 1;
+	this.u.blocks[this.u.curblock].funcdef = 1;
     var funcorgen = this.buildcodeobj(s, s.name, s.decorator_list, s.args, function(scopename)
     {
     	for (var i = 0; s.args && i < s.args.args.length; ++i)
@@ -1384,7 +1386,7 @@ Compiler.prototype.cfunction = function(s)
 		}
         out("break;\n")
     });
-    this.nameop(s.name, Store, funcorgen);
+    this.nameop(s.name, Store, funcorgen, undefined, true);
 };
 
 Compiler.prototype.clambda = function(e)
@@ -1689,9 +1691,9 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg, isFunc)
             dict = this.getCurrentLevel() + ".cell";
             optype = OP_NAME;
             break;
-        /*case LOCAL:
+        case LOCAL: //decommented
             // can't do FAST in generators or at module/class scope
-            if (this.u.ste.blockType === FunctionBlock && !this.u.ste.generator)
+            if (this.u.ste.blockType === FunctionBlock && !this.u.ste.generator && !isFunc)
                 optype = OP_FAST;
             break;
         /*case GLOBAL_IMPLICIT:

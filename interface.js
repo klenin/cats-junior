@@ -260,7 +260,7 @@ function tryNextStep()
 		if (getCurBlock() >= 0)
 		{
 			var b = getCurBlock();
-			while(getScope().blocks[b].expr)
+			while(getScope().blocks[b].funcdef)
 				++b;
 			nextline = getScope().blocks[b].lineno;		
 		}
