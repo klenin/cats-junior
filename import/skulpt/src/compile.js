@@ -343,6 +343,7 @@ Compiler.prototype.ccompare = function(e)
         out(fres, '=', res, ';');
         this._jumpfalse(res, done);
         cur = rhs;
+		this.u.blocks[this.u.curblock].expr = 1;
     }
     this._jump(done);
     this.setBlock(done);
