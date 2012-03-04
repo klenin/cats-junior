@@ -1,4 +1,4 @@
-TESTS_NUM = 59;
+TESTS_NUM = 55;
 tests = [];
 tests.push("print 4\n");
 tests.push("a = 0\nprint a\n");
@@ -38,16 +38,16 @@ tests.push("# Test that a clone of a list really is distinct\nl = [1,2,3]\nprint
 tests.push("# Tests the list functions.\nl = [1,1,2,3,5,8,13,21]\nprint l\nprint l.count(1)\nprint l.reverse()\nprint l\nprint l.count(1)\nprint l.count(0)\nprint l.count(3)\nprint l.index(5)\nprint l.remove(5)\nprint l.remove(1)\nprint l.count(1)\nprint l\n");
 tests.push("def f():\n    print \"in f\"\n    return 10\n\ndef g():\n    print \"in g\"\n    return 20\n\nretval = True\n\ndef h():\n    global retval\n    retval = not retval\n    return retval\n\nfor i in range(3):\n    print f() if h() else g()\n");
 tests.push("print \"Yes\" if True else \"No\"\nprint \"Yes\" if False else \"No\"\n");
-tests.push("def f(a,b,c=10,d=20,*e,**f):\n    sortf = [(x,y) for x,y in f.items()]\n    sortf.sort()\n    print a,b,c,d,e,sortf\n\nf(1,2)\nf(1,2,3)\nf(1,2,3,5)\nf(1,2,d=3,c=5)\nf(1,2,e=['x','y','z'])\nf(1,2,d=3,c=5,e=['x','y','z'])\nf(1,2,3,5,['x','y','z'])\nf(1,2,3,5,['x','y','z'],z=5,y=9)\nf(1,2,3,5,['x','y','z'],'blorp','wee',z=5,y=9)\n");
-tests.push("def f(a, b, **c):\n    sortc = [(x,y) for x,y in c.items()]\n    sortc.sort()\n    print a, b, sortc\n\nf(1, 2, d=4, e=5)\nf(1, b=4, e=5)\nf(a=1, b=4, e=5, f=6, g=7)\n");
-tests.push("def f(**kw):\n    print kw\n\nf(a=4, b=5)\n");
-tests.push("def f(a, b):\n    print a, b\n\nf(1, 2)\nf(*[1, 2])\nf(*(1, 2))\n\ndef g(a, b, *c):\n    print a, b, c\n\ng(1, 2, 3)\ng(1, 2, 3, 4, 5, 6)\ng(*[1, 2])\ng(*[1, 2, 3, 4])\ng(*[1, 2, 3, 4, 5, 6, 7])\ng(*(1, 2, 3, 4, 5, 6, 7))\ng(1, *[7])\ng(1, *[7, 8, 9])\ng(1, 2, *(7,))\ng(1, 2, 3, *(7, 8, 9))\n");
+tests.push("x = []\nx.append(x)\nprint({x:'OK'}[x])\n");
+tests.push("def test(y='K',x='Z'): print(x+y)\ntest('O')\n");
+tests.push("def test(): pass\nx = 1\nprint test()\n");
+tests.push("xyzy = [100,101,102,103,104,105,106,107]\ndel xyzy\nprint xyzy\n");
 tests.push("x = {\"hi\": \"there\", \"yo\": \"I'm a dawg\"}\nprint x.items()\nprint x.keys()\nprint x.values()\n");
 tests.push("print [x for x in range(1,10) if False] or [\"hello\" for x in range(1,10) if True]\n");
 tests.push("print \"abc\"[1.5]\n");
 tests.push("for const in (1,2,3):\n    print const\n\ndef f():\n    for const in (1,2,3):\n        print const\n    for object in (1,2,3):\n        print object\n    instanceof = 5\n    void = 6\n    var = 7\n    delete = 8\n    switch = 9\n    default = 10\n    catch = 11\n    print instanceof, void, var, delete, switch, default, catch\nf()\n");
 tests.push("# free and cell vars in y\n\nc = \"squirrel\"\ndef x():\n    b = \"dog\"\n    print b, c\n    def y():\n        a = \"cat\"\n        print a,b\n        def z():\n            return a,b,c\n        return z\n    return y()\nprint x()()\n");
-tests.push("def wee(waa, woo=False, wii=True):\n    print \"OK\", waa, woo, wii\n\nwee(\"stuff\")\nwee(\"stuff\", \"dog\")\nwee(\"stuff\", \"dog\", \"cat\")\nwee(\"stuff\", wii=\"lamma\")\nwee(wii=\"lamma\", waa=\"pocky\")\nwee(wii=\"lamma\", waa=\"pocky\", woo=\"blorp\")\n");
+tests.push("v = [3,2,1]\nv.sort()\nprint v[0]\n");
 tests.push("def wee(waa, woo=True, wii=False):\n    print waa, woo, wii\nwee(\"OK\")\n");
 tests.push("def func():\n    return \"dog\"\ndef wee():\n    assert 1 != 2\n    assert \"dog\" == func()\n\nwee()\n");
 tests.push("a = (1 for x in range(3))\nprint a\nfor i in a:\n    print i\n");
@@ -55,7 +55,3 @@ tests.push("def f():\n    a = \"dog\"\n    print \"f\", a\n    def g():\n       
 tests.push("print [c for c in \"asdf\"]\n");
 tests.push("print range(10)[slice(0, 5, 2)]\n");
 tests.push("x = []\nx.append(x)\nprint({x:'OK'}[x])\n");
-tests.push("v = [3,2,1]\nv.sort()\nprint v[0]\n");
-tests.push("xyzy = [100,101,102,103,104,105,106,107]\ndel xyzy\nprint xyzy\n");
-tests.push("def test(): pass\nx = 1\nprint test()\n");
-tests.push("def test(y='K',x='Z'): print(x+y)\ntest('O')\n");

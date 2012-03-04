@@ -323,6 +323,35 @@ function testChanged()
 	curCodeMirror.setValue(tests[$('#selectTest :selected').val()]);
 }
 
+function calculateValue(name)
+{
+	var result = undefined;
+	if ($scope != undefined && $loc != undefined)
+	{
+		var scope = finalcode.compiled.scopes[$scope].scopename;
+		var t_scope = $scope, 
+			t_scopename = $scopename, 
+			t_scopestack = $scopestack;
+		while(eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) == undefined
+			&& eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentStack") != undefined)
+		{
+			t_scope = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parent");
+			var nm = t_scopename;
+			t_scopename = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentName");
+			t_scopestack = eval("$loc." + nm + ".stack[" + t_scopestack + "].parentStack");
+		}
+		result = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) !== undefined ?
+					eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name):
+					Sk.misceval.loadname(name, $gbl);
+	}
+	return result;
+}
+
+function onAddWatchClick()
+{
+	$('#addWatchDialog').dialog('open');
+}
+
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -493,9 +522,12 @@ function fillTabs(){
 	});
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
+	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnAddWatch">Add watch</button>');
 	$('#pythonForm').append('<pre id = "codeRes"></pre>');
 	$('#pythonForm').append('<input type = "checkbox" onchange = "showHideCode()" id = "showHide">Show/hide code</input>');
 	$('#pythonForm').append('<pre id = "codeRes1"></pre>');
+	$('#pythonForm').append('<div id = "watchDiv"><table id = "watchTable"></table></div>');
+	$('#btnAddWatch').button().click(onAddWatchClick);
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();

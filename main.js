@@ -114,4 +114,23 @@
 	for (var i = 0; i < problems.length; ++i){
 		$('ul, li').disableSelection();
 	}
+	$( "#addWatchDialog" ).dialog({
+		autoOpen: false,
+		height: 300,
+		width: 350,
+		modal: true,
+		buttons: {
+			"addWatch": function() {
+				$( "#watchTable" ).append( "<tr>" +
+					"<td>" + $('#watchName').val() + "</td>" + 
+					"<td>" + calculateValue($('#watchName').val()) + "</td>" + 
+				"</tr>" ); 
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+
 });
