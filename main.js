@@ -121,10 +121,18 @@
 		modal: true,
 		buttons: {
 			"addWatch": function() {
-				$( "#watchTable" ).append( "<tr>" +
-					"<td>" + $('#watchName').val() + "</td>" + 
-					"<td>" + calculateValue($('#watchName').val()) + "</td>" + 
-				"</tr>" ); 
+				$( '#watchTable' ).append( '<tr id = watchTr' + lastWatchedIndex + '>' +
+					'<td><button id = "deleteWatch' + lastWatchedIndex + '">delete</button></td>' +
+					'<td>' + $('#watchName').val() + '</td>' + 
+					'<td id = "calcVal' + lastWatchedIndex + '">' + 
+						calculateValue($('#watchName').val()) + '</td>' + 
+					'</tr>' ); 
+				$('#deleteWatch' + lastWatchedIndex).attr('varId', lastWatchedIndex);
+				$('#deleteWatch' + lastWatchedIndex).button().bind('click', function(){
+					delete watchList[$(this).attr('varId')];
+					$('#watchTr' + $(this).attr('varId')).remove();
+				});
+				watchList[lastWatchedIndex++] = $('#watchName').val();
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {

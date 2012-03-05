@@ -252,6 +252,7 @@ function tryNextStep()
 			try
 			{
 				eval(finalcode.code);
+				updateWatchList();
 			}catch(e)
 			{
 				alert(e);
@@ -282,6 +283,15 @@ function tryNextStep()
 	}
 }
 
+function updateWatchList()
+{
+	for(var p in watchList)
+	{
+		var res = calculateValue(watchList[p]);
+		$('#calcVal' + p).html(res == undefined ? 'undefined' : res);
+	}
+}
+
 function tryCode()
 {
 	var output = $('#codeRes');
@@ -305,6 +315,7 @@ function tryCode()
 		$scopename = finalcode.compiled.scopes[0].scopename;
 		$scopestack = 0;
 		$('#codeRes1').html(finalcode.code);
+		updateWatchList();
 	} catch (e) {
 		alert(e);
 	}
@@ -342,7 +353,7 @@ function calculateValue(name)
 		}
 		result = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) !== undefined ?
 					eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name):
-					Sk.misceval.loadname(name, $gbl);
+					Sk.misceval.loadname(name, $gbl, 1);
 	}
 	return result;
 }

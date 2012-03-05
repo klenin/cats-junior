@@ -298,7 +298,7 @@ goog.exportSymbol("Sk.misceval.print_", Sk.misceval.print_);
  * @param {string} name
  * @param {Object=} other generally globals
  */
-Sk.misceval.loadname = function(name, other)
+Sk.misceval.loadname = function(name, other, t)
 {
     var v = other[name];
     if (v !== undefined) return v;
@@ -306,7 +306,10 @@ Sk.misceval.loadname = function(name, other)
     var bi = Sk.builtins[name];
     if (bi !== undefined) return bi;
 
-    throw new Sk.builtin.NameError("name '" + name + "' is not defined");
+    if (!t)
+		throw new Sk.builtin.NameError("name '" + name + "' is not defined");
+	else 
+		return undefined;
 };
 goog.exportSymbol("Sk.misceval.loadname", Sk.misceval.loadname);
 

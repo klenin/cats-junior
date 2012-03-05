@@ -56,3 +56,5 @@ var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-ic
 var c = 0;
 var curDebugState;
 var worker;
+var lastWatchedIndex = 0;
+var watchList = {};
