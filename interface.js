@@ -315,6 +315,7 @@ function tryCode()
 		$scopename = finalcode.compiled.scopes[0].scopename;
 		$scopestack = 0;
 		$('#codeRes1').html(finalcode.code);
+		$gbl['my_function'] = my_function;
 		updateWatchList();
 	} catch (e) {
 		alert(e);
@@ -358,6 +359,11 @@ function calculateValue(name)
 	return result;
 }
 
+function my_function()
+{
+	alert('yeah!!!');
+}
+
 function onAddWatchClick()
 {
 	$('#addWatchDialog').dialog('open');
@@ -390,76 +396,33 @@ function fillTabs(){
 				$('#tabs').tabs('remove', i + 1);
 			}
 			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title, i + 1);
-			$('#ui-tabs-' + (i + 1)).append('<table id = "main' + i + '"></table>');
-			mainT = $('#main' + i);
-			mainT.append('<tr id = "1tr' + i +'"></tr>');
-			$('#1tr' + i).append('<td colspan = "2" id = "tdSt' + i + '" valign = "top"></td>');
-			$('#1tr' + i).append('<td valign = "top" align = "right" id = "tdAboutBtn' + i + '"></td>');
-			$('#tdAboutBtn' + i).append('<button id = "aboutBtn' + i +'">?</button>');
-			$('#aboutBtn' + i).button();
-			$('#tdAboutBtn' + i).append('<div id = "forJury' + i + '"></div>');
-			$('#forJury' + i).append('<button id = "exportBtn' + i +'">export</button>');
-			$('#forJury' + i).append('<button id = "importBtn' + i +'">import</button>');
-			$('#forJury' + i).append('<div id = "import' + i + '"></div>');
-			$('#forJury' + i).append('<div id = "export' + i + '"></div>');
+			var divs = [];
+			for (var j = 0; j < problems[i].commands.length; ++j)
+			{
+				divs.push({'tab': i, 'divclass': problems[i].commands[j], 'divname': cmdClassToName[problems[i].commands[j]]});
+			}
+			var buttons = [];
+			for (var j = 0; j < btns.length; ++j)
+			{
+				buttons.push({'tab': i, 'btn': btns[j]});
+			}
+			$('#tabTemplate').tmpl({'tab': i, 
+				'statement': problems[i].statement, 
+				'maxCmdNum': problems[i].maxCmdNum,
+				'maxStep': problems[i].maxStep,
+				'commands': divs,
+				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
+			$("#aboutBtn" + i).button();
 			$('#exportBtn' + i).button();
 			$('#importBtn' + i).button();
 			$('#exportBtn' + i).click(function() { return exportCommands(); });
 			$('#importBtn' + i).click(function() { return import_(); });
-			$('#import' + i).append('<textarea rows = "20" cols = "20" id = "importText' + i + '"></textarea>');
-			$('#import' + i).hide();
-			$('#export' + i).hide();
-			$('#export' + i).dialog({
-				modal: true,
-				buttons: {
-					Ok: function() {
-						$(this).dialog('close');
-					}
-				}, 
-				autoOpen: false,
-				title: 'Список команд',
-				minWidth: 250,
-				minHeight: 400
-			});
-			$('#import' + i).dialog({
-				modal: true,
-				buttons: {
-					'Load': function() {
-						if (!confirm('Вы уверены, что хотите изменить список команд?'))
-							return;
-						importCommands();
-					},
-					'Cancel': function() {
-						$(this).dialog('close');
-					}
-				}, 
-				autoOpen: false,
-				title: 'Загрузка списка команд',
-				minWidth: 250,
-				minHeight: 400
-				
-			});
-			var tds = ['cmds', 'field', 'console'];
-			mainT.append('<tr>');
-			for (var j = 0; j < tds.length; ++j)
-				mainT.append('<td id = "' + (tds[j] + i) + '"  valign = "top"></td>');
-			mainT.append('</tr>');
-			$('#cmds' + i).append('<table><tr><td id = "tdCmd' + i + '"></td></tr><tr><td id = "tdDrop' + i + '"></td></tr></table>');
-			$('#tdCmd' + i).append('<ul class = "ul_comands" id = "ul_comands' + i + '"></ul>');
-			var divs = problems[i].commands;
-			for (var j = 0; j < divs.length; ++j){
-				$('#ul_comands' + i).append('<li id = "' + divs[j] + i + '" class = "' + divs[j] + 
-					'"><span style = "margin-left: 40px;">' + cmdClassToName[divs[j]] + '</span></li>');
-				if($.browser.msie)
-					$('#' + divs[j] + i).css('height', '35px');
-			}
-			$('#tdDrop' + i).append('<table><tr><td><ul id = "sortable' + i + 
-				'" class = "ui-sortable sortable"></ul></td></tr></table>');
-			$('#field' + i).append('<table id = "tblField' + i + '"></table>');
-			$('#tblField' + i).append('<tr><td width = "100%"><div id="toolbar' + i + '" class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;"></span></td></tr>');
-			$('#toolbar' + i).append('<span id = "toolbarSpan' + i + '"></span>');
+			$('#progressBar' + i).progressbar({value: 0});
+			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
+			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
+			fillLabyrinth(problems[i]);
+			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
-				$('#toolbarSpan' + i).append('<button id = "btn_' + btns[j] + i + '" name = "' + btns[j] +'">' + btns[j] + '</button>');
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});
 				$('#btn_'+ btns[j] + i).bind('click', function() {
 					hideFocus();
@@ -467,27 +430,8 @@ function fillTabs(){
 					return false;
 				});
 			}
-			if (problems[i].maxCmdNum || problems[i].maxStep){
-				$('#toolbar' + i).append('<div id = "progressBar' + i + '"></div>');
-				$('#toolbar' + i).append('<span>' + (problems[i].maxCmdNum ? 'Затрачено команд': 
-						'Затрачено шагов') + ': <span id = "curStep' + i + '"></span> из ' + 
-						(problems[i].maxCmdNum ? problems[i].maxCmdNum : problems[i].maxStep) + '</span>');
-				$('#curStep' + i).text('0');
-				$('#progressBar' + i).progressbar({value: 0});
-			}
-			$('#tblField' + i).append('<tr><td id = "tdField' + i + '"></td></tr>');
-			$('#console' + i).append('<table><tr><td id = "tdBtnSubmit' + i + 
-					'" align = "right"></td></tr><tr><td id = "tdCons' + i + '"></td></tr></table>');
-			$('#tdBtnSubmit' + i).append('<div><button id = "btn_clear' + i + '">Очистить список команд</button><button id = "submit' + i + '">Отправить решение</button></div>');
-			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
-			$('#btn_clear' + i).click(clearClick);
-			$('#submit' + i).button({icons: {primary: 'ui-icon-check'}});
-			$('#submit' + i).click(submitClick);
-			$('#tdCons' + i).append('<div id = "cons' + i + '" class = "cons" ></div>');
-			fillLabyrinth(problems[i]);
-			$('#tdSt' + i).append(problems[i].statement);
-			$('#forJury' + i).hide();
 		}
+		
 	});
 	if ($('#ui-tabs-' + (problems.length + 1)).length){
 		$('#ui-tabs-' + (problems.length + 1)).empty();

@@ -60,7 +60,7 @@ li.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat;}
 li.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; }
 li.wait{ background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; }
 li.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat; }
-ul.ul_comands{
+ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
 }
