@@ -515,3 +515,32 @@ function play(cnt){
 	}
 	loop(cnt);
 }
+
+function oneStep(dir)
+{
+	var x = curProblem.arrow.coord.x;
+	var y = curProblem.arrow.coord.y;
+	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
+	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
+	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, false);
+}
+
+function forward()
+{
+	oneStep('forward');
+}
+
+function left()
+{
+	oneStep('left');
+}
+
+function right()
+{
+	oneStep('right');
+}
+
+function wait()
+{
+	oneStep('wait');
+}

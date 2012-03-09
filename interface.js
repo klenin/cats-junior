@@ -223,7 +223,7 @@ var curCodeMirror;
 function outf(text)
 {
 	text = text.replace(/</g, '&lt;');
-	$('#codeRes').append(text);
+	$('#cons' + getCurProblem()).append(text);
 }
 
 function getCurBlock()
@@ -245,7 +245,7 @@ function tryNextStep()
 	if (getCurBlock() >= 0)
 	{
 		if (nextline[problem] != undefined)
-			curCodeMirror.setLineClass(nextline[problem], null);
+			codeareas[problem].setLineClass(nextline[problem], null);
 		var e = 1;
 		while (getCurBlock() >= 0 && (e || $expr[problem]))
 		{
@@ -257,7 +257,9 @@ function tryNextStep()
 				updateWatchList();
 			}catch(e)
 			{
-				alert(e);
+				$('#cons' + problem).append('\n' + e + '\n');
+				return 0;
+
 			}
 		}
 		if (getCurBlock() >= 0)
@@ -269,20 +271,27 @@ function tryNextStep()
 		}
 			
 		if (nextline[problem] != undefined)
-			curCodeMirror.setLineClass(nextline[problem], 'cm-curline');
+			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
 		if (getCurBlock() < 0)
 		{
 			if (nextline[problem] != undefined)
-				curCodeMirror.setLineClass(nextline[problem], null);
-			alert('finished');
+				codeareas[problem].setLineClass(nextline[problem], null);
+			$('#cons' + problem).append('\nfinished\n');
+			curProblem.stopped = true;
+			curProblem.playing = false;
+			return 0;
 		} 
 	}
 	else
 	{
 		if (nextline[problem] != undefined)
-			curCodeMirror.setLineClass(nextline[problem], null);
-		alert('finished');
+			codeareas[problem].setLineClass(nextline[problem], null);
+		$('#cons' + problem).append('\nfinished\n');
+		curProblem.stopped = true;
+		curProblem.playing = false;
+		return 0;
 	}
+	return 1;
 }
 
 function getCurProblem()
@@ -306,7 +315,7 @@ function tryCode()
 	var output = $('#codeRes');
 	output.html('');
 	Sk.configure({output:outf, 'problem': problem});
-	var input = curCodeMirror.getValue();
+	var input = codeareas[problem].getValue();
 	try {
 		finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
 		$scope[problem] = 0,
@@ -320,7 +329,7 @@ function tryCode()
 		}
 		eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
 		nextline[problem] = getScope().firstlineno;
-		curCodeMirror.setLineClass(nextline[problem], 'cm-curline');
+		codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
 		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 		$scopestack[problem] = 0;
 		$('#codeRes1').html(finalcode[problem].code);
@@ -341,7 +350,7 @@ function showHideCode()
 
 function testChanged()
 {
-	curCodeMirror.setValue(tests[$('#selectTest :selected').val()]);
+	codeareas[getCurProblem()].setValue(tests[$('#selectTest :selected').val()]);
 }
 
 function calculateValue(name)
@@ -485,13 +494,15 @@ function fillTabs(){
 			var groupBox = "input[name='group" + i + "']";
 			$(groupBox).change(function(j){
 				return function(){
-				    if ($(groupBox + ":checked").attr('id') == 'commandsMode' + j)
+				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j)
 			    	{
 			    		$('#ulCommands' + j).show();
 						$('#sortable' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
+						$('#btn_prev' + j).prop('disabled', false);
+						$('#btn_fast' + j).prop('disabled', false);
 			    	}
 				    else
 			    	{
@@ -501,6 +512,9 @@ function fillTabs(){
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
+						$('#btn_prev' + j).prop('disabled', true);
+						$('#btn_fast' + j).prop('disabled', true);
+
 			    	}
 				}
 			}(i));
@@ -554,7 +568,7 @@ function fillTabs(){
 		$('#selectTest').append('<option id = "test' + i + '" value = "' + i + '">' + (i + 1) + '</option>');
 	}
 	$('#code').append(tests[0]);
-	curCodeMirror = CodeMirror.fromTextArea($('#code')[0], {
+	codeareas[problems.length + 1] = CodeMirror.fromTextArea($('#code')[0], {
 		lineNumbers: true,
 		onGutterClick: function(cm, n) {
 			var info = cm.lineInfo(n);
@@ -572,12 +586,12 @@ function fillTabs(){
 	});
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
 	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
-	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnAddWatch">Add watch</button>');
-	$('#pythonForm').append('<pre id = "codeRes"></pre>');
+	$('#ui-tabs-' + (problems.length + 2)).append('<button id = "addWatch' + (problems.length + 1) + '">Add watch</button>');
+	$('#pythonForm').append('<pre id = "cons' + (problems.length + 1) + '"></pre>');
 	$('#pythonForm').append('<input type = "checkbox" onchange = "showHideCode()" id = "showHide">Show/hide code</input>');
 	$('#pythonForm').append('<pre id = "codeRes1"></pre>');
-	$('#pythonForm').append('<div id = "watchDiv"><table id = "watchTable"></table></div>');
-	$('#btnAddWatch').button().click(onAddWatchClick);
+	$('#pythonForm').append('<div id = "watchDiv"><table id = "watchTable' + (problems.length + 1) + '"></table></div>');
+	$('#addWatch' + (problems.length + 1)).button().click(onAddWatchClick);
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();
@@ -691,38 +705,74 @@ function callPlay(s){
 	setTimeout(function() { play(); }, s);
 }
 
+function onFinishExecuting(problem)
+{
+	finalcode[problem] = undefined;
+	$scope[problem] = undefined,
+	$gbl[problem] = undefined,
+	$loc[problem] = $gbl[problem];
+	nextline[problem] = undefined;
+	for (var i = 0; i < codeareas[problem].lineCount(); ++i)
+		codeareas[problem].setLineClass(i, null);
+	updateWatchList();
+}
+
+function prepareForExecuting(problem)
+{
+	var output = $('#cons' + problem);
+	output.html('');
+	Sk.configure({output:outf, 'problem': problem});
+	var input = codeareas[problem].getValue();
+	finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+	$scope[problem] = 0,
+	$gbl[problem] = {},
+	$loc[problem] = $gbl[problem];
+	for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
+	{
+		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+	}
+	eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+	nextline[problem] = getScope().firstlineno;
+	codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+	$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+	$scopestack[problem] = 0;
+	$gbl[problem]['forward'] = forward;
+	$gbl[problem]['left'] = left;
+	$gbl[problem]['right'] = right;
+	$gbl[problem]['wait'] = wait;
+	curProblem.stopped = true;
+	setDefault();
+	curProblem.playing = false;
+	cmdHighlightOff();
+	showCounters();
+	setCounters();
+	updateWatchList();
+}
+
 function playClick(){
 	var problem = getCurProblem();
-	if ( $('#codeMode' + problem).prop('checked') )
+	if ($('#codeMode' + problem).prop('checked'))
 	{
-		var output = $('#cons' + problem);
-		output.html('');
-		Sk.configure({output:outf, 'problem': problem});
-		var input = codeareas[problem].getValue();
 		try {
-			finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
-			$scope[problem] = 0,
-			$gbl[problem] = {},
-			$loc[problem] = $gbl[problem];
-			for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
+			if (!curProblem.playing)
 			{
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+				prepareForExecuting(problem);
+				curProblem.playing = true;
 			}
-			eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
-			nextline[problem] = getScope().firstlineno;
-			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
-			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
-			$scopestack[problem] = 0;
-			//$('#codeRes1').html(finalcode.code);
-			$gbl[problem]['my_function'] = my_function;
-			updateWatchList();
+			curProblem.paused = false;
+			while(!curProblem.paused && tryNextStep()){};
+			if (!curProblem.playing)
+				onFinishExecuting(getCurProblem());
 		} catch (e) {
 			alert(e);
 		}
 	}
-	callPlay(300);
+	else
+	{
+		callPlay(300);
+	}
 	$('#btn_play'+ curProblem.tabIndex).addClass('ui-state-focus');
 }
 
@@ -739,6 +789,9 @@ function clearClick(){
 }
 
 function stopClick(){
+	var problem = getCurProblem();
+	if ($('#codeMode' + problem).prop('checked'))
+		onFinishExecuting(problem);
 	curProblem.stopped = true;
 	setDefault();
 	curProblem.playing = false;
@@ -754,35 +807,60 @@ function pauseClick(){
 }
 
 function nextClick(){
-	if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
-		var mes = new MessageCmdLimit();
-		curProblem.arrow.dead = true;
-		changeProgressBar();
-		if (curProblem.arrow.dead)
-			heroIsDead();
-		return;
-	}
-	if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
-		curProblem.divIndex = list().length;
-		++curProblem.step;
-		curProblem.cmdIndex = 0;
-		return;
+	var problem = getCurProblem()
+	if ($('#codeMode' + problem).prop('checked'))
+	{
+		try
+		{
+			if (!curProblem.playing)
+			{
+				prepareForExecuting(problem);
+				curProblem.playing = true;
+			}
+			else
+			{
+				tryNextStep();
+				if (!curProblem.playing)
+					onFinishExecuting(problem);
+			}
+		}
+		catch (e)
+		{
+			alert(e)
+		}
 	}
 	else
-		if (divI() >= list().length)
+	{
+		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+			var mes = new MessageCmdLimit();
+			curProblem.arrow.dead = true;
+			changeProgressBar();
+			if (curProblem.arrow.dead)
+				heroIsDead();
 			return;
-	if (cmd() == 0 && divI() == 0)
-		setCounters();
-	disableButtons();
-	hideCounters();
-	curProblem.playing = true;
-	curProblem.paused = false;
-	curProblem.stopped = false;
-	curProblem.speed = 0;
-	curProblem.nextOrPrev = true;
-	if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
-		changeCmdHighlight(curProblem.cmdList[divI()- 1].name);	
-	loop(1);
+		}
+		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
+			curProblem.divIndex = list().length;
+			++curProblem.step;
+			curProblem.cmdIndex = 0;
+			return;
+		}
+		else
+			if (divI() >= list().length)
+				return;
+		if (cmd() == 0 && divI() == 0)
+			setCounters();
+		disableButtons();
+		hideCounters();
+		curProblem.playing = true;
+		curProblem.paused = false;
+		curProblem.stopped = false;
+		curProblem.speed = 0;
+		curProblem.nextOrPrev = true;
+		if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
+			changeCmdHighlight(curProblem.cmdList[divI()- 1].name);	
+		loop(1);
+	}
 }
 
 function prevClick(){

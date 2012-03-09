@@ -7,7 +7,7 @@
 			}
 			if (ui.index == (problems.length + 2))
 			{
-				setTimeout("curCodeMirror.refresh()", 100);
+				setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
 			}
 		}
 	});
