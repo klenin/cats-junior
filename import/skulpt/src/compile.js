@@ -71,12 +71,12 @@ Compiler.prototype.getCurrentLevel = function(scope)
 {
 	var scopename = scope != undefined ? scope : this.u.scopename;
 	var lastIndex = eval() - 1;
-	return "$loc." + scopename + ".stack[$loc." + scopename + ".stack.length - 1]";
+	return "$loc[" + Sk.problem + "]." + scopename + ".stack[$loc[" + Sk.problem + "]." + scopename + ".stack.length - 1]";
 }
 
 Compiler.prototype.getStack = function(scope)
 {
-	return '$loc.' + (scope != undefined ? scope : this.u.scopename) + '.stack';
+	return '$loc[' + Sk.problem + '].' + (scope != undefined ? scope : this.u.scopename) + '.stack';
 }
 
 
@@ -186,12 +186,12 @@ Compiler.prototype._gr_ = function(c, hint, rest)
 {
     var v = this.gensym(hint);
 	out("if(eval(" + c + ") != undefined){");
-	out('$loc.parent = $scope;\n');
-	out('$loc.parentName = $scopename;\n');
-	out('$loc.parentStack = $scopestack;\n');
-	out('$loc.call = "', v, '";\n');
+	out('$loc[' + Sk.problem + '].parent = $scope[' + Sk.problem + '];\n');
+	out('$loc[' + Sk.problem + '].parentName = $scopename[' + Sk.problem + '];\n');
+	out('$loc[' + Sk.problem + '].parentStack = $scopestack[' + Sk.problem + '];\n');
+	out('$loc[' + Sk.problem + '].call = "', v, '";\n');
 	out('}\n');
-	out('else $expr = 1;\n')
+	out('else $expr[' + Sk.problem + '] = 1;\n')
     out(v, " = ");
 	for (var i = 2; i < arguments.length - 1; ++i)
         out(arguments[i]);
@@ -203,13 +203,13 @@ Compiler.prototype._jumpfalse = function(test, block, e)
 {
     var cond = this._gr('jfalse', "(", test, " === false || !Sk.misceval.isTrue(", test, "))");
     out("if(", cond, "){/*test failed */" + this.getCurrentLevel() + ".blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
+		(e != undefined ? ("$expr[" + Sk.problem + "] = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumpundef = function(test, block, e)
 {
     out("if(", test, " === undefined){" + this.getCurrentLevel() + ".blk = ", block, ";",
-		(e != undefined ? ("$expr = " + e + ";") : "" ), "break;}");
+		(e != undefined ? ("$expr[" + Sk.problem + "] = " + e + ";") : "" ), "break;}");
 };
 
 Compiler.prototype._jumptrue = function(test, block)
@@ -220,7 +220,7 @@ Compiler.prototype._jumptrue = function(test, block)
 
 Compiler.prototype._jump = function(block, expr)
 {
-    out(this.getCurrentLevel() + ".blk = ", block, ";", (expr != undefined ? ("$expr = " + expr + ";") : ""), "/* jump */break;");
+    out(this.getCurrentLevel() + ".blk = ", block, ";", (expr != undefined ? ("$expr[" + Sk.problem + "] = " + expr + ";") : ""), "/* jump */break;");
 };
 
 Compiler.prototype.ctupleorlist = function(e, data, tuporlist)
@@ -381,7 +381,7 @@ Compiler.prototype.ccall = function(e)
 		if (e.func._astname == "Attribute")
         {
 			call = this._gr('call', "Sk.misceval.callsim(", func, args.length > 0 ? "," : "", args, ")");
-			out("$expr = 1;\n");
+			out("$expr[" + Sk.problem + "] = 1;\n");
         }
 		else
 		{
@@ -777,7 +777,7 @@ Compiler.prototype.outputAllUnits = function()
         ret += unit.varDeclsCode;
 		ret += '});';
 	}
-	ret += 'switch($scope){\n'
+	ret += 'switch($scope[' + Sk.problem + ']){\n'
     for (var j = 0; j < this.allUnits.length; ++j)
     {
     	var unit = this.allUnits[j];
@@ -1057,7 +1057,7 @@ Compiler.prototype.cimport = function(s)
     for (var i = 0; i < n; ++i)
     {
         var alias = s.names[i];
-        var mod = this._gr('module', "Sk.builtin.__import__(", alias.name['$r']().v, ",$gbl,$loc,[])");
+        var mod = this._gr('module', "Sk.builtin.__import__(", alias.name['$r']().v, ",$gbl[" + Sk.problem + "],$loc[" + Sk.problem + "],[])");
 
         if (alias.asname)
         {
@@ -1080,7 +1080,7 @@ Compiler.prototype.cfromimport = function(s)
     var names = [];
     for (var i = 0; i < n; ++i)
         names[i] = s.names[i].name['$r']().v;
-    var mod = this._gr('module', "Sk.builtin.__import__(", s.module['$r']().v, ",$gbl,$loc,[", names, "])");
+    var mod = this._gr('module', "Sk.builtin.__import__(", s.module['$r']().v, ",$gbl[" + Sk.problem + "],$loc[" + Sk.problem + "],[", names, "])");
     for (var i = 0; i < n; ++i)
     {
         var alias = s.names[i];
@@ -1209,17 +1209,17 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
 	out('$loc.parentName = $scopename;\n');
 	out('$loc.parentStack = $scopestack;\n');
 	out('$loc.call = ', v, ';\n')*/
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = $loc.parent;\n'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName =$loc.parentName;\n'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = $loc.parentStack;\n'; 
-	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = $loc.call;\n'; 
-	this.u.varDeclsCode += '$loc.parent = undefined;\n';
-	this.u.varDeclsCode += '$loc.parentName = undefined;\n';
-	this.u.varDeclsCode += '$loc.parentStack = undefined;\n';
-	this.u.varDeclsCode += '$loc.call = undefined;\n';
-	this.u.varDeclsCode += '$scope = ' + (this.allUnits.length - 1) + ';';
-	this.u.varDeclsCode += '$scopename = "' + scopename + '";';
-	this.u.varDeclsCode += '$scopestack = $loc.' + scopename +'.stack.length - 1;';
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parent = $loc[' + Sk.problem + '].parent;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentName =$loc[' + Sk.problem + '].parentName;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) + '.parentStack = $loc[' + Sk.problem + '].parentStack;\n'; 
+	this.u.varDeclsCode += this.getCurrentLevel(scopename) +'.call = $loc[' + Sk.problem + '].call;\n'; 
+	this.u.varDeclsCode += '$loc[' + Sk.problem + '].parent = undefined;\n';
+	this.u.varDeclsCode += '$loc[' + Sk.problem + '].parentName = undefined;\n';
+	this.u.varDeclsCode += '$loc[' + Sk.problem + '].parentStack = undefined;\n';
+	this.u.varDeclsCode += '$loc[' + Sk.problem + '].call = undefined;\n';
+	this.u.varDeclsCode += '$scope[' + Sk.problem + '] = ' + (this.allUnits.length - 1) + ';';
+	this.u.varDeclsCode += '$scopename[' + Sk.problem + '] = "' + scopename + '";';
+	this.u.varDeclsCode += '$scopestack[' + Sk.problem + '] = $loc[' + Sk.problem + '].' + scopename +'.stack.length - 1;';
 	this.u.varDeclsCode += this.getCurrentLevel() + ".cell={};\n";
     //
     // copy all parameters that are also cells into the cells dict. this is so
@@ -1248,7 +1248,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
         {
             var argname = this.nameop(args.args[i + offset].id, Param);
             this.u.varDeclsCode += "if(" + this.getCurrentLevel() + '.param.' + argname + "===undefined)" +
-				this.getCurrentLevel() + '.param.' + argname  + " = $loc." + scopename + '.defaults[' + i + '];';
+				this.getCurrentLevel() + '.param.' + argname  + " = $loc[" + Sk.problem + "]." + scopename + '.defaults[' + i + '];';
         }
     }
 
@@ -1309,7 +1309,7 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     //
     if (defaults.length > 0)
     {
-        out('$loc.' + scopename + ".defaults=[", defaults.join(','), "];");
+        out('$loc[' + Sk.problem + '].' + scopename + ".defaults=[", defaults.join(','), "];");
     }
 
 
@@ -1356,11 +1356,11 @@ Compiler.prototype.buildcodeobj = function(n, coname, decorator_list, args, call
     }*/
     if (isGenerator)
         if (args && args.args.length > 0)
-            return this._gr("gener", "(function(){var $origargs=Array.prototype.slice.call(arguments);return new Sk.builtins['generator'](", scopename, ",$gbl,$origargs", frees, ");})");
+            return this._gr("gener", "(function(){var $origargs=Array.prototype.slice.call(arguments);return new Sk.builtins['generator'](", scopename, ",$gbl[" + Sk.problem + "],$origargs", frees, ");})");
         else
-            return this._gr("gener", "(function(){return new Sk.builtins['generator'](", scopename, ",$gbl,[]", frees, ");})");
+            return this._gr("gener", "(function(){return new Sk.builtins['generator'](", scopename, ",$gb[" + Sk.problem + "]l,[]", frees, ");})");
     else
-        return this._gr("funcobj", "new Sk.builtins['function'](", scopename, ",$gbl", frees ,")");
+        return this._gr("funcobj", "new Sk.builtins['function'](", scopename, ",$gbl[" + Sk.problem + "]", frees ,")");
 };
 
 Compiler.prototype.cfunction = function(s)
@@ -1380,9 +1380,9 @@ Compiler.prototype.cfunction = function(s)
 		if (s.body[s.body.length - 1]._astname != "Return")
 		{
 			out('eval(' + this.getCurrentLevel() + '.call + " = null;");\n'); //repeated code!!!!!
-	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
-			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
-			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n");
+	        out("$scope[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parent;\n"); 
+			out("$scopename[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parentName;\n"); 
+			out("$scopestack[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parentStack;\n");
 			out('eval("', this.getStack(), '.pop();");\n'); 
 		}
         out("break;\n")
@@ -1512,7 +1512,7 @@ Compiler.prototype.cclass = function(s)
     var scopename = this.enterScope(s.name, s, s.lineno);
     var entryBlock = this.newBlock('class entry');
 
-    this.u.prefixCode = "var " + scopename + "=(function $" + s.name.v + "$class_outer($globals,$locals,$rest){var $gbl=$globals,$loc=$locals;";
+    this.u.prefixCode = "var " + scopename + "=(function $" + s.name.v + "$class_outer($globals,$locals,$rest){var $gbl[" + Sk.problem + "]=$globals,$loc[" + Sk.problem + "]=$locals;";
     this.u.switchCode += "return(function " + s.name.v + "(){";
     this.u.switchCode += "var $blk=" + entryBlock + ",$exc=[];while(true){switch($blk){";
     this.u.suffixCode = "}break;}}).apply(null,$rest);});";
@@ -1529,7 +1529,7 @@ Compiler.prototype.cclass = function(s)
     this.exitScope();
 
     // todo; metaclass
-    var wrapped = this._gr("built", "Sk.misceval.buildClass($gbl,", scopename, ",", s.name['$r']().v, ",[", bases, "])");
+    var wrapped = this._gr("built", "Sk.misceval.buildClass($gbl[" + Sk.problem + "],", scopename, ",", s.name['$r']().v, ",[", bases, "])");
 
     // store our new class under the right name
     this.nameop(s.name, Store, wrapped);
@@ -1568,9 +1568,9 @@ Compiler.prototype.vstmt = function(s)
 				out('eval(' + this.getCurrentLevel() + '.call + " = ', this.vexpr(s.value),';");\n');
             else
 				out('eval(' + this.getCurrentLevel() + '.call + " = null;");');
-	        out("$scope = " + this.getCurrentLevel() + ".parent;\n"); 
-			out("$scopename = " + this.getCurrentLevel() + ".parentName;\n"); 
-			out("$scopestack = " + this.getCurrentLevel() + ".parentStack;\n");
+	        out("$scope[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parent;\n"); 
+			out("$scopename[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parentName;\n"); 
+			out("$scopestack[" + Sk.problem + "] = " + this.getCurrentLevel() + ".parentStack;\n");
 			out('eval("', this.getStack(), '.pop();");\n');
 			out("break;\n")
             break;
@@ -1749,21 +1749,21 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg, isFunc)
                 case Load:
                     var v = this.gensym('loadname');
                     // can't be || for loc.x = 0 or null
-                    out("var t_scope = $scope, t_scopename = $scopename, t_scopestack = $scopestack;\n");
+                    out("var t_scope = $scope[" + Sk.problem + "], t_scopename = $scopename[" + Sk.problem + "], t_scopestack = $scopestack[" + Sk.problem + "];\n");
 					out("while (", 
-						'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
+						'eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
 						" == undefined && \n",
-						'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentStack != undefined"))\n',
-						'{t_scope = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parent");\n',
+						'eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].parentStack != undefined"))\n',
+						'{t_scope = eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].parent");\n',
 						'var nm = t_scopename;',
-						't_scopename = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentName");\n',
-						't_scopestack = eval("$loc." + nm + ".stack[" + t_scopestack + "].parentStack");}')
+						't_scopename = eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].parentName");\n',
+						't_scopestack = eval("$loc[' + Sk.problem + ']." + nm + ".stack[" + t_scopestack + "].parentStack");}')
                     out(v, "=", 
-                    	'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")', 
+                    	'eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")', 
                     	"!==undefined?",
-                    	'eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
-                    	":Sk.misceval.loadname('",mangledNoPre,"',$gbl);");
-                    return isFunc ? [v, '"$loc." + t_scopename + ".stack[" + t_scopestack + "].loc.' + mangledNoPre + '"'] : v;
+                    	'eval("$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].loc." + "' + mangledNoPre + '")',
+                    	":Sk.misceval.loadname('",mangledNoPre,"',$gbl[" + Sk.problem + "]);");
+                    return isFunc ? [v, '"$loc[' + Sk.problem + ']." + t_scopename + ".stack[" + t_scopestack + "].loc.' + mangledNoPre + '"'] : v;
                 case Store:
                     out(mangled, "=", dataToStore, ";");
                     break;
@@ -1780,12 +1780,12 @@ Compiler.prototype.nameop = function(name, ctx, dataToStore, funcArg, isFunc)
             switch (ctx)
             {
                 case Load:
-                    return this._gr("loadgbl", "Sk.misceval.loadname('", mangledNoPre, "',$gbl)");
+                    return this._gr("loadgbl", "Sk.misceval.loadname('", mangledNoPre, "',$gbl[" + Sk.problem + "])");
                 case Store:
-                    out("$gbl.", mangledNoPre, "=", dataToStore, ';');
+                    out("$gbl[" + Sk.problem + "].", mangledNoPre, "=", dataToStore, ';');
                     break;
                 case Del:
-                    out("delete $gbl.", mangledNoPre);
+                    out("delete $gbl[" + Sk.problem + "].", mangledNoPre);
                     break;
                 default:
                     goog.asserts.fail("unhandled case in name op_global");
@@ -1886,7 +1886,7 @@ Compiler.prototype.cmod = function(mod)
     var entryBlock = this.newBlock('module entry');
 	var lvl = this.getCurrentLevel(modf);
     this.u.prefixCode = "";
-    this.u.varDeclsCode =  lvl + ".blk = 0; $scope = 0; $scopestack = 0; $scopename = '" + modf + "';";
+    this.u.varDeclsCode =  lvl + ".blk = 0; $scope[" + Sk.problem + "] = 0; $scopestack[" + Sk.problem + "] = 0; $scopename[" + Sk.problem + "] = '" + modf + "';";
     this.u.switchCode = "switch(" + this.getCurrentLevel(modf) + ".blk){"; //
     this.u.suffixCode = "}"//"}});";
 

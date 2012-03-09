@@ -33,6 +33,8 @@ Sk.configure = function(options)
     Sk.sysargv = options["sysargv"] || Sk.sysargv;
     goog.asserts.assert(goog.isArrayLike(Sk.sysargv));
 
+	Sk.problem = options["problem"];
+
     if (options["syspath"])
     {
         Sk.syspath = options["syspath"];

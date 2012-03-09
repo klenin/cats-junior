@@ -121,18 +121,19 @@
 		modal: true,
 		buttons: {
 			"addWatch": function() {
-				$( '#watchTable' ).append( '<tr id = watchTr' + lastWatchedIndex + '>' +
-					'<td><button id = "deleteWatch' + lastWatchedIndex + '">delete</button></td>' +
+				var problem = $('#tabs').tabs('option', 'selected') - 1;
+				$( '#watchTable' + problem).append( '<tr id = watchTr_' + problem + '_' + lastWatchedIndex[problem] + '>' +
+					'<td><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '">delete</button></td>' +
 					'<td>' + $('#watchName').val() + '</td>' + 
-					'<td id = "calcVal' + lastWatchedIndex + '">' + 
+					'<td id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' + 
 						calculateValue($('#watchName').val()) + '</td>' + 
 					'</tr>' ); 
-				$('#deleteWatch' + lastWatchedIndex).attr('varId', lastWatchedIndex);
-				$('#deleteWatch' + lastWatchedIndex).button().bind('click', function(){
-					delete watchList[$(this).attr('varId')];
-					$('#watchTr' + $(this).attr('varId')).remove();
+				$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).attr('varId', lastWatchedIndex[problem]);
+				$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button().bind('click', function(){
+					delete watchList[problem][$(this).attr('varId')];
+					$('#watchTr_' + problem + '_' + $(this).attr('varId')).remove();
 				});
-				watchList[lastWatchedIndex++] = $('#watchName').val();
+				watchList[problem][lastWatchedIndex[problem]++] = $('#watchName').val();
 				$( this ).dialog( "close" );
 			},
 			Cancel: function() {

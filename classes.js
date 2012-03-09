@@ -159,7 +159,7 @@ var Key = $.inherit(Cell, {
 
 var Arrow = $.inherit(Cell,{
 	__constructor : function(problem, coord,  dir) {
-		this.__base(problem, coord, {style: dir, symbol: dirs[dir], zIndex: 3});
+		this.__base(problem, coord, {style: 'hero_' + dir, symbol: dirs[dir], zIndex: 3});
 		this.dir = dir;
 		this.initCoord = coord;
 		this.initDir = dir;
@@ -168,12 +168,12 @@ var Arrow = $.inherit(Cell,{
 	setDefault: function(){
 		this.dir = this.initDir;
 		this.coord = this.initCoord;
-		this.style = this.initDir;
+		this.style = 'hero_' + this.initDir;
 		this.dead = false;
 		this.__base();
 	},
 	draw: function() {
-		this.style = this.dir;
+		this.style = 'hero_' + this.dir;
 		if (!this.dead)
 			this.__base();
 		else

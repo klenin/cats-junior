@@ -1,10 +1,10 @@
 <html>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <head>
-		<script type="text/javascript" src="import/jquery/jquery-1.5.2.js"></script>
+		<script type="text/javascript" src="import/jquery/jquery-1.7.1.min.js"></script>
 		<script type="text/javascript" src="import/jquery/jquery.inherit-1.3.2.M.js"></script> 
 		<script type="text/javascript" src="import/jquery/jquery.json-2.2.js"></script> 
-		<script type="text/javascript" src="import/jquery/jquery-ui-1.8.12.custom.min.js"></script> 
+		<script type="text/javascript" src="import/jquery/jquery-ui-1.8.18.custom.min.js"></script> 
 		<script type="text/javascript" src="import/jquery/jquery-spin.js"></script> 
 		<script type="text/javascript" src="import/jquery/ui.tabs.paging.js"></script> 
 		<script type="text/javascript" src="import/jquery/jquery.tmpl.js"></script>
@@ -82,88 +82,103 @@
 </script>
 	
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
-<table>	
-	<tr>
-		<td colspan = "2">
-			{{html $item.data.statement}}
-		</td>
-		<td valign = "top" align = "right">
-			<button id = "aboutBtn${tab}">?</button>
-			<div id = "forJury${tab}">
-				<button id = "importBtn${tab}">import</button>
-				<button id = "exportBtn${tab}">export</button>
-				<div id = "import${tab}">
-					<textarea rows = "20" cols = "20" id = "importText${tab}"></textarea> 
+	<table>	
+		<tr>
+			<td colspan = "2">
+				{{html $item.data.statement}}
+			</td>
+			<td valign = "top" align = "right">
+				<button id = "aboutBtn${tab}">?</button>
+				<div id = "forJury${tab}">
+					<button id = "importBtn${tab}">import</button>
+					<button id = "exportBtn${tab}">export</button>
+					<div id = "import${tab}">
+						<textarea rows = "20" cols = "20" id = "importText${tab}"></textarea> 
+					</div>
+					<div id = "export${tab}"></div>
 				</div>
-				<div id = "export${tab}"></div>
-			</div>
-		</td>
-	</tr>
-	<tr>
-		<td valign = "top">
-			<table>
-				<tr>
-					<td>
-						<ul class = "ul_commands">
-						{{tmpl($item.data.commands) "#commandsListTemplate"}}
-						</ul>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table>
-							<tr>
-								<td>
-									<ul id = "sortable${tab}" class = "ui-sortable sortable">
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
-		</td>
-		<td valign = "top">
-			<table>
-				<tr>
-					<td width = "100%">
-						<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;">
-							<span>
-								{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
-								{{if $item.data.maxCmdNum || $item.data.maxStep}}
-									<div id = "progressBar${tab}"></div>
-									<span>Затрачено {{if $item.data.maxCmdNum}} команд {{else}} шагов {{/if}}:</span>
-									<span id = "curStep${tab}">0</span>
-									из {{if $item.data.maxCmdNum}} ${maxCmdNum} {{else}} ${maxStep} {{/if}}
-								{{/if}}
-							</span>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td id = "tdField${tab}"></td>
-				</tr>
-			</table>
-		</td>
-		<td valign = "top">
-			<table>
-				<tr>
-					<td align = "right">
-						<div>
-							<button id = "btn_clear${tab}">Очистить список команд</button>
-							<button id = "submit${tab}">Отправить решение</button>
-						</div>
-					</td>
-				</tr>
-				<tr>
-					<td> 
-						<div id = "cons${tab}" class = "cons">
-						<div>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-</table>				
+			</td>
+		</tr>
+		<tr>
+			<td valign = "top">
+				<table>
+					<tr>
+						<td colspan = "2">	
+							<form>
+								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Режим ввода команд<br>
+								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Режим ввода кода<br>
+							</form>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<ul class = "ul_commands" id = "ulCommands${tab}">
+								{{tmpl($item.data.commands) "#commandsListTemplate"}}
+							</ul>
+						</td>
+						<td id = "tdcode${tab}">
+							<textarea id = "codearea${tab}" name = "codearea${tab}"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<table>
+								<tr>
+									<td>
+										<ul id = "sortable${tab}" class = "ui-sortable sortable">
+									</td>
+								</tr>
+							</table>
+						</td>
+						<td>
+							<button id = "addWatch${tab}">Добавить переменную для наблюдения</button><br>
+							<table id = "watchTable${tab}"></table>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td valign = "top">
+				<table>
+					<tr>
+						<td width = "100%">
+							<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;">
+								<span>
+									{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
+									{{if $item.data.maxCmdNum || $item.data.maxStep}}
+										<div id = "progressBar${tab}"></div>
+										<span>Затрачено {{if $item.data.maxCmdNum}} команд {{else}} шагов {{/if}}:</span>
+										<span id = "curStep${tab}">0</span>
+										из {{if $item.data.maxCmdNum}} ${maxCmdNum} {{else}} ${maxStep} {{/if}}
+									{{/if}}
+								</span>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td id = "tdField${tab}"></td>
+					</tr>
+				</table>
+			</td>
+			<td valign = "top">
+				<table>
+					<tr>
+						<td align = "right">
+							<div>
+								<button id = "btn_clear${tab}">Очистить список команд</button>
+								<button id = "submit${tab}">Отправить решение</button>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td> 
+							<div id = "cons${tab}" class = "cons">
+							<div>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>				
 </script>
 </head>
 <body>

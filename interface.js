@@ -225,33 +225,35 @@ function outf(text)
 	text = text.replace(/</g, '&lt;');
 	$('#codeRes').append(text);
 }
-var finalcode, $gbl, $loc, $expr, $scope, nextline, $scopename, $scopestack;
 
 function getCurBlock()
 {
-	var scope = finalcode.compiled.scopes[$scope].scopename;
-	return eval('$loc.' + scope + '.stack[$loc.' + scope + '.stack.length - 1].blk');
+	var problem = getCurProblem();
+	var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
+	return eval('$loc[' + problem + '].' + scope + '.stack[$loc[' + problem + '].' + scope + '.stack.length - 1].blk');
 }
 
 function getScope()
 {
-	return finalcode.compiled.scopes[$scope];
+	var problem = getCurProblem();
+	return finalcode[problem].compiled.scopes[$scope[problem]];
 }
 
 function tryNextStep()
 {
+	var problem = getCurProblem();
 	if (getCurBlock() >= 0)
 	{
-		if (nextline != undefined)
-			curCodeMirror.setLineClass(nextline, null);
+		if (nextline[problem] != undefined)
+			curCodeMirror.setLineClass(nextline[problem], null);
 		var e = 1;
-		while (getCurBlock() >= 0 && (e || $expr))
+		while (getCurBlock() >= 0 && (e || $expr[problem]))
 		{
-			$expr = 0;
+			$expr[problem] = 0;
 			e = getScope().blocks[getCurBlock()].expr;
 			try
 			{
-				eval(finalcode.code);
+				eval(finalcode[problem].code);
 				updateWatchList();
 			}catch(e)
 			{
@@ -263,59 +265,66 @@ function tryNextStep()
 			var b = getCurBlock();
 			while(getScope().blocks[b].funcdef)
 				++b;
-			nextline = getScope().blocks[b].lineno;		
+			nextline[problem] = getScope().blocks[b].lineno;		
 		}
 			
-		if (nextline != undefined)
-			curCodeMirror.setLineClass(nextline, 'cm-curline');
+		if (nextline[problem] != undefined)
+			curCodeMirror.setLineClass(nextline[problem], 'cm-curline');
 		if (getCurBlock() < 0)
 		{
-			if (nextline != undefined)
-				curCodeMirror.setLineClass(nextline, null);
+			if (nextline[problem] != undefined)
+				curCodeMirror.setLineClass(nextline[problem], null);
 			alert('finished');
 		} 
 	}
 	else
 	{
-		if (nextline != undefined)
-			curCodeMirror.setLineClass(nextline, null);
+		if (nextline[problem] != undefined)
+			curCodeMirror.setLineClass(nextline[problem], null);
 		alert('finished');
 	}
 }
 
+function getCurProblem()
+{
+	return $('#tabs').tabs('option', 'selected') - 1;
+}
+
 function updateWatchList()
 {
-	for(var p in watchList)
+	var problem = getCurProblem();
+	for(var p in watchList[problem])
 	{
-		var res = calculateValue(watchList[p]);
-		$('#calcVal' + p).html(res == undefined ? 'undefined' : res);
+		var res = calculateValue(watchList[problem][p]);
+		$('#calcVal_' + problem + '_' + p).html(res == undefined ? 'undefined' : res);
 	}
 }
 
 function tryCode()
 {
+	var problem = problems.length + 1;
 	var output = $('#codeRes');
 	output.html('');
-	Sk.configure({output:outf});
+	Sk.configure({output:outf, 'problem': problem});
 	var input = curCodeMirror.getValue();
 	try {
-		finalcode = Sk.importMainWithBody("<stdin>", false, input);
-		$scope = 0,
-		$gbl = {},
-		$loc = $gbl;
-		for (var i = 0; i < finalcode.compiled.scopes.length; ++i)
+		finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+		$scope[problem] = 0,
+		$gbl[problem] = {},
+		$loc[problem] = $gbl[problem];
+		for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
 		{
-			eval('$loc.' + finalcode.compiled.scopes[i].scopename + ' = {};');
-			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.defaults = [];');
-			eval('$loc.' + finalcode.compiled.scopes[i].scopename + '.stack = [];');
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
 		}
-		eval('$loc.scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
-		nextline = getScope().firstlineno;
-		curCodeMirror.setLineClass(nextline, 'cm-curline');
-		$scopename = finalcode.compiled.scopes[0].scopename;
-		$scopestack = 0;
-		$('#codeRes1').html(finalcode.code);
-		$gbl['my_function'] = my_function;
+		eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+		nextline[problem] = getScope().firstlineno;
+		curCodeMirror.setLineClass(nextline[problem], 'cm-curline');
+		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+		$scopestack[problem] = 0;
+		$('#codeRes1').html(finalcode[problem].code);
+		$gbl[problem]['my_function'] = my_function;
 		updateWatchList();
 	} catch (e) {
 		alert(e);
@@ -338,23 +347,24 @@ function testChanged()
 function calculateValue(name)
 {
 	var result = undefined;
-	if ($scope != undefined && $loc != undefined)
+	var problem = getCurProblem();
+	if ($scope[problem] != undefined && $loc[problem] != undefined)
 	{
-		var scope = finalcode.compiled.scopes[$scope].scopename;
-		var t_scope = $scope, 
-			t_scopename = $scopename, 
-			t_scopestack = $scopestack;
-		while(eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) == undefined
-			&& eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentStack") != undefined)
+		var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
+		var t_scope = $scope[problem], 
+			t_scopename = $scopename[problem], 
+			t_scopestack = $scopestack[problem];
+		while(eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) == undefined
+			&& eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].parentStack") != undefined)
 		{
-			t_scope = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parent");
+			t_scope = eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].parent");
 			var nm = t_scopename;
-			t_scopename = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].parentName");
-			t_scopestack = eval("$loc." + nm + ".stack[" + t_scopestack + "].parentStack");
+			t_scopename = eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].parentName");
+			t_scopestack = eval("$loc[" + problem + "]." + nm + ".stack[" + t_scopestack + "].parentStack");
 		}
-		result = eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) !== undefined ?
-					eval("$loc." + t_scopename + ".stack[" + t_scopestack + "].loc." + name):
-					Sk.misceval.loadname(name, $gbl, 1);
+		result = eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) !== undefined ?
+					eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].loc." + name):
+					Sk.misceval.loadname(name, $gbl[problem], 1);
 	}
 	return result;
 }
@@ -417,9 +427,83 @@ function fillTabs(){
 			$('#importBtn' + i).button();
 			$('#exportBtn' + i).click(function() { return exportCommands(); });
 			$('#importBtn' + i).click(function() { return import_(); });
+			$('#export' + i).dialog({
+				modal: true,
+				buttons: {
+					Ok: function() {
+						$(this).dialog('close');
+					}
+				}, 
+				autoOpen: false,
+				title: 'Список команд',
+				minWidth: 250,
+				minHeight: 400
+			});
+			$('#import' + i).dialog({
+				modal: true,
+				buttons: {
+					'Load': function() {
+						if (!confirm('Вы уверены, что хотите изменить список команд?'))
+							return;
+						importCommands();
+					},
+					'Cancel': function() {
+						$(this).dialog('close');
+					}
+				}, 
+				autoOpen: false,
+				title: 'Загрузка списка команд',
+				minWidth: 250,
+				minHeight: 400
+				
+			});
 			$('#progressBar' + i).progressbar({value: 0});
 			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
-			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
+			$('#btn_clear' + i).click(clearClick);
+			$('#submit' + i).button({icons: {primary: 'ui-icon-check'}});
+			$('#submit' + i).click(submitClick);
+			$('#tdcode' + i).hide();
+			$('#addWatch' + i).hide();
+			$('#watchTable' + i).hide();
+			var CM = CodeMirror.fromTextArea($('#codearea' + i)[0], {
+				lineNumbers: true,
+				onGutterClick: function(cm, n) {
+					var info = cm.lineInfo(n);
+						if (info.markerText)
+							cm.clearMarker(n);
+						else
+						cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
+				},
+			    mode: {name: "python",
+		           version: 2,
+		           singleLineStringErrors: false},
+		        indentUnit: 4,
+		        tabMode: "shift",
+		        matchBrackets: true
+			});
+			codeareas.push(CM);
+			var groupBox = "input[name='group" + i + "']";
+			$(groupBox).change(function(j){
+				return function(){
+				    if ($(groupBox + ":checked").attr('id') == 'commandsMode' + j)
+			    	{
+			    		$('#ulCommands' + j).show();
+						$('#sortable' + j).show();
+						$('#tdcode' + j).hide();
+						$('#addWatch' + j).hide();
+						$('#watchTable' + j).hide();
+			    	}
+				    else
+			    	{
+			    		$('#ulCommands' + j).hide();
+						$('#sortable' + j).hide();
+						$('#tdcode' + j).show();
+						codeareas[j].refresh();
+						$('#addWatch' + j).show();
+						$('#watchTable' + j).show();
+			    	}
+				}
+			}(i));
 			fillLabyrinth(problems[i]);
 			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
@@ -430,6 +514,17 @@ function fillTabs(){
 					return false;
 				});
 			}
+			$('#addWatch' + i)
+				.button()
+				.click(function(j)
+				{
+					return function()
+					{
+						$('#addWatchDialog').dialog('open');
+					}
+				}(i));
+			lastWatchedIndex.push(0);
+			watchList.push({});
 		}
 		
 	});
@@ -597,6 +692,36 @@ function callPlay(s){
 }
 
 function playClick(){
+	var problem = getCurProblem();
+	if ( $('#codeMode' + problem).prop('checked') )
+	{
+		var output = $('#cons' + problem);
+		output.html('');
+		Sk.configure({output:outf, 'problem': problem});
+		var input = codeareas[problem].getValue();
+		try {
+			finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+			$scope[problem] = 0,
+			$gbl[problem] = {},
+			$loc[problem] = $gbl[problem];
+			for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
+			{
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+			}
+			eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+			nextline[problem] = getScope().firstlineno;
+			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+			$scopestack[problem] = 0;
+			//$('#codeRes1').html(finalcode.code);
+			$gbl[problem]['my_function'] = my_function;
+			updateWatchList();
+		} catch (e) {
+			alert(e);
+		}
+	}
 	callPlay(300);
 	$('#btn_play'+ curProblem.tabIndex).addClass('ui-state-focus');
 }
