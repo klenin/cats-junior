@@ -271,7 +271,15 @@ function tryNextStep()
 		}
 			
 		if (nextline[problem] != undefined)
+		{
 			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+			if (codeareas[problem].lineInfo(nextline[problem]).markerText)
+			{
+				curProblem.paused = true;
+				//curProblem.playing = false;
+				return 1;
+			}
+		}
 		if (getCurBlock() < 0)
 		{
 			if (nextline[problem] != undefined)
@@ -330,6 +338,11 @@ function tryCode()
 		eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
 		nextline[problem] = getScope().firstlineno;
 		codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+		if (codeareas[problem].lineInfo(nextline[problem]).markerText)
+		{
+			curProblem.paused = true;
+			curProblem.playing = false;
+		}
 		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 		$scopestack[problem] = 0;
 		$('#codeRes1').html(finalcode[problem].code);
