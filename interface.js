@@ -25,7 +25,7 @@ function login(callback){
 		}
 		if(curUser.jury){
 			curUser.passwd = '';
-			$('#password').attr('value', '');
+			$('#password').prop('value', '');
 			for (var i = 0; i < problems.length; ++i)
 				$('#forJury' + i).show();
 		}
@@ -342,7 +342,7 @@ function tryCode()
 
 function showHideCode()
 {
-	if ($('#showHide').attr('checked'))
+	if ($('#showHide').prop('checked'))
 		$('#codeRes1').hide();
 	else
 		$('#codeRes1').show();
@@ -524,7 +524,7 @@ function fillTabs(){
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});
 				$('#btn_'+ btns[j] + i).bind('click', function() {
 					hideFocus();
-					eval( $(this).attr('name') + 'Click()'); 		
+					eval( $(this).prop('name') + 'Click()'); 		
 					return false;
 				});
 			}
@@ -551,7 +551,7 @@ function fillTabs(){
 	$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
 		'<iframe id = "results" src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');
-	$('#refreshTable').click(function() {$('#results').attr('src', resultsUrl + cid)});
+	$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + cid)});
 		$('#tabs').tabs('select', 0);
 	for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
 	  while($('#ui-tabs-' + i).length){
@@ -609,8 +609,8 @@ function addCmd(name, cnt){
 		'<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span></li>');		
 	if($.browser.msie)
 		$('#' + name + cmdId).css('height', '35px');
-	$('#' + name + cmdId).attr('numId', cmdId);
-	$('#' + name + cmdId).attr('ifLi', 1);
+	$('#' + name + cmdId).prop('numId', cmdId);
+	$('#' + name + cmdId).prop('ifLi', 1);
 	$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
 }
@@ -632,7 +632,7 @@ function import_(){
 }
 
 function importCommands(){
-	var cmds = jQuery.parseJSON($('#importText' + curProblem.tabIndex).attr('value'));
+	var cmds = jQuery.parseJSON($('#importText' + curProblem.tabIndex).prop('value'));
 	if (cmds){
 		$('#sortable' + curProblem.tabIndex).children().remove();
 		for (var i = 0; i < cmds.length; ++i){
@@ -661,7 +661,7 @@ function hideCounters(){
 	$('#sortable' + curProblem.tabIndex + ' > li > span > input').hide();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
-		$('#spinCnt' + el.attr('numId')).show();
+		$('#spinCnt' + el.prop('numId')).show();
 		el = el.next();
 	}
 }
@@ -671,7 +671,7 @@ function showCounters(){
 	$('#sortable' + curProblem.tabIndex + ' > li > span > input').show();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
-		$('#spinCnt' + el.attr('numId')).hide();
+		$('#spinCnt' + el.prop('numId')).hide();
 		el = el.next();
 	}
 }
@@ -685,7 +685,7 @@ function enableButtons(){
 function disableButtons(){
 	$('#sortable' + curProblem.tabIndex).sortable('disable');
 	for (var i = 0; i < btnsPlay.length; ++i)
-		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).attr('disabled', 'disabled');
+		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).prop('disabled', true);
 }
 
 function callPlay(s){

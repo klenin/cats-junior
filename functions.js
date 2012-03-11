@@ -157,7 +157,7 @@ function commandsToJSON(){
 				obj.dir = classes[i];
 				break;
 			}
-		obj.cnt = $('#spin' + list.first().attr('numId')).attr('value');
+		obj.cnt = $('#spin' + list.first().prop('numId')).prop('value');
 		arr.push(obj);
 		list = list.next();
 	}
@@ -196,8 +196,8 @@ function cmdHighlightOff(){
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	l = el.length;
 	for (var i = 0; i < l; ++i){
-		if (isCmdHighlighted(el.attr('id')))
-			changeCmdHighlight(el.attr('id'));
+		if (isCmdHighlighted(el.prop('id')))
+			changeCmdHighlight(el.prop('id'));
 		el = el.next();
 	}
 }
@@ -209,11 +209,11 @@ function setCounters(j, dontReload){
 		j--;
 	}
 	while (el.length > 0){
-		var numId = el.attr('numId');
-		var val =  $('#spin' + numId).attr('value');
-		var newVal = dontReload ? $('#spinCnt' + numId).attr('cnt') : val;
-		$('#spinCnt' + numId).attr('cnt', newVal);
-		$('#spinCnt' + numId).attr('value', newVal + '/' + val);
+		var numId = el.prop('numId');
+		var val =  $('#spin' + numId).prop('value');
+		var newVal = dontReload ? $('#spinCnt' + numId).prop('cnt') : val;
+		$('#spinCnt' + numId).prop('cnt', newVal);
+		$('#spinCnt' + numId).prop('value', newVal + '/' + val);
 		el = el.next();
 	}
 }
@@ -249,10 +249,10 @@ function updated(){
 						divName = arr[i];
 						changeProgressBar();
 					}
-					var numId = $('#' + arr[i]).attr('numId');
-					$('#spinCnt' + numId).attr('cnt', c - curProblem.cmdList[i].cnt);
-					$('#spinCnt' + numId).attr('value', 
-							$('#spinCnt' + numId).attr('cnt') + '/' + $('#spin' + numId).attr('value'));
+					var numId = $('#' + arr[i]).prop('numId');
+					$('#spinCnt' + numId).prop('cnt', c - curProblem.cmdList[i].cnt);
+					$('#spinCnt' + numId).prop('value', 
+							$('#spinCnt' + numId).prop('cnt') + '/' + $('#spin' + numId).prop('value'));
 				}
 				else{
 					needToClear = true;
@@ -265,10 +265,10 @@ function updated(){
 						if (curProblem.cmdIndex >= c)
 							needToClear = true;
 						else{   //change the value of counter
-							var numId = $('#' + arr[i]).attr('numId');
-							$('#spinCnt' + numId).attr('cnt', (c - curProblem.cmdIndex));
-							$('#spinCnt' + numId).attr('value', 
-								(c - curProblem.cmdIndex) + '/' + $('#spin' + numId).attr('value'));	
+							var numId = $('#' + arr[i]).prop('numId');
+							$('#spinCnt' + numId).prop('cnt', (c - curProblem.cmdIndex));
+							$('#spinCnt' + numId).prop('value', 
+								(c - curProblem.cmdIndex) + '/' + $('#spin' + numId).prop('value'));	
 						} 
 					}
 					else	
@@ -358,10 +358,10 @@ function setDefault(f){
 	$("#cons" + curProblem.tabIndex).empty();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
-		var newVal = $('#spin' + el.attr('numId')).attr('value');
-		$('#spinCnt' + el.attr('numId')).attr('cnt', newVal);
+		var newVal = $('#spin' + el.prop('numId')).prop('value');
+		$('#spinCnt' + el.prop('numId')).prop('cnt', newVal);
 		if (!f)
-			$('#spinCnt' + el.attr('numId')).attr('value', newVal + '/' + newVal);
+			$('#spinCnt' + el.prop('numId')).prop('value', newVal + '/' + newVal);
 		el = el.next();
 	}
 }
@@ -397,15 +397,15 @@ function loop(cnt, i){
 	curProblem.dy = changeDir[t][curProblem.arrow.dir].dy;
 	changeLabyrinth(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir, curProblem.speed == 0);
 	if (divN()){
-		var numId = $('#'+ divN()).attr('numId');
-		var newCnt = $('#spinCnt' + numId).attr('cnt') - 1;
-		$('#spinCnt' + numId).attr('cnt', newCnt);
+		var numId = $('#'+ divN()).prop('numId');
+		var newCnt = $('#spinCnt' + numId).prop('cnt') - 1;
+		$('#spinCnt' + numId).prop('cnt', newCnt);
 	}
 	if (curProblem.speed && (!cnt || (i < cnt))){
 		if (newCmd || cmd() == 0)
 			changeCmdHighlight(divN());
 		if (divN())
-			$('#spinCnt' + numId).attr('value', newCnt + '/' + $('#spin' + numId).attr('value'));
+			$('#spinCnt' + numId).prop('value', newCnt + '/' + $('#spin' + numId).prop('value'));
 	}
 	nextStep(cnt, ++i);	
 }
@@ -473,7 +473,7 @@ function notSpeed(){
 	curProblem.speed = 300;
 	setCounters(0, true);
 	var lastCmd = (divI() >= list().length) ? 
-		$('#sortable' + curProblem.tabIndex + ' > li:last').attr('id') : divN();
+		$('#sortable' + curProblem.tabIndex + ' > li:last').prop('id') : divN();
 	if (!isCmdHighlighted(lastCmd))
 		changeCmdHighlight(lastCmd);
 	drawLabirint();
@@ -523,6 +523,7 @@ function oneStep(dir)
 	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
 	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
 	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, false);
+	changeProgressBar();
 }
 
 function forward()
