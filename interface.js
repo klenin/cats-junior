@@ -771,10 +771,14 @@ function prepareForExecuting(problem)
 	var input = codeareas[problem].getValue();
 	if (curProblem.maxCmdNum)
 	{
-		var cmdNum = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g).length;
+		var cmds = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g);
+ 		var cmdNum = 0;
+		if (cmds)
+			cmdNum = cmds.length;
 		if (cmdNum > curProblem.maxCmdNum)
 		{
 			$('#cons' + problem).html('Чиcло команд превышает допустимое');
+			curProblem.playing = false;
 			return;
 		}
 		$('#curStep' + problem).text(cmdNum);
@@ -825,6 +829,7 @@ function playClick(){
 			if (!curProblem.playing)
 				onFinishExecuting(getCurProblem());
 		} catch (e) {
+			curProblem.playing = false;
 			alert(e);
 		}
 	}
@@ -885,6 +890,7 @@ function nextClick(){
 		}
 		catch (e)
 		{
+			curProblem.playing = false;
 			alert(e)
 		}
 	}

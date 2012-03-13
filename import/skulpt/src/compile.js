@@ -1411,11 +1411,11 @@ Compiler.prototype.cifexp = function(e)
     this._jumpfalse(test, next);
 
     out(ret, '=', this.vexpr(e.body), ';');
-    this._jump(end);
+    this._jump(end, 1);
 
     this.setBlock(next);
     out(ret, '=', this.vexpr(e.orelse), ';');
-    this._jump(end);
+    this._jump(end, 1);
 
     this.setBlock(end);
     return ret;
