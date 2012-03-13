@@ -768,9 +768,20 @@ function onFinishExecuting(problem)
 function prepareForExecuting(problem)
 {
 	var output = $('#cons' + problem);
+	var input = codeareas[problem].getValue();
+	if (curProblem.maxCmdNum)
+	{
+		var cmdNum = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g).length;
+		if (cmdNum > curProblem.maxCmdNum)
+		{
+			$('#cons' + problem).html(u'Чиcло команд превышает допустимое');
+			return;
+		}
+		$('#curStep' + problem).text(cmdNum);
+		$('#progressBar'  + problem).progressbar('option', 'value',  cmdNum / curProblem.maxCmdNum * 100);	
+	}
 	output.html('');
 	Sk.configure({output:outf, 'problem': problem});
-	var input = codeareas[problem].getValue();
 	finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
 	$scope[problem] = 0,
 	$gbl[problem] = {},

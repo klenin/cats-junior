@@ -411,7 +411,7 @@ function loop(cnt, i){
 }
 
 function changeProgressBar(){
-	if (curProblem.maxCmdNum){
+	if (curProblem.maxCmdNum && isCommandMode()){ 
 		$('#curStep' + curProblem.tabIndex).text(curProblem.divIndex);
 		$('#progressBar'  + curProblem.tabIndex).progressbar('option', 'value',  curProblem.divIndex / curProblem.maxCmdNum * 100);
 	} 
@@ -514,6 +514,17 @@ function play(cnt){
 		setCounters();
 	}
 	loop(cnt);
+}
+
+function getCurProblem()
+{
+	return $('#tabs').tabs('option', 'selected') - 1;
+}
+
+function isCommandMode()
+{
+	var p = getCurProblem();
+	return $("input[name='group" + p + "']" + ":checked").prop('id') == 'commandsMode' + p;
 }
 
 function oneStep(dir)
