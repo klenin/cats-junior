@@ -774,7 +774,7 @@ function prepareForExecuting(problem)
 		var cmdNum = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g).length;
 		if (cmdNum > curProblem.maxCmdNum)
 		{
-			$('#cons' + problem).html(u'Чиcло команд превышает допустимое');
+			$('#cons' + problem).html('Чиcло команд превышает допустимое');
 			return;
 		}
 		$('#curStep' + problem).text(cmdNum);
