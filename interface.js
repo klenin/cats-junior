@@ -320,7 +320,7 @@ function updateWatchList()
 function tryCode()
 {
 	var problem = problems.length + 1;
-	var output = $('#codeRes');
+	var output = $('#cons' + problem);
 	output.html('');
 	Sk.configure({output:outf, 'problem': problem});
 	var input = codeareas[problem].getValue();

@@ -330,8 +330,8 @@ Compiler.prototype.cyield = function(e)
 Compiler.prototype.ccompare = function(e)
 {
     goog.asserts.assert(e.ops.length === e.comparators.length);
-	this.u.blocks[this.u.curblock].expr = 1;
     var cur = this.vexpr(e.left);
+//	this.u.blocks[this.u.curblock].expr = 1;
     var n = e.ops.length;
     var done = this.newBlock("done");
     var fres = this._gr('compareres', 'null');
@@ -1408,7 +1408,7 @@ Compiler.prototype.cifexp = function(e)
     var ret = this._gr('res', 'null');
 
     var test = this.vexpr(e.test);
-    this._jumpfalse(test, next);
+    this._jumpfalse(test, next, 1);
 
     out(ret, '=', this.vexpr(e.body), ';');
     this._jump(end, 1);
