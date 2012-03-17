@@ -180,7 +180,7 @@ submitClick = function(){
 }
 
 function getContests(){
-	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
+	/*callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
 		if (!data)
 			return;
 		contests = data.contests;
@@ -192,7 +192,7 @@ function getContests(){
 		}
 		cid = contests[0].id;
 		document.title = contests[0].name;
-	});
+	});*/
 	fillTabs();
 }
 
@@ -451,13 +451,13 @@ function fillTabs(){
 		$('#changeContest').dialog('open'); 
 		return false; 
 	}); 
-	changeUser();
+	//changeUser();
 	problems = [];
-	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
-		for (var i = 0; i < data.length; ++i){
-			problems[i] = $.extend({}, data[i], data[i].data);
+	//callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
+		for (var i = 0; i < problemsData.length; ++i){
+			problems[i] = $.extend({}, problemsData[i], problemsData[i].data);
 			problems[i].tabIndex = i;
-			getTest(data[i].data, i);
+			getTest(problemsData[i].data, i);
 			if ($('#ui-tabs-' + (i + 1)).length){
 				$('#ui-tabs-' + (i + 1)).empty();
 				$('#tabs').tabs('remove', i + 1);
@@ -468,6 +468,7 @@ function fillTabs(){
 			{
 				divs.push({'tab': i, 'divclass': problems[i].commands[j], 'divname': cmdClassToName[problems[i].commands[j]]});
 			}
+			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block'], 'block': 1});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -589,7 +590,7 @@ function fillTabs(){
 			watchList.push({});
 		}
 		
-	});
+	//});
 	if ($('#ui-tabs-' + (problems.length + 1)).length){
 		$('#ui-tabs-' + (problems.length + 1)).empty();
 		$('#tabs').tabs('remove', (problems.length + 1));
@@ -652,15 +653,91 @@ function exportCommands(){
 	return false;
 }
 
+function addBlock(){
+	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable" style = "height: 100px; width: 220px;">');
+	$('#block' + cmdId).css('height', '100px');
+	$('#block' + cmdId + ' > span').remove();
+	$('#sortableBlock' + cmdId).sortable({
+			revert: false,
+			cursor: 'move',
+			appendTo: 'body',
+			helper: 'clone'
+		});
+	$('#sortableBlock' + cmdId).prop('sortName', 'sortableBlock' + cmdId);
+	$('#sortableBlock' + cmdId).bind('sortbeforestop', function(event, ui) {
+		/*if (cmdAdded)
+		{
+			//ui.helper.remove();
+			//updated();
+			return;
+		}*/
+		cmdAdded = true;
+		if (ui.position.left > maxx || ui.position.top < miny){
+			ui.item.remove();
+			updated();
+			return;
+		}
+		var id = "";
+		for (var k = 0; k < classes.length; ++k)
+		{
+			if (ui.item.hasClass(classes[k]))
+			{
+				id = classes[k];
+				break;
+			}
+		}
+		//var id = ui.item.prop('id');
+		//id = id.replace(/\d{1,}/, "");
+		id += cmdId;
+		if (!ui.item.prop('numId')){
+			ui.item.prop('id', id);
+			ui.item.prop('ifLi', 1);
+			ui.item.prop('numId', cmdId);
+			addedCmds.push(ui.item);
+			for (var j = 0; j < classes.length; ++j)
+				if (ui.helper.hasClass(classes[j])){
+					addNewCmd(classes[j], false, ui.item[0]);
+				}
+		}
+		updated();
+		curProblem.cmdListEnded = false;
+		//alert($(this).prop('sortName'));
+	});
+	$('#sortableBlock' + cmdId).bind('sortstop', function(event, ui) {
+		for (var i = 0; i < addedCmds.length - 1; ++i)
+			addedCmds[i].remove();
+		addedCmds = [];
+	});
+	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {
+		if (!curProblem.playing)
+			showCounters();
+	});
+	var sortables =  $('#block' + curProblem.tabIndex).draggable('option', 'connectToSortable');
+	sortables = '#sortableBlock' + cmdId + ', ' + sortables;
+	for (var k = 0; k < classes.length; ++k){
+		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
+
+	}
+}
+	
+
+
 function addCmd(name, cnt){
-	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable">' + 
-		'<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span></li>');		
+	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');		
 	if($.browser.msie)
 		$('#' + name + cmdId).css('height', '35px');
+	if (name == 'block')
+	{
+		addBlock();
+	}
+	else
+	{
+		$('#' + name + cmdId).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
+		$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
+	}
 	$('#' + name + cmdId).prop('numId', cmdId);
 	$('#' + name + cmdId).prop('ifLi', 1);
-	$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
 }
 
 function setSpin(){
@@ -697,10 +774,17 @@ function importCommands(){
 function addNewCmd(str, dblClick, elem){
 	if (dblClick)	
 		addCmd(str, 1);
-	else{
+	else if (str == 'block')
+	{
+		addBlock();
+	}
+	else
+	{
 		$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 	}
+	
+	$('#' + str + cmdId).prop('type', str);
 	setSpin();
 }
 

@@ -25,13 +25,15 @@
 		curProblem.visited = 1;
 		$('#sortable' + curProblem.tabIndex).sortable({
 			revert: false,
-			cursor: 'move'
+			cursor: 'move',
+			appendTo: 'body',
+			helper: 'clone'
 		});
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + curProblem.tabIndex).draggable({
 				connectToSortable: ('#sortable' + curProblem.tabIndex),
 				helper: 'clone',
-				revert: 'invalid',
+			//	revert: 'invalid',
 				cursor: 'default'
 			});
 			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
@@ -44,6 +46,13 @@
 			});
 		}
 		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
+			if (!cmdAdded)
+			{
+				addedCmds = [];
+				//ui.item.remove();
+				//return;
+			}
+			//cmdAdded = true;
 			if (ui.position.left > maxx || ui.position.top < miny){
 				ui.item.remove();
 				updated();
@@ -65,6 +74,7 @@
 				ui.item.prop('id', id);
 				ui.item.prop('ifLi', 1);
 				ui.item.prop('numId', cmdId);
+				addedCmds.push(ui.item);
 				for (var j = 0; j < classes.length; ++j)
 					if (ui.helper.hasClass(classes[j])){
 						addNewCmd(classes[j], false, ui.item[0]);
@@ -73,6 +83,46 @@
 			updated();
 			curProblem.cmdListEnded = false;
 		});
+		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
+			cmdAdded = false;
+		});
+		/*$('#sortable' + curProblem.tabIndex).prop('index', curProblem.tabIndex);
+		$('#sortable' + curProblem.tabIndex).jstree({ 
+			"crrm" : { 
+				"move" : {
+					"check_move" : function (m) { 
+						/*var p = this._get_parent(m.o);
+						if(!p) return false;
+						p = p == -1 ? this.get_container() : p;
+						if(p === m.np) return true;
+						if(p[0] && m.np[0] && p[0] === m.np[0]) return true;
+						return false;
+						return true;
+					}
+				},
+			},
+			"dnd" : {
+				"drop_finish" : function () { 
+					alert("DROP"); 
+				},
+				"drag_check" : function (data) {
+					if(!data.o.type) {
+						return false;
+					}
+					return { 
+						after : false, 
+						before : false, 
+						inside : true 
+					};
+				},
+				"drag_finish" : function (data) { 
+					if (data.o.type)
+						this.get_container().jstree("create", -1 , "inside", cmdClassToName[data.o.type], false, true); 
+				},
+				"drop_target" : '.jstree-drop'
+			},
+			"plugins" : [ "themes", "html_data", "dnd", "crrm" ]
+		});*/
 		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
 			if (!curProblem.playing)
 				showCounters();

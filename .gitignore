@@ -1,6 +1,7 @@
 *.pyc
 /import/CodeMirror/test
-/import/CodeMirror/css
+import/CodeMirror/css/*
+!import/CodeMirror/css/docs.css
 /import/CodeMirror/demo
 /import/skulpt/test
 /import/skulpt/.hg

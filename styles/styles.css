@@ -39,7 +39,7 @@ li.invisible{
 	z-index: 0;
 	list-style-type: none; 
 }
-li.forward, li.forward1, li.left, li.left1, li.right, li.right1, li.wait, li.wait1{
+li.forward, li.forward1, li.left, li.left1, li.right, li.right1, li.wait, li.wait1, li.block{
 	list-style-type: none; 
 	margin: 5px; 
 	padding: 5px;
@@ -65,7 +65,7 @@ ul.ul_commands{
 	margin: 0px;
 }
 ul.sortable{
-	width: 220px;
+	width: 250px;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;

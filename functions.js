@@ -235,11 +235,13 @@ function updated(){
 	if(!curProblem.cmdList.length)
 		needToClear = true;
 	for (var i = 0; i < arr.length; ++i){
-		var c = parseInt($('#' + arr[i] + ' input')[0].value); //current counter
+		var c = undefined;
+		if ( $('#' + arr[i]).prop('type') != 'block')
+			c = parseInt($('#' + arr[i] + ' input')[0].value); //current counter
 		if (!curProblem.cmdList[i])
 			curProblem.cmdList[i] = new Object();
 		if (curProblem.cmdList[i].name != arr[i] || 
-			(curProblem.cmdList[i].name == arr[i] && curProblem.cmdList[i].cnt != c)){ //if command was changed
+			(curProblem.cmdList[i].name == arr[i] && c != undefined && curProblem.cmdList[i].cnt != c)){ //if command was changed
 			if (i < divI()){   
 				if (curProblem.cmdListEnded && (i == divI() - 1) && 
 					(curProblem.cmdList[i].name == arr[i] && curProblem.cmdList[i].cnt < c)){ //after axecuting all 
