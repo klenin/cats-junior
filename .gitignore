@@ -1,11 +1,4 @@
 *.pyc
-skulpt/.hg
-skulpt/doc
-skulpt/example
-skulpt/gen
-skulpt/support
-skulpt/test
-skulpt/src/lib
 /import/CodeMirror/test
 /import/CodeMirror/css
 /import/CodeMirror/demo
@@ -13,4 +6,5 @@ skulpt/src/lib
 /import/skulpt/.hg
 /import/skulpt/doc
 /import/skulpt/example
-/import/skulpt/support
+import/skulpt/support/*
+!import/skulpt/support/closure-library/closure/goog/*.js
