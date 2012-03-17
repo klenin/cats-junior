@@ -1,4 +1,69 @@
-﻿function callScript(url, callback){
+var Command = $.inherit({
+	__constructor : function(name, cnt, parent, id) {
+        this.name = name;
+		this.cnt = cnt;
+		this.curCnt = 0;
+		this.parent = parent;
+	},
+	noteq: function(cmd){
+		if (!(cmd.name == this.name && cmd.cnt == this.cnt)) //return different commands
+			return [this, cmd];
+		return undefined;
+	},
+	exec: function(cnt) {
+		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
+		for (var i = 0; i < t; ++i)
+		{
+			eval(this.name + '();');
+			++this.curCnt;
+		}
+		return cnt - t;
+	},
+	getClass: function(){
+		return 'command'
+	}
+});
+
+var Block = $.inherit({
+	__constructor : function(commands, parent) {
+        this.curCmd = 0;
+		this.commands = commands;
+		this.parent = parent;
+		
+	},
+	insertCommand : function(command, pos) {
+	    this.commands.splice(pos, command);
+	},
+	pushCommand: function(command){
+		this.commands.push(command);
+	},
+	isFinished: function(){
+		return this.commands.length <= this.curCmd;
+	},
+	noteq: function(block){
+		if (block.commands.length != this.commands.length)
+			return [this, block];
+		for (var i = 0; i < this.commands.length; ++i)
+		{
+			var cmd = this.commands[i].eq(block.commands[i]);
+			if (cmd)
+				return cmd;
+		}
+		return undefined;
+	},
+	exec: function(cnt)
+	{
+		while(cnt && this.commands.length > this.curCmd)
+			cnt = this.commands[this.curCmd++].exec(cnt);
+		return cnt;
+	},
+	getClass: function(){
+		return 'block';
+	}
+});
+
+
+function callScript(url, callback){
 	if (atHome){
 		$.ajax({
 			async: false,
@@ -73,7 +138,7 @@ function getTest(data, l){
 		stopped: false, 
 		playing: false, 
 		cmdListEnded: false, 
-		cmdList: [], 
+		cmdList: {'curCmd': 0, 'commands': []}, 
 		mapFromTest:  data.map.slice(), 
 		map: [], 
 		maxBoxId: 0, 
@@ -228,11 +293,72 @@ function step(){ return curProblem.step; }
 
 function list() {return curProblem.cmdList; }
 
+function getCurProblemBlock()
+{
+	var block = curProblem.cmdList;
+	while(block.commands[curProblem.cmdList.curCmd].name == 'block')
+		block = block.commands[curProblem.cmdList.curCmd];
+	return block;
+}
+
+function getCurProblemCommand()
+{
+	var block =  getCurProblemBlock();
+	return block.commands[block.curCmd];
+}
+
+function serializeBlock(sortableName, parent)
+{
+	var block = new Block([], parent);
+	var arr = $('#'+ sortableName).sortable('toArray');
+	for (var i = 0; i < arr.length; ++i)
+	{
+		if(!arr[i].length)
+			continue;
+		var type = $('#' + arr[i]).prop('type');
+		if (type != 'block') 
+		{
+			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value), block);
+			block.pushCommand(cmd);
+		}
+		else
+		{
+			block.pushCommand(serializeBlock($('#' + arr[i] + '>ul').prop('id'), block));
+		}
+	}
+	return block;
+}
+
+function compareBlocks(block1, block2)
+{
+	
+}
+
 function updated(){
-	var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');
-	var needToClear = curProblem.arrow.dead || (curProblem.cmdListEnded && arr.length < divI());
-	var j = curProblem.cmdList.length;  //number of first cmd that counters must be changed
-	if(!curProblem.cmdList.length)
+	/*var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');*/
+	/*var newCommandsList = serializeBlock('sortable' + curProblem.tabIndex);
+	var cmd = curProblem.cmdList.noteq(newCommandsList);
+	if (cmd)
+	{
+		var lastCmd = cmd[0],
+			newCmd = cmd[1];
+		if (lastCmd.getClass() == 'block')
+		{
+			if (lastCmd.curCmd > newCmd.commands.length)
+			{
+				needToClear = true;
+			}
+			else
+			{
+				if (lastCmd.parent && lastCmd.parent.commands[lastCmd.parent.curCmd] == lastCmd)
+			}
+		}
+		
+	}
+	var needToClear = curProblem.arrow.dead || (curProblem.cmdList.isFinished() && arr.length < divI());
+	var block = getCurProblemBlock();
+	var j = block.commands.length;  //number of first cmd that counters must be changed
+	if(!curProblem.cmdList.commands.length)
 		needToClear = true;
 	for (var i = 0; i < arr.length; ++i){
 		var c = undefined;
@@ -278,6 +404,11 @@ function updated(){
 			}
 			curProblem.cmdList[i].name = arr[i];
 			curProblem.cmdList[i].cnt = c;
+			if (arr[i] == 'block')
+			{
+				curProblem.cmdList[i].curCmd = 0;
+				curProblem.cmdList[i].commands = [];
+			}
 		}
 	}
 	curProblem.cmdListEnded = false;
@@ -290,7 +421,8 @@ function updated(){
 	if (divI() < list().length)
 		curProblem.divName = list()[divI()].name;
 	showCounters();
-	setCounters(j);
+	setCounters(j);*/
+	curProblem.cmdList = serializeBlock('sortable' + curProblem.tabIndex);
 }
 
 function highlightOn(problem){
@@ -491,7 +623,7 @@ function nextStep(cnt, i){
 		hideFocus();
 		return;
 	}
-	if ( (!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
+	/*if ( (!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
 		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
 	else {
 		curProblem.playing = false;
@@ -502,7 +634,7 @@ function nextStep(cnt, i){
 		if (curProblem.nextOrPrev)
 			nextCmd();
 		curProblem.nextOrPrev = false;
-	}
+	}*/
 }
 
 function play(cnt){

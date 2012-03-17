@@ -699,7 +699,7 @@ function addBlock(){
 					addNewCmd(classes[j], false, ui.item[0]);
 				}
 		}
-		updated();
+		//updated();
 		curProblem.cmdListEnded = false;
 		//alert($(this).prop('sortName'));
 	});
@@ -980,7 +980,13 @@ function nextClick(){
 	}
 	else
 	{
-		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
+		if (!curProblem.playing)
+		{
+			
+		}
+		curProblem.playing = true;
+		curProblem.cmdList.exec(1);
+		/*if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
 			var mes = new MessageCmdLimit();
 			curProblem.arrow.dead = true;
 			changeProgressBar();
@@ -1007,8 +1013,8 @@ function nextClick(){
 		curProblem.speed = 0;
 		curProblem.nextOrPrev = true;
 		if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
-			changeCmdHighlight(curProblem.cmdList[divI()- 1].name);	
-		loop(1);
+			changeCmdHighlight(curProblem.cmdList[divI()- 1].name);*/	
+		//loop(1);
 	}
 }
 

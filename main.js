@@ -84,7 +84,10 @@
 			curProblem.cmdListEnded = false;
 		});
 		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
+			if (cmdAdded)
+				updated();
 			cmdAdded = false;
+			
 		});
 		/*$('#sortable' + curProblem.tabIndex).prop('index', curProblem.tabIndex);
 		$('#sortable' + curProblem.tabIndex).jstree({ 
