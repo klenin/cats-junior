@@ -789,23 +789,26 @@ function addNewCmd(str, dblClick, elem){
 }
 
 function hideCounters(){
-	$('#sortable' + curProblem.tabIndex + ' > li > span > img').hide();			
+	/*$('#sortable' + curProblem.tabIndex + ' > li > span > img').hide();			
 	$('#sortable' + curProblem.tabIndex + ' > li > span > input').hide();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		$('#spinCnt' + el.prop('numId')).show();
 		el = el.next();
-	}
+	}*/
+	curProblem.cmdList.hideCounters();
+
 }
 
 function showCounters(){
-	$('#sortable' + curProblem.tabIndex + ' > li > span > img').show();			
+	/*$('#sortable' + curProblem.tabIndex + ' > li > span > img').show();			
 	$('#sortable' + curProblem.tabIndex + ' > li > span > input').show();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		$('#spinCnt' + el.prop('numId')).hide();
 		el = el.next();
-	}
+	}*/
+	curProblem.cmdList.showCounters();
 }
 
 function enableButtons(){
@@ -982,10 +985,19 @@ function nextClick(){
 	{
 		if (!curProblem.playing)
 		{
-			
+			setCounters();
+			//disableButtons();
+			hideCounters();
+			var needReturn = curProblem.cmdList.isFinished();
+			setDefault();
+			curProblem.playing = true;
+			if (needReturn)
+				return;
 		}
-		curProblem.playing = true;
+		
 		curProblem.cmdList.exec(1);
+		if (curProblem.cmdList.isFinished())
+			curProblem.playing = false;
 		/*if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
 			var mes = new MessageCmdLimit();
 			curProblem.arrow.dead = true;

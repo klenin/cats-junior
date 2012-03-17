@@ -4,6 +4,7 @@ var Command = $.inherit({
 		this.cnt = cnt;
 		this.curCnt = 0;
 		this.parent = parent;
+		this.id = id;
 	},
 	noteq: function(cmd){
 		if (!(cmd.name == this.name && cmd.cnt == this.cnt)) //return different commands
@@ -17,10 +18,34 @@ var Command = $.inherit({
 			eval(this.name + '();');
 			++this.curCnt;
 		}
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 		return cnt - t;
 	},
 	getClass: function(){
 		return 'command'
+	},
+	setDefault: function() {
+		this.curCnt = 0;
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		if (isCmdHighlighted(this.id))
+			changeCmdHighlight(this.id);
+	},
+	isFinished: function() {
+		return this.curCnt >= this.cnt;
+	},
+	showCounters: function() {
+		$('#' + this.id + ' > span > img').show();		
+		$('#' + this.id + ' > span > input').show();			
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).hide();
+	},
+	hideCounters: function() {
+		$('#' + this.id + ' > span > img').hide();		
+		$('#' + this.id + ' > span > input').hide();			
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).show();
 	}
 });
 
@@ -53,12 +78,41 @@ var Block = $.inherit({
 	},
 	exec: function(cnt)
 	{
+		var cmd = undefined
 		while(cnt && this.commands.length > this.curCmd)
-			cnt = this.commands[this.curCmd++].exec(cnt);
+		{
+			cmd = this.commands[this.curCmd];
+			cnt = cmd.exec(cnt);
+			if (cmd.isFinished())
+				++this.curCmd;
+		}
+		if (cmd.getClass() != 'block') 
+		{
+			if (!isCmdHighlighted(cmd.id))
+			{
+				changeCmdHighlight(cmd.id);
+			}
+			if (curProblem.prevCmd && curProblem.prevCmd.id != cmd.id)
+				changeCmdHighlight(curProblem.prevCmd.id);
+			curProblem.prevCmd = cmd;
+		}
 		return cnt;
 	},
 	getClass: function(){
 		return 'block';
+	},
+	setDefault: function(){
+		for (var i = 0; i < this.commands.length; ++i)
+			this.commands[i].setDefault();
+		this.curCmd = 0;
+	},
+	showCounters: function() {
+		for (var i = 0; i < this.commands.length; ++i)
+			this.commands[i].showCounters(); 
+	},
+	hideCounters: function() {
+		for (var i = 0; i < this.commands.length; ++i)
+			this.commands[i].hideCounters(); 
 	}
 });
 
@@ -318,7 +372,8 @@ function serializeBlock(sortableName, parent)
 		var type = $('#' + arr[i]).prop('type');
 		if (type != 'block') 
 		{
-			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value), block);
+			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value),
+				block,  $('#' + arr[i]).prop('id'));
 			block.pushCommand(cmd);
 		}
 		else
@@ -422,7 +477,11 @@ function updated(){
 		curProblem.divName = list()[divI()].name;
 	showCounters();
 	setCounters(j);*/
+	//cmdHighlightOff();
 	curProblem.cmdList = serializeBlock('sortable' + curProblem.tabIndex);
+	showCounters();
+	//setCounters();
+	setDefault();
 }
 
 function highlightOn(problem){
@@ -482,6 +541,7 @@ function setDefault(f){
 		step = 0;
 		divName = cmdList.length ? cmdList[0].name : "";
 		nextOrPrev = false;
+		prevCmd = undefined;
 	}
 	hideFocus();
 	cmdHighlightOff();
@@ -498,6 +558,7 @@ function setDefault(f){
 			$('#spinCnt' + el.prop('numId')).prop('value', newVal + '/' + newVal);
 		el = el.next();
 	}
+	curProblem.cmdList.setDefault();
 }
 
 function prevDivName(){
@@ -507,7 +568,7 @@ function prevDivName(){
 }
 
 function loop(cnt, i){
-	var newCmd = false;
+	/*var newCmd = false;
 	if (!i)
 		i = 0;
 	if (curProblem.arrow.dead || !curProblem.playing)
@@ -540,6 +601,12 @@ function loop(cnt, i){
 			changeCmdHighlight(divN());
 		if (divN())
 			$('#spinCnt' + numId).prop('value', newCnt + '/' + $('#spin' + numId).prop('value'));
+	}*/
+	curProblem.cmdList.exec(1);
+	if (curProblem.cmdList.isFinished())
+	{
+		curProblem.playing = false;
+		return;
 	}
 	nextStep(cnt, ++i);	
 }
@@ -623,8 +690,9 @@ function nextStep(cnt, i){
 		hideFocus();
 		return;
 	}
+	setTimeout(function() { loop(cnt, i); }, curProblem.speed);
 	/*if ( (!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
-		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
+		
 	else {
 		curProblem.playing = false;
 		hideFocus();
@@ -638,15 +706,24 @@ function nextStep(cnt, i){
 }
 
 function play(cnt){
-	if (curProblem.arrow.dead)
-		return;
-	curProblem.playing = true;
-	if (!divN())
-		curProblem.divName = list()[0].name;
-	if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt) || (divI() >= list().length)){
-		setDefault();
+	//if (curProblem.arrow.dead)
+	//	return;
+	if (!curProblem.playing || curProblem.arrow.dead)
+	{
 		setCounters();
+		//disableButtons();
+		hideCounters();
+		//var needReturn = curProblem.cmdList.isFinished();
+		setDefault();
+		curProblem.playing = true;
+		//if (needReturn)
+		//	return;
 	}
+	//while(!(curProblem.paused || curProblem.cmdList.isFinished()))
+	//{
+		//setTimeout(function() { curProblem.cmdList.exec(1); }, curProblem.speed);
+	
+	//}
 	loop(cnt);
 }
 

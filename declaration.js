@@ -113,3 +113,4 @@ var problemsData = [
 }];
 var cmdAdded = false;
 var addedCmds = [];
+var prevCmd = undefined;
