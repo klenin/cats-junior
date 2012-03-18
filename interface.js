@@ -812,9 +812,9 @@ function callPlay(s){
 	curProblem.stopped = false;
 	disableButtons();
 	hideCounters();
-	setCounters(divI() + 1);
+	//setCounters(divI() + 1);
 	curProblem.speed = s;
-	setTimeout(function() { play(); }, s);
+	setTimeout(function() { play(MAX_VALUE); }, s);
 }
 
 function onFinishExecuting(problem)
@@ -963,7 +963,6 @@ function nextClick(){
 		if (!curProblem.playing)
 		{
 			setCounters();
-			//disableButtons();
 			hideCounters();
 			var needReturn = curProblem.cmdList.isFinished();
 			setDefault();
@@ -971,39 +970,10 @@ function nextClick(){
 			if (needReturn)
 				return;
 		}
-		
 		curProblem.cmdList.exec(1);
+		++curProblem.step;
 		if (curProblem.cmdList.isFinished())
 			curProblem.playing = false;
-		/*if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
-			var mes = new MessageCmdLimit();
-			curProblem.arrow.dead = true;
-			changeProgressBar();
-			if (curProblem.arrow.dead)
-				heroIsDead();
-			return;
-		}
-		if ((divI() == list().length - 1 && cmd() == list()[divI()].cnt)){
-			curProblem.divIndex = list().length;
-			++curProblem.step;
-			curProblem.cmdIndex = 0;
-			return;
-		}
-		else
-			if (divI() >= list().length)
-				return;
-		if (cmd() == 0 && divI() == 0)
-			setCounters();
-		disableButtons();
-		hideCounters();
-		curProblem.playing = true;
-		curProblem.paused = false;
-		curProblem.stopped = false;
-		curProblem.speed = 0;
-		curProblem.nextOrPrev = true;
-		if (divI() >= 1 && isCmdHighlighted(curProblem.cmdList[divI()- 1].name))
-			changeCmdHighlight(curProblem.cmdList[divI()- 1].name);*/	
-		//loop(1);
 	}
 }
 
@@ -1024,5 +994,6 @@ function prevClick(){
 	curProblem.speed = 0;
 	curProblem.playing = true;
 	curProblem.nextOrPrev = true;
-	loop(t);
+	play(t);
+
 }

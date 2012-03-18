@@ -18,8 +18,11 @@ var Command = $.inherit({
 			eval(this.name + '();');
 			++this.curCnt;
 		}
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+		if (curProblem.speed || this.cnt == this.curCnt)
+		{
+			var numId = $('#' + this.id).prop('numId');
+			$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+		}
 		return cnt - t;
 	},
 	getClass: function(){
@@ -78,7 +81,8 @@ var Block = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		var cmd = undefined
+		var highlightlast = (cnt == MAX_VALUE);
+		var cmd = undefined;
 		while(cnt && this.commands.length > this.curCmd)
 		{
 			cmd = this.commands[this.curCmd];
@@ -86,15 +90,18 @@ var Block = $.inherit({
 			if (cmd.isFinished())
 				++this.curCmd;
 		}
-		if (cmd.getClass() != 'block') 
+		if (cmd && cmd.getClass() != 'block' && (curProblem.speed || !cnt || highlightlast)) 
 		{
 			if (!isCmdHighlighted(cmd.id))
 			{
 				changeCmdHighlight(cmd.id);
 			}
-			if (curProblem.prevCmd && curProblem.prevCmd.id != cmd.id)
-				changeCmdHighlight(curProblem.prevCmd.id);
-			curProblem.prevCmd = cmd;
+			if (curProblem.speed)
+			{
+				if (curProblem.prevCmd && curProblem.prevCmd.id != cmd.id)
+					changeCmdHighlight(curProblem.prevCmd.id);
+				curProblem.prevCmd = cmd;
+			}
 		}
 		return cnt;
 	},
@@ -563,12 +570,13 @@ function prevDivName(){
 
 function loop(cnt, i){
 	curProblem.cmdList.exec(1);
+	++curProblem.step;
 	if (curProblem.cmdList.isFinished())
 	{
 		curProblem.playing = false;
 		return;
 	}
-	nextStep(cnt, ++i);	
+	nextStep(cnt - 1, ++i);	
 }
 
 function changeProgressBar(){
@@ -650,41 +658,33 @@ function nextStep(cnt, i){
 		hideFocus();
 		return;
 	}
-	setTimeout(function() { loop(cnt, i); }, curProblem.speed);
-	/*if ( (!cnt || i < cnt) && nextCmd() && curProblem.playing && !curProblem.paused && !curProblem.stopped)
-		
-	else {
-		curProblem.playing = false;
-		hideFocus();
+	if (cnt && !curProblem.paused)
+		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
+	else
+	{
+		drawLabirint();
+		changeProgressBar();
 		enableButtons();
-		if (!curProblem.speed)
-			notSpeed();
-		if (curProblem.nextOrPrev)
-			nextCmd();
-		curProblem.nextOrPrev = false;
-	}*/
+	}
 }
 
 function play(cnt){
-	//if (curProblem.arrow.dead)
-	//	return;
 	if (!curProblem.playing || curProblem.arrow.dead)
 	{
 		setCounters();
-		//disableButtons();
 		hideCounters();
-		//var needReturn = curProblem.cmdList.isFinished();
 		setDefault();
 		curProblem.playing = true;
-		//if (needReturn)
-		//	return;
 	}
-	//while(!(curProblem.paused || curProblem.cmdList.isFinished()))
-	//{
-		//setTimeout(function() { curProblem.cmdList.exec(1); }, curProblem.speed);
-	
-	//}
-	loop(cnt);
+	if (!curProblem.speed)
+	{
+		curProblem.step += cnt - curProblem.cmdList.exec(cnt);
+		changeProgressBar();
+		drawLabirint();
+		enableButtons();
+	}
+	else
+		nextStep(cnt);
 }
 
 function getCurProblem()
@@ -704,8 +704,11 @@ function oneStep(dir)
 	var y = curProblem.arrow.coord.y;
 	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
 	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
-	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, false);
-	changeProgressBar();
+	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
+	if (curProblem.speed)
+	{
+		changeProgressBar();
+	}
 }
 
 function forward()
