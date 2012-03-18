@@ -84,7 +84,7 @@
 					}
 			}
 			addedCmds.push(ui.item);
-			updated();
+			//updated();
 			curProblem.cmdListEnded = false;
 		});
 		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
@@ -97,48 +97,11 @@
 			//addedCmds = [];
 			stoppedLvl= 0;
 			$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
-			if (cmdAdded)
+			//if (cmdAdded)
 				updated();
 			cmdAdded = false;
 			
 		});
-		/*$('#sortable' + curProblem.tabIndex).prop('index', curProblem.tabIndex);
-		$('#sortable' + curProblem.tabIndex).jstree({ 
-			"crrm" : { 
-				"move" : {
-					"check_move" : function (m) { 
-						/*var p = this._get_parent(m.o);
-						if(!p) return false;
-						p = p == -1 ? this.get_container() : p;
-						if(p === m.np) return true;
-						if(p[0] && m.np[0] && p[0] === m.np[0]) return true;
-						return false;
-						return true;
-					}
-				},
-			},
-			"dnd" : {
-				"drop_finish" : function () { 
-					alert("DROP"); 
-				},
-				"drag_check" : function (data) {
-					if(!data.o.type) {
-						return false;
-					}
-					return { 
-						after : false, 
-						before : false, 
-						inside : true 
-					};
-				},
-				"drag_finish" : function (data) { 
-					if (data.o.type)
-						this.get_container().jstree("create", -1 , "inside", cmdClassToName[data.o.type], false, true); 
-				},
-				"drop_target" : '.jstree-drop'
-			},
-			"plugins" : [ "themes", "html_data", "dnd", "crrm" ]
-		});*/
 		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
 			if (!curProblem.playing)
 				showCounters();

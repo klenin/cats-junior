@@ -6,10 +6,8 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 	},
-	noteq: function(cmd){
-		if (!(cmd.name == this.name && cmd.cnt == this.cnt)) //return different commands
-			return [this, cmd];
-		return undefined;
+	eq: function(cmd){
+		return (cmd.getClass() == 'command' && cmd.id == this.id && cmd.cnt == this.cnt);
 	},
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
@@ -48,7 +46,14 @@ var Command = $.inherit({
 		$('#' + this.id + ' > span > img').hide();		
 		$('#' + this.id + ' > span > input').hide();			
 		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 		$('#spinCnt' + numId).show();
+	},
+	started: function() {
+		return this.curCnt > 0;
+	},
+	copyDiff: function(cmd){
+		return this.eq(cmd) ? this : cmd;
 	}
 });
 
@@ -68,16 +73,15 @@ var Block = $.inherit({
 	isFinished: function(){
 		return this.commands.length <= this.curCmd;
 	},
-	noteq: function(block){
-		if (block.commands.length != this.commands.length)
-			return [this, block];
-		for (var i = 0; i < this.commands.length; ++i)
+	eq: function(block){
+		if (block.getClass() != 'block')
+			return false;
+		var f = true;
+		for (var i = 0; (i < this.commands.length) && (i <= this.curCmd) && f; ++i) //rewrite!
 		{
-			var cmd = this.commands[i].eq(block.commands[i]);
-			if (cmd)
-				return cmd;
+			f = f && this.commands[i].eq(block.commands[i])
 		}
-		return undefined;
+		return f;
 	},
 	exec: function(cnt)
 	{
@@ -120,6 +124,24 @@ var Block = $.inherit({
 	hideCounters: function() {
 		for (var i = 0; i < this.commands.length; ++i)
 			this.commands[i].hideCounters(); 
+	},
+	started: function() {
+		return this.curCmd > 0 || (this.commands.length && this.commands[0].started());
+	},
+	copyDiff: function(block){
+		if (block.getClass() != 'block')
+		{
+			return block;
+		}
+		for (var i = 0; i < Math.min(this.commands.length, block.commands.length); ++i)
+		{
+			this.commands[i] = this.commands[i].copyDiff(block.commands[i]);
+		}
+		if (this.commands.length < block.commands.length)
+			this.commands.concat(block.commands.slice(this.commands.length))
+		else if (this.commands.length > block.commands.length)
+			this.commands.splice(block.commands.length, this.commands.length - block.commands.length);
+		return this;
 	}
 });
 
@@ -199,7 +221,7 @@ function getTest(data, l){
 		stopped: false, 
 		playing: false, 
 		cmdListEnded: false, 
-		cmdList: {'curCmd': 0, 'commands': []}, 
+		cmdList: new Block([]), 
 		mapFromTest:  data.map.slice(), 
 		map: [], 
 		maxBoxId: 0, 
@@ -392,97 +414,20 @@ function serializeBlock(sortableName, parent)
 }
 
 function updated(){
-	/*var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');*/
-	/*var newCommandsList = serializeBlock('sortable' + curProblem.tabIndex);
-	var cmd = curProblem.cmdList.noteq(newCommandsList);
-	if (cmd)
+	var newCmdList = serializeBlock('sortable' + curProblem.tabIndex);
+	var needHideCounters = curProblem.cmdList && curProblem.cmdList.started();
+	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList))
 	{
-		var lastCmd = cmd[0],
-			newCmd = cmd[1];
-		if (lastCmd.getClass() == 'block')
-		{
-			if (lastCmd.curCmd > newCmd.commands.length)
-			{
-				needToClear = true;
-			}
-			else
-			{
-				if (lastCmd.parent && lastCmd.parent.commands[lastCmd.parent.curCmd] == lastCmd)
-			}
-		}
-		
-	}
-	var needToClear = curProblem.arrow.dead || (curProblem.cmdList.isFinished() && arr.length < divI());
-	var block = getCurProblemBlock();
-	var j = block.commands.length;  //number of first cmd that counters must be changed
-	if(!curProblem.cmdList.commands.length)
-		needToClear = true;
-	for (var i = 0; i < arr.length; ++i){
-		var c = undefined;
-		if ( $('#' + arr[i]).prop('type') != 'block')
-			c = parseInt($('#' + arr[i] + ' input')[0].value); //current counter
-		if (!curProblem.cmdList[i])
-			curProblem.cmdList[i] = new Object();
-		if (curProblem.cmdList[i].name != arr[i] || 
-			(curProblem.cmdList[i].name == arr[i] && c != undefined && curProblem.cmdList[i].cnt != c)){ //if command was changed
-			if (i < divI()){   
-				if (curProblem.cmdListEnded && (i == divI() - 1) && 
-					(curProblem.cmdList[i].name == arr[i] && curProblem.cmdList[i].cnt < c)){ //after axecuting all 
-					with(curProblem){                   //of commands the counter of the last command was increased
-						divIndex = i;
-						cmdIndex = c - 1;
-						divName = arr[i];
-						changeProgressBar();
-					}
-					var numId = $('#' + arr[i]).prop('numId');
-					$('#spinCnt' + numId).prop('cnt', c - curProblem.cmdList[i].cnt);
-					$('#spinCnt' + numId).prop('value', 
-							$('#spinCnt' + numId).prop('cnt') + '/' + $('#spin' + numId).prop('value'));
-				}
-				else{
-					needToClear = true;
-					j = 0;
-				}
-			}
-			else
-				if (i == divI()){     //parameters of last executed cmd were changed
-					if (curProblem.cmdList[i].name == arr[i]){   //if counter was changed
-						if (curProblem.cmdIndex >= c)
-							needToClear = true;
-						else{   //change the value of counter
-							var numId = $('#' + arr[i]).prop('numId');
-							$('#spinCnt' + numId).prop('cnt', (c - curProblem.cmdIndex));
-							$('#spinCnt' + numId).prop('value', 
-								(c - curProblem.cmdIndex) + '/' + $('#spin' + numId).prop('value'));	
-						} 
-					}
-					else	
-						j = i;
-			}
-			curProblem.cmdList[i].name = arr[i];
-			curProblem.cmdList[i].cnt = c;
-			if (arr[i] == 'block')
-			{
-				curProblem.cmdList[i].curCmd = 0;
-				curProblem.cmdList[i].commands = [];
-			}
-		}
-	}
-	curProblem.cmdListEnded = false;
-	if (i < curProblem.cmdList.length)
-		curProblem.cmdList.splice(i, curProblem.cmdList.length - i);
-	if (needToClear){
+		curProblem.cmdList = newCmdList;
 		setDefault();
-		cmdHighlightOff();
+		showCounters();
 	}
-	if (divI() < list().length)
-		curProblem.divName = list()[divI()].name;
-	showCounters();
-	setCounters(j);*/
-	//cmdHighlightOff();
-	curProblem.cmdList = serializeBlock('sortable' + curProblem.tabIndex);
-	showCounters();
-	setDefault();
+	else
+	{
+		curProblem.cmdList = curProblem.cmdList.copyDiff(newCmdList);
+		if (needHideCounters)
+			hideCounters();
+	}
 }
 
 function highlightOn(problem){
