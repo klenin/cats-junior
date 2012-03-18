@@ -34,7 +34,8 @@
 				connectToSortable: ('#sortable' + curProblem.tabIndex),
 				helper: 'clone',
 			//	revert: 'invalid',
-				cursor: 'default'
+				cursor: 'default',
+				greedy: true
 			});
 			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
 				if ($(this).prop('ifLi'))
@@ -46,12 +47,15 @@
 			});
 		}
 		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
+			stoppedLvl = 0;
 			if (!cmdAdded)
 			{
+				$('#cons0').html('');
 				addedCmds = [];
 				//ui.item.remove();
 				//return;
 			}
+			$('#cons0').append('sortbeforestop ' + $(this).prop('id') + '\n');
 			//cmdAdded = true;
 			if (ui.position.left > maxx || ui.position.top < miny){
 				ui.item.remove();
@@ -74,16 +78,25 @@
 				ui.item.prop('id', id);
 				ui.item.prop('ifLi', 1);
 				ui.item.prop('numId', cmdId);
-				addedCmds.push(ui.item);
 				for (var j = 0; j < classes.length; ++j)
 					if (ui.helper.hasClass(classes[j])){
 						addNewCmd(classes[j], false, ui.item[0]);
 					}
 			}
+			addedCmds.push(ui.item);
 			updated();
 			curProblem.cmdListEnded = false;
 		});
 		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
+			if (stoppedLvl)
+			{
+				//$(this).sortable('cancel');
+				for (var i = 0; i < addedCmds.length - 1; ++i)
+					addedCmds[i].remove();
+			}
+			//addedCmds = [];
+			stoppedLvl= 0;
+			$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
 			if (cmdAdded)
 				updated();
 			cmdAdded = false;

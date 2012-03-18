@@ -654,8 +654,8 @@ function exportCommands(){
 }
 
 function addBlock(){
-	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable" style = "height: 100px; width: 220px;">');
-	$('#block' + cmdId).css('height', '100px');
+	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable" style = "height: 200px; width: 220px;">');
+	$('#block' + cmdId).css('height', '200px');
 	$('#block' + cmdId + ' > span').remove();
 	$('#sortableBlock' + cmdId).sortable({
 			revert: false,
@@ -665,12 +665,7 @@ function addBlock(){
 		});
 	$('#sortableBlock' + cmdId).prop('sortName', 'sortableBlock' + cmdId);
 	$('#sortableBlock' + cmdId).bind('sortbeforestop', function(event, ui) {
-		/*if (cmdAdded)
-		{
-			//ui.helper.remove();
-			//updated();
-			return;
-		}*/
+		$('#cons0').append('sortbeforestop ' + $(this).prop('id') + '\n');
 		cmdAdded = true;
 		if (ui.position.left > maxx || ui.position.top < miny){
 			ui.item.remove();
@@ -686,27 +681,23 @@ function addBlock(){
 				break;
 			}
 		}
-		//var id = ui.item.prop('id');
-		//id = id.replace(/\d{1,}/, "");
 		id += cmdId;
 		if (!ui.item.prop('numId')){
 			ui.item.prop('id', id);
 			ui.item.prop('ifLi', 1);
 			ui.item.prop('numId', cmdId);
-			addedCmds.push(ui.item);
 			for (var j = 0; j < classes.length; ++j)
 				if (ui.helper.hasClass(classes[j])){
 					addNewCmd(classes[j], false, ui.item[0]);
 				}
 		}
-		//updated();
 		curProblem.cmdListEnded = false;
-		//alert($(this).prop('sortName'));
 	});
 	$('#sortableBlock' + cmdId).bind('sortstop', function(event, ui) {
-		for (var i = 0; i < addedCmds.length - 1; ++i)
-			addedCmds[i].remove();
-		addedCmds = [];
+		if (stoppedLvl)
+			$(this).sortable('cancel');
+		++stoppedLvl;
+		$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
 	});
 	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {
 		if (!curProblem.playing)
@@ -789,25 +780,11 @@ function addNewCmd(str, dblClick, elem){
 }
 
 function hideCounters(){
-	/*$('#sortable' + curProblem.tabIndex + ' > li > span > img').hide();			
-	$('#sortable' + curProblem.tabIndex + ' > li > span > input').hide();
-	var el = $('#sortable' + curProblem.tabIndex).children();
-	while (el.length > 0){
-		$('#spinCnt' + el.prop('numId')).show();
-		el = el.next();
-	}*/
 	curProblem.cmdList.hideCounters();
 
 }
 
 function showCounters(){
-	/*$('#sortable' + curProblem.tabIndex + ' > li > span > img').show();			
-	$('#sortable' + curProblem.tabIndex + ' > li > span > input').show();
-	var el = $('#sortable' + curProblem.tabIndex).children();
-	while (el.length > 0){
-		$('#spinCnt' + el.prop('numId')).hide();
-		el = el.next();
-	}*/
 	curProblem.cmdList.showCounters();
 }
 

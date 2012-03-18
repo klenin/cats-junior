@@ -384,11 +384,6 @@ function serializeBlock(sortableName, parent)
 	return block;
 }
 
-function compareBlocks(block1, block2)
-{
-	
-}
-
 function updated(){
 	/*var arr = $('#sortable' + curProblem.tabIndex).sortable('toArray');*/
 	/*var newCommandsList = serializeBlock('sortable' + curProblem.tabIndex);
@@ -480,7 +475,6 @@ function updated(){
 	//cmdHighlightOff();
 	curProblem.cmdList = serializeBlock('sortable' + curProblem.tabIndex);
 	showCounters();
-	//setCounters();
 	setDefault();
 }
 
@@ -549,7 +543,7 @@ function setDefault(f){
 		drawLabirint();
 		changeProgressBar();
 	}
-	$("#cons" + curProblem.tabIndex).empty();
+	//$("#cons" + curProblem.tabIndex).empty();
 	var el = $('#sortable' + curProblem.tabIndex).children();
 	while (el.length > 0){
 		var newVal = $('#spin' + el.prop('numId')).prop('value');
@@ -568,40 +562,6 @@ function prevDivName(){
 }
 
 function loop(cnt, i){
-	/*var newCmd = false;
-	if (!i)
-		i = 0;
-	if (curProblem.arrow.dead || !curProblem.playing)
-		return;
-	if (curProblem.paused || curProblem.stopped){
-		if (curProblem.paused)
-			curProblem.paused = false;
-		else{
-			setDefault();
-		}
-		return;
-	}
-	var t = prevDivName();
-	if (curProblem.speed != 0 && cmd() == 0 && t && isCmdHighlighted(t))
-		changeCmdHighlight(t);
-	newCmd = cmd() == 0;
-	var x = curProblem.arrow.coord.x;
-	var y = curProblem.arrow.coord.y;
-	t = divN().replace(/\d{1,}/, "")
-	curProblem.dx = changeDir[t][curProblem.arrow.dir].dx;
-	curProblem.dy = changeDir[t][curProblem.arrow.dir].dy;
-	changeLabyrinth(step(), cnt, changeDir[t][curProblem.arrow.dir].curDir, curProblem.speed == 0);
-	if (divN()){
-		var numId = $('#'+ divN()).prop('numId');
-		var newCnt = $('#spinCnt' + numId).prop('cnt') - 1;
-		$('#spinCnt' + numId).prop('cnt', newCnt);
-	}
-	if (curProblem.speed && (!cnt || (i < cnt))){
-		if (newCmd || cmd() == 0)
-			changeCmdHighlight(divN());
-		if (divN())
-			$('#spinCnt' + numId).prop('value', newCnt + '/' + $('#spin' + numId).prop('value'));
-	}*/
 	curProblem.cmdList.exec(1);
 	if (curProblem.cmdList.isFinished())
 	{
