@@ -61,8 +61,11 @@ var Command = $.inherit({
 		return  cmd;
 	},
 	makeUnfinished: function(){
-		//if (this.isFinished())
-		//	this.curCnt = this.cnt - 1;
+		return;
+	},
+	highlightOff: function() {
+		if (isCmdHighlighted(this.id))
+			changeCmdHighlight(this.id);
 	}
 });
 
@@ -86,10 +89,15 @@ var Block = $.inherit({
 		if (block.getClass() != 'block')
 			return false;
 		var f = true;
-		for (var i = 0; (i < this.commands.length) && (i <= this.curCmd) && f; ++i) //rewrite!
+		for (var i = 0; i < Math.min(this.commands.length, this.curCmd + 1) && f; ++i) //rewrite!
 		{
-			var f1 = this.commands[i].eq(block.commands[i]);
-			var f2 = true;
+			if (i >= block.commands.length)
+			{
+				f = false;
+				return;
+			}
+			var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && i == Math.min(this.commands.length - 1, this.curCmd));
+			/*var f2 = true;
 			var t = this;
 			while(t.parent)
 			{
@@ -103,9 +111,10 @@ var Block = $.inherit({
 				if (oldCmd.getClass() == 'command' && newCmd.getClass() == 'command' && 
 					oldCmd.id == newCmd.id && oldCmd.curCnt <= newCmd.cnt)
 					f1 = true;
-			}
+			}*/
 			f = f && f1;
 		}
+		
 		return f;
 	},
 	exec: function(cnt)
@@ -125,6 +134,8 @@ var Block = $.inherit({
 			{
 				changeCmdHighlight(cmd.id);
 			}
+			if (!cnt)
+				cmd.hideCounters();
 			if (curProblem.speed)
 			{
 				if (curProblem.prevCmd && curProblem.prevCmd.id != cmd.id)
@@ -175,6 +186,10 @@ var Block = $.inherit({
 			if (this.commands.length)
 				this.commands[this.curCmd].makeUnfinished();
 		}
+	},
+	highlightOff: function(){
+		for (var i = 0; i < this.commands.length; ++i)
+			this.commands[i].highlightOff();
 	}
 });
 
@@ -374,13 +389,8 @@ function isCmdHighlighted(elem){
 }
 
 function cmdHighlightOff(){
-	var el = $('#sortable' + curProblem.tabIndex).children();
-	l = el.length;
-	for (var i = 0; i < l; ++i){
-		if (isCmdHighlighted(el.prop('id')))
-			changeCmdHighlight(el.prop('id'));
-		el = el.next();
-	}
+	if (curProblem.cmdList)
+		curProblem.cmdList.highlightOff();
 }
 
 function setCounters(j, dontReload){
@@ -446,13 +456,14 @@ function serializeBlock(sortableName, parent)
 	return block;
 }
 
+function receiveFinished(){
+	receiveStarted = false;
+}
+
 function updated(){
 	var newCmdList = serializeBlock('sortable' + curProblem.tabIndex);
 	var needHideCounters = curProblem.cmdList && curProblem.cmdList.started();
-	if (curProblem.cmdList.isFinished())
-		curProblem.cmdList.makeUnfinished();
-
-	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList))
+	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList) || !curProblem.cmdList)
 	{
 		curProblem.cmdList = newCmdList;
 		setDefault();
@@ -466,6 +477,9 @@ function updated(){
 			curProblem.playing = true;
 			hideCounters();
 		}
+		if (curProblem.cmdList.isFinished())
+			curProblem.cmdList.makeUnfinished();
+
 		
 	}
 }

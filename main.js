@@ -27,13 +27,14 @@
 			cursor: 'move',
 			appendTo: 'body',
 			helper: 'clone'
-		});
+		}).disableSelection();;
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + curProblem.tabIndex).draggable({
 				connectToSortable: ('#sortable' + curProblem.tabIndex),
 				helper: 'clone',
 				cursor: 'default',
-				greedy: true
+				greedy: true,
+				connectWith: '.connectedSortable' 
 			});
 			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
 				if ($(this).prop('ifLi'))
@@ -75,19 +76,33 @@
 						addNewCmd(classes[j], false, ui.item[0]);
 					}
 			}
+			$('#cons0').append('sortbeforestop #sortable' + curProblem.tabIndex + '\n');
 			addedCmds.push(ui.item);
 			curProblem.cmdListEnded = false;
 		});
 		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
 			if (stoppedLvl)
 			{
-				for (var i = 0; i < addedCmds.length - 1; ++i)
-					addedCmds[i].remove();
+				/*if (receiveStarted)
+					for (var i = addedCmds.length - 1; i > 0 ; --i)
+						addedCmds[i].remove();
+				else*/
+					for (var i = 0; i < addedCmds.length - 1; ++i)
+						addedCmds[i].remove();
 			}
 			stoppedLvl= 0;
 			setTimeout(function(){updated();}, 1000);
 			cmdAdded = false;
-			
+			$('#cons0').append('sortstop #sortable' + curProblem.tabIndex + '\n');
+
+		});
+		$('#sortable' + curProblem.tabIndex ).bind('sortreceive', function(event, ui) {
+			$('#cons0').append('sortreceive #sortable' + curProblem.tabIndex + '\n');
+			//receiveStarted = true;
+			//setTimeout(function(){receiveFinished();}, 2000);
+		});
+		$('#sortable' + curProblem.tabIndex ).bind('sortout', function(event, ui) {
+			var i = 0;	
 		});
 		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
 			if (!curProblem.playing)

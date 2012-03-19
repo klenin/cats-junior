@@ -654,15 +654,16 @@ function exportCommands(){
 }
 
 function addBlock(){
-	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable" style = "height: 200px; width: 220px;">');
+	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#block' + cmdId).css('height', '200px');
 	$('#block' + cmdId + ' > span').remove();
 	$('#sortableBlock' + cmdId).sortable({
-			revert: false,
-			cursor: 'move',
-			appendTo: 'body',
-			helper: 'clone'
-		});
+		revert: false,
+		cursor: 'move',
+		appendTo: 'body',
+		helper: 'clone',
+		connectWith: '.connectedSortable' 
+	}).disableSelection();
 	$('#sortableBlock' + cmdId).prop('sortName', 'sortableBlock' + cmdId);
 	$('#sortableBlock' + cmdId).bind('sortbeforestop', function(event, ui) {
 		cmdAdded = true;
@@ -690,12 +691,22 @@ function addBlock(){
 					addNewCmd(classes[j], false, ui.item[0]);
 				}
 		}
+		$('#cons0').append('sortbeforestop #sortableBlock' + cmdId + '\n');
 		curProblem.cmdListEnded = false;
 	});
 	$('#sortableBlock' + cmdId).bind('sortstop', function(event, ui) {
 		if (stoppedLvl)
 			$(this).sortable('cancel');
 		++stoppedLvl;
+		$('#cons0').append('sortstop #sortableBlock' + cmdId + '\n');
+
+	});
+	$('#sortableBlock' + cmdId).bind('sortreceive', function(event, ui) {
+		$('#cons0').append('sortreceive #sortableBlock' + cmdId + '\n');
+
+	});
+	$('#sortableBlock' + cmdId).bind('sortout', function(event, ui) {
+		var i = 0;	
 	});
 	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {
 		if (!curProblem.playing)
@@ -706,6 +717,9 @@ function addBlock(){
 	for (var k = 0; k < classes.length; ++k){
 		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
 
+	}
+	for (var i = 0; i < problems.length; ++i){
+		$('ul, li').disableSelection();
 	}
 }
 	
@@ -957,6 +971,7 @@ function nextClick(){
 	}
 	else
 	{
+		curProblem.speed = 0;
 		if (!curProblem.playing)
 		{
 			setCounters();
@@ -967,7 +982,9 @@ function nextClick(){
 			if (needReturn)
 				return;
 		}
+		cmdHighlightOff();
 		curProblem.cmdList.exec(1);
+		drawLabirint();
 		++curProblem.step;
 		if (curProblem.cmdList.isFinished())
 			curProblem.playing = false;

@@ -116,3 +116,4 @@ var addedCmds = [];
 var prevCmd = undefined;
 var stoppedLvl = 0;
 var MAX_VALUE = 999999999999999;
+var receiveStarted = false;
