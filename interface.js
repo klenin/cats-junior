@@ -697,6 +697,7 @@ function addBlock(){
 		if (stoppedLvl)
 			$(this).sortable('cancel');
 		++stoppedLvl;
+		updated();
 		$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
 	});
 	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {

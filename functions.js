@@ -6,8 +6,8 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 	},
-	eq: function(cmd){
-		return (cmd.getClass() == 'command' && cmd.id == this.id && cmd.cnt == this.cnt);
+	eq: function(cmd, compareCnt){
+		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
@@ -52,8 +52,13 @@ var Command = $.inherit({
 	started: function() {
 		return this.curCnt > 0;
 	},
-	copyDiff: function(cmd){
-		return this.eq(cmd) ? this : cmd;
+	copyDiff: function(cmd, compareCnt){
+		if (this.eq(cmd, compareCnt))
+		{
+			this.cnt = cmd.cnt;
+			return this;
+		}
+		return  cmd;
 	}
 });
 
@@ -79,7 +84,16 @@ var Block = $.inherit({
 		var f = true;
 		for (var i = 0; (i < this.commands.length) && (i <= this.curCmd) && f; ++i) //rewrite!
 		{
-			f = f && this.commands[i].eq(block.commands[i])
+			var f1 = this.commands[i].eq(block.commands[i]);
+			if (this.isFinished() && i == this.commands.length - 1 && !f1)
+			{
+				var oldCmd = this.commands[i];
+				var newCmd = block.commands[i];
+				if (oldCmd.getClass() == 'command' && newCmd.getClass() == 'command' && 
+					oldCmd.id == newCmd.id && oldCmd.curCnt <= newCmd.cnt)
+					f1 = true;
+			}
+			f = f && f1;
 		}
 		return f;
 	},
@@ -128,17 +142,17 @@ var Block = $.inherit({
 	started: function() {
 		return this.curCmd > 0 || (this.commands.length && this.commands[0].started());
 	},
-	copyDiff: function(block){
+	copyDiff: function(block, compareCnt){
 		if (block.getClass() != 'block')
 		{
 			return block;
 		}
 		for (var i = 0; i < Math.min(this.commands.length, block.commands.length); ++i)
 		{
-			this.commands[i] = this.commands[i].copyDiff(block.commands[i]);
+			this.commands[i] = this.commands[i].copyDiff(block.commands[i], this.isFinished() && i == this.commands.length - 1 && compareCnt);
 		}
 		if (this.commands.length < block.commands.length)
-			this.commands.concat(block.commands.slice(this.commands.length))
+			this.commands = this.commands.concat(block.commands.slice(this.commands.length))
 		else if (this.commands.length > block.commands.length)
 			this.commands.splice(block.commands.length, this.commands.length - block.commands.length);
 		return this;
@@ -424,9 +438,15 @@ function updated(){
 	}
 	else
 	{
-		curProblem.cmdList = curProblem.cmdList.copyDiff(newCmdList);
+		curProblem.cmdList = curProblem.cmdList.copyDiff(newCmdList, true);
 		if (needHideCounters)
+		{
+			curProblem.playing = true;
+			if (curProblem.cmdList.isFinished())
+				curProblem.cmdList.curCmd -= 1;
 			hideCounters();
+		}
+		
 	}
 }
 
