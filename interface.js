@@ -665,7 +665,6 @@ function addBlock(){
 		});
 	$('#sortableBlock' + cmdId).prop('sortName', 'sortableBlock' + cmdId);
 	$('#sortableBlock' + cmdId).bind('sortbeforestop', function(event, ui) {
-		$('#cons0').append('sortbeforestop ' + $(this).prop('id') + '\n');
 		cmdAdded = true;
 		if (ui.position.left > maxx || ui.position.top < miny){
 			ui.item.remove();
@@ -697,7 +696,6 @@ function addBlock(){
 		if (stoppedLvl)
 			$(this).sortable('cancel');
 		++stoppedLvl;
-		$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
 	});
 	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {
 		if (!curProblem.playing)
@@ -812,7 +810,6 @@ function callPlay(s){
 	curProblem.stopped = false;
 	disableButtons();
 	hideCounters();
-	//setCounters(divI() + 1);
 	curProblem.speed = s;
 	setTimeout(function() { play(MAX_VALUE); }, s);
 }

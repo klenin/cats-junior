@@ -545,6 +545,7 @@ function setDefault(f){
 		el = el.next();
 	}
 	curProblem.cmdList.setDefault();
+	enableButtons();
 }
 
 function prevDivName(){
@@ -559,6 +560,7 @@ function loop(cnt, i){
 	if (curProblem.cmdList.isFinished())
 	{
 		curProblem.playing = false;
+		enableButtons();
 		return;
 	}
 	nextStep(cnt - 1, ++i);	
@@ -641,6 +643,7 @@ function nextStep(cnt, i){
 		curProblem.playing = false;
 		nextCmd();
 		hideFocus();
+		enableButtons();
 		return;
 	}
 	if (cnt && !curProblem.paused)
