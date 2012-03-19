@@ -98,7 +98,7 @@
 			stoppedLvl= 0;
 			$('#cons0').append('sortstop ' + $(this).prop('id') + '\n');
 			//if (cmdAdded)
-				updated();
+			setTimeout(function(){updated();}, 1000);
 			cmdAdded = false;
 			
 		});

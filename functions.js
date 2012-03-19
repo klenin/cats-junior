@@ -59,6 +59,10 @@ var Command = $.inherit({
 			return this;
 		}
 		return  cmd;
+	},
+	makeUnfinished: function(){
+		//if (this.isFinished())
+		//	this.curCnt = this.cnt - 1;
 	}
 });
 
@@ -85,7 +89,14 @@ var Block = $.inherit({
 		for (var i = 0; (i < this.commands.length) && (i <= this.curCmd) && f; ++i) //rewrite!
 		{
 			var f1 = this.commands[i].eq(block.commands[i]);
-			if (this.isFinished() && i == this.commands.length - 1 && !f1)
+			var f2 = true;
+			var t = this;
+			while(t.parent)
+			{
+				f2 = f2 && t.parent.isFinished();
+				t = t.parent;
+			}
+			if (this.isFinished() && f2 && i == this.commands.length - 1 && !f1)
 			{
 				var oldCmd = this.commands[i];
 				var newCmd = block.commands[i];
@@ -156,6 +167,14 @@ var Block = $.inherit({
 		else if (this.commands.length > block.commands.length)
 			this.commands.splice(block.commands.length, this.commands.length - block.commands.length);
 		return this;
+	},
+	makeUnfinished: function(){
+		if (this.isFinished())
+		{
+			this.curCmd = this.commands.length - 1;
+			if (this.commands.length)
+				this.commands[this.curCmd].makeUnfinished();
+		}
 	}
 });
 
@@ -430,6 +449,9 @@ function serializeBlock(sortableName, parent)
 function updated(){
 	var newCmdList = serializeBlock('sortable' + curProblem.tabIndex);
 	var needHideCounters = curProblem.cmdList && curProblem.cmdList.started();
+	if (curProblem.cmdList.isFinished())
+		curProblem.cmdList.makeUnfinished();
+
 	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList))
 	{
 		curProblem.cmdList = newCmdList;
@@ -442,8 +464,6 @@ function updated(){
 		if (needHideCounters)
 		{
 			curProblem.playing = true;
-			if (curProblem.cmdList.isFinished())
-				curProblem.cmdList.curCmd -= 1;
 			hideCounters();
 		}
 		
