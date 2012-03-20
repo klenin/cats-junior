@@ -468,7 +468,8 @@ function fillTabs(){
 			{
 				divs.push({'tab': i, 'divclass': problems[i].commands[j], 'divname': cmdClassToName[problems[i].commands[j]]});
 			}
-			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block'], 'block': 1});
+			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block']});
+			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -653,10 +654,20 @@ function exportCommands(){
 	return false;
 }
 
-function addBlock(){
-	$('#block' + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
-	$('#block' + cmdId).css('height', '200px');
-	$('#block' + cmdId + ' > span').remove();
+function addIf(){
+	$('#if' + cmdId).append('<select id = "ifselect' + cmdId +'">');
+	var options = ['wall at the left', 'wall at the right'];
+	for (var i = 0; i < options.length; ++i)
+		$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+	$('#if' + cmdId).append('</select>');
+	$('#ifselect' + cmdId).change(updated);
+	addBlock('if');
+}
+
+function addBlock(str){
+	$('#' + str + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
+	$('#' + str + cmdId).css('height', str == 'block' ? '200px' : '225px');
+	$('#' + str + cmdId + ' > span').remove();
 	$('#sortableBlock' + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
@@ -712,7 +723,7 @@ function addBlock(){
 		if (!curProblem.playing)
 			showCounters();
 	});
-	var sortables =  $('#block' + curProblem.tabIndex).draggable('option', 'connectToSortable');
+	var sortables =  $('#' + str + curProblem.tabIndex).draggable('option', 'connectToSortable');
 	sortables = '#sortableBlock' + cmdId + ', ' + sortables;
 	for (var k = 0; k < classes.length; ++k){
 		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
@@ -723,15 +734,17 @@ function addBlock(){
 	}
 }
 	
-
-
 function addCmd(name, cnt){
 	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');		
 	if($.browser.msie)
 		$('#' + name + cmdId).css('height', '35px');
 	if (name == 'block')
 	{
-		addBlock();
+		addBlock('block');
+	}
+	else if (name == 'if')
+	{
+		addIf();
 	}
 	else
 	{
@@ -779,7 +792,11 @@ function addNewCmd(str, dblClick, elem){
 		addCmd(str, 1);
 	else if (str == 'block')
 	{
-		addBlock();
+		addBlock('block');
+	}
+	else if (str == 'if')
+	{
+		addIf();
 	}
 	else
 	{
@@ -825,6 +842,7 @@ function callPlay(s){
 	disableButtons();
 	hideCounters();
 	curProblem.speed = s;
+	curProblem.lastExecutedCmd = undefined;
 	setTimeout(function() { play(MAX_VALUE); }, s);
 }
 
@@ -982,8 +1000,10 @@ function nextClick(){
 			if (needReturn)
 				return;
 		}
+		curProblem.lastExecutedCmd = undefined;
 		cmdHighlightOff();
 		curProblem.cmdList.exec(1);
+		highlightLast();
 		drawLabirint();
 		++curProblem.step;
 		if (curProblem.cmdList.isFinished())
