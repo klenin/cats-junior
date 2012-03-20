@@ -470,6 +470,7 @@ function fillTabs(){
 			}
 			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block']});
 			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
+			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -654,29 +655,34 @@ function exportCommands(){
 	return false;
 }
 
-function addIf(){
-	$('#if' + cmdId).append('<select id = "ifselect' + cmdId +'">');
+function addIf(str, andElse){
+	$('#' + str + cmdId).append('<select id = "ifselect' + cmdId +'">');
 	var options = ['wall at the left', 'wall at the right'];
 	for (var i = 0; i < options.length; ++i)
+	{
 		$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
-	$('#if' + cmdId).append('</select>');
+	}
+	$('#' + str + cmdId).append('</select>');
 	$('#ifselect' + cmdId).change(updated);
-	addBlock('if');
+	addBlock(str, 'if');
+	if (andElse)
+		addBlock(str, 'else');
+	$('#' + str + cmdId).css('height', andElse ? '440px' : '220px');
 }
 
-function addBlock(str){
-	$('#' + str + cmdId).append('<ul id = "sortableBlock' + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
-	$('#' + str + cmdId).css('height', str == 'block' ? '200px' : '225px');
-	$('#' + str + cmdId + ' > span').remove();
-	$('#sortableBlock' + cmdId).sortable({
+function addBlock(name, str){
+	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
+	$('#' + name + cmdId).css('height', '200px');
+	$('#' + name + cmdId + ' > span').remove();
+	$('#sortable' + str + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
 		appendTo: 'body',
 		helper: 'clone',
-		connectWith: '.connectedSortable' 
+		//connectWith: '.connectedSortable' 
 	}).disableSelection();
-	$('#sortableBlock' + cmdId).prop('sortName', 'sortableBlock' + cmdId);
-	$('#sortableBlock' + cmdId).bind('sortbeforestop', function(event, ui) {
+	$('#sortable' + str + cmdId).prop('sortName', 'sortable' + str + cmdId);
+	$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
 		cmdAdded = true;
 		if (ui.position.left > maxx || ui.position.top < miny){
 			ui.item.remove();
@@ -702,29 +708,29 @@ function addBlock(str){
 					addNewCmd(classes[j], false, ui.item[0]);
 				}
 		}
-		$('#cons0').append('sortbeforestop #sortableBlock' + cmdId + '\n');
+		$('#cons0').append('sortbeforestop #sortable' + str + cmdId + '\n');
 		curProblem.cmdListEnded = false;
 	});
-	$('#sortableBlock' + cmdId).bind('sortstop', function(event, ui) {
+	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
 		if (stoppedLvl)
 			$(this).sortable('cancel');
 		++stoppedLvl;
-		$('#cons0').append('sortstop #sortableBlock' + cmdId + '\n');
+		$('#cons0').append('sortstop #sortable' + str + cmdId + '\n');
 
 	});
-	$('#sortableBlock' + cmdId).bind('sortreceive', function(event, ui) {
-		$('#cons0').append('sortreceive #sortableBlock' + cmdId + '\n');
+	$('#sortable' + str + cmdId).bind('sortreceive', function(event, ui) {
+		$('#cons0').append('sortreceive #sortable' + str + cmdId + '\n');
 
 	});
-	$('#sortableBlock' + cmdId).bind('sortout', function(event, ui) {
+	$('#sortable' + str + cmdId).bind('sortout', function(event, ui) {
 		var i = 0;	
 	});
-	$('#sortableBlock' + cmdId).bind('click', function(event, ui) {
+	$('#sortable' + str + cmdId).bind('click', function(event, ui) {
 		if (!curProblem.playing)
 			showCounters();
 	});
-	var sortables =  $('#' + str + curProblem.tabIndex).draggable('option', 'connectToSortable');
-	sortables = '#sortableBlock' + cmdId + ', ' + sortables;
+	var sortables =  $('#' + name + curProblem.tabIndex).draggable('option', 'connectToSortable');
+	sortables = '#sortable' + str + cmdId + ', ' + sortables;
 	for (var k = 0; k < classes.length; ++k){
 		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
 
@@ -740,11 +746,11 @@ function addCmd(name, cnt){
 		$('#' + name + cmdId).css('height', '35px');
 	if (name == 'block')
 	{
-		addBlock('block');
+		addBlock('block', 'block');
 	}
-	else if (name == 'if')
+	else if (name == 'if' || name == 'ifelse')
 	{
-		addIf();
+		addIf(name, name == 'ifelse');
 	}
 	else
 	{
@@ -792,11 +798,11 @@ function addNewCmd(str, dblClick, elem){
 		addCmd(str, 1);
 	else if (str == 'block')
 	{
-		addBlock('block');
+		addBlock('block', 'block');
 	}
-	else if (str == 'if')
+	else if (str == 'if' || str == 'ifelse')
 	{
-		addIf();
+		addIf(str, str == 'ifelse');
 	}
 	else
 	{

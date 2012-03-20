@@ -19,9 +19,10 @@ var cmdClassToName = {
 	'right': 'Направо',
 	'wait': 'Ждать',
 	'block': 'Block',
-	'if': 'If'
+	'if': 'If',
+	'ifelse': 'If..Else..'
 };
-var classes = ['forward', 'left', 'right', 'wait', 'block', 'if'];
+var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse'];
 var changeDir = {
 	'forward':{
 		'up': {dx: 0, dy: -1, curDir: 'up'},

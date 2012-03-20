@@ -529,13 +529,7 @@ function serializeBlock(sortableName, parent)
 		if(!arr[i].length)
 			continue;
 		var type = $('#' + arr[i]).prop('type');
-		if (type != 'block' && type != 'if') 
-		{
-			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value),
-				block,  $('#' + arr[i]).prop('id'));
-			block.pushCommand(cmd);
-		}
-		else if (type == 'block')
+		if (type == 'block')
 		{
 			block.pushCommand(serializeBlock($('#' + arr[i] + '>ul').prop('id'), block));
 		}
@@ -544,6 +538,19 @@ function serializeBlock(sortableName, parent)
 			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
 			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
 			block.pushCommand(new IfStmt(test, block1, undefined, block, $('#' + arr[i]).prop('id')));
+		}
+		else if (type == 'ifelse')
+		{
+			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
+			var block1 = serializeBlock($('#' + arr[i] + '>ul:first').prop('id'), block);
+			var block2 = serializeBlock($('#' + arr[i] + '>ul:last').prop('id'), block);
+			block.pushCommand(new IfStmt(test, block1, block2, block, $('#' + arr[i]).prop('id')));
+		}
+		else
+		{
+			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value),
+				block,  $('#' + arr[i]).prop('id'));
+			block.pushCommand(cmd);
 		}
 	}
 	return block;

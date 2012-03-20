@@ -34,7 +34,7 @@
 				helper: 'clone',
 				cursor: 'default',
 				greedy: true,
-				connectWith: '.connectedSortable' 
+				//connectWith: '.connectedSortable' 
 			});
 			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
 				if ($(this).prop('ifLi'))
