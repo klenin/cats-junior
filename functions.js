@@ -10,7 +10,6 @@ var Command = $.inherit({
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
 	exec: function(cnt) {
-		var useMaxValue = cnt == MAX_VALUE;
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		for (var i = 0; i < t; ++i)
 		{
@@ -23,7 +22,7 @@ var Command = $.inherit({
 			$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 		}
 		curProblem.lastExecutedCmd = this;
-		return useMaxValue ? MAX_VALUE : cnt - t;
+		return cnt - t;
 	},
 	getClass: function(){
 		return 'command'
@@ -90,7 +89,6 @@ var IfStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		var useMaxValue = cnt == MAX_VALUE;
 		if (this.curBlock == undefined && cnt)
 		{
 			this.curBlock = this.test() ? 0 : 1;
@@ -106,9 +104,9 @@ var IfStmt = $.inherit({
 				}
 			}
 			if (!this.blocks[this.curBlock])
-				return useMaxValue ? MAX_VALUE : cnt;
+				return cnt;
 		}
-		return this.blocks[this.curBlock].exec(useMaxValue ? MAX_VALUE : cnt);
+		return this.blocks[this.curBlock].exec(cnt);
 	},
 	getClass: function(){
 		return 'if';
@@ -194,7 +192,6 @@ var Block = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		var highlightlast = (cnt == MAX_VALUE);
 		var cmd = undefined;
 		while(cnt && this.commands.length > this.curCmd)
 		{
@@ -203,7 +200,7 @@ var Block = $.inherit({
 			if (cmd.isFinished())
 				++this.curCmd;
 		}
-		if (cmd && cmd.getClass() != 'block' && cmd.getClass() != 'if' && (curProblem.speed || !cnt || highlightlast)) 
+		if (cmd && cmd.getClass() != 'block' && cmd.getClass() != 'if' && (curProblem.speed || !cnt)) 
 		{
 			if (curProblem.speed)
 			{
