@@ -471,6 +471,7 @@ function fillTabs(){
 			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block']});
 			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
 			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
+			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -670,6 +671,19 @@ function addIf(str, andElse){
 	$('#' + str + cmdId).css('height', andElse ? '440px' : '220px');
 }
 
+function addWhile(str){
+	$('#' + str + cmdId).append('<select id = "whileselect' + cmdId +'">');
+	var options = ['wall at the left', 'wall at the right'];
+	for (var i = 0; i < options.length; ++i)
+	{
+		$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+	}
+	$('#' + str + cmdId).append('</select>');
+	$('#whileselect' + cmdId).change(updated);
+	addBlock(str, 'while');
+	$('#' + str + cmdId).css('height', '220px');
+}
+
 function addBlock(name, str){
 	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#' + name + cmdId).css('height', '200px');
@@ -682,6 +696,7 @@ function addBlock(name, str){
 		//connectWith: '.connectedSortable' 
 	}).disableSelection();
 	$('#sortable' + str + cmdId).prop('sortName', 'sortable' + str + cmdId);
+	$('#sortable' + str + cmdId).prop('cmdId', cmdId);
 	$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
 		cmdAdded = true;
 		if (ui.position.left > maxx || ui.position.top < miny){
@@ -708,18 +723,18 @@ function addBlock(name, str){
 					addNewCmd(classes[j], false, ui.item[0]);
 				}
 		}
-		$('#cons0').append('sortbeforestop #sortable' + str + cmdId + '\n');
+		$('#cons0').append('sortbeforestop #sortable' + str + $(this).prop('cmdId') + '\n');
 		curProblem.cmdListEnded = false;
 	});
 	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
 		if (stoppedLvl)
 			$(this).sortable('cancel');
 		++stoppedLvl;
-		$('#cons0').append('sortstop #sortable' + str + cmdId + '\n');
+		$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
 
 	});
 	$('#sortable' + str + cmdId).bind('sortreceive', function(event, ui) {
-		$('#cons0').append('sortreceive #sortable' + str + cmdId + '\n');
+		$('#cons0').append('sortreceive #sortable' + str +  $(this).prop('cmdId') + '\n');
 
 	});
 	$('#sortable' + str + cmdId).bind('sortout', function(event, ui) {
@@ -751,6 +766,10 @@ function addCmd(name, cnt){
 	else if (name == 'if' || name == 'ifelse')
 	{
 		addIf(name, name == 'ifelse');
+	}
+	else if (name == 'while')
+	{
+		addWhile(name);
 	}
 	else
 	{
@@ -803,6 +822,10 @@ function addNewCmd(str, dblClick, elem){
 	else if (str == 'if' || str == 'ifelse')
 	{
 		addIf(str, str == 'ifelse');
+	}
+	else if (str == 'while')
+	{
+		addWhile(str);
 	}
 	else
 	{
@@ -956,11 +979,13 @@ function stopClick(){
 	if ($('#codeMode' + problem).prop('checked'))
 		onFinishExecuting(problem);
 	curProblem.stopped = true;
-	setDefault();
-	curProblem.playing = false;
-	cmdHighlightOff();
-	showCounters();
-	setCounters();
+	if (!curProblem.playing)
+	{
+		setDefault();
+		cmdHighlightOff();
+		showCounters();
+		setCounters();
+	}
 }
 
 function pauseClick(){

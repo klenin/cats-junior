@@ -45,6 +45,7 @@
 				updated();
 			});
 		}
+		$('#sortable' + curProblem.tabIndex ).prop('cmdId', curProblem.tabIndex);
 		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
 			stoppedLvl = 0;
 			if (!cmdAdded)
@@ -76,7 +77,7 @@
 						addNewCmd(classes[j], false, ui.item[0]);
 					}
 			}
-			$('#cons0').append('sortbeforestop #sortable' + curProblem.tabIndex + '\n');
+			$('#cons0').append('sortbeforestop #sortable' + $(this).prop('cmdId') + '\n');
 			addedCmds.push(ui.item);
 			curProblem.cmdListEnded = false;
 		});
@@ -93,11 +94,11 @@
 			stoppedLvl= 0;
 			setTimeout(function(){updated();}, 1000);
 			cmdAdded = false;
-			$('#cons0').append('sortstop #sortable' + curProblem.tabIndex + '\n');
+			$('#cons0').append('sortstop #sortable' + $(this).prop('cmdId') + '\n');
 
 		});
 		$('#sortable' + curProblem.tabIndex ).bind('sortreceive', function(event, ui) {
-			$('#cons0').append('sortreceive #sortable' + curProblem.tabIndex + '\n');
+			$('#cons0').append('sortreceive #sortable' + $(this).prop('cmdId') + '\n');
 			//receiveStarted = true;
 			//setTimeout(function(){receiveFinished();}, 2000);
 		});

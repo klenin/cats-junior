@@ -20,9 +20,10 @@ var cmdClassToName = {
 	'wait': 'Ждать',
 	'block': 'Block',
 	'if': 'If',
-	'ifelse': 'If..Else..'
+	'ifelse': 'If..Else..',
+	'while': 'While'
 };
-var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse'];
+var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse', 'while'];
 var changeDir = {
 	'forward':{
 		'up': {dx: 0, dy: -1, curDir: 'up'},

@@ -161,6 +161,100 @@ var IfStmt = $.inherit({
 	}
 });
 
+var WhileStmt = $.inherit({
+	__constructor : function(test, body, parent, id) {
+        this.finished = false;//
+		this.executing = false;//
+		this.isStarted = false; //should be changed to one or two properties.
+		this.test = test;
+		this.body = body;
+		this.parent = parent;	
+		this.id = id;
+	},
+	isFinished: function(){
+		return this.finished;
+	},
+	eq: function(block){
+		return block.getClass() == 'while' && this.test == block.test && 
+			this.body.eq(block.body);
+	},
+	exec: function(cnt)
+	{
+		while (cnt && !this.finished)
+		{
+			this.isStarted = true;
+			if (!this.executing)
+			{
+				cnt -= 1;
+				if (!cnt || curProblem.speed)
+				{
+					$('#' + this.id + '>select').css('background-color', 'green');
+					if (curProblem.speed)
+					{
+						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+							curProblem.prevCmd.highlightOff();
+						curProblem.prevCmd = this;
+					}
+				}
+				if (!this.test())
+				{
+					this.finished = true;
+					return cnt;
+				}
+				this.executing = true;
+				this.body.setDefault();
+			}
+			cnt = this.body.exec(cnt);
+			if (this.body.isFinished())
+			{
+				this.executing = false;
+			}
+		}
+		return cnt;
+	},
+	getClass: function(){
+		return 'while';
+	},
+	setDefault: function(){
+		this.finished = false;
+		this.executing = false;
+		this.isStarted = false;
+		this.body.setDefault();
+		this.highlightOff();
+	},
+	showCounters: function() {
+		this.body.showCounters();
+	},
+	hideCounters: function() {
+		this.body.hideCounters();
+	},
+	started: function() {
+		return this.isStarted;
+	},
+	copyDiff: function(block, compareCnt){
+		if (block.getClass() != 'while')
+		{
+			return block;
+		}
+		this.test = block.test; //?
+		this.body.copyDiff(block.body);
+		return this;
+	},
+	makeUnfinished: function(){
+		if (this.isFinished())
+		{
+			this.finished = false;
+			this.executing = true;
+			this.body.makeUnfinished();
+		}
+	},
+	highlightOff: function(){
+		$('#' + this.id + '>select').css('background-color', 'white');
+		this.body.highlightOff();
+	}
+});
+
+
 var Block = $.inherit({
 	__constructor : function(commands, parent) {
         this.curCmd = 0;
@@ -200,7 +294,7 @@ var Block = $.inherit({
 			if (cmd.isFinished())
 				++this.curCmd;
 		}
-		if (cmd && cmd.getClass() != 'block' && cmd.getClass() != 'if' && (curProblem.speed || !cnt)) 
+		if (cmd && cmd.getClass() == 'command' && (curProblem.speed || !cnt)) 
 		{
 			if (curProblem.speed)
 			{
@@ -543,6 +637,12 @@ function serializeBlock(sortableName, parent)
 			var block2 = serializeBlock($('#' + arr[i] + '>ul:last').prop('id'), block);
 			block.pushCommand(new IfStmt(test, block1, block2, block, $('#' + arr[i]).prop('id')));
 		}
+		else if (type == 'while')
+		{
+			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
+			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
+			block.pushCommand(new WhileStmt(test, block1, block, $('#' + arr[i]).prop('id')));
+		}
 		else
 		{
 			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value),
@@ -751,6 +851,14 @@ function nextStep(cnt, i){
 	if (curProblem.arrow.dead || curProblem.stopped){
 		if (curProblem.arrow.dead)
 			heroIsDead();
+		if (curProblem.stopped)
+		{
+			setDefault();
+			curProblem.playing = false;
+			cmdHighlightOff();
+			showCounters();
+			setCounters();
+		}
 		curProblem.playing = false;
 		nextCmd();
 		hideFocus();
