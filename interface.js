@@ -472,6 +472,7 @@ function fillTabs(){
 			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
 			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
 			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
+			divs.push({'tab': i, 'divclass': 'for', 'divname': cmdClassToName['for']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -684,10 +685,18 @@ function addWhile(str){
 	$('#' + str + cmdId).css('height', '220px');
 }
 
+function addFor(str, cnt){
+	$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
+	addBlock(str, 'for');
+	$('#' + str + cmdId).css('height', '220px');
+}
+
 function addBlock(name, str){
 	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#' + name + cmdId).css('height', '200px');
-	$('#' + name + cmdId + ' > span').remove();
+	//if (str != 'for')
+	//	$('#' + name + cmdId + ' > span').remove();
 	$('#sortable' + str + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
@@ -771,6 +780,10 @@ function addCmd(name, cnt){
 	{
 		addWhile(name);
 	}
+	else if (name == 'for')
+	{
+		addFor(name, 1);
+	}
 	else
 	{
 		$('#' + name + cmdId).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
@@ -826,6 +839,10 @@ function addNewCmd(str, dblClick, elem){
 	else if (str == 'while')
 	{
 		addWhile(str);
+	}
+	else if (str == 'for')
+	{
+		addFor(str, 1);
 	}
 	else
 	{

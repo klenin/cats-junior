@@ -40,7 +40,7 @@ li.invisible{
 	list-style-type: none; 
 }
 li.forward, li.forward1, li.left, li.left1, li.right, li.right1, li.wait, 
-li.wait1, li.block, li.if, li.ifelse, li.while{
+li.wait1, li.block, li.if, li.ifelse, li.while, li.for{
 	list-style-type: none; 
 	margin: 5px; 
 	padding: 5px;

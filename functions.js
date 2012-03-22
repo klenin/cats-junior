@@ -70,6 +70,110 @@ var Command = $.inherit({
 	}
 });
 
+var ForStmt = $.inherit({
+	__constructor : function(body, cnt, parent, id) {
+		this.executing = false;//
+		this.isStarted = false; //should be changed to one or two properties.
+		this.body = body;
+		this.cnt = cnt;
+		this.parent = parent;	
+		this.id = id;
+		this.curCnt = 0;
+	},
+	isFinished: function(){
+		return this.curCnt > this.cnt;
+	},
+	eq: function(block){
+		return block.getClass() == 'for' && this.body.eq(block.body);
+	},
+	exec: function(cnt)
+	{
+		while (cnt && !this.isFinished())
+		{
+			this.isStarted = true;
+			if (!this.executing)
+			{
+				cnt -= 1;
+				if (!cnt || curProblem.speed)
+				{
+					$('#' + this.id + '>span').css('background-color', 'green');
+					var numId = $('#' + this.id).prop('numId');
+					$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+					if (curProblem.speed)
+					{
+						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+							curProblem.prevCmd.highlightOff();
+						curProblem.prevCmd = this;
+					}
+				}
+				if (++this.curCnt > this.cnt)
+				{
+					return cnt;
+				}
+				this.executing = true;
+				this.body.setDefault();
+			}
+			cnt = this.body.exec(cnt);
+			if (this.body.isFinished())
+			{
+				this.executing = false;
+			}
+		}
+		return cnt;
+	},
+	getClass: function(){
+		return 'for';
+	},
+	setDefault: function(){
+		this.executing = false;
+		this.isStarted = false;
+		this.curCnt = 0;
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		this.body.setDefault();
+		this.highlightOff();
+	},
+	showCounters: function() {
+		$('#' + this.id + ' > span > img').show();		
+		$('#' + this.id + ' > span > input').show();			
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).hide();
+		this.body.showCounters();
+	},
+	hideCounters: function() {
+		$('#' + this.id + ' > span > img').hide();		
+		$('#' + this.id + ' > span > input').hide();			
+		var numId = $('#' + this.id).prop('numId');
+		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+		$('#spinCnt' + numId).show();
+		this.body.hideCounters();
+	},
+	started: function() {
+		return this.isStarted;
+	},
+	copyDiff: function(block, compareCnt){
+		if (block.getClass() != 'for')
+		{
+			return block;
+		}
+		this.cnt = block.cnt; //?
+		this.body.copyDiff(block.body);
+		return this;
+	},
+	makeUnfinished: function(){
+		if (this.isFinished())
+		{
+			this.curCnt = Math.max(this.cnt - 1, 0);
+			this.executing = true;
+			this.body.makeUnfinished();
+		}
+	},
+	highlightOff: function(){
+		$('#' + this.id + '>span').css('background-color', 'white');
+		this.body.highlightOff();
+	}
+});
+
 var IfStmt = $.inherit({
 	__constructor : function(test, firstBlock, secondBlock, parent, id) {
         this.curBlock = undefined;
@@ -643,9 +747,15 @@ function serializeBlock(sortableName, parent)
 			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
 			block.pushCommand(new WhileStmt(test, block1, block, $('#' + arr[i]).prop('id')));
 		}
+		else if (type == 'for')
+		{
+			var cnt = parseInt($('#' + arr[i] + ' .cnt .cnt').val());
+			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
+			block.pushCommand(new ForStmt(block1, cnt, block, $('#' + arr[i]).prop('id')));
+		}
 		else
 		{
-			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input')[0].value),
+			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input').val()),
 				block,  $('#' + arr[i]).prop('id'));
 			block.pushCommand(cmd);
 		}
