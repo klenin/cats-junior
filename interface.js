@@ -1001,12 +1001,13 @@ function stopClick(){
 	if ($('#codeMode' + problem).prop('checked'))
 		onFinishExecuting(problem);
 	curProblem.stopped = true;
-	if (!curProblem.playing)
+	if (!curProblem.playing || !curProblem.speed)
 	{
 		setDefault();
 		cmdHighlightOff();
 		showCounters();
 		setCounters();
+		curProblem.playing = false;
 	}
 }
 
@@ -1049,9 +1050,9 @@ function nextClick(){
 			hideCounters();
 			var needReturn = curProblem.cmdList.isFinished();
 			setDefault();
-			curProblem.playing = true;
 			if (needReturn)
 				return;
+			curProblem.playing = true;
 		}
 		curProblem.lastExecutedCmd = undefined;
 		cmdHighlightOff();

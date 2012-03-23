@@ -11,7 +11,7 @@ var Command = $.inherit({
 	},
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
-		for (var i = 0; i < t; ++i)
+		for (var i = 0; i < t && !(curProblem.stopped || curProblem.paused); ++i)
 		{
 			eval(this.name + '();');
 			++this.curCnt;
@@ -88,7 +88,7 @@ var ForStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.isFinished())
+		while (cnt && !this.isFinished() && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -284,7 +284,7 @@ var WhileStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.finished)
+		while (cnt && !this.finished && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -383,7 +383,8 @@ var Block = $.inherit({
 		{
 			if (i >= block.commands.length)
 				return false;
-			var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && i == Math.min(this.commands.length - 1, this.curCmd));
+			var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && 
+				i == Math.min(this.commands.length - 1, this.curCmd));
 			f = f && f1;
 		}
 		return f;
@@ -391,7 +392,7 @@ var Block = $.inherit({
 	exec: function(cnt)
 	{
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd)
+		while(cnt && this.commands.length > this.curCmd && !(curProblem.stopped || curProblem.paused))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt);
@@ -939,10 +940,10 @@ function nextStep(cnt, i){
 		if (curProblem.stopped)
 		{
 			setDefault();
-			curProblem.playing = false;
 			cmdHighlightOff();
 			showCounters();
 			setCounters();
+			return;
 		}
 		curProblem.playing = false;
 		nextCmd();
