@@ -53,7 +53,12 @@
 				$('#cons0').html('');
 				addedCmds = [];
 			}
-			if (ui.position.left > maxx || ui.position.top < miny){
+			var item = ui.helper.is(':visible') ? ui.helper : ui.item;
+			if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
+				item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
+				item.offset().top > $(this).offset().top + parseInt($(this).css('height')) ||
+				item.offset().top + 10 < $(this).offset().top)
+			{
 				ui.item.remove();
 				updated();
 				return;

@@ -910,32 +910,7 @@ function heroIsDead(){
 }
 
 function nextCmd(){
-	if (divI() >= list().length)
-		return false;
-	if (cmd() == list()[divI()].cnt - 1){
-		++curProblem.divIndex;
-		curProblem.cmdIndex = 0;
-		++curProblem.step;	
-		if (divI() == list().length){
-			curProblem.cmdListEnded = true;
-			if (curProblem.speed)
-				changeProgressBar();
-			return false;
-		}
-		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
-			var mes = new MessageCmdLimit();
-			curProblem.arrow.dead = true;
-			changeProgressBar();
-			if (curProblem.arrow.dead)
-				heroIsDead();
-			return false;
-		}	
-		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
-	}
-	else {
-		++curProblem.cmdIndex;
-		++curProblem.step;
-	}
+	++curProblem.step;
 	if (curProblem.speed)
 		changeProgressBar();
 	return true;

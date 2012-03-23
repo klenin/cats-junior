@@ -695,8 +695,8 @@ function addFor(str, cnt){
 function addBlock(name, str){
 	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#' + name + cmdId).css('height', '200px');
-	//if (str != 'for')
-	//	$('#' + name + cmdId + ' > span').remove();
+	if (str != 'for')
+		$('#' + name + cmdId + ' > span').remove();
 	$('#sortable' + str + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
@@ -708,7 +708,12 @@ function addBlock(name, str){
 	$('#sortable' + str + cmdId).prop('cmdId', cmdId);
 	$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
 		cmdAdded = true;
-		if (ui.position.left > maxx || ui.position.top < miny){
+		var item = ui.helper.is(':visible') ? ui.helper : ui.item;
+		if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
+			item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
+			item.offset().top > $(this).offset().top + parseInt($(this).css('height')) / 2 ||
+			item.offset().top + 10 < $(this).offset().top)
+		{
 			ui.item.remove();
 			updated();
 			return;
