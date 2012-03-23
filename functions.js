@@ -67,6 +67,10 @@ var Command = $.inherit({
 	highlightOff: function() {
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
+	},
+	highlightOn: function(){
+		if (!isCmdHighlighted(this.id))
+			changeCmdHighlight(this.id);
 	}
 });
 
@@ -94,22 +98,23 @@ var ForStmt = $.inherit({
 			if (!this.executing)
 			{
 				cnt -= 1;
+				var numId = $('#' + this.id).prop('numId');
+				$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 				if (!cnt || curProblem.speed)
 				{
-					$('#' + this.id + '>span').css('background-color', 'green');
-					var numId = $('#' + this.id).prop('numId');
-					$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 					if (curProblem.speed)
 					{
-						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+						if (curProblem.prevCmd)
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
+					$('#' + this.id + '>span').css('background-color', 'green');
 				}
 				if (++this.curCnt > this.cnt)
 				{
 					return cnt;
 				}
+				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
@@ -171,6 +176,9 @@ var ForStmt = $.inherit({
 	highlightOff: function(){
 		$('#' + this.id + '>span').css('background-color', 'white');
 		this.body.highlightOff();
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>span').css('background-color', 'green');
 	}
 });
 
@@ -199,14 +207,16 @@ var IfStmt = $.inherit({
 			cnt -= 1;
 			if (!cnt || curProblem.speed)
 			{
-				$('#' + this.id + '>select').css('background-color', 'green');
 				if (curProblem.speed)
 				{
-					if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+					if (curProblem.prevCmd)
 						curProblem.prevCmd.highlightOff();
 					curProblem.prevCmd = this;
 				}
+				$('#' + this.id + '>select').css('background-color', 'green');
+
 			}
+			curProblem.lastExecutedCmd = this;
 			if (!this.blocks[this.curBlock])
 				return cnt;
 		}
@@ -262,6 +272,9 @@ var IfStmt = $.inherit({
 		this.blocks[0].highlightOff();
 		if (this.blocks[1])
 			this.blocks[1].highlightOff();
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>select').css('background-color', 'green');
 	}
 });
 
@@ -292,19 +305,20 @@ var WhileStmt = $.inherit({
 				cnt -= 1;
 				if (!cnt || curProblem.speed)
 				{
-					$('#' + this.id + '>select').css('background-color', 'green');
 					if (curProblem.speed)
 					{
-						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+						if (curProblem.prevCmd)
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
+					$('#' + this.id + '>select').css('background-color', 'green');
 				}
 				if (!this.test())
 				{
 					this.finished = true;
 					return cnt;
 				}
+				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
@@ -355,6 +369,9 @@ var WhileStmt = $.inherit({
 	highlightOff: function(){
 		$('#' + this.id + '>select').css('background-color', 'white');
 		this.body.highlightOff();
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>select').css('background-color', 'green');
 	}
 });
 
@@ -461,6 +478,9 @@ var Block = $.inherit({
 	highlightOff: function(){
 		for (var i = 0; i < this.commands.length; ++i)
 			this.commands[i].highlightOff();
+	},
+	highlightOn: function(){
+		return;
 	}
 });
 
@@ -850,6 +870,7 @@ function setDefault(f){
 		divName = cmdList.length ? cmdList[0].name : "";
 		nextOrPrev = false;
 		prevCmd = undefined;
+		lastExecutedCmd = undefined;
 	}
 	hideFocus();
 	cmdHighlightOff();
@@ -858,14 +879,6 @@ function setDefault(f){
 		changeProgressBar();
 	}
 	//$("#cons" + curProblem.tabIndex).empty();
-	var el = $('#sortable' + curProblem.tabIndex).children();
-	while (el.length > 0){
-		var newVal = $('#spin' + el.prop('numId')).prop('value');
-		$('#spinCnt' + el.prop('numId')).prop('cnt', newVal);
-		if (!f)
-			$('#spinCnt' + el.prop('numId')).prop('value', newVal + '/' + newVal);
-		el = el.next();
-	}
 	curProblem.cmdList.setDefault();
 	enableButtons();
 }
@@ -965,7 +978,7 @@ function highlightLast()
 {
 	if (curProblem.lastExecutedCmd && !isCmdHighlighted(curProblem.lastExecutedCmd.id))
 	{
-		changeCmdHighlight(curProblem.lastExecutedCmd.id);
+		curProblem.lastExecutedCmd.highlightOn()
 	}
 }
 
@@ -985,6 +998,7 @@ function play(cnt){
 		enableButtons();
 		if (curProblem.cmdList.isFinished())
 			curProblem.playing = false;
+		curProblem.cmdList.highlightOff();//inefficiency!!!!!!!!
 		highlightLast();
 	}
 	else

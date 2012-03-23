@@ -1069,6 +1069,7 @@ function prevClick(){
 	var t = step();
 	if (step() <= 1) {
 		setDefault();
+		curProblem.playing = false;
 		showCounters();
 		setCounters();
 		return;
