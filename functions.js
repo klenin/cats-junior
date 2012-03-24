@@ -110,11 +110,11 @@ var ForStmt = $.inherit({
 					}
 					$('#' + this.id + '>span').css('background-color', 'green');
 				}
+				curProblem.lastExecutedCmd = this;
 				if (++this.curCnt > this.cnt)
 				{
 					return cnt;
 				}
-				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
@@ -313,12 +313,12 @@ var WhileStmt = $.inherit({
 					}
 					$('#' + this.id + '>select').css('background-color', 'green');
 				}
+				curProblem.lastExecutedCmd = this;
 				if (!this.test())
 				{
 					this.finished = true;
 					return cnt;
 				}
-				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
