@@ -2,7 +2,8 @@ function generateTabs(tabsNum)
 {
 	var str = '';
 	for (var i = 0; i < tabsNum; ++i)
-		str += '\t';
+		str += '  ';
+	return str;
 }
 
 function test1()
@@ -16,7 +17,7 @@ function test2()
 }
 
 var testFunctions = ['test1', 'test2'];
-var testFunctionsDict = ['test1': test1, 'test2': test2];
+var testFunctionsDict = {'test1': test1, 'test2': test2};
 
 var Command = $.inherit({
 	__constructor : function(name, cnt, parent, id) {
@@ -93,7 +94,7 @@ var Command = $.inherit({
 			changeCmdHighlight(this.id);
 	},
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ');\n';
+		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
 	}
 });
 
@@ -306,7 +307,7 @@ var IfStmt = $.inherit({
 		$('#' + this.id + '>select').css('background-color', 'green');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'if ' + this.testName + '()' + this.cnt + ':\n';
+		var str = generateTabs(tabsNum) + 'if ' + this.testName + '():\n';
 		str += this.blocks[0].convertToCode(tabsNum + 1);
 		if (this.blocks[1])
 		{
@@ -529,7 +530,7 @@ var Block = $.inherit({
 	convertToCode: function(tabsNum) {
 		str = '';
 		for (var i = 0; i < this.commands.length; ++i)
-			str += this.commands[i].convertToCode(tabsNum + 1);
+			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
 		return str;
 	}
 });
@@ -773,18 +774,6 @@ function getCurProblemCommand()
 	var block =  getCurProblemBlock();
 	return block.commands[block.curCmd];
 }
-
-function test1()
-{
-	return true;
-}
-
-function test2()
-{
-	return false;
-}
-
-var testFunctions = [test1, test2];
 
 function serializeBlock(sortableName, parent)
 {
@@ -1104,5 +1093,5 @@ function wait(cnt)
 
 function convertCommandsToCode()
 {
-	return curProblem.cmdList.convertToCode(0);
+	return curProblem.cmdList.convertToCode(-1);
 }

@@ -262,6 +262,7 @@ function tryNextStep()
 
 			}
 		}
+		drawLabirint();
 		if (getCurBlock() >= 0)
 		{
 			var b = getCurBlock();
@@ -562,6 +563,7 @@ function fillTabs(){
 			    		$('#ulCommands' + j).hide();
 						$('#sortable' + j).hide();
 						$('#tdcode' + j).show();
+						codeareas[j].setValue(convertCommandsToCode());
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
@@ -695,8 +697,8 @@ function addFor(str, cnt){
 function addBlock(name, str){
 	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#' + name + cmdId).css('height', '200px');
-	if (str != 'for')
-		$('#' + name + cmdId + ' > span').remove();
+	//if (str != 'for')
+	//	$('#' + name + cmdId + ' > span').remove();
 	$('#sortable' + str + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
