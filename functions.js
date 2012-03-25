@@ -1,3 +1,23 @@
+function generateTabs(tabsNum)
+{
+	var str = '';
+	for (var i = 0; i < tabsNum; ++i)
+		str += '\t';
+}
+
+function test1()
+{
+	return true;
+}
+
+function test2()
+{
+	return false;
+}
+
+var testFunctions = ['test1', 'test2'];
+var testFunctionsDict = ['test1': test1, 'test2': test2];
+
 var Command = $.inherit({
 	__constructor : function(name, cnt, parent, id) {
         this.name = name;
@@ -67,6 +87,9 @@ var Command = $.inherit({
 	highlightOff: function() {
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
+	},
+	convertToCode: function(tabsNum) {
+		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ');\n';
 	}
 });
 
@@ -171,13 +194,19 @@ var ForStmt = $.inherit({
 	highlightOff: function(){
 		$('#' + this.id + '>span').css('background-color', 'white');
 		this.body.highlightOff();
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
+		str += this.body.convertToCode(tabsNum + 1);
+		return str;
 	}
 });
 
 var IfStmt = $.inherit({
-	__constructor : function(test, firstBlock, secondBlock, parent, id) {
+	__constructor : function(testName, firstBlock, secondBlock, parent, id) {
         this.curBlock = undefined;
-		this.test = test;
+		this.testName = testName;
+		this.test = testFunctionsDict[testName]
 		this.blocks = [firstBlock, secondBlock];
 		this.parent = parent;	
 		this.id = id;
@@ -262,15 +291,26 @@ var IfStmt = $.inherit({
 		this.blocks[0].highlightOff();
 		if (this.blocks[1])
 			this.blocks[1].highlightOff();
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'if ' + this.testName + '()' + this.cnt + ':\n';
+		str += this.blocks[0].convertToCode(tabsNum + 1);
+		if (this.blocks[1])
+		{
+			str += generateTabs(tabsNum) + 'else:\n';
+			str += this.blocks[1].convertToCode(tabsNum + 1);
+		}
+		return str;
 	}
 });
 
 var WhileStmt = $.inherit({
-	__constructor : function(test, body, parent, id) {
+	__constructor : function(testName, body, parent, id) {
         this.finished = false;//
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
-		this.test = test;
+		this.testName = testName;
+		this.test = testFunctionsDict[testName]
 		this.body = body;
 		this.parent = parent;	
 		this.id = id;
@@ -355,6 +395,10 @@ var WhileStmt = $.inherit({
 	highlightOff: function(){
 		$('#' + this.id + '>select').css('background-color', 'white');
 		this.body.highlightOff();
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'while ' + this.testName + '()' + this.cnt + ':\n';
+		return str + this.body.convertToCode(tabsNum + 1);
 	}
 });
 
@@ -460,6 +504,12 @@ var Block = $.inherit({
 	highlightOff: function(){
 		for (var i = 0; i < this.commands.length; ++i)
 			this.commands[i].highlightOff();
+	},
+	convertToCode: function(tabsNum) {
+		str = '';
+		for (var i = 0; i < this.commands.length; ++i)
+			str += this.commands[i].convertToCode(tabsNum + 1);
+		return str;
 	}
 });
 
@@ -702,18 +752,6 @@ function getCurProblemCommand()
 	var block =  getCurProblemBlock();
 	return block.commands[block.curCmd];
 }
-
-function test1()
-{
-	return true;
-}
-
-function test2()
-{
-	return false;
-}
-
-var testFunctions = [test1, test2];
 
 function serializeBlock(sortableName, parent)
 {
@@ -1026,35 +1064,43 @@ function isCommandMode()
 	return $("input[name='group" + p + "']" + ":checked").prop('id') == 'commandsMode' + p;
 }
 
-function oneStep(dir)
+function oneStep(dir, cnt)
 {
-	var x = curProblem.arrow.coord.x;
-	var y = curProblem.arrow.coord.y;
-	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
-	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
-	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
-	if (curProblem.speed)
+	for (var i = 0; i < cnt; ++i)
 	{
-		changeProgressBar();
+		var x = curProblem.arrow.coord.x;
+		var y = curProblem.arrow.coord.y;
+		curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
+		curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
+		changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
+		if (curProblem.speed)
+		{
+			changeProgressBar();
+		}
 	}
 }
 
-function forward()
+function forward(cnt)
 {
-	oneStep('forward');
+	oneStep('forward', cnt != undefined ? cnt : 1);
 }
 
-function left()
+function left(cnt)
 {
-	oneStep('left');
+	oneStep('left', cnt != undefined ? cnt : 1);
 }
 
-function right()
+function right(cnt)
 {
-	oneStep('right');
+	oneStep('right', cnt != undefined ? cnt : 1);
 }
 
-function wait()
+function wait(cnt)
 {
-	oneStep('wait');
+	oneStep('wait', cnt != undefined ? cnt : 1);
+}
+
+function convertCommandsToCode()
+{
+	return curProblem.cmdList.convertToCode(0);
 }
