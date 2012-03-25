@@ -743,8 +743,8 @@ function addBlock(name, str){
 		curProblem.cmdListEnded = false;
 	});
 	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
-		if (stoppedLvl)
-			$(this).sortable('cancel');
+		//if (stoppedLvl)
+		//	$(this).sortable('cancel');
 		++stoppedLvl;
 		$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
 
