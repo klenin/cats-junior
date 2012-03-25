@@ -31,7 +31,7 @@ var Command = $.inherit({
 	},
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
-		for (var i = 0; i < t; ++i)
+		for (var i = 0; i < t && !(curProblem.stopped || curProblem.paused); ++i)
 		{
 			eval(this.name + '();');
 			++this.curCnt;
@@ -88,6 +88,10 @@ var Command = $.inherit({
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
+	highlightOn: function(){
+		if (!isCmdHighlighted(this.id))
+			changeCmdHighlight(this.id);
+	},
 	convertToCode: function(tabsNum) {
 		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ');\n';
 	}
@@ -111,28 +115,29 @@ var ForStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.isFinished())
+		while (cnt && !this.isFinished() && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
 			if (!this.executing)
 			{
 				cnt -= 1;
-				if (!cnt || curProblem.speed)
-				{
-					$('#' + this.id + '>span').css('background-color', 'green');
 					var numId = $('#' + this.id).prop('numId');
 					$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+				if (!cnt || curProblem.speed)
+				{
 					if (curProblem.speed)
 					{
-						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+						if (curProblem.prevCmd)
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
+					$('#' + this.id + '>span').css('background-color', 'green');
 				}
 				if (++this.curCnt > this.cnt)
 				{
 					return cnt;
 				}
+				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
@@ -195,6 +200,9 @@ var ForStmt = $.inherit({
 		$('#' + this.id + '>span').css('background-color', 'white');
 		this.body.highlightOff();
 	},
+	highlightOn: function(){
+		$('#' + this.id + '>span').css('background-color', 'green');
+	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
 		str += this.body.convertToCode(tabsNum + 1);
@@ -228,14 +236,16 @@ var IfStmt = $.inherit({
 			cnt -= 1;
 			if (!cnt || curProblem.speed)
 			{
-				$('#' + this.id + '>select').css('background-color', 'green');
 				if (curProblem.speed)
 				{
-					if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+					if (curProblem.prevCmd)
 						curProblem.prevCmd.highlightOff();
 					curProblem.prevCmd = this;
 				}
+				$('#' + this.id + '>select').css('background-color', 'green');
+
 			}
+			curProblem.lastExecutedCmd = this;
 			if (!this.blocks[this.curBlock])
 				return cnt;
 		}
@@ -292,6 +302,9 @@ var IfStmt = $.inherit({
 		if (this.blocks[1])
 			this.blocks[1].highlightOff();
 	},
+	highlightOn: function(){
+		$('#' + this.id + '>select').css('background-color', 'green');
+	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'if ' + this.testName + '()' + this.cnt + ':\n';
 		str += this.blocks[0].convertToCode(tabsNum + 1);
@@ -324,7 +337,7 @@ var WhileStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.finished)
+		while (cnt && !this.finished && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -332,19 +345,20 @@ var WhileStmt = $.inherit({
 				cnt -= 1;
 				if (!cnt || curProblem.speed)
 				{
-					$('#' + this.id + '>select').css('background-color', 'green');
 					if (curProblem.speed)
 					{
-						if (curProblem.prevCmd && curProblem.prevCmd.getClass() == 'command')
+						if (curProblem.prevCmd)
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
+					$('#' + this.id + '>select').css('background-color', 'green');
 				}
 				if (!this.test())
 				{
 					this.finished = true;
 					return cnt;
 				}
+				curProblem.lastExecutedCmd = this;
 				this.executing = true;
 				this.body.setDefault();
 			}
@@ -396,6 +410,9 @@ var WhileStmt = $.inherit({
 		$('#' + this.id + '>select').css('background-color', 'white');
 		this.body.highlightOff();
 	},
+	highlightOn: function(){
+		$('#' + this.id + '>select').css('background-color', 'green');
+	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'while ' + this.testName + '()' + this.cnt + ':\n';
 		return str + this.body.convertToCode(tabsNum + 1);
@@ -427,7 +444,8 @@ var Block = $.inherit({
 		{
 			if (i >= block.commands.length)
 				return false;
-			var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && i == Math.min(this.commands.length - 1, this.curCmd));
+			var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && 
+				i == Math.min(this.commands.length - 1, this.curCmd));
 			f = f && f1;
 		}
 		return f;
@@ -435,7 +453,7 @@ var Block = $.inherit({
 	exec: function(cnt)
 	{
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd)
+		while(cnt && this.commands.length > this.curCmd && !(curProblem.stopped || curProblem.paused))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt);
@@ -504,6 +522,9 @@ var Block = $.inherit({
 	highlightOff: function(){
 		for (var i = 0; i < this.commands.length; ++i)
 			this.commands[i].highlightOff();
+	},
+	highlightOn: function(){
+		return;
 	},
 	convertToCode: function(tabsNum) {
 		str = '';
@@ -753,6 +774,18 @@ function getCurProblemCommand()
 	return block.commands[block.curCmd];
 }
 
+function test1()
+{
+	return true;
+}
+
+function test2()
+{
+	return false;
+}
+
+var testFunctions = [test1, test2];
+
 function serializeBlock(sortableName, parent)
 {
 	var block = new Block([], parent);
@@ -887,6 +920,7 @@ function setDefault(f){
 		divName = cmdList.length ? cmdList[0].name : "";
 		nextOrPrev = false;
 		prevCmd = undefined;
+		lastExecutedCmd = undefined;
 	}
 	hideFocus();
 	cmdHighlightOff();
@@ -895,14 +929,6 @@ function setDefault(f){
 		changeProgressBar();
 	}
 	//$("#cons" + curProblem.tabIndex).empty();
-	var el = $('#sortable' + curProblem.tabIndex).children();
-	while (el.length > 0){
-		var newVal = $('#spin' + el.prop('numId')).prop('value');
-		$('#spinCnt' + el.prop('numId')).prop('cnt', newVal);
-		if (!f)
-			$('#spinCnt' + el.prop('numId')).prop('value', newVal + '/' + newVal);
-		el = el.next();
-	}
 	curProblem.cmdList.setDefault();
 	enableButtons();
 }
@@ -948,32 +974,7 @@ function heroIsDead(){
 }
 
 function nextCmd(){
-	if (divI() >= list().length)
-		return false;
-	if (cmd() == list()[divI()].cnt - 1){
-		++curProblem.divIndex;
-		curProblem.cmdIndex = 0;
-		++curProblem.step;	
-		if (divI() == list().length){
-			curProblem.cmdListEnded = true;
-			if (curProblem.speed)
-				changeProgressBar();
-			return false;
-		}
-		if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
-			var mes = new MessageCmdLimit();
-			curProblem.arrow.dead = true;
-			changeProgressBar();
-			if (curProblem.arrow.dead)
-				heroIsDead();
-			return false;
-		}	
-		curProblem.divName =  curProblem.cmdList[curProblem.divIndex].name;
-	}
-	else {
-		++curProblem.cmdIndex;
 		++curProblem.step;
-	}
 	if (curProblem.speed)
 		changeProgressBar();
 	return true;
@@ -1002,10 +1003,10 @@ function nextStep(cnt, i){
 		if (curProblem.stopped)
 		{
 			setDefault();
-			curProblem.playing = false;
 			cmdHighlightOff();
 			showCounters();
 			setCounters();
+			return;
 		}
 		curProblem.playing = false;
 		nextCmd();
@@ -1027,7 +1028,7 @@ function highlightLast()
 {
 	if (curProblem.lastExecutedCmd && !isCmdHighlighted(curProblem.lastExecutedCmd.id))
 	{
-		changeCmdHighlight(curProblem.lastExecutedCmd.id);
+		curProblem.lastExecutedCmd.highlightOn()
 	}
 }
 
@@ -1047,6 +1048,7 @@ function play(cnt){
 		enableButtons();
 		if (curProblem.cmdList.isFinished())
 			curProblem.playing = false;
+		curProblem.cmdList.highlightOff();//inefficiency!!!!!!!!
 		highlightLast();
 	}
 	else
@@ -1067,17 +1069,17 @@ function isCommandMode()
 function oneStep(dir, cnt)
 {
 	for (var i = 0; i < cnt; ++i)
+{
+	var x = curProblem.arrow.coord.x;
+	var y = curProblem.arrow.coord.y;
+	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
+	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
+	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
+	if (curProblem.speed)
 	{
-		var x = curProblem.arrow.coord.x;
-		var y = curProblem.arrow.coord.y;
-		curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
-		curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
-		changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
-		if (curProblem.speed)
-		{
-			changeProgressBar();
-		}
+		changeProgressBar();
 	}
+}
 }
 
 function forward(cnt)
