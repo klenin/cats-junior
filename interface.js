@@ -557,6 +557,9 @@ function fillTabs(){
 						$('#watchTable' + j).hide();
 						$('#btn_prev' + j).prop('disabled', false);
 						$('#btn_fast' + j).prop('disabled', false);
+						if (!finalcode[getCurProblem()])
+							prepareForExecuting(getCurProblem());
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast);
 			    	}
 				    else
 			    	{
@@ -1020,7 +1023,7 @@ function pauseClick(){
 }
 
 function nextClick(){
-	var problem = getCurProblem()
+	var problem = getCurProblem();
 	if ($('#codeMode' + problem).prop('checked'))
 	{
 		try

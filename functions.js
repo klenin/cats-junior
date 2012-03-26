@@ -1095,3 +1095,98 @@ function convertCommandsToCode()
 {
 	return curProblem.cmdList.convertToCode(-1);
 }
+
+function convertTreeToCommands(ast, parent)
+{
+	var block = new Block([], parent);
+	for (var i = 0; i < ast.body.length; ++i)
+	{
+		switch(ast.body[i]._astname)
+		{
+			case 'Expr':
+				if (ast.body[i].value._astname != 'Call' || 
+					ast.body[i].value.func._astname != 'Name')
+					return undefined;
+				switch(ast.body[i].value.func.id.v)
+				{
+					case 'left':
+					case 'right':
+					case 'forward':
+					case 'wait':
+						if (ast.body[i].value.args.length != 1 || 
+							ast.body[i].value.args[0]._astname != 'Num')
+							return undefined;
+						block.pushCommand(new Command(ast.body[i].value.func.id.v, ast.body[i].value.args[0].n, block));
+						break;
+					default:
+						return undefined;
+				}
+				break;
+			case 'For':
+				//__constructor : function(body, cnt, parent, id)
+				if (!ast.body[i].iter || ast.body[i].iter._astname != 'Call' ||  
+					ast.body[i].iter.func._astname != 'Name' || ast.body[i].iter.func.id.v != 'range' ||
+					ast.body[i].iter.args.length != 1 || ast.body[i].iter.args[0]._astname != 'Num') //
+					return undefined;
+				var cnt = ast.body[i].iter.args[0].n;
+				var forStmt = new ForStmt(undefined, cnt, block);
+				var body = convertTreeToCommands(ast.body[i].body, block);
+				if (!body)
+					return undefined;
+				forStmt.body = body;
+				block.pushCommand(forStmt);
+				break;
+			case 'If':
+				//__constructor : function(testName, firstBlock, secondBlock, parent, id) 
+				if (!ast.body[i].test || ast.body[i].test._astname != 'Call' ||  
+					ast.body[i].test.func._astname != 'Name') //
+					return undefined;
+				var testName = '';
+				switch(ast.body[i].test.func.id.v)
+				{
+					case 'test1':
+					case 'test2':
+						testName = ast.body[i].test.func.id.v;
+						break;
+					default:
+						return undefined;
+				}
+				var ifStmt = new IfStmt(testName, undefined, undefined, block)
+				var body1 = convertTreeToCommands(ast.body[i].body, ifStmt);
+				if (!body1)
+					return undefined;
+				var body2;
+				if (ast.body[i].orelse)
+					body2 = convertTreeToCommands(ast.body[i].orelse, ifStmt);
+				ifStmt.blocks[0] = body1;
+				ifStmt.blocks[1] = body2;
+				block.pushCommand(ifStmt);
+				break;
+			case 'While':
+				//__constructor : function(testName, body, parent, id)
+				if (!ast.body[i].test || ast.body[i].test._astname != 'Call' ||  
+					ast.body[i].test.func._astname != 'Name') //
+					return undefined;
+				var testName = '';
+				switch(ast.body[i].test.func.id.v)
+				{
+					case 'test1':
+					case 'test2':
+						testName = ast.body[i].test.func.id.v;
+						break;
+					default:
+						return undefined;
+				}
+				var whileStmt = new WhileStmt(testName, undefined, block)
+				var body = convertTreeToCommands(ast.body[i].body, ifStmt);
+				if (!body)
+					return undefined;
+				whileStmt.body = body;
+				block.pushCommand(whileStmt);
+				break;
+			default: 
+				return undefined;
+		}
+	}
+	return block;
+}
