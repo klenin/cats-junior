@@ -480,18 +480,20 @@ var WhileStmt = $.inherit({
 	},
 	generateCommand: function(container){
 		str = 'while';
-		$(container).append('<li id = "' + str + cmdId + '" class = "while ui-draggable"></li>')
-		$('#' + str + cmdId).append('<select id = "whileselect' + cmdId +'">');
+		$(container).append('<li id = "' + str + cmdId + '" class = "while ui-draggable"></li>');
+		var newContainer = '#' + str + cmdId;
+		$(newContainer).append('<span style = "margin-left: 40px;">While</span>');
+		$(newContainer).append('<select id = "whileselect' + cmdId +'">');
 		var options = ['wall at the left', 'wall at the right'];
 		for (var i = 0; i < options.length; ++i)
 		{
 			$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
 		}
-		$('#' + str + cmdId).append('</select>');
+		$(newContainer).append('</select>');
 		$('#whileselect' + cmdId).change(updated);
-		$('#' + str + cmdId).css('height', '220px');
-		$('#' + str + cmdId).prop('type', str);
-		this.body.generateCommand('#' + str + cmdId, 'while');
+		$(newContainer).css('height', '220px');
+		$(newContainer).prop('type', str);
+		this.body.generateCommand(newContainer, 'while');
 	}
 });
 
