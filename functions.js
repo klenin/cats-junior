@@ -95,6 +95,25 @@ var Command = $.inherit({
 	},
 	convertToCode: function(tabsNum) {
 		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
+	},
+	generateCommand: function(container){
+		name = this.name;
+		$(container).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');	
+		if($.browser.msie)
+			$('#' + name + cmdId).css('height', '35px');
+		$('#' + name + cmdId).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
+		$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
+		$('#' + name + cmdId).prop('numId', cmdId);
+		$('#' + name + cmdId).prop('ifLi', 1);
+		$('#' + name + cmdId).prop('type', name);
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+		$('#spin' + cmdId).spin({
+			min: 1,
+			changed: function(){
+				updated();			
+			}
+		});
 	}
 });
 
@@ -208,6 +227,26 @@ var ForStmt = $.inherit({
 		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
 		str += this.body.convertToCode(tabsNum + 1);
 		return str;
+	},
+	generateCommand: function(container){
+		$(container).append('<li id = "for' + cmdId + '" class = "for ui-draggable"></li>');	
+		if($.browser.msie)
+			$('#for' + cmdId).css('height', '35px');
+		$('#for' + cmdId).append('<span style = "margin-left: 40px;">For</span>');
+		$('#for' + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
+		$('#for' + cmdId).css('height', '220px');
+		$('#for' + cmdId).prop('numId', cmdId);
+		$('#for' + cmdId).prop('ifLi', 1);
+		$('#for' + cmdId).prop('type', 'for');
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+		$('#spin' + cmdId).spin({
+			min: 1,
+			changed: function(){
+				updated();			
+			}
+		});
+		this.body.generateCommand('#for' + cmdId);
 	}
 });
 
@@ -315,6 +354,23 @@ var IfStmt = $.inherit({
 			str += this.blocks[1].convertToCode(tabsNum + 1);
 		}
 		return str;
+	},
+	generateCommand: function(container){
+		str = this.blocks[1] ? 'ifelse' : 'if';  
+		$(container).append('<li id = "' + str + cmdId + '" class = "if ui-draggable"></li>')
+		$('#' + str + cmdId).append('<select id = "ifselect' + cmdId +'">');
+		var options = ['wall at the left', 'wall at the right'];
+		for (var i = 0; i < options.length; ++i)
+		{
+			$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+		}
+		$('#' + str + cmdId).append('</select>');
+		$('#ifselect' + cmdId).change(updated);
+		$('#' + str + cmdId).css('height', this.blocks[1] ? '440px' : '220px');
+		$('#' + str + cmdId).prop('type', str);
+		this.blocks[0].generateCommand('#' + str + cmdId, 'if');
+		if (this.blocks[1])
+			this.blocks[1].generateCommand('#' + str + cmdId, 'else');
 	}
 });
 
@@ -415,8 +471,23 @@ var WhileStmt = $.inherit({
 		$('#' + this.id + '>select').css('background-color', 'green');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'while ' + this.testName + '()' + this.cnt + ':\n';
+		var str = generateTabs(tabsNum) + 'while ' + this.testName + '():\n';
 		return str + this.body.convertToCode(tabsNum + 1);
+	},
+	generateCommand: function(container){
+		str = 'while';
+		$(container).append('<li id = "' + str + cmdId + '" class = "while ui-draggable"></li>')
+		$('#' + str + cmdId).append('<select id = "whileselect' + cmdId +'">');
+		var options = ['wall at the left', 'wall at the right'];
+		for (var i = 0; i < options.length; ++i)
+		{
+			$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+		}
+		$('#' + str + cmdId).append('</select>');
+		$('#whileselect' + cmdId).change(updated);
+		$('#' + str + cmdId).css('height', '220px');
+		$('#' + str + cmdId).prop('type', str);
+		this.body.generateCommand('#' + str + cmdId);
 	}
 });
 
@@ -532,6 +603,84 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i)
 			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
 		return str;
+	},
+	generateCommand: function(container){
+		str = 'block';
+		newContainer = '#sortable' + str + cmdId;
+		if (container != '#sortable' + curProblem.tabIndex){
+			$(container).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
+
+			$('#sortable' + str + cmdId).sortable({
+				revert: false,
+				cursor: 'move',
+				appendTo: 'body',
+				helper: 'clone',
+			}).disableSelection();
+			$('#sortable' + str + cmdId).prop('sortName', 'sortable' + str + cmdId);
+			$('#sortable' + str + cmdId).prop('cmdId', cmdId);
+			$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
+				cmdAdded = true;
+				var item = ui.helper.is(':visible') ? ui.helper : ui.item;
+				if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
+					item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
+					item.offset().top > $(this).offset().top + parseInt($(this).css('height')) / 2 ||
+					item.offset().top + 10 < $(this).offset().top)
+				{
+					ui.item.remove();
+					updated();
+					return;
+				}
+				var id = "";
+				for (var k = 0; k < classes.length; ++k)
+				{
+					if (ui.item.hasClass(classes[k]))
+					{
+						id = classes[k];
+						break;
+					}
+				}
+				id += cmdId;
+				if (!ui.item.prop('numId')){
+					ui.item.prop('id', id);
+					ui.item.prop('ifLi', 1);
+					ui.item.prop('numId', cmdId);
+					for (var j = 0; j < classes.length; ++j)
+						if (ui.helper.hasClass(classes[j])){
+							addNewCmd(classes[j], false, ui.item[0]);
+						}
+				}
+				$('#cons0').append('sortbeforestop #sortable' + str + $(this).prop('cmdId') + '\n');
+				curProblem.cmdListEnded = false;
+			});
+			$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
+				++stoppedLvl;
+				$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
+
+			});
+			$('#sortable' + str + cmdId).bind('sortreceive', function(event, ui) {
+				$('#cons0').append('sortreceive #sortable' + str +  $(this).prop('cmdId') + '\n');
+
+			});
+			$('#sortable' + str + cmdId).bind('sortout', function(event, ui) {
+				var i = 0;	
+			});
+			$('#sortable' + str + cmdId).bind('click', function(event, ui) {
+				if (!curProblem.playing)
+					showCounters();
+			});
+			var sortables =  $('#' + str + curProblem.tabIndex).draggable('option', 'connectToSortable');
+			sortables = '#sortable' + str + cmdId + ', ' + sortables;
+			for (var k = 0; k < classes.length; ++k){
+				$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
+			}
+		}
+		else
+			newContainer = container;
+		$(newContainer).prop('type', str);
+		for (var i = 0; i < this.commands.length; ++i){
+			++cmdId;
+			this.commands[i].generateCommand(newContainer);
+		}
 	}
 });
 
@@ -1130,7 +1279,7 @@ function convertTreeToCommands(ast, parent)
 					return undefined;
 				var cnt = ast.body[i].iter.args[0].n;
 				var forStmt = new ForStmt(undefined, cnt, block);
-				var body = convertTreeToCommands(ast.body[i].body, block);
+				var body = convertTreeToCommands(ast.body[i], forStmt);
 				if (!body)
 					return undefined;
 				forStmt.body = body;
@@ -1151,13 +1300,27 @@ function convertTreeToCommands(ast, parent)
 					default:
 						return undefined;
 				}
-				var ifStmt = new IfStmt(testName, undefined, undefined, block)
-				var body1 = convertTreeToCommands(ast.body[i].body, ifStmt);
-				if (!body1)
-					return undefined;
+				var ifStmt = new IfStmt(testName, undefined, undefined, block);			
+				var body1 = new Block([], ifStmt);
+				for (var j = 0; j < ast.body[i].body.length; ++j)
+				{
+					var cmd = convertTreeToCommands(ast.body[i].body[j], body1);
+					if (!cmd)
+						return undefined;
+					body1.pushCommand(cmd);
+				}
 				var body2;
-				if (ast.body[i].orelse)
-					body2 = convertTreeToCommands(ast.body[i].orelse, ifStmt);
+				if (ast.body[i].orelse.length)
+				{
+					body2 = new Block([], ifStmt);
+					for (var j = 0; j < ast.body[i].body.length; ++j)
+					{
+						var cmd = convertTreeToCommands(ast.body[i].orelse[j], body2);
+						if (!cmd)
+							return undefined;
+						body2.pushCommand(cmd);
+					}
+				}
 				ifStmt.blocks[0] = body1;
 				ifStmt.blocks[1] = body2;
 				block.pushCommand(ifStmt);
@@ -1190,3 +1353,4 @@ function convertTreeToCommands(ast, parent)
 	}
 	return block;
 }
+

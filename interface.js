@@ -557,9 +557,11 @@ function fillTabs(){
 						$('#watchTable' + j).hide();
 						$('#btn_prev' + j).prop('disabled', false);
 						$('#btn_fast' + j).prop('disabled', false);
-						if (!finalcode[getCurProblem()])
-							prepareForExecuting(getCurProblem());
-						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast);
+						//if (!finalcode[getCurProblem()])
+						prepareForExecuting(getCurProblem());
+						$('#sortable' + j).empty();
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast).generateCommand('#sortable' + j);
+						updated();
 			    	}
 				    else
 			    	{
