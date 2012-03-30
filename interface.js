@@ -560,7 +560,9 @@ function fillTabs(){
 						//if (!finalcode[getCurProblem()])
 						prepareForExecuting(getCurProblem());
 						$('#sortable' + j).empty();
-						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast).generateCommand('#sortable' + j);
+						curProblem.cmdList = undefined;
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand('#sortable' + j);
+						++cmdId;
 						updated();
 			    	}
 				    else
@@ -748,8 +750,6 @@ function addBlock(name, str){
 		curProblem.cmdListEnded = false;
 	});
 	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
-		//if (stoppedLvl)
-		//	$(this).sortable('cancel');
 		++stoppedLvl;
 		$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
 
@@ -769,11 +769,8 @@ function addBlock(name, str){
 	sortables = '#sortable' + str + cmdId + ', ' + sortables;
 	for (var k = 0; k < classes.length; ++k){
 		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
+	}
 
-	}
-	for (var i = 0; i < problems.length; ++i){
-		$('ul, li').disableSelection();
-	}
 }
 	
 function addCmd(name, cnt){

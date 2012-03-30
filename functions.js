@@ -99,14 +99,15 @@ var Command = $.inherit({
 	generateCommand: function(container){
 		name = this.name;
 		$(container).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');	
+		var newContainer = '#' + name + cmdId;
 		if($.browser.msie)
-			$('#' + name + cmdId).css('height', '35px');
-		$('#' + name + cmdId).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
-		$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+			$(newContainer).css('height', '35px');
+		$(newContainer).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
+		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
-		$('#' + name + cmdId).prop('numId', cmdId);
-		$('#' + name + cmdId).prop('ifLi', 1);
-		$('#' + name + cmdId).prop('type', name);
+		$(newContainer).prop('numId', cmdId);
+		$(newContainer).prop('ifLi', 1);
+		$(newContainer).prop('type', name);
 		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
 		$('#spin' + cmdId).spin({
 			min: 1,
@@ -230,15 +231,16 @@ var ForStmt = $.inherit({
 	},
 	generateCommand: function(container){
 		$(container).append('<li id = "for' + cmdId + '" class = "for ui-draggable"></li>');	
+		var newContainer = '#for' + cmdId;
 		if($.browser.msie)
-			$('#for' + cmdId).css('height', '35px');
-		$('#for' + cmdId).append('<span style = "margin-left: 40px;">For</span>');
-		$('#for' + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+			$(newContainer).css('height', '35px');
+		$(newContainer).append('<span style = "margin-left: 40px;">For</span>');
+		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
-		$('#for' + cmdId).css('height', '220px');
-		$('#for' + cmdId).prop('numId', cmdId);
-		$('#for' + cmdId).prop('ifLi', 1);
-		$('#for' + cmdId).prop('type', 'for');
+		$(newContainer).css('height', '220px');
+		$(newContainer).prop('numId', cmdId);
+		$(newContainer).prop('ifLi', 1);
+		$(newContainer).prop('type', 'for');
 		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
 		$('#spin' + cmdId).spin({
 			min: 1,
@@ -246,7 +248,7 @@ var ForStmt = $.inherit({
 				updated();			
 			}
 		});
-		this.body.generateCommand('#for' + cmdId);
+		this.body.generateCommand(newContainer, 'for');
 	}
 });
 
@@ -357,20 +359,22 @@ var IfStmt = $.inherit({
 	},
 	generateCommand: function(container){
 		str = this.blocks[1] ? 'ifelse' : 'if';  
-		$(container).append('<li id = "' + str + cmdId + '" class = "if ui-draggable"></li>')
-		$('#' + str + cmdId).append('<select id = "ifselect' + cmdId +'">');
+		var newContainer = '#' + str + cmdId;
+		$(container).append('<li id = "' + str + cmdId + '" class = "if ui-draggable"></li>');
+		$(newContainer).append('<span style = "margin-left: 40px;">If</span>');
+		$(newContainer).append('<select id = "ifselect' + cmdId +'">');
 		var options = ['wall at the left', 'wall at the right'];
 		for (var i = 0; i < options.length; ++i)
 		{
 			$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
 		}
-		$('#' + str + cmdId).append('</select>');
+		$(newContainer).append('</select>');
 		$('#ifselect' + cmdId).change(updated);
-		$('#' + str + cmdId).css('height', this.blocks[1] ? '440px' : '220px');
-		$('#' + str + cmdId).prop('type', str);
-		this.blocks[0].generateCommand('#' + str + cmdId, 'if');
+		$(newContainer).css('height', this.blocks[1] ? '440px' : '220px');
+		$(newContainer).prop('type', str);
+		this.blocks[0].generateCommand(newContainer, 'if');
 		if (this.blocks[1])
-			this.blocks[1].generateCommand('#' + str + cmdId, 'else');
+			this.blocks[1].generateCommand(newContainer, 'else');
 	}
 });
 
@@ -487,7 +491,7 @@ var WhileStmt = $.inherit({
 		$('#whileselect' + cmdId).change(updated);
 		$('#' + str + cmdId).css('height', '220px');
 		$('#' + str + cmdId).prop('type', str);
-		this.body.generateCommand('#' + str + cmdId);
+		this.body.generateCommand('#' + str + cmdId, 'while');
 	}
 });
 
@@ -604,9 +608,9 @@ var Block = $.inherit({
 			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
 		return str;
 	},
-	generateCommand: function(container){
-		str = 'block';
-		newContainer = '#sortable' + str + cmdId;
+	generateCommand: function(container, str){
+		str = str ?  str : 'block';
+		var newContainer = '#sortable' + str + cmdId;
 		if (container != '#sortable' + curProblem.tabIndex){
 			$(container).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 
@@ -1245,27 +1249,27 @@ function convertCommandsToCode()
 	return curProblem.cmdList.convertToCode(-1);
 }
 
-function convertTreeToCommands(ast, parent)
+function convertTreeToCommands(commands, parent)
 {
 	var block = new Block([], parent);
-	for (var i = 0; i < ast.body.length; ++i)
+	for (var i = 0; i < commands.length; ++i)
 	{
-		switch(ast.body[i]._astname)
+		switch(commands[i]._astname)
 		{
 			case 'Expr':
-				if (ast.body[i].value._astname != 'Call' || 
-					ast.body[i].value.func._astname != 'Name')
+				if (commands[i].value._astname != 'Call' || 
+					commands[i].value.func._astname != 'Name')
 					return undefined;
-				switch(ast.body[i].value.func.id.v)
+				switch(commands[i].value.func.id.v)
 				{
 					case 'left':
 					case 'right':
 					case 'forward':
 					case 'wait':
-						if (ast.body[i].value.args.length != 1 || 
-							ast.body[i].value.args[0]._astname != 'Num')
+						if (commands[i].value.args.length != 1 || 
+							commands[i].value.args[0]._astname != 'Num')
 							return undefined;
-						block.pushCommand(new Command(ast.body[i].value.func.id.v, ast.body[i].value.args[0].n, block));
+						block.pushCommand(new Command(commands[i].value.func.id.v, commands[i].value.args[0].n, block));
 						break;
 					default:
 						return undefined;
@@ -1273,13 +1277,13 @@ function convertTreeToCommands(ast, parent)
 				break;
 			case 'For':
 				//__constructor : function(body, cnt, parent, id)
-				if (!ast.body[i].iter || ast.body[i].iter._astname != 'Call' ||  
-					ast.body[i].iter.func._astname != 'Name' || ast.body[i].iter.func.id.v != 'range' ||
-					ast.body[i].iter.args.length != 1 || ast.body[i].iter.args[0]._astname != 'Num') //
+				if (!commands[i].iter || commands[i].iter._astname != 'Call' ||  
+					commands[i].iter.func._astname != 'Name' || commands[i].iter.func.id.v != 'range' ||
+					commands[i].iter.args.length != 1 || commands[i].iter.args[0]._astname != 'Num') //
 					return undefined;
-				var cnt = ast.body[i].iter.args[0].n;
+				var cnt = commands[i].iter.args[0].n;
 				var forStmt = new ForStmt(undefined, cnt, block);
-				var body = convertTreeToCommands(ast.body[i], forStmt);
+				var body = convertTreeToCommands(commands[i].body, forStmt);
 				if (!body)
 					return undefined;
 				forStmt.body = body;
@@ -1287,61 +1291,45 @@ function convertTreeToCommands(ast, parent)
 				break;
 			case 'If':
 				//__constructor : function(testName, firstBlock, secondBlock, parent, id) 
-				if (!ast.body[i].test || ast.body[i].test._astname != 'Call' ||  
-					ast.body[i].test.func._astname != 'Name') //
+				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
+					commands[i].test.func._astname != 'Name') //
 					return undefined;
 				var testName = '';
-				switch(ast.body[i].test.func.id.v)
+				switch(commands[i].test.func.id.v)
 				{
 					case 'test1':
 					case 'test2':
-						testName = ast.body[i].test.func.id.v;
+						testName = commands[i].test.func.id.v;
 						break;
 					default:
 						return undefined;
 				}
 				var ifStmt = new IfStmt(testName, undefined, undefined, block);			
-				var body1 = new Block([], ifStmt);
-				for (var j = 0; j < ast.body[i].body.length; ++j)
-				{
-					var cmd = convertTreeToCommands(ast.body[i].body[j], body1);
-					if (!cmd)
-						return undefined;
-					body1.pushCommand(cmd);
-				}
+				var body1 = convertTreeToCommands(commands[i].body, ifStmt);
 				var body2;
-				if (ast.body[i].orelse.length)
-				{
-					body2 = new Block([], ifStmt);
-					for (var j = 0; j < ast.body[i].body.length; ++j)
-					{
-						var cmd = convertTreeToCommands(ast.body[i].orelse[j], body2);
-						if (!cmd)
-							return undefined;
-						body2.pushCommand(cmd);
-					}
-				}
+				if (commands[i].orelse.length)
+					body2 = convertTreeToCommands(commands[i].orelse, ifStmt);
 				ifStmt.blocks[0] = body1;
 				ifStmt.blocks[1] = body2;
 				block.pushCommand(ifStmt);
 				break;
 			case 'While':
 				//__constructor : function(testName, body, parent, id)
-				if (!ast.body[i].test || ast.body[i].test._astname != 'Call' ||  
-					ast.body[i].test.func._astname != 'Name') //
+				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
+					commands[i].test.func._astname != 'Name') //
 					return undefined;
 				var testName = '';
-				switch(ast.body[i].test.func.id.v)
+				switch(commands[i].test.func.id.v)
 				{
 					case 'test1':
 					case 'test2':
-						testName = ast.body[i].test.func.id.v;
+						testName = commands[i].test.func.id.v;
 						break;
 					default:
 						return undefined;
 				}
 				var whileStmt = new WhileStmt(testName, undefined, block)
-				var body = convertTreeToCommands(ast.body[i].body, ifStmt);
+				var body = convertTreeToCommands(commands[i].body, ifStmt);
 				if (!body)
 					return undefined;
 				whileStmt.body = body;
