@@ -1,3 +1,24 @@
+function generateTabs(tabsNum)
+{
+	var str = '';
+	for (var i = 0; i < tabsNum; ++i)
+		str += '  ';
+	return str;
+}
+
+function test1()
+{
+	return true;
+}
+
+function test2()
+{
+	return false;
+}
+
+var testFunctions = ['test1', 'test2'];
+var testFunctionsDict = {'test1': test1, 'test2': test2};
+
 var Command = $.inherit({
 	__constructor : function(name, cnt, parent, id) {
         this.name = name;
@@ -71,6 +92,29 @@ var Command = $.inherit({
 	highlightOn: function(){
 		if (!isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
+	},
+	convertToCode: function(tabsNum) {
+		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
+	},
+	generateCommand: function(container){
+		name = this.name;
+		$(container).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');	
+		var newContainer = '#' + name + cmdId;
+		if($.browser.msie)
+			$(newContainer).css('height', '35px');
+		$(newContainer).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
+		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
+		$(newContainer).prop('numId', cmdId);
+		$(newContainer).prop('ifLi', 1);
+		$(newContainer).prop('type', name);
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+		$('#spin' + cmdId).spin({
+			min: 1,
+			changed: function(){
+				updated();			
+			}
+		});
 	}
 });
 
@@ -98,8 +142,8 @@ var ForStmt = $.inherit({
 			if (!this.executing)
 			{
 				cnt -= 1;
-				var numId = $('#' + this.id).prop('numId');
-				$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+					var numId = $('#' + this.id).prop('numId');
+					$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 				if (!cnt || curProblem.speed)
 				{
 					if (curProblem.speed)
@@ -179,13 +223,40 @@ var ForStmt = $.inherit({
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>span').css('background-color', 'green');
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
+		str += this.body.convertToCode(tabsNum + 1);
+		return str;
+	},
+	generateCommand: function(container){
+		$(container).append('<li id = "for' + cmdId + '" class = "for ui-draggable"></li>');	
+		var newContainer = '#for' + cmdId;
+		if($.browser.msie)
+			$(newContainer).css('height', '35px');
+		$(newContainer).append('<span style = "margin-left: 40px;">For</span>');
+		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
+		$(newContainer).css('height', '220px');
+		$(newContainer).prop('numId', cmdId);
+		$(newContainer).prop('ifLi', 1);
+		$(newContainer).prop('type', 'for');
+		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
+		$('#spin' + cmdId).spin({
+			min: 1,
+			changed: function(){
+				updated();			
+			}
+		});
+		this.body.generateCommand(newContainer, 'for');
 	}
 });
 
 var IfStmt = $.inherit({
-	__constructor : function(test, firstBlock, secondBlock, parent, id) {
+	__constructor : function(testName, firstBlock, secondBlock, parent, id) {
         this.curBlock = undefined;
-		this.test = test;
+		this.testName = testName;
+		this.test = testFunctionsDict[testName]
 		this.blocks = [firstBlock, secondBlock];
 		this.parent = parent;	
 		this.id = id;
@@ -275,15 +346,45 @@ var IfStmt = $.inherit({
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>select').css('background-color', 'green');
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'if ' + this.testName + '():\n';
+		str += this.blocks[0].convertToCode(tabsNum + 1);
+		if (this.blocks[1])
+		{
+			str += generateTabs(tabsNum) + 'else:\n';
+			str += this.blocks[1].convertToCode(tabsNum + 1);
+		}
+		return str;
+	},
+	generateCommand: function(container){
+		str = this.blocks[1] ? 'ifelse' : 'if';  
+		var newContainer = '#' + str + cmdId;
+		$(container).append('<li id = "' + str + cmdId + '" class = "if ui-draggable"></li>');
+		$(newContainer).append('<span style = "margin-left: 40px;">If</span>');
+		$(newContainer).append('<select id = "ifselect' + cmdId +'">');
+		var options = ['wall at the left', 'wall at the right'];
+		for (var i = 0; i < options.length; ++i)
+		{
+			$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+		}
+		$(newContainer).append('</select>');
+		$('#ifselect' + cmdId).change(updated);
+		$(newContainer).css('height', this.blocks[1] ? '440px' : '220px');
+		$(newContainer).prop('type', str);
+		this.blocks[0].generateCommand(newContainer, 'if');
+		if (this.blocks[1])
+			this.blocks[1].generateCommand(newContainer, 'else');
 	}
 });
 
 var WhileStmt = $.inherit({
-	__constructor : function(test, body, parent, id) {
+	__constructor : function(testName, body, parent, id) {
         this.finished = false;//
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
-		this.test = test;
+		this.testName = testName;
+		this.test = testFunctionsDict[testName]
 		this.body = body;
 		this.parent = parent;	
 		this.id = id;
@@ -372,6 +473,27 @@ var WhileStmt = $.inherit({
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>select').css('background-color', 'green');
+	},
+	convertToCode: function(tabsNum) {
+		var str = generateTabs(tabsNum) + 'while ' + this.testName + '():\n';
+		return str + this.body.convertToCode(tabsNum + 1);
+	},
+	generateCommand: function(container){
+		str = 'while';
+		$(container).append('<li id = "' + str + cmdId + '" class = "while ui-draggable"></li>');
+		var newContainer = '#' + str + cmdId;
+		$(newContainer).append('<span style = "margin-left: 40px;">While</span>');
+		$(newContainer).append('<select id = "whileselect' + cmdId +'">');
+		var options = ['wall at the left', 'wall at the right'];
+		for (var i = 0; i < options.length; ++i)
+		{
+			$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+		}
+		$(newContainer).append('</select>');
+		$('#whileselect' + cmdId).change(updated);
+		$(newContainer).css('height', '220px');
+		$(newContainer).prop('type', str);
+		this.body.generateCommand(newContainer, 'while');
 	}
 });
 
@@ -481,6 +603,90 @@ var Block = $.inherit({
 	},
 	highlightOn: function(){
 		return;
+	},
+	convertToCode: function(tabsNum) {
+		str = '';
+		for (var i = 0; i < this.commands.length; ++i)
+			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
+		return str;
+	},
+	generateCommand: function(container, str){
+		str = str ?  str : 'block';
+		var newContainer = '#sortable' + str + cmdId;
+		if (container != '#sortable' + curProblem.tabIndex){
+			$(container).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
+
+			$('#sortable' + str + cmdId).sortable({
+				revert: false,
+				cursor: 'move',
+				appendTo: 'body',
+				helper: 'clone',
+			}).disableSelection();
+			$('#sortable' + str + cmdId).prop('sortName', 'sortable' + str + cmdId);
+			$('#sortable' + str + cmdId).prop('cmdId', cmdId);
+			$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
+				cmdAdded = true;
+				var item = ui.helper.is(':visible') ? ui.helper : ui.item;
+				if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
+					item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
+					item.offset().top > $(this).offset().top + parseInt($(this).css('height')) / 2 ||
+					item.offset().top + 10 < $(this).offset().top)
+				{
+					ui.item.remove();
+					updated();
+					return;
+				}
+				var id = "";
+				for (var k = 0; k < classes.length; ++k)
+				{
+					if (ui.item.hasClass(classes[k]))
+					{
+						id = classes[k];
+						break;
+					}
+				}
+				id += cmdId;
+				if (!ui.item.prop('numId')){
+					ui.item.prop('id', id);
+					ui.item.prop('ifLi', 1);
+					ui.item.prop('numId', cmdId);
+					for (var j = 0; j < classes.length; ++j)
+						if (ui.helper.hasClass(classes[j])){
+							addNewCmd(classes[j], false, ui.item[0]);
+						}
+				}
+				$('#cons0').append('sortbeforestop #sortable' + str + $(this).prop('cmdId') + '\n');
+				curProblem.cmdListEnded = false;
+			});
+			$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
+				++stoppedLvl;
+				$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
+
+			});
+			$('#sortable' + str + cmdId).bind('sortreceive', function(event, ui) {
+				$('#cons0').append('sortreceive #sortable' + str +  $(this).prop('cmdId') + '\n');
+
+			});
+			$('#sortable' + str + cmdId).bind('sortout', function(event, ui) {
+				var i = 0;	
+			});
+			$('#sortable' + str + cmdId).bind('click', function(event, ui) {
+				if (!curProblem.playing)
+					showCounters();
+			});
+			var sortables =  $('#' + str + curProblem.tabIndex).draggable('option', 'connectToSortable');
+			sortables = '#sortable' + str + cmdId + ', ' + sortables;
+			for (var k = 0; k < classes.length; ++k){
+				$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
+			}
+		}
+		else
+			newContainer = container;
+		$(newContainer).prop('type', str);
+		for (var i = 0; i < this.commands.length; ++i){
+			++cmdId;
+			this.commands[i].generateCommand(newContainer);
+		}
 	}
 });
 
@@ -724,18 +930,6 @@ function getCurProblemCommand()
 	return block.commands[block.curCmd];
 }
 
-function test1()
-{
-	return true;
-}
-
-function test2()
-{
-	return false;
-}
-
-var testFunctions = [test1, test2];
-
 function serializeBlock(sortableName, parent)
 {
 	var block = new Block([], parent);
@@ -924,7 +1118,7 @@ function heroIsDead(){
 }
 
 function nextCmd(){
-	++curProblem.step;
+		++curProblem.step;
 	if (curProblem.speed)
 		changeProgressBar();
 	return true;
@@ -1016,7 +1210,9 @@ function isCommandMode()
 	return $("input[name='group" + p + "']" + ":checked").prop('id') == 'commandsMode' + p;
 }
 
-function oneStep(dir)
+function oneStep(dir, cnt)
+{
+	for (var i = 0; i < cnt; ++i)
 {
 	var x = curProblem.arrow.coord.x;
 	var y = curProblem.arrow.coord.y;
@@ -1028,23 +1224,123 @@ function oneStep(dir)
 		changeProgressBar();
 	}
 }
-
-function forward()
-{
-	oneStep('forward');
 }
 
-function left()
+function forward(cnt)
 {
-	oneStep('left');
+	oneStep('forward', cnt != undefined ? cnt : 1);
 }
 
-function right()
+function left(cnt)
 {
-	oneStep('right');
+	oneStep('left', cnt != undefined ? cnt : 1);
 }
 
-function wait()
+function right(cnt)
 {
-	oneStep('wait');
+	oneStep('right', cnt != undefined ? cnt : 1);
 }
+
+function wait(cnt)
+{
+	oneStep('wait', cnt != undefined ? cnt : 1);
+}
+
+function convertCommandsToCode()
+{
+	return curProblem.cmdList.convertToCode(-1);
+}
+
+function convertTreeToCommands(commands, parent)
+{
+	var block = new Block([], parent);
+	for (var i = 0; i < commands.length; ++i)
+	{
+		switch(commands[i]._astname)
+		{
+			case 'Expr':
+				if (commands[i].value._astname != 'Call' || 
+					commands[i].value.func._astname != 'Name')
+					return undefined;
+				switch(commands[i].value.func.id.v)
+				{
+					case 'left':
+					case 'right':
+					case 'forward':
+					case 'wait':
+						if (commands[i].value.args.length != 1 || 
+							commands[i].value.args[0]._astname != 'Num')
+							return undefined;
+						block.pushCommand(new Command(commands[i].value.func.id.v, commands[i].value.args[0].n, block));
+						break;
+					default:
+						return undefined;
+				}
+				break;
+			case 'For':
+				//__constructor : function(body, cnt, parent, id)
+				if (!commands[i].iter || commands[i].iter._astname != 'Call' ||  
+					commands[i].iter.func._astname != 'Name' || commands[i].iter.func.id.v != 'range' ||
+					commands[i].iter.args.length != 1 || commands[i].iter.args[0]._astname != 'Num') //
+					return undefined;
+				var cnt = commands[i].iter.args[0].n;
+				var forStmt = new ForStmt(undefined, cnt, block);
+				var body = convertTreeToCommands(commands[i].body, forStmt);
+				if (!body)
+					return undefined;
+				forStmt.body = body;
+				block.pushCommand(forStmt);
+				break;
+			case 'If':
+				//__constructor : function(testName, firstBlock, secondBlock, parent, id) 
+				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
+					commands[i].test.func._astname != 'Name') //
+					return undefined;
+				var testName = '';
+				switch(commands[i].test.func.id.v)
+				{
+					case 'test1':
+					case 'test2':
+						testName = commands[i].test.func.id.v;
+						break;
+					default:
+						return undefined;
+				}
+				var ifStmt = new IfStmt(testName, undefined, undefined, block);			
+				var body1 = convertTreeToCommands(commands[i].body, ifStmt);
+				var body2;
+				if (commands[i].orelse.length)
+					body2 = convertTreeToCommands(commands[i].orelse, ifStmt);
+				ifStmt.blocks[0] = body1;
+				ifStmt.blocks[1] = body2;
+				block.pushCommand(ifStmt);
+				break;
+			case 'While':
+				//__constructor : function(testName, body, parent, id)
+				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
+					commands[i].test.func._astname != 'Name') //
+					return undefined;
+				var testName = '';
+				switch(commands[i].test.func.id.v)
+				{
+					case 'test1':
+					case 'test2':
+						testName = commands[i].test.func.id.v;
+						break;
+					default:
+						return undefined;
+				}
+				var whileStmt = new WhileStmt(testName, undefined, block)
+				var body = convertTreeToCommands(commands[i].body, ifStmt);
+				if (!body)
+					return undefined;
+				whileStmt.body = body;
+				block.pushCommand(whileStmt);
+				break;
+			default: 
+				return undefined;
+		}
+	}
+	return block;
+}
+

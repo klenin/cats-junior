@@ -1923,7 +1923,8 @@ Sk.compile = function(source, filename, mode)
     return {
         funcname: funcname,
         code: ret,
-        scopes: c.allUnits
+        scopes: c.allUnits,
+        ast: ast
     };
 };
 

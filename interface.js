@@ -262,6 +262,7 @@ function tryNextStep()
 
 			}
 		}
+		drawLabirint();
 		if (getCurBlock() >= 0)
 		{
 			var b = getCurBlock();
@@ -556,12 +557,20 @@ function fillTabs(){
 						$('#watchTable' + j).hide();
 						$('#btn_prev' + j).prop('disabled', false);
 						$('#btn_fast' + j).prop('disabled', false);
+						//if (!finalcode[getCurProblem()])
+						prepareForExecuting(getCurProblem());
+						$('#sortable' + j).empty();
+						curProblem.cmdList = undefined;
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand('#sortable' + j);
+						++cmdId;
+						updated();
 			    	}
 				    else
 			    	{
 			    		$('#ulCommands' + j).hide();
 						$('#sortable' + j).hide();
 						$('#tdcode' + j).show();
+						codeareas[j].setValue(convertCommandsToCode());
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
@@ -695,8 +704,8 @@ function addFor(str, cnt){
 function addBlock(name, str){
 	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
 	$('#' + name + cmdId).css('height', '200px');
-	if (str != 'for')
-		$('#' + name + cmdId + ' > span').remove();
+	//if (str != 'for')
+	//	$('#' + name + cmdId + ' > span').remove();
 	$('#sortable' + str + cmdId).sortable({
 		revert: false,
 		cursor: 'move',
@@ -741,8 +750,6 @@ function addBlock(name, str){
 		curProblem.cmdListEnded = false;
 	});
 	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
-		if (stoppedLvl)
-			$(this).sortable('cancel');
 		++stoppedLvl;
 		$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
 
@@ -762,11 +769,8 @@ function addBlock(name, str){
 	sortables = '#sortable' + str + cmdId + ', ' + sortables;
 	for (var k = 0; k < classes.length; ++k){
 		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
+	}
 
-	}
-	for (var i = 0; i < problems.length; ++i){
-		$('ul, li').disableSelection();
-	}
 }
 	
 function addCmd(name, cnt){
@@ -1018,7 +1022,7 @@ function pauseClick(){
 }
 
 function nextClick(){
-	var problem = getCurProblem()
+	var problem = getCurProblem();
 	if ($('#codeMode' + problem).prop('checked'))
 	{
 		try
