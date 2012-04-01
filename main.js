@@ -22,7 +22,7 @@
 		if (curProblem.visited)
 			return;
 		curProblem.visited = 1;
-		$('#sortable' + curProblem.tabIndex).sortable({
+		/*$('#sortable' + curProblem.tabIndex).sortable({
 			revert: false,
 			cursor: 'move',
 			appendTo: 'body',
@@ -92,7 +92,7 @@
 				/*if (receiveStarted)
 					for (var i = addedCmds.length - 1; i > 0 ; --i)
 						addedCmds[i].remove();
-				else*/
+				else
 					for (var i = 0; i < addedCmds.length - 1; ++i)
 						addedCmds[i].remove();
 			}
@@ -113,10 +113,125 @@
 		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
 			if (!curProblem.playing)
 				showCounters();
-		});
+		});*/
 		$('#aboutBtn' + curProblem.tabIndex).click(function() {
 			$('#about').dialog('open');
 			return false;
+		});
+	    $("#jstree-container" + curProblem.tabIndex).jstree({ 
+			"types" : {
+				"types" : {
+					"block" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"if" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"ifelse" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"else" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"while" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"for" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						},
+						"max_depth" : -1,
+					},
+					"left" : {
+						"max_depth" : 0,
+						"icon" : { 
+							"image" : "images/left_small.png" 
+						},
+					},
+					"right" : {
+						"max_depth" : 0,
+						"icon" : { 
+							"image" : "images/right_small.png" 
+						},
+					},
+					"forward" : {
+						"max_depth" : 0,
+						"icon" : { 
+							"image" : "images/forward_small.png" 
+						},
+					},
+					"wait" : {
+						"max_depth" : 0,
+						"icon" : { 
+							"image" : "images/wait_small.png" 
+						},
+					},
+					
+				}
+			},
+			"crrm":{
+				"move" : {
+					"check_move" : function (data) {
+						var node = data.o;
+						var type = this._get_type(data.o);
+						if (type == 'else')
+							return false;
+						elseStmt = undefined;
+						if (type == 'ifelse'){
+							if (this._get_type(data.r) == 'else')
+								return false;
+							elseStmt = this._get_next(node);
+						}
+						return true;
+					}
+				}
+				},
+			"dnd" : {
+				"drag_check" : function (data) {
+					return { 
+						after : false, 
+						before : false, 
+						inside : true 
+					};
+				},
+				"drag_finish" : function (data) { 
+					var node = data.r;
+					//; //=(
+					$("#jstree-container" + curProblem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
+						onCreateItem(this, newNode, $(data.o));
+					}, true); 
+					//alert("DRAG OK"); 
+				}
+			},
+			"ui" : {
+				"initially_select" : [ "phtml_2" ],
+				"select_limit" : 1,
+			},
+			"core" : { "initially_open" : [ "phtml_1" ] },
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types" ],
+			
+			
+		})
+		.bind("move_node.jstree", function(event, data){
+			var node = data.args[0].o;
+			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+				data.inst.move_node(elseStmt, node, 'after', false, false, true);
+			}
 		});
 	});  
 	$('#about').dialog({

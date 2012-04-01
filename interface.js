@@ -859,8 +859,50 @@ function addNewCmd(str, dblClick, elem){
 		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 	}
 	
-	$('#' + str + cmdId).prop('type', str);
+	
+}
+
+function onCreateItem(tree, newNode, initObject){
+	var type = initObject.attr('rel');
+	tree.set_type(type, newNode);
+	tree.rename_node(newNode, cmdClassToName[type]);
+	switch(type){
+		case 'left':
+		case 'right':
+		case 'forward':
+		case 'wait':
+		case 'for':
+			$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+			break;
+		case 'if':
+		case 'ifelse':
+		case 'while':
+			$(newNode).append('<select id = "select' + cmdId +'">');
+			var options = ['wall at the left', 'wall at the right'];
+			for (var i = 0; i < options.length; ++i)
+			{
+				$('#select' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+			}
+			$(newNode).append('</select>');
+			$('#select' + cmdId).change(updated);
+			if (type == 'ifelse'){
+				tree.rename_node(newNode, 'If');
+				$("#jstree-container" + curProblem.tabIndex).jstree("create", $(newNode), "after", false, function(elseNode){
+					tree.set_type('else', elseNode);
+					tree.rename_node(elseNode, 'Else');
+				}, true); 
+			}
+			break;
+	}
+	$(newNode).prop('numId', cmdId);
+	$(newNode).prop('ifLi', 1);
+	$(newNode).prop('type', type);
+	$(newNode).prop('id', type + cmdId);
 	setSpin();
+}
+function isBlock(type){
+	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || type == 'while';
 }
 
 function hideCounters(){

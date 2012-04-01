@@ -8,6 +8,7 @@
 		<script type="text/javascript" src="import/jquery/jquery-spin.js"></script> 
 		<script type="text/javascript" src="import/jquery/ui.tabs.paging.js"></script> 
 		<script type="text/javascript" src="import/jquery/jquery.tmpl.js"></script>
+		<script type="text/javascript" src="import/jquery/jquery.jstree.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/base.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/deps.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/string/string.js"></script>
@@ -72,9 +73,9 @@
 	</style>
 
 <script id = "commandsListTemplate" type="text/x-jquery-tmpl">
-	<li id = "${divclass}${tab}" class = "${divclass}" type = "${divclass}">
-		<span style = "margin-left: 40px;">${divname}</span>
-	</li>
+	<div id = "${divclass}${tab}" class = "${divclass} jstree-draggable" type = "${divclass}" rel = "${divclass}">
+		${divname}
+	</div>
 </script>
 
 <script id = "toolbarButtonsTemplate" type="text/x-jquery-tmpl">
@@ -112,9 +113,9 @@
 					</tr>
 					<tr>
 						<td>
-							<ul class = "ul_commands" id = "ulCommands${tab}">
+							<div class = "ul_commands" id = "ulCommands${tab}">
 								{{tmpl($item.data.commands) "#commandsListTemplate"}}
-							</ul>
+							</div>
 						</td>
 						<td id = "tdcode${tab}">
 							<textarea id = "codearea${tab}" name = "codearea${tab}"></textarea>
@@ -125,7 +126,8 @@
 							<table>
 								<tr>
 									<td>
-										<ul id = "sortable${tab}" class = "ui-sortable sortable connectedSortable">
+										<div id = "jstree-container${tab}" style = "height: 500px;" class = "sortable">
+										</div>
 									</td>
 								</tr>
 							</table>

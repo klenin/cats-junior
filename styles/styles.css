@@ -39,11 +39,12 @@ li.invisible{
 	z-index: 0;
 	list-style-type: none; 
 }
-li.forward, li.forward1, li.left, li.left1, li.right, li.right1, li.wait, 
-li.wait1, li.block, li.if, li.ifelse, li.while, li.for{
+div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait, 
+div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	list-style-type: none; 
 	margin: 5px; 
 	padding: 5px;
+	padding-left: 40px;
 	width: 180px; 
 	height: 25px;
 	border: 1px solid #ffffff;
@@ -53,19 +54,19 @@ li.wait1, li.block, li.if, li.ifelse, li.while, li.for{
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
 }
-li.forward{ background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; }
-li.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; }
-li.left{	background: #A9A9A9 url('../images/left.png') 5% 95% no-repeat; }
-li.right{ background: #A9A9A9 url('../images/right.png') 5% 95% no-repeat; }
-li.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat;}
-li.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; }
-li.wait{ background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; }
-li.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat; }
+div.forward{ background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; }
+div.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; }
+div.left{	background: #A9A9A9 url('../images/left.png') 5% 95% no-repeat; }
+div.right{ background: #A9A9A9 url('../images/right.png') 5% 95% no-repeat; }
+div.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat;}
+div.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; }
+div.wait{ background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; }
+div.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat; }
 ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
 }
-ul.sortable{
+div.sortable{
 	width: 250px;
 	margin-left: 0px;
 	padding-left: 0px;
