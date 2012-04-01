@@ -930,60 +930,50 @@ function getCurProblemCommand()
 	return block.commands[block.curCmd];
 }
 
-function serializeBlock(sortableName, parent)
+function receiveFinished(){
+	receiveStarted = false;
+}
+
+function convert(commands, parent)
 {
 	var block = new Block([], parent);
-	var arr = $('#'+ sortableName).sortable('toArray');
-	for (var i = 0; i < arr.length; ++i)
+	for (var i = 0; i < commands.length; ++i)
 	{
-		if(!arr[i].length)
-			continue;
-		var type = $('#' + arr[i]).prop('type');
-		if (type == 'block')
+		var type = commands[i].attr['rel'];
+		var id = commands[i].attr['id'];
+		if (type == 'block' && commands[i].children)
 		{
-			block.pushCommand(serializeBlock($('#' + arr[i] + '>ul').prop('id'), block));
+			block.pushCommand(convert(commands[i].children, block));
 		}
-		else if (type == 'if')
+		else if (type == 'if' || type == 'ifelse' || type == 'while')
 		{
-			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
-			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
-			block.pushCommand(new IfStmt(test, block1, undefined, block, $('#' + arr[i]).prop('id')));
-		}
-		else if (type == 'ifelse')
-		{
-			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
-			var block1 = serializeBlock($('#' + arr[i] + '>ul:first').prop('id'), block);
-			var block2 = serializeBlock($('#' + arr[i] + '>ul:last').prop('id'), block);
-			block.pushCommand(new IfStmt(test, block1, block2, block, $('#' + arr[i]).prop('id')));
-		}
-		else if (type == 'while')
-		{
-			var test = testFunctions[$('#' + arr[i] + ' option:selected').val()];
-			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
-			block.pushCommand(new WhileStmt(test, block1, block, $('#' + arr[i]).prop('id')));
+			var test = testFunctions[$('#' + id + ' option:selected').val()];
+			var block1 = commands[i].children ? (convert(commands[i].children, block)) : new Block([], block);
+			var block2 = undefined;
+			if (type == 'ifelse' && commands[++i].children)
+				block2 = convert(commands[i].children, block);
+			block.pushCommand(type == 'while' ? 
+				new WhileStmt(test, block1, block, id) : 
+				new IfStmt(test, block1, block2, block, id));
 		}
 		else if (type == 'for')
 		{
-			var cnt = parseInt($('#' + arr[i] + ' .cnt .cnt').val());
-			var block1 = serializeBlock($('#' + arr[i] + '>ul').prop('id'), block);
-			block.pushCommand(new ForStmt(block1, cnt, block, $('#' + arr[i]).prop('id')));
+			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
+			var block1 =  commands[i].children ? (convert(commands[i].children, block)) : new Block([], block);
+			block.pushCommand(new ForStmt(block1, cnt, block,  id));
 		}
 		else
 		{
-			var cmd = new Command(type, parseInt($('#' + arr[i] + ' input').val()),
-				block,  $('#' + arr[i]).prop('id'));
+			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
+				block, id);
 			block.pushCommand(cmd);
 		}
 	}
 	return block;
 }
 
-function receiveFinished(){
-	receiveStarted = false;
-}
-
 function updated(){
-	var newCmdList = serializeBlock('sortable' + curProblem.tabIndex);
+	var newCmdList = convert($("#jstree-container" + curProblem.tabIndex).jstree('get_json', -1), undefined);
 	var needHideCounters = curProblem.cmdList && curProblem.cmdList.started();
 	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList) || !curProblem.cmdList)
 	{

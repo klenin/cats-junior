@@ -900,6 +900,7 @@ function onCreateItem(tree, newNode, initObject){
 	$(newNode).prop('type', type);
 	$(newNode).prop('id', type + cmdId);
 	setSpin();
+	updated();
 }
 function isBlock(type){
 	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || type == 'while';

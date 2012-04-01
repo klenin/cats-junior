@@ -223,7 +223,7 @@
 				"select_limit" : 1,
 			},
 			"core" : { "initially_open" : [ "phtml_1" ] },
-			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types" ],
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ],
 			
 			
 		})
@@ -232,6 +232,7 @@
 			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
 				data.inst.move_node(elseStmt, node, 'after', false, false, true);
 			}
+			updated();
 		});
 	});  
 	$('#about').dialog({
