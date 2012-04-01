@@ -898,6 +898,7 @@ function onCreateItem(tree, newNode, initObject){
 	$(newNode).prop('numId', cmdId);
 	$(newNode).prop('ifLi', 1);
 	$(newNode).prop('type', type);
+	$(newNode).addClass(type);
 	$(newNode).prop('id', type + cmdId);
 	setSpin();
 	updated();
@@ -928,8 +929,8 @@ function disableButtons(){
 }
 
 function callPlay(s){
-	if (!$('#sortable' + curProblem.tabIndex).sortable('toArray').length || curProblem.arrow.dead)
-		return;
+	//if (!$('#sortable' + curProblem.tabIndex).sortable('toArray').length || curProblem.arrow.dead)
+	//	return;
 	if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
 		var mes = new MessageCmdLimit();
 		curProblem.arrow.dead = true;

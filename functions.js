@@ -860,29 +860,17 @@ function commandsToJSON(){
 function changeCmdHighlight(elem){
 	if (!elem)
 		return false;
-	elem = $('#' + elem);
-	var divs = curProblem.commands;
-	for (var k = 0; k < divs.length; ++k){
-		if (elem.hasClass(divs[k])){
-			elem.removeClass(divs[k]);
-			elem.addClass(divs[k] + 1);
-		}   
-		else if (elem.hasClass(divs[k] + 1)){
-			elem.removeClass(divs[k] + 1);
-			elem.addClass(divs[k]);
-		}
-	}
+	var elem = $('#' + elem);
+	if (elem.hasClass('highlighted'))
+		elem.removeClass('highlighted');
+	else
+		elem.addClass('highlighted');
 }
 
 function isCmdHighlighted(elem){
 	if (!elem)
 		return false;
-	elem = $('#' + elem);
-	var divs = curProblem.commands;
-	for (var k = 0; k < divs.length; ++k)
-		if (elem.hasClass(divs[k] + 1))
-			return true;
-	return false;
+	return $('#' + elem).hasClass('highlighted')
 }
 
 function cmdHighlightOff(){

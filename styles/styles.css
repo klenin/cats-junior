@@ -55,13 +55,14 @@ div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	border-radius: 6px;
 }
 div.forward{ background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; }
-div.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat; }
+div.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat !important; }
 div.left{	background: #A9A9A9 url('../images/left.png') 5% 95% no-repeat; }
 div.right{ background: #A9A9A9 url('../images/right.png') 5% 95% no-repeat; }
-div.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat;}
-div.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat; }
+div.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat !important;}
+div.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat !important; }
 div.wait{ background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; }
-div.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat; }
+div.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat !important; }
+.highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
