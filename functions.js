@@ -963,6 +963,7 @@ function convert(commands, parent)
 function updated(){
 	var newCmdList = convert($("#jstree-container" + curProblem.tabIndex).jstree('get_json', -1), undefined);
 	var needHideCounters = curProblem.cmdList && curProblem.cmdList.started();
+	curProblem.changed = true;
 	if (curProblem.cmdList && !curProblem.cmdList.eq(newCmdList) || !curProblem.cmdList)
 	{
 		curProblem.cmdList = newCmdList;

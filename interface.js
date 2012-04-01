@@ -551,7 +551,7 @@ function fillTabs(){
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j)
 			    	{
 			    		$('#ulCommands' + j).show();
-						$('#sortable' + j).show();
+						$('#jstree-container' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
@@ -559,16 +559,16 @@ function fillTabs(){
 						$('#btn_fast' + j).prop('disabled', false);
 						//if (!finalcode[getCurProblem()])
 						prepareForExecuting(getCurProblem());
-						$('#sortable' + j).empty();
+						$('#jstree-container' + j).empty();
 						curProblem.cmdList = undefined;
-						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand('#sortable' + j);
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand('#jstree-container' + j);
 						++cmdId;
 						updated();
 			    	}
 				    else
 			    	{
 			    		$('#ulCommands' + j).hide();
-						$('#sortable' + j).hide();
+						$('#jstree-container' + j).hide();
 						$('#tdcode' + j).show();
 						codeareas[j].setValue(convertCommandsToCode());
 						codeareas[j].refresh();
@@ -936,13 +936,22 @@ function callPlay(s){
 		curProblem.arrow.dead = true;
 		return;
 	}
-	curProblem.paused = false;
-	curProblem.stopped = false;
-	disableButtons();
-	hideCounters();
-	curProblem.speed = s;
-	curProblem.lastExecutedCmd = undefined;
-	setTimeout(function() { play(MAX_VALUE); }, s);
+	try
+	{
+		codeareas[curProblem.tabIndex].setValue(convertCommandsToCode());
+		prepareForExecuting(curProblem.tabIndex);
+		curProblem.paused = false;
+		curProblem.stopped = false;
+		disableButtons();
+		hideCounters();
+		curProblem.speed = s;
+		curProblem.lastExecutedCmd = undefined;
+		setTimeout(function() { play(MAX_VALUE); }, s);
+	}
+	catch(e)
+	{
+		$('#cons' + curProblem.tabIndex).html('Invalid commands');
+	}
 }
 
 function onFinishExecuting(problem)
@@ -1004,6 +1013,7 @@ function prepareForExecuting(problem)
 	showCounters();
 	setCounters();
 	updateWatchList();
+	curProblem.changed = false;
 }
 
 function playClick(){
@@ -1041,7 +1051,7 @@ function clearClick(){
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
 	setDefault();
-	$('#sortable' + curProblem.tabIndex).children().remove();
+	$('#jstree-container' + curProblem.tabIndex).children().remove();
 }
 
 function stopClick(){
@@ -1092,6 +1102,19 @@ function nextClick(){
 	else
 	{
 		curProblem.speed = 0;
+		if (!curProblem.playing || curProblem.changed)
+		{
+			try
+			{
+				codeareas[problem].setValue(convertCommandsToCode());
+				prepareForExecuting(problem);
+			}
+			catch(e)
+			{
+				$('#cons' + problem).html('Invalid commands');
+				return;
+			}
+		}
 		if (!curProblem.playing)
 		{
 			setCounters();
@@ -1100,6 +1123,7 @@ function nextClick(){
 			setDefault();
 			if (needReturn)
 				return;
+			
 			curProblem.playing = true;
 		}
 		curProblem.lastExecutedCmd = undefined;
