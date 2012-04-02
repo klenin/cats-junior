@@ -216,6 +216,9 @@
 						onCreateItem(this, newNode, $(data.o));
 					}, true); 
 					//alert("DRAG OK"); 
+				},
+				"drop_finish": function(data){
+					this.remove(data.o);
 				}
 			},
 			"ui" : {
