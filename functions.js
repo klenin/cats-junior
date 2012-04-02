@@ -96,25 +96,14 @@ var Command = $.inherit({
 	convertToCode: function(tabsNum) {
 		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
 	},
-	generateCommand: function(container){
-		name = this.name;
-		$(container).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');	
-		var newContainer = '#' + name + cmdId;
-		if($.browser.msie)
-			$(newContainer).css('height', '35px');
-		$(newContainer).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
-		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
-		$(newContainer).prop('numId', cmdId);
-		$(newContainer).prop('ifLi', 1);
-		$(newContainer).prop('type', name);
-		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-		$('#spin' + cmdId).spin({
-			min: 1,
-			changed: function(){
-				updated();			
-			}
-		});
+	generateCommand: function(tree, node){
+		var self = this;
+		$("#jstree-container" + curProblem.tabIndex).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			false, function(newNode){
+				onCreateItem(tree, newNode, $('#' + self.name + '0'));
+				var numId = $(newNode).prop('numId');
+				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
+			}, true); 
 	}
 });
 
@@ -229,26 +218,16 @@ var ForStmt = $.inherit({
 		str += this.body.convertToCode(tabsNum + 1);
 		return str;
 	},
-	generateCommand: function(container){
-		$(container).append('<li id = "for' + cmdId + '" class = "for ui-draggable"></li>');	
-		var newContainer = '#for' + cmdId;
-		if($.browser.msie)
-			$(newContainer).css('height', '35px');
-		$(newContainer).append('<span style = "margin-left: 40px;">For</span>');
-		$(newContainer).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + this.cnt + '" type="text"/>');
-		$(newContainer).css('height', '220px');
-		$(newContainer).prop('numId', cmdId);
-		$(newContainer).prop('ifLi', 1);
-		$(newContainer).prop('type', 'for');
-		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-		$('#spin' + cmdId).spin({
-			min: 1,
-			changed: function(){
-				updated();			
-			}
-		});
-		this.body.generateCommand(newContainer, 'for');
+	generateCommand: function(tree, node){
+		var self = this;
+		$("#jstree-container" + curProblem.tabIndex).jstree("create", node, 
+			isBlock(tree._get_type(node)) ? "last" : "after", 
+			false, function(newNode){
+				onCreateItem(tree, newNode, $('#for0'));
+				var numId = $(newNode).prop('numId');
+				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
+				self.body.generateCommand(tree, $(newNode));
+			}, true); 
 	}
 });
 
@@ -357,24 +336,24 @@ var IfStmt = $.inherit({
 		}
 		return str;
 	},
-	generateCommand: function(container){
-		str = this.blocks[1] ? 'ifelse' : 'if';  
-		var newContainer = '#' + str + cmdId;
-		$(container).append('<li id = "' + str + cmdId + '" class = "if ui-draggable"></li>');
-		$(newContainer).append('<span style = "margin-left: 40px;">If</span>');
-		$(newContainer).append('<select id = "ifselect' + cmdId +'">');
-		var options = ['wall at the left', 'wall at the right'];
-		for (var i = 0; i < options.length; ++i)
-		{
-			$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
-		}
-		$(newContainer).append('</select>');
-		$('#ifselect' + cmdId).change(updated);
-		$(newContainer).css('height', this.blocks[1] ? '440px' : '220px');
-		$(newContainer).prop('type', str);
-		this.blocks[0].generateCommand(newContainer, 'if');
-		if (this.blocks[1])
-			this.blocks[1].generateCommand(newContainer, 'else');
+	generateCommand: function(tree, node){
+		var self = this;
+		$("#jstree-container" + curProblem.tabIndex).jstree("create", node, 
+			isBlock(tree._get_type(node)) ? "last" : "after", 
+			false, function(newNode){
+				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'));
+				var numId = $(newNode).prop('numId');
+				for (var i = 0; i < testFunctions.length; ++i)
+				{
+					if (self.testName == testFunctions[i])
+					{
+						$('#select' + numId).val(i)
+					}
+				}
+				self.blocks[0].generateCommand(tree, $(newNode));
+				if (self.blocks[1])
+					self.blocks[1].generateCommand(tree, tree._get_next($(newNode)));
+			}, true); 
 	}
 });
 
@@ -478,22 +457,22 @@ var WhileStmt = $.inherit({
 		var str = generateTabs(tabsNum) + 'while ' + this.testName + '():\n';
 		return str + this.body.convertToCode(tabsNum + 1);
 	},
-	generateCommand: function(container){
-		str = 'while';
-		$(container).append('<li id = "' + str + cmdId + '" class = "while ui-draggable"></li>');
-		var newContainer = '#' + str + cmdId;
-		$(newContainer).append('<span style = "margin-left: 40px;">While</span>');
-		$(newContainer).append('<select id = "whileselect' + cmdId +'">');
-		var options = ['wall at the left', 'wall at the right'];
-		for (var i = 0; i < options.length; ++i)
-		{
-			$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
-		}
-		$(newContainer).append('</select>');
-		$('#whileselect' + cmdId).change(updated);
-		$(newContainer).css('height', '220px');
-		$(newContainer).prop('type', str);
-		this.body.generateCommand(newContainer, 'while');
+	generateCommand: function(tree, node){
+		var self = this;
+		$("#jstree-container" + curProblem.tabIndex).jstree("create", node, 
+			isBlock(tree._get_type(node)) ? "last" : "after", 
+			false, function(newNode){
+				onCreateItem(tree, newNode, $('#while0'));
+				var numId = $(newNode).prop('numId');
+				for (var i = 0; i < testFunctions.length; ++i)
+				{
+					if (self.testName == testFunctions[i])
+					{
+						$('#select' + numId).val(i)
+					}
+				}
+				self.body.generateCommand(tree, $(newNode));
+			}, true); 
 	}
 });
 
@@ -610,8 +589,8 @@ var Block = $.inherit({
 			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
 		return str;
 	},
-	generateCommand: function(container, str){
-		str = str ?  str : 'block';
+	generateCommand: function(tree, node){
+		/*str = str ?  str : 'block';
 		var newContainer = '#sortable' + str + cmdId;
 		if (container != '#sortable' + curProblem.tabIndex){
 			$(container).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
@@ -686,6 +665,10 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i){
 			++cmdId;
 			this.commands[i].generateCommand(newContainer);
+		}*/
+		for (var i = 0; i < this.commands.length; ++i)
+		{
+			this.commands[i].generateCommand(tree, node ? node : 0);
 		}
 	}
 });

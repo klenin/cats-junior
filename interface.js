@@ -561,7 +561,8 @@ function fillTabs(){
 						prepareForExecuting(getCurProblem());
 						$('#jstree-container' + j).empty();
 						curProblem.cmdList = undefined;
-						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand('#jstree-container' + j);
+						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand(
+							jQuery.jstree._reference('#jstree-container' + j) );
 						++cmdId;
 						updated();
 			    	}
@@ -888,7 +889,8 @@ function onCreateItem(tree, newNode, initObject){
 			$('#select' + cmdId).change(updated);
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'If');
-				$("#jstree-container" + curProblem.tabIndex).jstree("create", $(newNode), "after", false, function(elseNode){
+				$("#jstree-container" + curProblem.tabIndex).jstree("create", $(newNode), "after", false, 
+					function(elseNode){
 					tree.set_type('else', elseNode);
 					tree.rename_node(elseNode, 'Else');
 				}, true); 
@@ -904,7 +906,7 @@ function onCreateItem(tree, newNode, initObject){
 	updated();
 }
 function isBlock(type){
-	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || type == 'while';
+	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || type == 'while' || type == 'for';
 }
 
 function hideCounters(){
