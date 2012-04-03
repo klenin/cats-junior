@@ -83,13 +83,14 @@
 </script>
 	
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
-	<table>	
+	<table width = "100%">	
 		<tr>
-			<td colspan = "2">
-				{{html $item.data.statement}}
+			<td colspan = "3">
+				<div id = "statement${tab}">
+					{{html $item.data.statement}}
+				</div>
 			</td>
 			<td valign = "top" align = "right">
-				<button id = "aboutBtn${tab}">?</button>
 				<div id = "forJury${tab}">
 					<button id = "importBtn${tab}">import</button>
 					<button id = "exportBtn${tab}">export</button>
@@ -99,6 +100,10 @@
 					<div id = "export${tab}"></div>
 				</div>
 			</td>
+			<td style = "float:right;">
+				<button id = "hideStatement${tab}">
+				</button>
+			</td>
 		</tr>
 		<tr>
 			<td valign = "top">
@@ -106,13 +111,13 @@
 					<tr>
 						<td colspan = "2">	
 							<form>
-								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Режим ввода команд<br>
-								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Режим ввода кода<br>
+								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель<br>
+								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python<br>
 							</form>
 						</td>
 					</tr>
 					<tr>
-						<td>
+						<td id = "tdcommands${tab}">
 							<div class = "ul_commands" id = "ulCommands${tab}">
 								{{tmpl($item.data.commands) "#commandsListTemplate"}}
 							</div>
@@ -122,7 +127,7 @@
 						</td>
 					</tr>
 					<tr>
-						<td>
+						<td id = "tdcontainer${tab}">
 							<table>
 								<tr>
 									<td>
@@ -143,9 +148,15 @@
 							<table id = "watchTable${tab}"></table>
 						</td>
 					</tr>
+					<tr>
+						<td>
+							<button id = "btn_clear${tab}">Очистить список команд</button>
+							<button id = "submit${tab}">Отправить решение</button>
+						</td>
+					</tr>
 				</table>
 			</td>
-			<td valign = "top">
+			<td valign = "top" colspan="2">
 				<table>
 					<tr>
 						<td width = "100%">
@@ -167,16 +178,8 @@
 					</tr>
 				</table>
 			</td>
-			<td valign = "top">
+			<td valign = "top" colspan="2">
 				<table>
-					<tr>
-						<td align = "right">
-							<div>
-								<button id = "btn_clear${tab}">Очистить список команд</button>
-								<button id = "submit${tab}">Отправить решение</button>
-							</div>
-						</td>
-					</tr>
 					<tr>
 						<td> 
 							<pre id = "cons${tab}" class = "cons">

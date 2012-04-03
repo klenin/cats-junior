@@ -244,7 +244,7 @@ var IfStmt = $.inherit({
 		return this.curBlock != undefined && (!this.blocks[this.curBlock] || this.blocks[this.curBlock].isFinished());
 	},
 	eq: function(block){
-		return block.getClass() == 'if' && this.test == block.test && 
+		return block.getClass() == 'if' && this.testName == block.testName && 
 			((this.curBlock == undefined && block.curBlock == undefined) ||
 			(this.curBlock != undefined && block.curBlock != undefined && 
 			this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
@@ -301,6 +301,7 @@ var IfStmt = $.inherit({
 			return block;
 		}
 		this.test = block.test; //?
+		this.testName = block.testName;
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1])
 			this.blocks[1] = block.blocks[1];
@@ -372,7 +373,7 @@ var WhileStmt = $.inherit({
 		return this.finished;
 	},
 	eq: function(block){
-		return block.getClass() == 'while' && this.test == block.test && 
+		return block.getClass() == 'while' && this.testName == block.testName && 
 			this.body.eq(block.body);
 	},
 	exec: function(cnt)
@@ -435,6 +436,7 @@ var WhileStmt = $.inherit({
 			return block;
 		}
 		this.test = block.test; //?
+		this.testName = block.testName;
 		this.body.copyDiff(block.body);
 		return this;
 	},

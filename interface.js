@@ -469,7 +469,6 @@ function fillTabs(){
 			{
 				divs.push({'tab': i, 'divclass': problems[i].commands[j], 'divname': cmdClassToName[problems[i].commands[j]]});
 			}
-			divs.push({'tab': i, 'divclass': 'block', 'divname': cmdClassToName['block']});
 			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
 			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
 			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
@@ -485,7 +484,6 @@ function fillTabs(){
 				'maxStep': problems[i].maxStep,
 				'commands': divs,
 				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
-			$("#aboutBtn" + i).button();
 			$('#exportBtn' + i).button();
 			$('#importBtn' + i).button();
 			$('#exportBtn' + i).click(function() { return exportCommands(); });
@@ -520,6 +518,22 @@ function fillTabs(){
 				minHeight: 400
 				
 			});
+			$('#hideStatement' + i)
+				.button({text: false, icons: {primary: 'ui-icon-minus'}})
+				.click(function(j){
+					return function(){
+						if ($('#statement' + j).is(':visible'))
+						{
+							$('#statement' + j).hide();
+							$(this).button( 'option', 'icons', {primary:'ui-icon-plus'});
+						}
+						else
+						{
+							$('#statement' + j).show();
+							$(this).button( 'option', 'icons', {primary:'ui-icon-minus'});
+						}
+					}
+				}(i));
 			$('#progressBar' + i).progressbar({value: 0});
 			$('#btn_clear' + i).button({text:false, icons: {primary: 'ui-icon-trash'}});
 			$('#btn_clear' + i).click(clearClick);
@@ -557,6 +571,8 @@ function fillTabs(){
 						$('#watchTable' + j).hide();
 						$('#btn_prev' + j).prop('disabled', false);
 						$('#btn_fast' + j).prop('disabled', false);
+						$('#tdcommands' + j).show();
+						$('#tdcontainer' + j).show();
 						//if (!finalcode[getCurProblem()])
 						prepareForExecuting(getCurProblem());
 						$('#jstree-container' + j).empty();
@@ -570,6 +586,8 @@ function fillTabs(){
 			    	{
 			    		$('#ulCommands' + j).hide();
 						$('#jstree-container' + j).hide();
+						$('#tdcommands' + j).hide();
+						$('#tdcontainer' + j).hide();
 						$('#tdcode' + j).show();
 						codeareas[j].setValue(convertCommandsToCode());
 						codeareas[j].refresh();

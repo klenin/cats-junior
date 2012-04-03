@@ -114,10 +114,7 @@
 			if (!curProblem.playing)
 				showCounters();
 		});*/
-		$('#aboutBtn' + curProblem.tabIndex).click(function() {
-			$('#about').dialog('open');
-			return false;
-		});
+
 	    $("#jstree-container" + curProblem.tabIndex).jstree({ 
 			"types" : {
 				"types" : {
@@ -306,5 +303,12 @@
 			}
 		}
 	});
-
+	$('.ui-tabs-nav').append('<li class = "ui-state-default ui-corner-top" style = "float: right">' +
+		'<button id = "aboutBtn" style = "border-color:-moz-use-text-color -moz-use-text-color #D3D3D3; ' +
+		'border-style:none none solid; border-width:0 0 1px;">?</button></li>');
+	$('#aboutBtn').button();
+	$('#aboutBtn').click(function() {
+		$('#about').dialog('open');
+		return false;
+	});
 });
