@@ -27,25 +27,21 @@
 			cursor: 'move',
 			appendTo: 'body',
 			helper: 'clone'
-		}).disableSelection();;
+		}).disableSelection();;*/
 		for (var k = 0; k < classes.length; ++k){
-			$('#' + classes[k] + curProblem.tabIndex).draggable({
-				connectToSortable: ('#sortable' + curProblem.tabIndex),
-				helper: 'clone',
-				cursor: 'default',
-				greedy: true,
-				//connectWith: '.connectedSortable' 
-			});
-			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(){
-				if ($(this).prop('ifLi'))
-					return;
-				for (var j = 0; j < classes.length; ++j)
-					if ($(this).hasClass(classes[j]))
-						addNewCmd(classes[j], true);
-				updated();
-			});
+			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(j){
+				return function()
+				{
+					if ($(this).prop('ifLi'))
+						return;
+					$("#jstree-container" + curProblem.tabIndex).jstree("create", false,  "last", false, function(newNode){
+							onCreateItem(this, newNode, $('#' + classes[j] + curProblem.tabIndex));
+						}, true); 
+					updated();
+				}
+			}(k));
 		}
-		$('#sortable' + curProblem.tabIndex ).prop('cmdId', curProblem.tabIndex);
+		/*$('#sortable' + curProblem.tabIndex ).prop('cmdId', curProblem.tabIndex);
 		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
 			stoppedLvl = 0;
 			if (!cmdAdded)
@@ -212,7 +208,6 @@
 					$("#jstree-container" + curProblem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
 						onCreateItem(this, newNode, $(data.o));
 					}, true); 
-					//alert("DRAG OK"); 
 				},
 				"drop_finish": function(data){
 					this.remove(data.o);

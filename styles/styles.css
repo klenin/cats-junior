@@ -1,6 +1,6 @@
 BODY{
-	font-family:'Times New Roman';
-	font-size: 16px;
+	font-family:Verdana, 'Arial';
+	font-size: 0.8em;
 }
 table.field{
 	border-width:0px; 
@@ -128,7 +128,7 @@ div.recycle-bin{
 
 }
 input.spinCnt{
-	font-family:'Times New Roman';
+	font-family:Verdana;
 	font-size: 1.1em;
 	width: 60px; height: 21px; 
 	background-color: 
