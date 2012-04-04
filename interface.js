@@ -476,7 +476,7 @@ function fillTabs(){
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
-				buttons.push({'tab': i, 'btn': btns[j]});
+				buttons.push({'tab': i, 'btn': btns[j], 'title': btnTitles[j]});
 			}
 			$('#tabTemplate').tmpl({'tab': i, 
 				'statement': problems[i].statement, 

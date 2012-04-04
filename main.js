@@ -22,12 +22,6 @@
 		if (curProblem.visited)
 			return;
 		curProblem.visited = 1;
-		/*$('#sortable' + curProblem.tabIndex).sortable({
-			revert: false,
-			cursor: 'move',
-			appendTo: 'body',
-			helper: 'clone'
-		}).disableSelection();;*/
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(j){
 				return function()
