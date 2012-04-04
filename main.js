@@ -41,76 +41,6 @@
 				}
 			}(k));
 		}
-		/*$('#sortable' + curProblem.tabIndex ).prop('cmdId', curProblem.tabIndex);
-		$('#sortable' + curProblem.tabIndex ).bind('sortbeforestop', function(event, ui) {
-			stoppedLvl = 0;
-			if (!cmdAdded)
-			{
-				$('#cons0').html('');
-				addedCmds = [];
-			}
-			var item = ui.helper.is(':visible') ? ui.helper : ui.item;
-			if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
-				item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
-				item.offset().top > $(this).offset().top + parseInt($(this).css('height')) ||
-				item.offset().top + 10 < $(this).offset().top)
-			{
-				ui.item.remove();
-				updated();
-				return;
-			}
-			var id = "";
-			for (var k = 0; k < classes.length; ++k)
-			{
-				if (ui.item.hasClass(classes[k]))
-				{
-					id = classes[k];
-					break;
-				}
-			}
-			id += cmdId;
-			if (!ui.item.prop('numId')){
-				ui.item.prop('id', id);
-				ui.item.prop('ifLi', 1);
-				ui.item.prop('numId', cmdId);
-				for (var j = 0; j < classes.length; ++j)
-					if (ui.helper.hasClass(classes[j])){
-						addNewCmd(classes[j], false, ui.item[0]);
-					}
-			}
-			$('#cons0').append('sortbeforestop #sortable' + $(this).prop('cmdId') + '\n');
-			addedCmds.push(ui.item);
-			curProblem.cmdListEnded = false;
-		});
-		$('#sortable' + curProblem.tabIndex ).bind('sortstop', function(event, ui) {
-			if (stoppedLvl)
-			{
-				/*if (receiveStarted)
-					for (var i = addedCmds.length - 1; i > 0 ; --i)
-						addedCmds[i].remove();
-				else
-					for (var i = 0; i < addedCmds.length - 1; ++i)
-						addedCmds[i].remove();
-			}
-			stoppedLvl= 0;
-			setTimeout(function(){updated();}, 1000);
-			cmdAdded = false;
-			$('#cons0').append('sortstop #sortable' + $(this).prop('cmdId') + '\n');
-
-		});
-		$('#sortable' + curProblem.tabIndex ).bind('sortreceive', function(event, ui) {
-			$('#cons0').append('sortreceive #sortable' + $(this).prop('cmdId') + '\n');
-			//receiveStarted = true;
-			//setTimeout(function(){receiveFinished();}, 2000);
-		});
-		$('#sortable' + curProblem.tabIndex ).bind('sortout', function(event, ui) {
-			var i = 0;	
-		});
-		$('#sortable' + curProblem.tabIndex).bind('click', function(event, ui) {
-			if (!curProblem.playing)
-				showCounters();
-		});*/
-
 	    $("#jstree-container" + curProblem.tabIndex).jstree({ 
 			"types" : {
 				"types" : {
@@ -151,25 +81,25 @@
 						"max_depth" : -1,
 					},
 					"left" : {
-						"max_depth" : 0,
+						"max_depth" : 1,
 						"icon" : { 
 							"image" : "images/left_small.png" 
 						},
 					},
 					"right" : {
-						"max_depth" : 0,
+						"max_depth" : 1,
 						"icon" : { 
 							"image" : "images/right_small.png" 
 						},
 					},
 					"forward" : {
-						"max_depth" : 0,
+						"max_depth" : 1,
 						"icon" : { 
 							"image" : "images/forward_small.png" 
 						},
 					},
 					"wait" : {
-						"max_depth" : 0,
+						"max_depth" : 1,
 						"icon" : { 
 							"image" : "images/wait_small.png" 
 						},
@@ -179,6 +109,7 @@
 			},
 			"crrm":{
 				"move" : {
+					"default_position" : "inside", 
 					"check_move" : function (data) {
 						var node = data.o;
 						var type = this._get_type(data.o);

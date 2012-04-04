@@ -9,4 +9,5 @@ import/CodeMirror/css/*
 /import/skulpt/example
 import/skulpt/support/*
 !import/skulpt/support/closure-library/closure/goog/*.js
-import/jquery/jquery-spin.js
+/import/jquery/jquery-spin.js
+/import/jquery/jquery-spin.js

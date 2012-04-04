@@ -1,6 +1,6 @@
 BODY{
 	font-family:Verdana, 'Arial';
-	font-size: 0.8em;
+	font-size: 1em;
 }
 table.field{
 	border-width:0px; 
@@ -129,7 +129,7 @@ div.recycle-bin{
 }
 input.spinCnt{
 	font-family:Verdana;
-	font-size: 1.1em;
+	font-size: 1em;
 	width: 60px; height: 21px; 
 	background-color: 
 	rgb(255, 255, 255); 
