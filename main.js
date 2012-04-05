@@ -111,9 +111,20 @@
 							return false;
 						elseStmt = undefined;
 						if (type == 'ifelse'){
+							parent = this._get_parent(node);
 							if (this._get_type(data.r) == 'else')
 								return false;
-							elseStmt = this._get_next(node);
+							var next;
+							var cur = node;
+							while(1)
+							{
+								next = this._get_next(cur, true);
+								cur = next;
+								var p1 = this._get_parent(next);
+								if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
+									break;
+							}
+							elseStmt = next;
 						}
 						return true;
 					}
@@ -151,6 +162,7 @@
 			var node = data.args[0].o;
 			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
 				data.inst.move_node(elseStmt, node, 'after', false, false, true);
+				elseStmt = undefined;
 			}
 			updated();
 		});

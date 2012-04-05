@@ -697,6 +697,11 @@ function onCreateItem(tree, newNode, initObject){
 					function(elseNode){
 					tree.set_type('else', elseNode);
 					tree.rename_node(elseNode, 'Else');
+						$(elseNode).prop('numId', cmdId);
+						$(elseNode).prop('ifLi', 1);
+						$(elseNode).prop('type', 'else');
+						$(elseNode).addClass('else');
+						$(elseNode).prop('id', 'else' + cmdId);
 				}, true); 
 			}
 			break;
@@ -710,7 +715,8 @@ function onCreateItem(tree, newNode, initObject){
 	updated();
 }
 function isBlock(type){
-	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || type == 'while' || type == 'for';
+	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || 
+		type == 'while' || type == 'for' || type == 'else';
 }
 
 function hideCounters(){

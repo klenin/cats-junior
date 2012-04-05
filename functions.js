@@ -2,7 +2,7 @@ function generateTabs(tabsNum)
 {
 	var str = '';
 	for (var i = 0; i < tabsNum; ++i)
-		str += '  ';
+		str += '\t';
 	return str;
 }
 
@@ -303,7 +303,7 @@ var IfStmt = $.inherit({
 		this.test = block.test; //?
 		this.testName = block.testName;
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
-		if (!this.blocks[1])
+		if (!this.blocks[1] || !block.blocks[1])
 			this.blocks[1] = block.blocks[1];
 		else if (block.blocks[1])
 			this.blocks[1].copyDiff(block.blocks[1], compareCnt);
@@ -353,7 +353,23 @@ var IfStmt = $.inherit({
 				}
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
-					self.blocks[1].generateCommand(tree, tree._get_next($(newNode)));
+				{
+					var parent = tree._get_parent(newNode);
+					var next;
+					var cur = newNode;
+					while (1)
+					{
+						next = tree._get_next(cur, true);
+						cur = next;
+						var p1 = tree._get_parent(next);
+						if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
+							break;
+					}
+					if (next)
+					{
+						self.blocks[1].generateCommand(tree, next);
+					}
+				}
 			}, true); 
 	}
 });
@@ -588,7 +604,7 @@ var Block = $.inherit({
 	convertToCode: function(tabsNum) {
 		str = '';
 		for (var i = 0; i < this.commands.length; ++i)
-			str += generateTabs(tabsNum) + this.commands[i].convertToCode(tabsNum + 1);
+			str += this.commands[i].convertToCode(tabsNum + 1);
 		return str;
 	},
 	generateCommand: function(tree, node){

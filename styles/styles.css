@@ -43,25 +43,25 @@ div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait,
 div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	list-style-type: none; 
 	margin: 5px; 
-	padding: 5px;
 	padding-left: 40px;
-	width: 180px; 
-	height: 25px;
+	width: 150px; 
+	height: 32px;
 	border: 1px solid #ffffff;
 	color: #363636; 
 	z-index: 1;
 	-moz-border-radius: 4px; 
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
+	
 }
-div.forward{ background: #A9A9A9 url('../images/forward.png') 5% 95% no-repeat; }
-div.forward1{ background: #1CB2B3 url('../images/forward.png') 5% 95% no-repeat !important; }
-div.left{	background: #A9A9A9 url('../images/left.png') 5% 95% no-repeat; }
-div.right{ background: #A9A9A9 url('../images/right.png') 5% 95% no-repeat; }
-div.left1{ background: #1CB2B3 url('../images/left.png') 5% 95% no-repeat !important;}
-div.right1{ background: #1CB2B3 url('../images/right.png') 5% 95% no-repeat !important; }
-div.wait{ background: #A9A9A9 url('../images/wait.png') 5% 95% no-repeat; }
-div.wait1{ background: #1CB2B3 url('../images/wait.png') 5% 95% no-repeat !important; }
+div.forward{ background: #A9A9A9 url('../images/forward_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
+div.forward1{ background: #1CB2B3 url('../images/forward_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
+div.left{ background: #A9A9A9 url('../images/left_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
+div.right{ background: #A9A9A9 url('../images/right_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
+div.left1{ 	background: #1CB2B3 url('../images/left_smallt.png') 5% 100% no-repeat !important;background-position: 5% 50%;}
+div.right1{ background: #1CB2B3 url('../images/right_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
+div.wait{ background: #A9A9A9 url('../images/wait_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
+div.wait1{ background: #1CB2B3 url('../images/wait_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
 .highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
 	padding-left: 5px;
@@ -162,4 +162,15 @@ input.spinCnt{
 .ui-tabs-paging-prev{
 	background: transparent !important;
 	border: 0 !important;
+}
+pre {
+  background-color: #eee;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  padding: 1em;
+}
+
+pre.code {
+  margin: 0 1em;
 }
