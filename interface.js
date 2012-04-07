@@ -800,7 +800,7 @@ function prepareForExecuting(problem, dontHighlight)
 	setDefault();
 	curProblem.playing = false;
 	cmdHighlightOff();
-	showCounters();
+	//showCounters();
 	setCounters();
 	var output = $('#cons' + problem);
 	var input = codeareas[problem].getValue();
@@ -913,29 +913,29 @@ function nextClick(){
 	{
 		curProblem.speed = 0;
 		curProblem.paused = false;
+
 		if (!curProblem.playing || curProblem.changed)
 		{
 			try
 			{
+				if (!curProblem.playing)
+				{
+					setCounters();
+					hideCounters();
+					var needReturn = curProblem.cmdList.isFinished();
+					setDefault();
+					if (needReturn)
+						return;
+				}
 				codeareas[problem].setValue(convertCommandsToCode());
 				prepareForExecuting(problem);
+				curProblem.playing = true;
 			}
 			catch(e)
 			{
 				$('#cons' + problem).html('Invalid commands');
 				return;
 			}
-		}
-		if (!curProblem.playing)
-		{
-			setCounters();
-			hideCounters();
-			var needReturn = curProblem.cmdList.isFinished();
-			setDefault();
-			if (needReturn)
-				return;
-			
-			curProblem.playing = true;
 		}
 		curProblem.lastExecutedCmd = undefined;
 		cmdHighlightOff();
