@@ -355,17 +355,7 @@ var IfStmt = $.inherit({
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
 				{
-					var parent = tree._get_parent(newNode);
-					var next;
-					var cur = newNode;
-					while (1)
-					{
-						next = tree._get_next(cur, true);
-						cur = next;
-						var p1 = tree._get_parent(next);
-						if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
-							break;
-					}
+					var next = getNextNode(tree, node);
 					if (next)
 					{
 						self.blocks[1].generateCommand(tree, next);
@@ -395,7 +385,6 @@ var WhileStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		console.log('While exec');
 		while (cnt && !this.finished && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
@@ -410,7 +399,6 @@ var WhileStmt = $.inherit({
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
-					console.log('While select -> green');
 					$('#' + this.id + '>select').css('background-color', 'green');
 				}
 				curProblem.lastExecutedCmd = this;
@@ -1019,7 +1007,6 @@ function isCmdHighlighted(elem){
 function cmdHighlightOff(){
 	if (curProblem.cmdList)
 	{
-		console.log('cmdHighlightOff');
 		curProblem.cmdList.highlightOff();
 	}
 }
@@ -1303,7 +1290,6 @@ function nextStep(cnt, i){
 	}
 	if (cnt && !curProblem.paused && curProblem.playing)
 	{
-		console.log('nextStep --> loop');
 		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
 	}
 	else
@@ -1496,3 +1482,18 @@ function convertTreeToCommands(commands, parent)
 	return block;
 }
 
+function getNextNode(tree, node)
+{
+	var parent = tree._get_parent(node);
+	var next;
+	var cur = node;
+	while(1)
+	{
+		next = tree._get_next(cur, true);
+		cur = next;
+		var p1 = tree._get_parent(next);
+		if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
+			break;
+	}
+	return next;
+}

@@ -106,25 +106,12 @@
 					"default_position" : "inside", 
 					"check_move" : function (data) {
 						var node = data.o;
-						var type = this._get_type(data.o);
+						var type = this._get_type(node);
 						if (type == 'else')
 							return false;
 						elseStmt = undefined;
 						if (type == 'ifelse'){
-							parent = this._get_parent(node);
-							if (this._get_type(data.r) == 'else')
-								return false;
-							var next;
-							var cur = node;
-							while(1)
-							{
-								next = this._get_next(cur, true);
-								cur = next;
-								var p1 = this._get_parent(next);
-								if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
-									break;
-							}
-							elseStmt = next;
+							elseStmt = getNextNode(this, node);
 						}
 						return true;
 					}
@@ -146,7 +133,17 @@
 					}, true); 
 				},
 				"drop_finish": function(data){
+					var node = data.o;
+					var type = this._get_type(node);
+					if (type == 'else')
+						return false;
+					var next = undefined;
+					if (type == 'ifelse'){
+						next = getNextNode(this, node);
+					}
 					this.remove(data.o);
+					if (next)
+						this.remove(next);
 				}
 			},
 			"ui" : {
