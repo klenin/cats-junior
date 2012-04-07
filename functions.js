@@ -395,6 +395,7 @@ var WhileStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
+		console.log('While exec');
 		while (cnt && !this.finished && !(curProblem.stopped || curProblem.paused))
 		{
 			this.isStarted = true;
@@ -409,6 +410,7 @@ var WhileStmt = $.inherit({
 							curProblem.prevCmd.highlightOff();
 						curProblem.prevCmd = this;
 					}
+					console.log('While select -> green');
 					$('#' + this.id + '>select').css('background-color', 'green');
 				}
 				curProblem.lastExecutedCmd = this;
@@ -1016,7 +1018,10 @@ function isCmdHighlighted(elem){
 
 function cmdHighlightOff(){
 	if (curProblem.cmdList)
+	{
+		console.log('cmdHighlightOff');
 		curProblem.cmdList.highlightOff();
+	}
 }
 
 function setCounters(j, dontReload){
@@ -1213,6 +1218,8 @@ function prevDivName(){
 }
 
 function loop(cnt, i){
+	if (!curProblem.playing || curProblem.paused)
+		return;// cheat
 	if ($('#codeMode' + curProblem.tabIndex).prop('checked'))
 	{
 		tryNextStep();
@@ -1295,7 +1302,10 @@ function nextStep(cnt, i){
 		return;
 	}
 	if (cnt && !curProblem.paused && curProblem.playing)
+	{
+		console.log('nextStep --> loop');
 		setTimeout(function() { loop(cnt, i); }, curProblem.speed);
+	}
 	else
 	{
 		drawLabirint();
