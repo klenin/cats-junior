@@ -768,6 +768,7 @@ function callPlay(s){
 			prepareForExecuting(problem, !curProblem.speed);
 			curProblem.playing = true;
 		}
+		curProblem.cmdList.highlightOff();
 		curProblem.paused = false;
 		curProblem.stopped = false;
 		disableButtons();
