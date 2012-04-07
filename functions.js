@@ -32,7 +32,8 @@ var Command = $.inherit({
 	},
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
-		for (var i = 0; i < t && !(curProblem.stopped || curProblem.paused); ++i)
+		var i;
+		for (i = 0; i < t && !(curProblem.stopped || curProblem.paused); ++i)
 		{
 			eval(this.name + '();');
 			++this.curCnt;
@@ -43,7 +44,7 @@ var Command = $.inherit({
 			$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 		}
 		curProblem.lastExecutedCmd = this;
-		return cnt - t;
+		return cnt - i;
 	},
 	getClass: function(){
 		return 'command'
@@ -1218,8 +1219,8 @@ function loop(cnt, i){
 	}
 	else
 	{
-		curProblem.cmdList.exec(1);
-		++curProblem.step;
+		if (!curProblem.cmdList.exec(1)) //execution was successfull(for pause case)
+			++curProblem.step;
 		if (curProblem.cmdList.isFinished())
 		{
 			curProblem.playing = false;

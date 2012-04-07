@@ -912,6 +912,7 @@ function nextClick(){
 	else
 	{
 		curProblem.speed = 0;
+		curProblem.paused = false;
 		if (!curProblem.playing || curProblem.changed)
 		{
 			try
