@@ -145,8 +145,9 @@ var ForStmt = $.inherit({
 					$('#' + this.id + '>span').css('background-color', 'green');
 				}
 				curProblem.lastExecutedCmd = this;
-				if (++this.curCnt > this.cnt)
+				if (this.curCnt + 1 > this.cnt)
 				{
+					++this.curCnt;
 					return cnt;
 				}
 				this.executing = true;
@@ -156,6 +157,7 @@ var ForStmt = $.inherit({
 			if (this.body.isFinished())
 			{
 				this.executing = false;
+				++this.curCnt;
 			}
 		}
 		return cnt;
