@@ -59,6 +59,7 @@ var Command = $.inherit({
 		if (this.eq(cmd, compareCnt))
 		{
 			this.cnt = cmd.cnt;
+			this.id = cmd.id;
 			return this;
 		}
 		return  cmd;
@@ -179,6 +180,7 @@ var ForStmt = $.inherit({
 			return block;
 		}
 		this.cnt = block.cnt; //?
+		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
 	},
@@ -287,6 +289,7 @@ var IfStmt = $.inherit({
 		}
 		this.test = block.test; //?
 		this.testName = block.testName;
+		this.id = block.id;
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
 			this.blocks[1] = block.blocks[1];
@@ -429,6 +432,7 @@ var WhileStmt = $.inherit({
 		}
 		this.test = block.test; //?
 		this.testName = block.testName;
+		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
 	},
