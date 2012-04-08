@@ -259,6 +259,7 @@ function fillTabs(){
 			var groupBox = "input[name='group" + i + "']";
 			$(groupBox).change(function(j){
 				return function(){
+					
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j)
 			    	{
 			    		$('#ulCommands' + j).show();
@@ -270,10 +271,9 @@ function fillTabs(){
 						$('#btn_fast' + j).prop('disabled', false);
 						$('#tdcommands' + j).show();
 						$('#tdcontainer' + j).show();
-						//if (!finalcode[getCurProblem()])
-						problems[j].prepareForExecuting();
 						$('#jstree-container' + j).empty();
-						problems[j].cmdList = undefined;
+						//problems[j].cmdList = undefined;
+						problems[j].prepareForExecuting();
 						convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]).generateCommand(
 							jQuery.jstree._reference('#jstree-container' + j) );
 						++cmdId;
@@ -286,6 +286,7 @@ function fillTabs(){
 						$('#tdcommands' + j).hide();
 						$('#tdcontainer' + j).hide();
 						$('#tdcode' + j).show();
+						problems[j].setDefault();
 						codeareas[j].setValue(problems[j].convertCommandsToCode());
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();

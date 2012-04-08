@@ -339,7 +339,7 @@ var IfStmt = $.inherit({
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
 				{
-					var next = getNextNode(tree, node);
+					var next = getNextNode(tree, $(newNode));
 					if (next)
 					{
 						self.blocks[1].generateCommand(tree, next);
