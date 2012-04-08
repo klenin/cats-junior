@@ -409,7 +409,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 				$('#select' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
 			}
 			$(newNode).append('</select>');
-			$('#select' + cmdId).change(updated);
+			$('#select' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'If');
 				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 

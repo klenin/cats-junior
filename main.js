@@ -130,7 +130,7 @@
 					var node = data.r;
 					//; //=(
 					$("#jstree-container" + problem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
-						onCreateItem(this, newNode, $(data.o));
+						onCreateItem(this, newNode, $(data.o), problem);
 					}, true); 
 				},
 				"drop_finish": function(data){
