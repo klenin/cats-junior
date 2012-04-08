@@ -267,8 +267,6 @@ function fillTabs(){
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
-						$('#btn_prev' + j).prop('disabled', false);
-						$('#btn_fast' + j).prop('disabled', false);
 						$('#tdcommands' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#jstree-container' + j).empty();
@@ -291,8 +289,6 @@ function fillTabs(){
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
-						$('#btn_prev' + j).prop('disabled', true);
-						$('#btn_fast' + j).prop('disabled', true);
 
 			    	}
 				}
@@ -377,13 +373,15 @@ function fillTabs(){
 	//$('#btnPythonNext').click(problems);
 }
 
-function setSpin(){
+function setSpin(problem){
 	$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
 	$('#spin' + cmdId++).spin({
 		min: 1,
-		changed: function(){
-			updated();			
-		}
+		changed: function(p){
+			return function(){
+				p.updated();	
+			}
+		}(problem)
 	});
 }
 
@@ -431,7 +429,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 	$(newNode).prop('type', type);
 	$(newNode).addClass(type);
 	$(newNode).prop('id', type + cmdId);
-	setSpin();
+	setSpin(problem);
 	problem.updated();
 }
 function isBlock(type){

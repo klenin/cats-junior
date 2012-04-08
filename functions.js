@@ -200,24 +200,6 @@ function callSubmit(url, submitData, path, serv, sep, l, callback){
 	}); 
 }
 
-/*function commandsToJSON(){
-	var list = $('#sortable' + curProblem.tabIndex).children();
-	var arr = new Array();
-	while (list.length){
-		var dir;
-		var obj = new Object();
-		for (var i = 0; i < classes.length; ++i)
-			if (list.first().hasClass(classes[i]) || list.first().hasClass(classes[i] + 1)){
-				obj.dir = classes[i];
-				break;
-			}
-		obj.cnt = $('#spin' + list.first().prop('numId')).prop('value');
-		arr.push(obj);
-		list = list.next();
-	}
-	return $.toJSON(arr);
-}*/
-
 function changeCmdHighlight(elem){
 	if (!elem)
 		return false;

@@ -145,6 +145,7 @@
 					this.remove(data.o);
 					if (next)
 						this.remove(next);
+					problem.updated();
 				}
 			},
 			"ui" : {
@@ -162,7 +163,10 @@
 				data.inst.move_node(elseStmt, node, 'after', false, false, true);
 				elseStmt = undefined;
 			}
-			updated();
+			problem.updated();
+		}).bind('click', function(event, ui) {
+			if (!problem.playing)
+				problem.showCounters();
 		});
 	});  
 	$('#about').dialog({
