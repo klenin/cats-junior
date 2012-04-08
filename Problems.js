@@ -81,7 +81,7 @@ var Command = $.inherit({
 		var self = this;
 		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + '0'), this.problem);
+				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
@@ -207,7 +207,7 @@ var ForStmt = $.inherit({
 		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, $('#for0'), this.problem);
+				onCreateItem(tree, newNode, $('#for0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
@@ -327,7 +327,7 @@ var IfStmt = $.inherit({
 		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), this.problem);
+				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				for (var i = 0; i < testFunctions.length; ++i)
 				{
@@ -456,7 +456,7 @@ var WhileStmt = $.inherit({
 		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, $('#while0'), this.problem);
+				onCreateItem(tree, newNode, $('#while0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				for (var i = 0; i < testFunctions.length; ++i)
 				{

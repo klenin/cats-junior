@@ -274,10 +274,10 @@ function fillTabs(){
 						problems[j].prepareForExecuting();
 						$('#jstree-container' + j).empty();
 						problems[j].cmdList = undefined;
-						convertTreeToCommands(finalcode[j].compiled.ast.body).generateCommand(
+						convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]).generateCommand(
 							jQuery.jstree._reference('#jstree-container' + j) );
 						++cmdId;
-						updated();
+						problems[j].updated();
 			    	}
 				    else
 			    	{

@@ -306,7 +306,7 @@ function convertTreeToCommands(commands, parent, problem)
 					return undefined;
 				var cnt = commands[i].iter.args[0].n;
 				var forStmt = new ForStmt(undefined, cnt, block, undefined, problem);
-				var body = convertTreeToCommands(commands[i].body, forStmt);
+				var body = convertTreeToCommands(commands[i].body, forStmt, problem);
 				if (!body)
 					return undefined;
 				forStmt.body = body;
@@ -328,10 +328,10 @@ function convertTreeToCommands(commands, parent, problem)
 						return undefined;
 				}
 				var ifStmt = new IfStmt(testName, undefined, undefined, block, undefined, problem);			
-				var body1 = convertTreeToCommands(commands[i].body, ifStmt);
+				var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				var body2;
 				if (commands[i].orelse.length)
-					body2 = convertTreeToCommands(commands[i].orelse, ifStmt);
+					body2 = convertTreeToCommands(commands[i].orelse, ifStmt, problem);
 				ifStmt.blocks[0] = body1;
 				ifStmt.blocks[1] = body2;
 				block.pushCommand(ifStmt);
@@ -352,7 +352,7 @@ function convertTreeToCommands(commands, parent, problem)
 						return undefined;
 				}
 				var whileStmt = new WhileStmt(testName, undefined, block, undefined, problem)
-				var body = convertTreeToCommands(commands[i].body, ifStmt);
+				var body = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				if (!body)
 					return undefined;
 				whileStmt.body = body;
