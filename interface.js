@@ -842,6 +842,8 @@ function prepareForExecuting(problem, dontHighlight)
 	$gbl[problem]['left'] = left;
 	$gbl[problem]['right'] = right;
 	$gbl[problem]['wait'] = wait;
+	$gbl[problem]['test1'] = test1;
+	$gbl[problem]['test2'] = test2;
 	//curProblem.stopped = true;
 	updateWatchList();
 	curProblem.changed = false;
@@ -943,16 +945,21 @@ function nextClick(){
 		curProblem.cmdList.exec(1);
 		highlightLast();
 		drawLabirint();
-		++curProblem.step;
+		//++curProblem.step;
 		if (curProblem.cmdList.isFinished())
 			curProblem.playing = false;
 	}
 }
 
 function prevClick(){
-	var t = step();
-	if (step() <= 1) {
+	var t = executedCommandsNum();
+	if (t <= 1) {
 		setDefault();
+		if ($('#codeMode' + curProblem.tabIndex).prop('checked') && t == 1)
+		{
+			prepareForExecuting(curProblem.tabIndex);
+			return;
+		}
 		curProblem.playing = false;
 		showCounters();
 		setCounters();
@@ -961,12 +968,15 @@ function prevClick(){
 	++c;
 	--t;
 	setDefault(true);
+	if ($('#codeMode' + curProblem.tabIndex).prop('checked'))
+	{
+		prepareForExecuting(curProblem.tabIndex);
+	}
 	disableButtons();
 	hideCounters();
 	var s = curProblem.speed;
 	curProblem.speed = 0;
 	curProblem.playing = true;
-	curProblem.nextOrPrev = true;
 	play(t);
 
 }

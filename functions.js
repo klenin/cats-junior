@@ -132,8 +132,8 @@ var ForStmt = $.inherit({
 			if (!this.executing)
 			{
 				cnt -= 1;
-					var numId = $('#' + this.id).prop('numId');
-					$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+				var numId = $('#' + this.id).prop('numId');
+				$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
 				if (!cnt || curProblem.speed)
 				{
 					if (curProblem.speed)
@@ -653,6 +653,7 @@ function tryNextStep(dontHiglight)
 
 			}
 		}
+		++curProblem.executedCommandsNum;
 		drawLabirint();
 		if (getCurBlock() >= 0)
 		{
@@ -911,7 +912,11 @@ function getTest(data, l){
 		curNumOfPrizes: 0, 
 		visited: false, 
 		dx: 0,
-		dy: 0
+		dy: 0,
+		executedCommandsNum: 0,
+		lastExecutedCmd: undefined, 
+		prevCmd: undefined,
+		
 	});
 	if (newProblem.maxCmdNum)
 		newProblem.maxStep = 0;
@@ -1036,6 +1041,10 @@ function divN(){ return curProblem.divName;}
 function cmd(){ return curProblem.cmdIndex;}
 
 function step(){ return curProblem.step; }
+
+function executedCommandsNum(){ 
+	return curProblem.executedCommandsNum; 
+}
 
 function list() {return curProblem.cmdList; }
 
@@ -1177,9 +1186,9 @@ function setDefault(f){
 		divIndex = 0;
 		step = 0;
 		divName = cmdList.length ? cmdList[0].name : "";
-		nextOrPrev = false;
 		prevCmd = undefined;
 		lastExecutedCmd = undefined;
+		executedCommandsNum = 0;
 	}
 	hideFocus();
 	cmdHighlightOff();
@@ -1215,8 +1224,8 @@ function loop(cnt, i){
 	}
 	else
 	{
-		if (!curProblem.cmdList.exec(1)) //execution was successfull(for pause case)
-			++curProblem.step;
+		if (!curProblem.cmdList.exec(1))
+			++curProblem.executedCommandsNum;
 		if (curProblem.cmdList.isFinished())
 		{
 			curProblem.playing = false;
@@ -1250,7 +1259,7 @@ function heroIsDead(){
 }
 
 function nextCmd(){
-		++curProblem.step;
+	//++curProblem.step;
 	if (curProblem.speed)
 		changeProgressBar();
 	return true;
@@ -1317,13 +1326,13 @@ function play(cnt){
 	{
 		if ($('#codeMode' + curProblem.tabIndex).prop('checked'))
 		{
-			while(!curProblem.paused && tryNextStep()){};
+			for (var i = 0; i < cnt && !curProblem.paused && tryNextStep(); ++i){};
 			if ($('#codeMode' + curProblem.tabIndex).prop('checked'))
 				onFinishExecuting(getCurProblem());
 		}
 		else
 		{
-			curProblem.step += cnt - curProblem.cmdList.exec(cnt);
+			curProblem.executedCommandsNum += cnt - curProblem.cmdList.exec(cnt);
 			if (curProblem.cmdList.isFinished())
 				curProblem.playing = false;
 		}
@@ -1359,6 +1368,7 @@ function oneStep(dir, cnt)
 	curProblem.dx = changeDir[dir][curProblem.arrow.dir].dx;
 	curProblem.dy = changeDir[dir][curProblem.arrow.dir].dy;
 	changeLabyrinth(step(), undefined, changeDir[dir][curProblem.arrow.dir].curDir, !curProblem.speed);
+	++curProblem.step;
 	if (curProblem.speed)
 	{
 		changeProgressBar();
