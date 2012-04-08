@@ -54,7 +54,9 @@
 		<script type="text/javascript" src="showMessages.js"></script>
 		<script type="text/javascript" src="checker.js"></script>
 		<script type="text/javascript" src="generatedTests.js"></script>
+		<script type="text/javascript" src="misc.js"></script>
 		<script type="text/javascript" src="functions.js"></script>
+		<script type="text/javascript" src="problems.js"></script>
 		<script type="text/javascript" src="interface.js"></script>
 		<script type="text/javascript" src="main.js"></script>
 		<link rel="stylesheet" type="text/css" href="styles/styles.css">
@@ -84,19 +86,9 @@
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
 	<table width = "100%">	
 		<tr>
-			<td colspan = "3">
+			<td colspan = "4">
 				<div id = "statement${tab}">
 					{{html $item.data.statement}}
-				</div>
-			</td>
-			<td valign = "top" align = "right">
-				<div id = "forJury${tab}">
-					<button id = "importBtn${tab}">import</button>
-					<button id = "exportBtn${tab}">export</button>
-					<div id = "import${tab}">
-						<textarea rows = "20" cols = "20" id = "importText${tab}"></textarea> 
-					</div>
-					<div id = "export${tab}"></div>
 				</div>
 			</td>
 			<td style = "float:right;">

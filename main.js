@@ -19,23 +19,24 @@
 	getContests();
 	cmdId = problems.length;
 	$('#tabs').bind('tabsshow', function(event, ui) {
-		if (curProblem.visited)
+		var problem = curProblem;
+		if (problem.visited)
 			return;
-		curProblem.visited = 1;
+		problem.visited = 1;
 		for (var k = 0; k < classes.length; ++k){
-			$('#' + classes[k] + curProblem.tabIndex).bind('dblclick', function(j){
+			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
 				return function()
 				{
 					if ($(this).prop('ifLi'))
 						return;
-					$("#jstree-container" + curProblem.tabIndex).jstree("create", false,  "last", false, function(newNode){
-							onCreateItem(this, newNode, $('#' + classes[j] + curProblem.tabIndex));
+					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", false, function(newNode){
+							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex), problem);
 						}, true); 
-					updated();
+					problem.updated();
 				}
 			}(k));
 		}
-	    $("#jstree-container" + curProblem.tabIndex).jstree({ 
+	    $("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
 				"types" : {
 					"block" : {
@@ -128,7 +129,7 @@
 				"drag_finish" : function (data) { 
 					var node = data.r;
 					//; //=(
-					$("#jstree-container" + curProblem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
+					$("#jstree-container" + problem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
 						onCreateItem(this, newNode, $(data.o));
 					}, true); 
 				},

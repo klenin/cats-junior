@@ -1,18 +1,4 @@
 ﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
-function fillLabyrinth(problem){
-	highlightOn(problem);
-	var l = problem.tabIndex;
-	$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field"></table>');
-	var table = $('#table_field' + l);
-	for (var i = 0; i < problem.map.length; ++i){
-		table.append('<tr id = "tr_field' + (l * 1000 + i) + '"></tr>');
-		var tr = $('#tr_field' + (l * 1000 + i));
-		for (var j = 0; j < problem.map[i].length; ++j){
-			tr.append('<td id = "'+ (l * 10000 + i * 100 + j)+'"></td>');
-			problem.map[i][j].draw();
-		}
-	}
-}
 
 function login(callback){
 	logined = false;
@@ -137,46 +123,7 @@ submitClick = function(){
 	}		
 	if (!sid)
 		(curUser.jury) ? $('#enterPassword').dialog('open') : login();
-	if (atHome){
-		var result = commandsToJSON();
-		submitStr = 'source=' + result + '&problem_id=' + curProblem.id + '&de_id=772264';
-		submit('', '', '', submitStr);
-	} 
-	else {
-		var result = commandsToJSON();
-		var problem_id = curProblem.id;  //problem_id = 
-		var de_id = 772264;
-		var boundary = Math.round((Math.random() * 999999999999));
-		var sep = '-------------' + boundary + '\r\n';
-		var l = 0;
-		function genPostQuery(serv, path, data)	{
-			var result = 'Content-Type: multipart/form-data, boundary=' + sep + '\r\n';
-			result += 'Content-Length: ' + data.length + '\r\n\r\n';
-			l = data.length;
-			result += data;
-			return result;
-		}
-		function genFieldData(name, value){
-			var result = sep + 'Content-Disposition: form-data; name="' + name + '"' + "\r\n\r\n";
-			result += value + '\r\n';
-			return result;
-		}
-		function genFileFieldData(name, filename, type, data){
-			var result = sep + 'Content-Disposition: form-data; name="' + name  +  '"; filename="' + filename + '"' + "\r\n";
-			result += 'Content-Type: ' + type + "\r\n\r\n";
-			result += data + '\r\n\r\n';
-			return result;
-		}
-		var data = genFieldData('search', '');
-		data += genFieldData('rows', '20');
-		data += genFieldData('problem_id', problem_id);
-		data += genFieldData('de_id', de_id);
-		data += genFieldData('submit', 'send');
-		data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
-		data += '-------------' + boundary  + '--\r\n';
-		var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-		submit(data, sep, l);
-	}
+	curProblem.submit();
 }
 
 function getContests(){
@@ -242,9 +189,7 @@ function fillTabs(){
 	problems = [];
 	//callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
 		for (var i = 0; i < problemsData.length; ++i){
-			problems[i] = $.extend({}, problemsData[i], problemsData[i].data);
-			problems[i].tabIndex = i;
-			getTest(problemsData[i].data, i);
+			problems[i] = new Problem(problemsData[i], i);
 			if ($('#ui-tabs-' + (i + 1)).length){
 				$('#ui-tabs-' + (i + 1)).empty();
 				$('#tabs').tabs('remove', i + 1);
@@ -270,40 +215,6 @@ function fillTabs(){
 				'maxStep': problems[i].maxStep,
 				'commands': divs,
 				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
-			$('#exportBtn' + i).button();
-			$('#importBtn' + i).button();
-			$('#exportBtn' + i).click(function() { return exportCommands(); });
-			$('#importBtn' + i).click(function() { return import_(); });
-			$('#export' + i).dialog({
-				modal: true,
-				buttons: {
-					Ok: function() {
-						$(this).dialog('close');
-					}
-				}, 
-				autoOpen: false,
-				title: 'Список команд',
-				minWidth: 250,
-				minHeight: 400
-			});
-			$('#import' + i).dialog({
-				modal: true,
-				buttons: {
-					'Load': function() {
-						if (!confirm('Вы уверены, что хотите изменить список команд?'))
-							return;
-						importCommands();
-					},
-					'Cancel': function() {
-						$(this).dialog('close');
-					}
-				}, 
-				autoOpen: false,
-				title: 'Загрузка списка команд',
-				minWidth: 250,
-				minHeight: 400
-				
-			});
 			$('#hideStatement' + i)
 				.button({text: false, icons: {primary: 'ui-icon-minus'}})
 				.click(function(j){
@@ -360,10 +271,10 @@ function fillTabs(){
 						$('#tdcommands' + j).show();
 						$('#tdcontainer' + j).show();
 						//if (!finalcode[getCurProblem()])
-						prepareForExecuting(getCurProblem());
+						problems[j].prepareForExecuting();
 						$('#jstree-container' + j).empty();
-						curProblem.cmdList = undefined;
-						convertTreeToCommands(finalcode[getCurProblem()].compiled.ast.body).generateCommand(
+						problems[j].cmdList = undefined;
+						convertTreeToCommands(finalcode[j].compiled.ast.body).generateCommand(
 							jQuery.jstree._reference('#jstree-container' + j) );
 						++cmdId;
 						updated();
@@ -375,7 +286,7 @@ function fillTabs(){
 						$('#tdcommands' + j).hide();
 						$('#tdcontainer' + j).hide();
 						$('#tdcode' + j).show();
-						codeareas[j].setValue(convertCommandsToCode());
+						codeareas[j].setValue(problems[j].convertCommandsToCode());
 						codeareas[j].refresh();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
@@ -385,12 +296,12 @@ function fillTabs(){
 			    	}
 				}
 			}(i));
-			fillLabyrinth(problems[i]);
+			problems[i].fillLabyrinth();
 			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});
 				$('#btn_'+ btns[j] + i).bind('click', function() {
-					hideFocus();
+					curProblem.hideFocus();
 					eval( $(this).prop('name') + 'Click()'); 		
 					return false;
 				});
@@ -461,151 +372,8 @@ function fillTabs(){
 	$('#addWatch' + (problems.length + 1)).button().click(onAddWatchClick);
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
-	$('#btnPythonNext').button();
-	$('#btnPythonNext').click(tryNextStep);
-}
-
-function exportCommands(){
-	$('#export' + curProblem.tabIndex).html(commandsToJSON());
-	$('#export' + curProblem.tabIndex).dialog('open');
-	return false;
-}
-
-function addIf(str, andElse){
-	$('#' + str + cmdId).append('<select id = "ifselect' + cmdId +'">');
-	var options = ['wall at the left', 'wall at the right'];
-	for (var i = 0; i < options.length; ++i)
-	{
-		$('#ifselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
-	}
-	$('#' + str + cmdId).append('</select>');
-	$('#ifselect' + cmdId).change(updated);
-	addBlock(str, 'if');
-	if (andElse)
-		addBlock(str, 'else');
-	$('#' + str + cmdId).css('height', andElse ? '440px' : '220px');
-}
-
-function addWhile(str){
-	$('#' + str + cmdId).append('<select id = "whileselect' + cmdId +'">');
-	var options = ['wall at the left', 'wall at the right'];
-	for (var i = 0; i < options.length; ++i)
-	{
-		$('#whileselect' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
-	}
-	$('#' + str + cmdId).append('</select>');
-	$('#whileselect' + cmdId).change(updated);
-	addBlock(str, 'while');
-	$('#' + str + cmdId).css('height', '220px');
-}
-
-function addFor(str, cnt){
-	$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-	$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
-	addBlock(str, 'for');
-	$('#' + str + cmdId).css('height', '220px');
-}
-
-function addBlock(name, str){
-	$('#' + name + cmdId).append('<ul id = "sortable' + str + cmdId + '" class = "ui-sortable sortable connectedSortable" style = "height: 200px; width: 220px;">');
-	$('#' + name + cmdId).css('height', '200px');
-	//if (str != 'for')
-	//	$('#' + name + cmdId + ' > span').remove();
-	$('#sortable' + str + cmdId).sortable({
-		revert: false,
-		cursor: 'move',
-		appendTo: 'body',
-		helper: 'clone',
-		//connectWith: '.connectedSortable' 
-	}).disableSelection();
-	$('#sortable' + str + cmdId).prop('sortName', 'sortable' + str + cmdId);
-	$('#sortable' + str + cmdId).prop('cmdId', cmdId);
-	$('#sortable' + str + cmdId).bind('sortbeforestop', function(event, ui) {
-		cmdAdded = true;
-		var item = ui.helper.is(':visible') ? ui.helper : ui.item;
-		if (item.offset().left > $(this).offset().left + parseInt($(this).css('width')) / 2 ||
-			item.offset().left + parseInt(item.css('width'))/2 < $(this).offset().left ||
-			item.offset().top > $(this).offset().top + parseInt($(this).css('height')) / 2 ||
-			item.offset().top + 10 < $(this).offset().top)
-		{
-			ui.item.remove();
-			updated();
-			return;
-		}
-		var id = "";
-		for (var k = 0; k < classes.length; ++k)
-		{
-			if (ui.item.hasClass(classes[k]))
-			{
-				id = classes[k];
-				break;
-			}
-		}
-		id += cmdId;
-		if (!ui.item.prop('numId')){
-			ui.item.prop('id', id);
-			ui.item.prop('ifLi', 1);
-			ui.item.prop('numId', cmdId);
-			for (var j = 0; j < classes.length; ++j)
-				if (ui.helper.hasClass(classes[j])){
-					addNewCmd(classes[j], false, ui.item[0]);
-				}
-		}
-		$('#cons0').append('sortbeforestop #sortable' + str + $(this).prop('cmdId') + '\n');
-		curProblem.cmdListEnded = false;
-	});
-	$('#sortable' + str + cmdId).bind('sortstop', function(event, ui) {
-		++stoppedLvl;
-		$('#cons0').append('sortstop #sortable' + str +  $(this).prop('cmdId') + '\n');
-
-	});
-	$('#sortable' + str + cmdId).bind('sortreceive', function(event, ui) {
-		$('#cons0').append('sortreceive #sortable' + str +  $(this).prop('cmdId') + '\n');
-
-	});
-	$('#sortable' + str + cmdId).bind('sortout', function(event, ui) {
-		var i = 0;	
-	});
-	$('#sortable' + str + cmdId).bind('click', function(event, ui) {
-		if (!curProblem.playing)
-			showCounters();
-	});
-	var sortables =  $('#' + name + curProblem.tabIndex).draggable('option', 'connectToSortable');
-	sortables = '#sortable' + str + cmdId + ', ' + sortables;
-	for (var k = 0; k < classes.length; ++k){
-		$('#' + classes[k] + curProblem.tabIndex).draggable('option', 'connectToSortable', sortables);
-	}
-
-}
-	
-function addCmd(name, cnt){
-	$('#sortable' + curProblem.tabIndex).append('<li id = "' + name + cmdId + '" class = "' + name + ' ui-draggable"></li>');		
-	if($.browser.msie)
-		$('#' + name + cmdId).css('height', '35px');
-	if (name == 'block')
-	{
-		addBlock('block', 'block');
-	}
-	else if (name == 'if' || name == 'ifelse')
-	{
-		addIf(name, name == 'ifelse');
-	}
-	else if (name == 'while')
-	{
-		addWhile(name);
-	}
-	else if (name == 'for')
-	{
-		addFor(name, 1);
-	}
-	else
-	{
-		$('#' + name + cmdId).append('<span style = "margin-left: 40px;">' + cmdClassToName[name] + '</span>');
-		$('#' + name + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="' + cnt + '" type="text"/>');
-	}
-	$('#' + name + cmdId).prop('numId', cmdId);
-	$('#' + name + cmdId).prop('ifLi', 1);
+	//$('#btnPythonNext').button();
+	//$('#btnPythonNext').click(problems);
 }
 
 function setSpin(){
@@ -618,56 +386,7 @@ function setSpin(){
 	});
 }
 
-function import_(){
-	$('#importText' + curProblem.tabIndex).show();
-	$('#import' + curProblem.tabIndex).dialog('open');
-	return false;
-}
-
-function importCommands(){
-	var cmds = jQuery.parseJSON($('#importText' + curProblem.tabIndex).prop('value'));
-	if (cmds){
-		$('#sortable' + curProblem.tabIndex).children().remove();
-		for (var i = 0; i < cmds.length; ++i){
-			addCmd(cmds[i].dir, cmds[i].cnt);
-			setSpin();
-		}
-		updated();
-		setDefault();
-		setCounters(0);
-	}
-	$('#import' + curProblem.tabIndex).dialog('close');
-}
-
-function addNewCmd(str, dblClick, elem){
-	if (dblClick)	
-		addCmd(str, 1);
-	else if (str == 'block')
-	{
-		addBlock('block', 'block');
-	}
-	else if (str == 'if' || str == 'ifelse')
-	{
-		addIf(str, str == 'ifelse');
-	}
-	else if (str == 'while')
-	{
-		addWhile(str);
-	}
-	else if (str == 'for')
-	{
-		addFor(str, 1);
-	}
-	else
-	{
-		$('#' + str + cmdId).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
-	}
-	
-	
-}
-
-function onCreateItem(tree, newNode, initObject){
+function onCreateItem(tree, newNode, initObject, problem){
 	var type = initObject.attr('rel');
 	tree.set_type(type, newNode);
 	tree.rename_node(newNode, cmdClassToName[type]);
@@ -693,7 +412,7 @@ function onCreateItem(tree, newNode, initObject){
 			$('#select' + cmdId).change(updated);
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'If');
-				$("#jstree-container" + curProblem.tabIndex).jstree("create", $(newNode), "after", false, 
+				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 
 					function(elseNode){
 					tree.set_type('else', elseNode);
 					tree.rename_node(elseNode, 'Else');
@@ -712,76 +431,11 @@ function onCreateItem(tree, newNode, initObject){
 	$(newNode).addClass(type);
 	$(newNode).prop('id', type + cmdId);
 	setSpin();
-	updated();
+	problem.updated();
 }
 function isBlock(type){
 	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || 
 		type == 'while' || type == 'for' || type == 'else';
-}
-
-function hideCounters(){
-	curProblem.cmdList.hideCounters();
-
-}
-
-function showCounters(){
-	curProblem.cmdList.showCounters();
-}
-
-function enableButtons(){
-	$('#sortable' + curProblem.tabIndex).sortable('enable');
-	for (var i = 0; i < btnsPlay.length; ++i)
-		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).removeAttr('disabled');		
-}
-
-function disableButtons(){
-	$('#sortable' + curProblem.tabIndex).sortable('disable');
-	for (var i = 0; i < btnsPlay.length; ++i)
-		$('#btn_' + btnsPlay[i] + curProblem.tabIndex).prop('disabled', true);
-}
-
-function callPlay(s){
-	//if (!$('#sortable' + curProblem.tabIndex).sortable('toArray').length || curProblem.arrow.dead)
-	//	return;
-
-	var problem = curProblem.tabIndex;
-	if (curProblem.maxCmdNum && curProblem.divIndex == curProblem.maxCmdNum){
-		var mes = new MessageCmdLimit();
-		curProblem.arrow.dead = true;
-		return;
-	}
-	if (!curProblem.playing || curProblem.arrow.dead)
-	{
-		setCounters();
-		hideCounters();
-		setDefault();
-		//curProblem.playing = true;
-	}
-	try
-	{	
-		if (!curProblem.playing)
-		{
-			if (!$('#codeMode' + problem).prop('checked'))
-			{
-				codeareas[curProblem.tabIndex].setValue(convertCommandsToCode());
-			}
-			prepareForExecuting(problem, !curProblem.speed);
-			curProblem.playing = true;
-		}
-		cmdHighlightOff();
-		curProblem.paused = false;
-		curProblem.stopped = false;
-		disableButtons();
-		hideCounters();
-		curProblem.speed = s;
-		curProblem.lastExecutedCmd = undefined;
-		setTimeout(function() { play(MAX_VALUE); }, s);
-	}
-	catch(e)
-	{
-		curProblem.playing = false;
-		$('#cons' + curProblem.tabIndex).html('Invalid commands');
-	}
 }
 
 function onFinishExecuting(problem)
@@ -796,187 +450,38 @@ function onFinishExecuting(problem)
 	updateWatchList();*/
 }
 
-function prepareForExecuting(problem, dontHighlight)
-{
-	setDefault();
-	curProblem.playing = false;
-	cmdHighlightOff();
-	//showCounters();
-	setCounters();
-	var output = $('#cons' + problem);
-	var input = codeareas[problem].getValue();
-	if (curProblem.maxCmdNum)
-	{
-		var cmds = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g);
- 		var cmdNum = 0;
-		if (cmds)
-			cmdNum = cmds.length;
-		if (cmdNum > curProblem.maxCmdNum)
-		{
-			$('#cons' + problem).html('Чиcло команд превышает допустимое');
-			curProblem.playing = false;
-			return;
-		}
-		$('#curStep' + problem).text(cmdNum);
-		$('#progressBar'  + problem).progressbar('option', 'value',  cmdNum / curProblem.maxCmdNum * 100);	
-	}
-	output.html('');
-	Sk.configure({output:outf, 'problem': problem});
-	finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
-	$scope[problem] = 0,
-	$gbl[problem] = {},
-	$loc[problem] = $gbl[problem];
-	for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
-	{
-		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
-		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
-		eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
-	}
-	eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
-	nextline[problem] = getScope().firstlineno;
-	if (!dontHighlight)
-		codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
-	$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
-	$scopestack[problem] = 0;
-	$gbl[problem]['forward'] = forward;
-	$gbl[problem]['left'] = left;
-	$gbl[problem]['right'] = right;
-	$gbl[problem]['wait'] = wait;
-	$gbl[problem]['test1'] = test1;
-	$gbl[problem]['test2'] = test2;
-	//curProblem.stopped = true;
-	updateWatchList();
-	curProblem.changed = false;
-}
-
 function playClick(){
-	var problem = getCurProblem();
-	callPlay(300);
-	$('#btn_play'+ curProblem.tabIndex).addClass('ui-state-focus');
+	var problem = curProblem;
+	problem.callPlay(300);
+	$('#btn_play'+ problem.tabIndex).addClass('ui-state-focus');
 }
 
 function fastClick(){
-	cmdHighlightOff();
-	callPlay(0);
+	var problem = curProblem;
+	problem.cmdHighlightOff();
+	problem.callPlay(0);
 }
 
 function clearClick(){
+	var problem = curProblem;
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
-	setDefault();
-	$('#jstree-container' + curProblem.tabIndex).children().remove();
+	problem.setDefault();
+	$('#jstree-container' + problem.tabIndex).children().remove();
 }
 
 function stopClick(){
-	var problem = getCurProblem();
-	if ($('#codeMode' + problem).prop('checked'))
-		onFinishExecuting(problem);
-	curProblem.stopped = true;
-	//if (!curProblem.playing || !curProblem.speed)
-	//{
-		setDefault();
-		cmdHighlightOff();
-		showCounters();
-		setCounters();
-		curProblem.playing = false;
-	//}
+	curProblem.stop();
 }
 
 function pauseClick(){
-	if (curProblem.playing)			
-		curProblem.paused = true;
-	enableButtons();
+	curProblem.pause();
 }
 
 function nextClick(){
-	var problem = getCurProblem();
-	if ($('#codeMode' + problem).prop('checked'))
-	{
-		try
-		{
-			if (!curProblem.playing)
-			{
-				prepareForExecuting(problem);
-				curProblem.playing = true;
-			}
-			else
-			{
-				tryNextStep();
-				if (!curProblem.playing)
-					onFinishExecuting(problem);
-			}
-		}
-		catch (e)
-		{
-			curProblem.playing = false;
-			alert(e)
-		}
-	}
-	else
-	{
-		curProblem.speed = 0;
-		curProblem.paused = false;
-
-		if (!curProblem.playing || curProblem.changed)
-		{
-			try
-			{
-				if (!curProblem.playing)
-				{
-					setCounters();
-					hideCounters();
-					var needReturn = curProblem.cmdList.isFinished();
-					setDefault();
-					if (needReturn)
-						return;
-				}
-				codeareas[problem].setValue(convertCommandsToCode());
-				prepareForExecuting(problem);
-				curProblem.playing = true;
-			}
-			catch(e)
-			{
-				$('#cons' + problem).html('Invalid commands');
-				return;
-			}
-		}
-		curProblem.lastExecutedCmd = undefined;
-		cmdHighlightOff();
-		curProblem.cmdList.exec(1);
-		highlightLast();
-		drawLabirint();
-		//++curProblem.step;
-		if (curProblem.cmdList.isFinished())
-			curProblem.playing = false;
-	}
+	curProblem.next();
 }
 
 function prevClick(){
-	var t = executedCommandsNum();
-	if (t <= 1) {
-		setDefault();
-		if ($('#codeMode' + curProblem.tabIndex).prop('checked') && t == 1)
-		{
-			prepareForExecuting(curProblem.tabIndex);
-			return;
-		}
-		curProblem.playing = false;
-		showCounters();
-		setCounters();
-		return;
-	}
-	++c;
-	--t;
-	setDefault(true);
-	if ($('#codeMode' + curProblem.tabIndex).prop('checked'))
-	{
-		prepareForExecuting(curProblem.tabIndex);
-	}
-	disableButtons();
-	hideCounters();
-	var s = curProblem.speed;
-	curProblem.speed = 0;
-	curProblem.playing = true;
-	play(t);
-
+	curProblem.prev();
 }

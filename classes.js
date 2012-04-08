@@ -24,7 +24,7 @@ var FieldElem = $.inherit({
 		this.highlighted = false;
 	},
 	draw: function() {
-		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
+		s = '#' + (this.problem.tabIndex * 10000 + this.coord.y * 100 + this.coord.x);
 		$(s).empty();			
 		$(s).removeClass('floor');
 		$(s).removeClass('highlightFloor');
@@ -95,7 +95,7 @@ var Cell = $.inherit({
 		this.dLife = this.dLife ? this.dLife : 0;
 	},
 	draw: function() {
-		s = '#' + (this.problem * 10000 + this.coord.y * 100 + this.coord.x);
+		s = '#' + (this.problem.tabIndex * 10000 + this.coord.y * 100 + this.coord.x);
 		$(s).append('<div class = "' + this.style + '" + style = "z-index:' + this.zIndex + '"></div>');
 		return true;
 	},
@@ -191,7 +191,7 @@ var Arrow = $.inherit(Cell,{
 var Prize = $.inherit(Cell,{
 	__constructor : function(problem, coord, prize) {
 		this.__base(problem, coord, $.extend(prize, 
-			{id: problems[problem].maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
+			{id: problem.maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
 		this.eaten = false;
 	},
 	setDefault: function(){
@@ -210,7 +210,7 @@ var Prize = $.inherit(Cell,{
 var Box = $.inherit(Cell,{
 	__constructor : function(problem, coord, box) {
 		this.__base(problem, coord, $.extend(box, 
-			{id: problems[problem].maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
+			{id: problem.maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
 		this.initCoord = coord;
 	},
 	move: function(dx, dy) {
@@ -225,7 +225,7 @@ var Box = $.inherit(Cell,{
 var Monster = $.inherit(Cell,{
 	__constructor : function(problem, coord, monster) {
 		this.__base(problem, coord, $.extend(true, monster, 
-			{id: problems[problem].maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
+			{id: problem.maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
 		for (var i = 0; i < this.path.length; ++i)
 			this.path[i] = $.extend(this.path[i], {startX: this.path[i].x, startY: this.path[i].y, cnt: 0});
 		this.pathIndex = 0;
