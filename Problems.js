@@ -1049,6 +1049,9 @@ var Problem = $.inherit({
 	die: function(){
 		var mes = new MessageDead();
 		this.arrow.dead = true;
+		for (var i = 0; i < btnsPlay.length; ++i)
+			$('#btn_' + btnsPlay[i] + this.tabIndex).button('disable');
+		$('#btn_pause' + this.tabIndex).button('disable');		
 	},
 	tryNextCoord: function(i, changedElems){
 		var p = this.tabIndex;
@@ -1073,7 +1076,7 @@ var Problem = $.inherit({
 					break;
 				}
 				if (cells[j].__self == Monster){
-					die();
+					this.die();
 					break;
 				}
 				if (cells[j].__self == Box){
@@ -1163,7 +1166,7 @@ var Problem = $.inherit({
 					changedElems.push(new Coord(this.monsters[k].x, this.monsters[k].y));
 					elem1.pushCell(m);
 					if (c.x == this.arrow.coord.x && c.y == this.arrow.coord.y)
-						die();
+						this.die();
 					this.monsters[k].x = c.x;
 					this.monsters[k].y = c.y;
 				}
