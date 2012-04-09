@@ -74,7 +74,7 @@ var finalcode = [],
 	$scopename = [], 
 	$scopestack = [];
 	
-var problemsData = [
+/*var problemsData = [
 {
 	'code': "D", 
 	'id': 792984, 
@@ -115,7 +115,7 @@ var problemsData = [
 			'dLife': 0,
 			'startPoints': 0
 		}
-}];
+}];*/
 var cmdAdded = false;
 var addedCmds = [];
 var prevCmd = undefined;

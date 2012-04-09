@@ -127,7 +127,7 @@ submitClick = function(){
 }
 
 function getContests(){
-	/*callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
+	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
 		if (!data)
 			return;
 		contests = data.contests;
@@ -139,7 +139,7 @@ function getContests(){
 		}
 		cid = contests[0].id;
 		document.title = contests[0].name;
-	});*/
+	});
 	fillTabs();
 }
 
@@ -185,11 +185,11 @@ function fillTabs(){
 		$('#changeContest').dialog('open'); 
 		return false; 
 	}); 
-	//changeUser();
+	changeUser();
 	problems = [];
-	//callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
-		for (var i = 0; i < problemsData.length; ++i){
-			problems[i] = new Problem(problemsData[i], i);
+	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
+		for (var i = 0; i < data.length; ++i){
+			problems[i] = new Problem(data[i], i);
 			if ($('#ui-tabs-' + (i + 1)).length){
 				$('#ui-tabs-' + (i + 1)).empty();
 				$('#tabs').tabs('remove', i + 1);
@@ -316,7 +316,7 @@ function fillTabs(){
 			watchList.push({});
 		}
 		
-	//});
+	});
 	if ($('#ui-tabs-' + (problems.length + 1)).length){
 		$('#ui-tabs-' + (problems.length + 1)).empty();
 		$('#tabs').tabs('remove', (problems.length + 1));
