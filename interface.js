@@ -402,10 +402,9 @@ function onCreateItem(tree, newNode, initObject, problem){
 		case 'ifelse':
 		case 'while':
 			$(newNode).append('<select id = "select' + cmdId +'">');
-			var options = ['wall at the left', 'wall at the right'];
-			for (var i = 0; i < options.length; ++i)
+			for (var i = 0; i < builtinFunctionsDict.length; ++i)
 			{
-				$('#select' + cmdId).append('<option value = ' + i + '>' + options[i] + '</option><br>');
+				$('#select' + cmdId).append('<option value = ' + i + '>' + builtinFunctionsDict[i][1] + '</option><br>');
 			}
 			$(newNode).append('</select>');
 			$('#select' + cmdId).change(function(p){return function() {p.updated();}}(problem));

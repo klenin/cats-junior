@@ -224,7 +224,13 @@ var IfStmt = $.inherit({
 	__constructor : function(testName, firstBlock, secondBlock, parent, id, problem) {
         this.curBlock = undefined;
 		this.testName = testName;
-		this.test = testFunctionsDict[testName]
+		for (var i = 0; i < builtinFunctionsDict.length; ++i)
+		{
+			if (builtinFunctionsDict[i][0] == this.testName)
+			{
+				this.test = builtinFunctionsDict[i][2];
+			}
+		}
 		this.blocks = [firstBlock, secondBlock];
 		this.parent = parent;	
 		this.id = id;
@@ -335,9 +341,9 @@ var IfStmt = $.inherit({
 			false, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
 				var numId = $(newNode).prop('numId');
-				for (var i = 0; i < testFunctions.length; ++i)
+				for (var i = 0; i < builtinFunctionsDict.length; ++i)
 				{
-					if (self.testName == testFunctions[i])
+					if (self.testName == builtinFunctionsDict[i][0])
 					{
 						$('#select' + numId).val(i)
 					}
@@ -361,7 +367,13 @@ var WhileStmt = $.inherit({
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
 		this.testName = testName;
-		this.test = testFunctionsDict[testName]
+		for (var i = 0; i < builtinFunctionsDict.length; ++i)
+		{
+			if (builtinFunctionsDict[i][0] == this.testName)
+			{
+				this.test = builtinFunctionsDict[i][2];
+			}
+		}
 		this.body = body;
 		this.parent = parent;	
 		this.id = id;
@@ -465,9 +477,9 @@ var WhileStmt = $.inherit({
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
 				var numId = $(newNode).prop('numId');
-				for (var i = 0; i < testFunctions.length; ++i)
+				for (var i = 0; i < builtinFunctionsDict.length; ++i)
 				{
-					if (self.testName == testFunctions[i])
+					if (self.testName == builtinFunctionsDict[i][0])
 					{
 						$('#select' + numId).val(i)
 					}
@@ -1344,8 +1356,10 @@ var Problem = $.inherit({
 		$gbl[problem]['left'] = left;
 		$gbl[problem]['right'] = right;
 		$gbl[problem]['wait'] = wait;
-		$gbl[problem]['test1'] = test1;
-		$gbl[problem]['test2'] = test2;
+		for (var i = 0; i < builtinFunctionsDict.length; ++i)
+		{
+			$gbl[problem][builtinFunctionsDict[i][0]] = builtinFunctionsDict[i][2];
+		}
 		this.changed = false;
 	},
 	stop: function(){
@@ -1426,7 +1440,6 @@ var Problem = $.inherit({
 			++this.executedCommandsNum;
 			this.highlightLast();
 			this.drawLabirint();
-			//++curProblem.step;
 			if (this.cmdList.isFinished())
 				this.playing = false;
 		}
@@ -1458,5 +1471,71 @@ var Problem = $.inherit({
 		this.speed = 0;
 		this.playing = true;
 		this.play(t);
-	}	
+	},
+	getFieldElem: function(dir)
+	{
+		var newDir = changeDir[dir][this.arrow.dir];
+		var cX = this.arrow.coord.x + newDir.dx;
+		var cY = this.arrow.coord.y + newDir.dy;
+		if (dir != 'forward')
+		{
+			cX += changeDir['forward'][newDir.curDir].dx;
+			cY += changeDir['forward'][newDir.curDir].dy;
+		}
+		return this.map[cY][cX];
+	},
+	wallAtTheLeft: function(){
+		return this.getFieldElem('left').isWall;
+	},
+	wallAtTheRight: function(){
+		return this.getFieldElem('right').isWall;
+	},
+	wallInFrontOf: function(){
+		return this.getFieldElem('forward').isWall;
+	},
+	prizeAtTheLeft: function(){
+		return this.getFieldElem('left').findCell(Prize) != undefined;
+	},
+	prizeAtTheRight: function(){
+		return this.getFieldElem('right').findCell(Prize) != undefined;
+	},
+	prizeInFrontOf: function(){
+		return this.getFieldElem('forward').findCell(Prize) != undefined;
+	},
+	monsterAtTheLeft: function(){
+		return this.getFieldElem('left').findCell(Monster) != undefined;
+	},
+	monsterAtTheRight: function(){
+		return this.getFieldElem('right').findCell(Monster) != undefined;
+	},
+	monsterInFrontOf: function(){
+		return this.getFieldElem('forward').findCell(Monster) != undefined;
+	},
+	boxAtTheLeft: function(){
+		return this.getFieldElem('left').findCell(Box) != undefined;
+	},
+	boxAtTheRight: function(){
+		return this.getFieldElem('right').findCell(Box) != undefined;
+	},
+	boxInFrontOf: function(){
+		return this.getFieldElem('forward').findCell(Box) != undefined;
+	},
+	lockAtTheLeft: function(){
+		return this.getFieldElem('left').findCell(Lock) != undefined;
+	},
+	lockAtTheRight: function(){
+		return this.getFieldElem('right').findCell(Lock) != undefined;
+	},
+	lockInFrontOf: function(){
+		return this.getFieldElem('forward').findCell(Lock) != undefined;
+	},
+	keyAtTheLeft: function(){
+		return this.getFieldElem('left').findCell(Key) != undefined;
+	},
+	keyAtTheRight: function(){
+		return this.getFieldElem('right').findCell(Key) != undefined;
+	},
+	keyInFrontOf: function(){
+		return this.getFieldElem('forward').findCell(Key) != undefined;
+	}
 });

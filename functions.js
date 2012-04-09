@@ -229,7 +229,7 @@ function convert(commands, parent, problem)
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')
 		{
-			var test = testFunctions[$('#' + id + ' option:selected').val()];
+			var test = builtinFunctionsDict[$('#' + id + ' option:selected').val()][0];
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
 			if (type == 'ifelse' && commands[++i].children)
