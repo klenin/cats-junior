@@ -16,7 +16,7 @@ var Command = $.inherit({
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
 		{
 			eval(this.name + '();');
-			if (!this.curCnt)
+			if (!this.curCnt && !this.problem.codeMode())
 				++this.problem.divIndex;
 
 			++this.curCnt;
@@ -788,7 +788,7 @@ var Problem = $.inherit({
 		}
 	},
 	changeProgressBar: function(){
-		if (this.maxCmdNum && isCommandMode()){ 
+		if (this.maxCmdNum){ 
 			$('#curStep' + this.tabIndex).text(this.divIndex);
 			$('#progressBar'  + this.tabIndex).progressbar('option', 'value',  this.divIndex / this.maxCmdNum * 100);
 		} 
@@ -1007,8 +1007,6 @@ var Problem = $.inherit({
 			if ($('#codeMode' + this.tabIndex).prop('checked'))
 			{
 				for (var i = 0; i < cnt && !this.paused && this.tryNextStep(); ++i){};
-				if ($('#codeMode' + this.tabIndex).prop('checked'))
-					onFinishExecuting(getCurProblem());
 			}
 			else
 			{
@@ -1037,12 +1035,13 @@ var Problem = $.inherit({
 			this.dy = changeDir[dir][this.arrow.dir].dy;
 			this.changeLabyrinth(this.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.speed);
 			++this.step;
-			if (this.speed)
-			{
-				this.changeProgressBar();
-			}
 		}
-		//++this.divIndex;
+		if (this.codeMode())
+			++this.divIndex;			
+		if (this.speed)
+		{
+			this.changeProgressBar();
+		}
 	},
 	convertCommandsToCode: function(){
 		return this.cmdList.convertToCode(-1);
@@ -1459,6 +1458,5 @@ var Problem = $.inherit({
 		this.speed = 0;
 		this.playing = true;
 		this.play(t);
-	}
-
+	}	
 });

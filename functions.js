@@ -353,12 +353,6 @@ function getCurProblem()
 	return $('#tabs').tabs('option', 'selected') - 1;
 }
 
-function isCommandMode()
-{
-	var p = getCurProblem();
-	return $("input[name='group" + p + "']" + ":checked").prop('id') == 'commandsMode' + p;
-}
-
 function forward(cnt)
 {
 	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
