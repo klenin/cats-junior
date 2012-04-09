@@ -16,6 +16,9 @@ var Command = $.inherit({
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
 		{
 			eval(this.name + '();');
+			if (!this.curCnt)
+				++this.problem.divIndex;
+
 			++this.curCnt;
 		}
 		if (this.problem.speed || this.cnt == this.curCnt)
@@ -1039,6 +1042,7 @@ var Problem = $.inherit({
 				this.changeProgressBar();
 			}
 		}
+		//++this.divIndex;
 	},
 	convertCommandsToCode: function(){
 		return this.cmdList.convertToCode(-1);
