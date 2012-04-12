@@ -12,8 +12,8 @@ class MyException(Exception):
 
 class Coord:
 	def __init__(self, x, y, dir = ''):
-		self.x = x1
-		self.y = y1
+		self.x = x
+		self.y = y
 		self.dir = dir
 
 translateDirs = {
@@ -107,35 +107,35 @@ class Monster(Cell):
 			raise MyException('Invalid format')
 			
 	def tryNextStep(self):
-		dir = self.path[index].dir
+		dir = self.path[self.index].dir
 		x1 = self.x
 		y1 = self.y
 		c = Coord(0, 0)
-		if self.index == len(self.path) and path[index].cnt == path[index].initCnt:
+		if self.index == len(self.path) and self.path[self.index].cnt == self.path[self.index].initCnt:
 			if not self.looped:
 				return Coord(self.x, self.y)
-			x1 = path[0].x
-			x2 = path[0].y
-			dir = path[0].dir
-		elif path[index].cnt == path[index].initCnt:
-			dir = path[index + 1].dir
+			x1 = self.path[0].x
+			x2 = self.path[0].y
+			dir = self.path[0].dir
+		elif self.path[self.index].cnt == self.path[self.index].initCnt:
+			dir = self.path[self.index + 1].dir
 		c = nextDirect('forward', translateDirs[dir])
 		return Coord(x1 + c.x, y1 + c.y)
 
 	def nextStep(self):
 		c = Coord(0, 0)
-		if self.index == len(path) - 1  and path[index].cnt== path[index].cnt:
+		if self.index == len(self.path) - 1  and self.path[self.index].cnt == self.path[self.index].cnt:
 			if not self.looped:
 				return
 			self.index = 0
 			for p in self.path:
 				p.cnt = 0
-		elif path[index].cnt == path[index].initCnt:
-			index += 1
-		c = nextDirect('forward', translateDirs[path[index].dir])
+		elif self.path[self.index].cnt == self.path[self.index].initCnt:
+			self.index += 1
+		c = nextDirect('forward', translateDirs[self.path[self.index].dir])
 		self.x += c.x
 		self.y += c.y
-		path[index].cnt += 1
+		self.path[self.index].cnt += 1
 
 class Lock(Cell):
 	def __init__(self, x, y):
@@ -181,44 +181,82 @@ class FieldElem:
 		self.isWall = isWall
 		self.cells = []
 
-	def mayPush(cell):
+	def mayPush(self, cell):
 		if self.isWall:
 			return False
 		for c in self.cells:
 			if c.zIndex >= cell.zIndex:
 				return False
 		return True
-curX = 0
-curY = 0
-dx = 0
-dy = 0
-curI = 1
-arrowZIndex = 3
 
-dLife = 0
-startLife = 0
-startPoints = 0
-life = 0
-pnts = 0
-maxStep = 99999999
-maxCmdNum = 99999999
-steps = 0
+	def findCell(self, t):
+		for cell in self.cells:
+			if isinstance(cell, t):
+				return cell
 
-map = []
-specSymbols = []
-keys = []
-locks = []
-movingElements = []
-sol = []
+class State:
+	def __init__(self, **kwargs):
+		self.cur = Coord(0, 0)
+		self.d = Coord(0, 0)
+		self.arrowZIndex = 3
 
-dead = False
+		self.dLife = kwargs.get('dLife', 0)
+		self.life = kwargs.get('startLife', 0)
+		self.pnts = kwargs.get('startPoints', 0)
+		self.maxStep = kwargs.get('maxStep', 999999999)
+		self.maxCmdNum = kwargs.get('dLife', 10000)
+		self.steps = 0
 
-curMap = []
-specSymbolsList = []
-curDirect = ''
+		self.map = kwargs.get('map', [])
+		self.specSymbols = kwargs.get('specSymbols', [])
+		self.keys = kwargs.get('keys', [])
+		self.locks = kwargs.get('locks', [])
+		self.movingElements = kwargs.get('movingElements', [])
+		self.sol = kwargs.get('sol', '')
 
-monsters = []
-field = []
+		self.dead = False
+
+		self.curMap = []
+		self.field = []
+		self.monsters = []
+		print self.specSymbols
+		for i in range(len(self.map)):
+			self.curMap.append([])
+			self.field.append([])
+			for j in range(len(self.map[i])):
+				obj = Cell()
+				self.curMap[i].append(self.map[i][j])
+				self.field[i].append(FieldElem(i, j, self.curMap[i][j] == '#'))
+				if self.curMap[i][j] == 'R' or self.curMap[i][j] == 'U' or self.curMap[i][j] == 'D' or self.curMap[i][j] == 'L':
+					self.cur = Coord(j, i, translateDirs[self.curMap[i][j]])
+				for k in range(len(self.specSymbols)):
+					if self.curMap[i][j] == self.specSymbols[k]['symbol']:
+						print self.curMap[i][j], i, j
+						obj = Prize(j, i, self.specSymbols[k]) if self.specSymbols[k]['action'] == 'eat' else Box(j, i, self.specSymbols[k])
+						self.field[i][j].cells.append(obj)
+
+		for k in range(len(self.movingElements)):
+			obj = Monster(self.movingElements[k])
+			self.field[obj.y][obj.x].cells.append(obj)
+			self.monsters.append(obj)
+		for k in range(len(self.keys)):
+			key = Key(self.keys[k]['x'], self.keys[k]['y'], len(self.locks[k]))
+			self.field[key.y][key.x].cells.append(key)
+			for j in range(len(self.locks[k])):
+				lock = Lock(self.locks[k][j]['x'], self.locks[k][j]['y'])
+				key.locks[j] = lock
+				self.field[lock.y][lock.x].cells.append(lock)
+				
+	def getFieldElem(self, dir):
+		newDir = nextDirect(dir, self.cur.dir);
+		cX = self.cur.x + newDir.x;
+		cY = self.cur.y + newDir.y;
+		if  dir != 'forward':
+			cX += nextDirect('forward', newDir.dir).x;
+			cY += nextDirect('forward', newDir.dir).y;
+		return self.field[cY][cX];
+
+global curState
 
 def swap(arr, i, j):
 	t = arr[i]
@@ -226,24 +264,25 @@ def swap(arr, i, j):
 	arr[j] = t
 
 def sort(arr):
-	for i in range(len(arr), -1, -1):
+	for i in range(len(arr) - 1, -1, -1):
 		for j in range(i):
 			if arr[j].zIndex < arr[j + 1].zIndex:
 				swap(arr, j, j + 1)
 
-def nextStep(i, direct):
+def nextStep(direct):
 	result = True
+	global curState
 	try:
-		c = nextDirect(direct, curDirect)
+		c = nextDirect(direct, curState.cur.dir)
 		dx = c.x
 		dy = c.y
-		curDirect = c.dir
-		life += dLife
-		c_x = curX + dx
-		c_y = curY + dy
+		curState.cur.dir = c.dir
+		curState.life += curState.dLife
+		c_x = curState.cur.x + dx
+		c_y = curState.cur.y + dy
 		changeCoord = True
-		if not(c_x < 0 or c_x >= len(field[0]) or c_y < 0 or c_y >= len(field)):
-			elem = field[c_y][c_x]
+		if not(c_x < 0 or c_x >= len(curState.field[0]) or c_y < 0 or c_y >= len(curState.field)):
+			elem = curState.field[c_y][c_x]
 			if elem.isWall:
 				changeCoord = False
 			sort(elem.cells)
@@ -258,113 +297,144 @@ def nextStep(i, direct):
 				if isinstance(cell, Box):
 					tx = c_x + dx
 					ty = c_y + dy
-					f = tx < 0 or tx >= len(field[0]) or ty < 0 or ty >= len(field)
+					f = tx < 0 or tx >= len(curState.field[0]) or ty < 0 or ty >= len(curState.field)
 					if not f:
-						el1 = field[ty][tx]
+						el1 = curState.field[ty][tx]
 						if el1.mayPush(cell):
 							elem.cells.remove(cell)
 							cell.x = tx
 							cell.y = ty
 							el1.cells.add(cell)
-							pnts += cell.points
-							life += cell.dLife
+							curState.pnts += cell.points
+							curState.life += cell.dLife
 							continue
 						else:
 							changeCoord = false
 					else:
 						changeCoord = false
-					if isinstance(cell, Prize) and not cell.found:
-						cell.found = True
-						pnts += cell.points
-						life += cell.dLife
-					if isinstance(cell, Key) and not cell.found:
-						cell.found = True
-						for lock in cell.locks:
-							lock.locked = False
-							lock.zIndex = 0
+				if isinstance(cell, Prize) and not cell.found:
+					cell.found = True
+					curState.pnts += cell.points
+					curState.life += cell.dLife
+				if isinstance(cell, Key) and not cell.found:
+					cell.found = True
+					for lock in cell.locks:
+						lock.locked = False
+						lock.zIndex = 0
 		else:
 			changeCoord = False
 
 		if changeCoord:
-			curX = c_x
-			curY = c_y
-		for monster in monsters:
+			curState.cur.x = c_x
+			curState.cur.y = c_y
+
+		for monster in curState.monsters:
 			c1 = monster.tryNextStep()
-			if (field[c1.y][c1.x].mayPush(monster)):
-				if c1.y == curY and c1.x == curX:
+			if (curState.field[c1.y][c1.x].mayPush(monster)):
+				if c1.y == curState.cur.y and c1.x == curState.cur.x:
 					return False
-				field[monster.y][monster.x].cells.remove(monster)
+				curState.field[monster.y][monster.x].cells.remove(monster)
 				monster.nextStep()
-				field[c1.y][c1.x].cells.append(monster);
+				curState.field[c1.y][c1.x].cells.append(monster);
 					
-		if life == 0 or steps + 1 > maxStep:
+		if curState.life == 0 or curState.steps + 1 > curState.maxStep:
 			return False
-		steps += 1
-	except:
+		curState.steps += 1
+	except Exception as e:
+		print e
 		raise MyException('Something bad happened in nextStep')
-						
+
+def forward(cnt = 1):
+	for i in range(cnt):
+		nextStep('forward')
+
+def left(cnt = 1):
+	for i in range(cnt):
+		nextStep('left')
+
+def right(cnt = 1):
+	for i in range(cnt):
+		nextStep('right')
+
+def wait(cnt = 1):
+	for i in range(cnt):
+		nextStep('wait')
+
+def wallAtTheLeft(): 
+		return curState.getFieldElem('left').isWall
+
+def wallAtTheRight(): 
+		return curState.getFieldElem('right').isWall
+
+def wallInFrontOf(): 
+		return curState.getFieldElem('forward').isWall
+
+def prizeAtTheLeft():
+		return curState.getFieldElem('left').findCell(Prize) != None
+
+def prizeAtTheRight():
+		return curState.getFieldElem('right').findCell(Prize) != None
+
+def prizeInFrontOf():
+		return curState.getFieldElem('forward').findCell(Prize) != None
+
+def monsterAtTheLeft():
+		return curState.getFieldElem('left').findCell(Monster) != None
+
+def monsterAtTheRight():
+		return curState.getFieldElem('right').findCell(Monster) != None
+
+def monsterInFrontOf():
+		return curState.getFieldElem('forward').findCell(Monster) != None
+
+def boxAtTheLeft():
+		return curState.getFieldElem('left').findCell(Box) != None
+
+def boxAtTheRight():
+		return curState.getFieldElem('right').findCell(Box) != None
+
+def boxInFrontOf():
+		return curState.getFieldElem('forward').findCell(Box) != None
+
+def lockAtTheLeft():
+		return curState.getFieldElem('left').findCell(Lock) != None
+
+def lockAtTheRight():
+		return curState.getFieldElem('right').findCell(Lock) != None
+
+def lockInFrontOf():
+		return curState.getFieldElem('forward').findCell(Lock) != None
+
+def keyAtTheLeft():
+		return curState.getFieldElem('left').findCell(Key) != None
+
+def keyAtTheRight():
+		return curState.getFieldElem('right').findCell(Key) != None
+
+def keyInFrontOf():
+		return curState.getFieldElem('forward').findCell(Key) != None
+			
 def solve():
 	try:
 		f = open('problem.json', 'r')
 		s = f.read()
 		problem = json.loads(s)
 		f.close()
-		if 'startLife' in problem:
-			life = problem['startLife']
-		if 'dLife' in problem:
-			dLife = problem['dLife']
-		if 'maxCmdNum' in problem:
-			maxCmdNum = problem['maxCmdNum']
-		elif 'maxStep' in problem:
-			maxStep = problem['maxStep']
-		if 'startPoints' in problem:
-			startPoints = problem['startPoints']
-		pnts = startPoints
 		if not 'map' in problem:
 			raise MyException('Map is undefined')
-		map = problem['map']
-		if 'specSymbols' in problem:
-			specSymbols = problem['specSymbols']
 		if 'keys' in problem:
-			keys = problem['keys']
-			if not 'locks' in problem:
+			if  'locks' not in problem:
 				raise MyException("Keys are defined, but locks cells aren't defined")
-			locks = problem['locks']
-			if len(keys) != len(locks):
+			if len(problem['keys']) != len(problem['locks']):
 				raise MyException("Keys and locks length aren't equal")
-		if 'movingElements':
-			movingElements = problem['movingElements']
-		curMap = []
-		field = []
-		for i in range(len(map)):
-			curMap.append([])
-			field.append([])
-			for j in range(len(map[i])):
-				obj = Cell()
-				curMap[i].append(map[i][j])
-				field[i].append(FieldElem(i, j, curMap[i][j] == '#'))
-				if curMap[i][j] == 'R' or curMap[i][j] == 'U' or curMap[i][j] == 'D' or curMap[i][j] == 'L':
-					curY = i
-					curX = j
-					curDirect = translateDirs[curMap[i][j]]
-				for k in range(len(specSymbols)):
-					if curMap[i][j] == specSymbols[k]['symbol']:
-						obj = Prize(j, i, specSymbols[k]) if specSymbols[k]['action'] == 'eat' else Box(j, i, specSymbols[k])
-						field[i][j].cells.append(obj)
-		monsters = []
-		for k in range(len(movingElements)):
-			obj = Monster(movingElements[k])
-			field[obj.y][obj.x].cells.append(obj)
-			monsters.append(obj)
-		for k in range(len(keys)):
-			key = Key(keys[k]['x'], keys[k]['y'], len(locks[k]))
-			field[key.y][key.x].cells.append(key)
-			for j in range(len(locks[k])):
-				lock = Lock(locks[k][j]['x'], locks[k][j]['y'])
-				key.locks[j] = lock
-				field[lock.y][lock.x].cells.append(lock)
-		sol = codecs.open('output.txt', 'r', 'utf-8').read().split('\n')
+
+		global curState
+		curState = State(**problem)
+							
+		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		print sol
+		exec sol
+		print curState.pnts
 	except MyException as e:
 		print e
 			
