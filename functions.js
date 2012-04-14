@@ -271,10 +271,11 @@ function convertTreeToCommands(commands, parent, problem)
 					case 'right':
 					case 'forward':
 					case 'wait':
-						if (commands[i].value.args.length != 1 || 
-							commands[i].value.args[0]._astname != 'Num')
+						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
+							commands[i].value.args[0]._astname == 'Num'))
 							return undefined;
-						block.pushCommand(new Command(commands[i].value.func.id.v, commands[i].value.args[0].n, block, undefined, problem));
+						block.pushCommand(new Command(commands[i].value.func.id.v, 
+							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
 					default:
 						return undefined;

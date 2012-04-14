@@ -260,8 +260,7 @@ function fillTabs(){
 			$(groupBox).change(function(j){
 				return function(){
 					
-				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j)
-			    	{
+				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
 			    		$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
 						$('#tdcode' + j).hide();
@@ -272,13 +271,17 @@ function fillTabs(){
 						$('#jstree-container' + j).empty();
 						//problems[j].cmdList = undefined;
 						problems[j].prepareForExecuting();
-						convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]).generateCommand(
-							jQuery.jstree._reference('#jstree-container' + j) );
+						var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
+						if (block) {
+							block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+						}
+						else {
+							alert('Невозможно сконвертировать код в команды. Все изменения будут потеряны');
+						}
 						++cmdId;
 						problems[j].updated();
 			    	}
-				    else
-			    	{
+				    else {
 			    		$('#ulCommands' + j).hide();
 						$('#jstree-container' + j).hide();
 						$('#tdcommands' + j).hide();
@@ -305,10 +308,8 @@ function fillTabs(){
 			}
 			$('#addWatch' + i)
 				.button()
-				.click(function(j)
-				{
-					return function()
-					{
+				.click(function(j) {
+					return function() {
 						$('#addWatchDialog').dialog('open');
 					}
 				}(i));
