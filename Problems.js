@@ -912,23 +912,23 @@ var Problem = $.inherit({
 		var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this);
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
-		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList)
-		{
+		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
 			this.cmdList = newCmdList;
 			this.setDefault();
 			this.showCounters();
 		}
-		else
-		{
+		else {
 			this.cmdList = this.cmdList.copyDiff(newCmdList, true);
-			if (needHideCounters)
-			{
+			if (!this.playing)
+				this.showCounters();
+			if (needHideCounters) {
 				this.playing = true;
-				this.hideCounters();
+				//this.hideCounters();
 			}
 			if (this.cmdList.isFinished())
 				this.cmdList.makeUnfinished();	
 		}
+		;
 	},
 	loop: function(cnt, i){
 		if (!this.playing || this.paused)
@@ -1403,7 +1403,7 @@ var Problem = $.inherit({
 		{
 			this.speed = 0;
 			this.paused = false;
-
+			this.hideCounters();
 			if (!this.playing || this.changed)
 			{
 				try

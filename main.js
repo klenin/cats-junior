@@ -25,8 +25,7 @@
 		problem.visited = 1;
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
-				return function()
-				{
+				return function() {
 					if ($(this).prop('ifLi'))
 						return;
 					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", false, function(newNode){
@@ -165,8 +164,7 @@
 			}
 			problem.updated();
 		}).bind('click', function(event, ui) {
-			if (!problem.playing)
-				problem.showCounters();
+			problem.showCounters();
 		});
 	});  
 	$('#about').dialog({
