@@ -376,14 +376,14 @@ function fillTabs(){
 
 function setSpin(problem){
 	$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-	$('#spin' + cmdId++).spin({
-		min: 1,
-		changed: function(p){
-			return function(){
-				p.updated();	
-			}
-		}(problem)
+	$('#spin' + cmdId).spin({
+		min: 1
 	});
+	$('#spin' + cmdId++).change(function(p){
+		return function(){
+			p.updated();
+		}
+	}(problem));
 }
 
 function onCreateItem(tree, newNode, initObject, problem){

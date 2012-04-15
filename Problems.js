@@ -1321,7 +1321,7 @@ var Problem = $.inherit({
 		var problem = this.tabIndex;
 		var output = $('#cons' + this.tabIndex);
 		var input = codeareas[problem].getValue();
-		if (this.maxCmdNum)
+		/*if (this.maxCmdNum)
 		{
 			var cmds = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g);
 	 		var cmdNum = 0;
@@ -1335,7 +1335,7 @@ var Problem = $.inherit({
 			}
 			$('#curStep' + problem).text(cmdNum);
 			$('#progressBar'  + problem).progressbar('option', 'value',  cmdNum / this.maxCmdNum * 100);	
-		}
+		}*/
 		output.html('');
 		Sk.configure({output:outf, 'problem': problem});
 		finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
@@ -1437,6 +1437,7 @@ var Problem = $.inherit({
 			this.lastExecutedCmd = undefined;
 			this.cmdHighlightOff();
 			this.cmdList.exec(1);
+			this.changeProgressBar();
 			++this.executedCommandsNum;
 			this.highlightLast();
 			this.drawLabirint();
