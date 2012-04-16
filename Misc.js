@@ -77,10 +77,6 @@ var builtinFunctions = [
 			}, 
 			{
 				'type': 'Str',
-				'dict': selectConditions
-			}, 
-			{
-				'type': 'Str',
 				'dict': selectDirections
 			}
 		],
@@ -203,7 +199,7 @@ function truly(object, condition, direction){
 	return result;
 }
 
-function truly_handler(object, condition, direction){
+function truly_handler(object, direction){
 	var result = true;
 	var dir = '';
 	switch(direction.v){
@@ -239,7 +235,5 @@ function truly_handler(object, condition, direction){
 		default:
 			return false;
 	}
-	if (condition.v == 'isNot')
-		result = !result;
 	return result;
 }

@@ -228,8 +228,8 @@ var IfStmt = $.inherit({
 		switch(testName){
 			case 'truly':
 				this.test = function(){return truly(selectObjects[args[0]][0], 
-					selectConditions[args[1]][0], 
-					selectDirections[args[2]][0])};
+					selectConditions[args[2]][0], 
+					selectDirections[args[1]][0])};
 				break;
 			default:
 				this.test = function(){return false};
@@ -333,10 +333,12 @@ var IfStmt = $.inherit({
 		var str = generateTabs(tabsNum) + 'if ';
 		switch(this.testName){
 			case 'truly':
+				if (this.args[2])
+					str += 'not ';
 				str += 'truly("' + 
 				selectObjects[this.args[0]][0] + '", "' + 
-				selectConditions[this.args[1]][0] + '", "' +
-				selectDirections[this.args[2]][0] + '"):\n';
+				selectConditions[this.args[2]][0] + '", "' +
+				selectDirections[this.args[1]][0] + '"):\n';
 				break;
 			default:
 				str += 'False';
@@ -360,8 +362,8 @@ var IfStmt = $.inherit({
 				switch (self.testName){
 					case 'truly':
 						$('#selectObjects' + numId).val(self.args[0]);
-						$('#selectConditions' + numId).val(self.args[1]);
-						$('#selectDirections' + numId).val(self.args[2]);
+						$('#selectConditions' + numId).val(self.args[2]);
+						$('#selectDirections' + numId).val(self.args[1]);
 						break;
 				}
 				self.blocks[0].generateCommand(tree, $(newNode));
@@ -387,8 +389,8 @@ var WhileStmt = $.inherit({
 		switch(testName){
 			case 'truly':
 				this.test = function(){return truly(selectObjects[args[0]][0], 
-					selectConditions[args[1]][0], 
-					selectDirections[args[2]][0])};
+					selectConditions[args[2]][0], 
+					selectDirections[args[1]][0])};
 				break;
 			default:
 				this.test = function(){return false};
@@ -489,10 +491,11 @@ var WhileStmt = $.inherit({
 		var str = generateTabs(tabsNum) + 'while ';
 		switch(this.testName){
 			case 'truly':
+				if (this.args[2] )
+					str += 'not ';
 				str += 'truly("' + 
 				selectObjects[this.args[0]][0] + '", "' + 
-				selectConditions[this.args[1]][0] + '", "' +
-				selectDirections[this.args[2]][0] + '"):\n';
+				selectDirections[this.args[1]][0] + '"):\n';
 				break;
 			default:
 				str += 'False';
@@ -509,8 +512,8 @@ var WhileStmt = $.inherit({
 				switch (self.testName){
 					case 'truly':
 						$('#selectObjects' + numId).val(self.args[0]);
-						$('#selectConditions' + numId).val(self.args[1]);
-						$('#selectDirections' + numId).val(self.args[2]);
+						$('#selectConditions' + numId).val(self.args[2]);
+						$('#selectDirections' + numId).val(self.args[1]);
 						break;
 				}
 				self.body.generateCommand(tree, $(newNode));

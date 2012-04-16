@@ -257,6 +257,49 @@ function convert(commands, parent, problem)
 	return block;
 }
 
+function convertCondition(expr){
+	switch(expr._astname){
+		case 'Call':
+			if (expr.func._astname != 'Name' || !expr.args) //
+				return undefined;
+			var testName = '';
+			var args = [];
+			switch(expr.func.id.v)
+			{
+				case 'truly':
+					testName = expr.func.id.v;
+					if (expr.args.length != builtinFunctions[0]['args'].length)
+						return undefined;
+					for (var j = 0; j < expr.args.length; ++j){
+						if (expr.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
+							return undefined;
+						for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
+							for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
+								if (builtinFunctions[0]['args'][k]['dict'][l][0] == expr.args[j].s.v){
+									args.push(l);
+									break;
+								}
+							}
+						}
+					}
+					break;
+				default:
+					return undefined;
+			}
+			args.push(0);
+			return {'testName': testName, 'args': args}
+		case 'UnaryOp':
+			if (expr.op.prototype._astname != 'Not')
+				return undefined;
+			var dict = convertCondition(expr.operand);
+			if (!dict)
+				return undefined;
+			dict['args'][2] = 1 - dict['args'][2]
+			return dict;
+	}
+	return undefined;
+}
+
 function convertTreeToCommands(commands, parent, problem)
 {
 	var block = new Block([], parent, problem);
@@ -300,36 +343,10 @@ function convertTreeToCommands(commands, parent, problem)
 				break;
 			case 'If':
 				//__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem)
-				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
-					commands[i].test.func._astname != 'Name') //
+				var dict = convertCondition(commands[i].test);
+				if (!dict)
 					return undefined;
-				if (!commands[i].test.args || !commands[i].test.args.length || commands[i].test.args.length != 3) //
-					return undefined;
-				var testName = '';
-				var args = [];
-				switch(commands[i].test.func.id.v)
-				{
-					case 'truly':
-						testName = commands[i].test.func.id.v;
-						if (commands[i].test.args.length != builtinFunctions[0]['args'].length)
-							return undefined;
-						for (var j = 0; j < commands[i].test.args.length; ++j){
-							if (commands[i].test.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
-								return undefined;
-							for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
-								for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
-									if (builtinFunctions[0]['args'][k]['dict'][l][0] == commands[i].test.args[j].s.v){
-										args.push(l);
-										break;
-									}
-								}
-							}
-						}
-						break;
-					default:
-						return undefined;
-				}
-				var ifStmt = new IfStmt(testName, args, undefined, undefined, block, undefined, problem);			
+				var ifStmt = new IfStmt(dict['testName'], dict['args'], undefined, undefined, block, undefined, problem);			
 				var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				var body2;
 				if (commands[i].orelse.length)
@@ -340,36 +357,10 @@ function convertTreeToCommands(commands, parent, problem)
 				break;
 			case 'While':
 				//__constructor : function(testName, args, body, parent, id, problem)
-				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
-					commands[i].test.func._astname != 'Name') //
+				var dict = convertCondition(commands[i].test);
+				if (!dict)
 					return undefined;
-				if (!commands[i].test.args || !commands[i].test.args.length || commands[i].test.args.length != 3) //
-					return undefined;
-				var testName = '';
-				var args = [];
-				switch(commands[i].test.func.id.v)
-				{
-					case 'truly':
-						testName = commands[i].test.func.id.v;
-						if (commands[i].test.args.length != builtinFunctions[0]['args'].length)
-							return undefined;
-						for (var j = 0; j < commands[i].test.args.length; ++j){
-							if (commands[i].test.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
-								return undefined;
-							for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
-								for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
-									if (builtinFunctions[0]['args'][k]['dict'][l][0] == commands[i].test.args[j].s.v){
-										args.push(l);
-										break;
-									}
-								}
-							}
-						}
-						break;
-					default:
-						return undefined;
-				}
-				var whileStmt = new WhileStmt(testName, args, undefined, block, undefined, problem)
+				var whileStmt = new WhileStmt(dict['testName'], dict['args'], undefined, block, undefined, problem)
 				var body = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				if (!body)
 					return undefined;
