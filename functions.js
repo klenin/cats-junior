@@ -294,7 +294,7 @@ function convertCondition(expr){
 			var dict = convertCondition(expr.operand);
 			if (!dict)
 				return undefined;
-			dict['args'][2] = 1 - dict['args'][2]
+			dict['args'][2] = 1 - dict['args'][2];
 			return dict;
 	}
 	return undefined;

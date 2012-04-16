@@ -2,6 +2,11 @@ BODY{
 	font-family:Verdana, 'Arial';
 	font-size: 1em;
 }
+select{
+	min-width: 30px;
+	max-width: 100px;
+	width: auto;
+}
 table.field{
 	border-width:0px; 
 	border-spacing: 0px
@@ -68,7 +73,7 @@ ul.ul_commands{
 	margin: 0px;
 }
 div.sortable{
-	width: 250px;
+	width: 350px;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;
