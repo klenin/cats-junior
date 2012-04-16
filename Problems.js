@@ -214,7 +214,7 @@ var ForStmt = $.inherit({
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#for0'), self.problem);
 				var numId = $(newNode).prop('numId');
-				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
+				$('#for' + numId + ' > span > input').prop('value', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	}
