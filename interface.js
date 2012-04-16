@@ -402,13 +402,28 @@ function onCreateItem(tree, newNode, initObject, problem){
 		case 'if':
 		case 'ifelse':
 		case 'while':
-			$(newNode).append('<select id = "select' + cmdId +'">');
-			for (var i = 0; i < builtinFunctionsDict.length; ++i)
+			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
+			for (var i = 0; i < selectObjects.length; ++i)
 			{
-				$('#select' + cmdId).append('<option value = ' + i + '>' + builtinFunctionsDict[i][1] + '</option><br>');
+				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
 			}
 			$(newNode).append('</select>');
-			$('#select' + cmdId).change(function(p){return function() {p.updated();}}(problem));
+
+			$(newNode).append('<select id = "selectConditions' + cmdId +'">');
+			for (var i = 0; i < selectConditions.length; ++i)
+			{
+				$('#selectConditions' + cmdId).append('<option value = ' + i + '>' + selectConditions[i][1] + '</option><br>');
+			}
+			$(newNode).append('</select>');
+
+			$(newNode).append('<select id = "selectDirections' + cmdId +'">');
+			for (var i = 0; i < selectDirections.length; ++i)
+			{
+				$('#selectDirections' + cmdId).append('<option value = ' + i + '>' + selectDirections[i][1] + '</option><br>');
+			}
+			$(newNode).append('</select>');
+			
+			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections').change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'If');
 				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 

@@ -1,3 +1,23 @@
+Array.prototype.compare = function(testArr) {
+    if (this.length != testArr.length) return false;
+    for (var i = 0; i < testArr.length; i++) {
+        if (this[i].compare) { 
+            if (!this[i].compare(testArr[i])) return false;
+        }
+        if (this[i] !== testArr[i]) return false;
+    }
+    return true;
+}
+
+Array.prototype.clone = function() {
+  var newObj = [];
+  for (i in this) {
+    if (i == 'clone') continue;
+    newObj[i] = this[i]
+  } 
+  return newObj;
+};
+
 function generateTabs(tabsNum)
 {
 	var str = '';
@@ -25,6 +45,49 @@ var builtinFunctionsDict = [
 	['keyAtTheLeft', 'Ключ слева',  keyAtTheLeft],
 	['keyAtTheRight', 'Ключ справа', keyAtTheRight],
 	['keyInFrontOf', 'Ключ спереди', keyInFrontOf]
+];
+
+var selectObjects = [
+	['wall', 'Стена'],
+	['prize', 'Приз'],
+	['monster', 'Монстр'],
+	['box', 'Ящик'],
+	['lock', 'Замок'],
+	['key', 'Ключ']
+];
+
+var selectConditions = [
+	['is', ''],
+	['isNot', 'не']
+];
+
+var selectDirections = [
+	['atTheLeft', 'слева'],
+	['atTheRight', 'справа'],
+	['inFrontOf', 'спереди']
+];
+
+var builtinFunctions = [
+	{
+		'name': 'truly',
+		'args': [
+			{
+				'type': 'Str',
+				'dict': selectObjects
+			}, 
+			{
+				'type': 'Str',
+				'dict': selectConditions
+			}, 
+			{
+				'type': 'Str',
+				'dict': selectDirections
+			}
+		],
+		'jsFunc': truly,
+		'handlerFunc': truly_handler,
+		'dict': selectObjects,
+	}
 ];
 
 function wallAtTheLeft(){
@@ -99,4 +162,84 @@ function keyInFrontOf(){
 	return curProblem.keyInFrontOf();
 }
 
+function truly(object, condition, direction){
+	var result = true;
+	var dir = '';
+	switch(direction){
+		case 'atTheLeft': 
+			dir = 'left';
+			break;
+		case 'atTheRight':
+			dir = 'right';
+			break;
+		case 'inFrontOf':
+			dir = 'forward';
+			break;
+		default:
+			return false; //should we throw exception?
+	}
+	var cell = curProblem.getFieldElem(dir);
+	switch(object){
+		case 'wall':
+			result = cell.isWall;
+			break;
+		case 'prize':
+			result = cell.findCell(Prize) != undefined;
+			break;
+		case 'box':
+			result = cell.findCell(Monster) != undefined;
+			break;
+		case 'lock':
+			result = cell.findCell(Lock) != undefined;
+			break;
+		case 'key':
+			result = cell.findCell(Key) != undefined;
+			break;
+		default:
+			return false;
+	}
+	if (condition == 'isNot')
+		result = !result;
+	return result;
+}
 
+function truly_handler(object, condition, direction){
+	var result = true;
+	var dir = '';
+	switch(direction.v){
+		case 'atTheLeft': 
+			dir = 'left';
+			break;
+		case 'atTheRight':
+			dir = 'right';
+			break;
+		case 'inFrontOf':
+			dir = 'forward';
+			break;
+		default:
+			return false; //should we throw exception?
+	}
+	var cell = curProblem.getFieldElem(dir);
+	switch(object.v){
+		case 'wall':
+			result = cell.isWall;
+			break;
+		case 'prize':
+			result = cell.findCell(Prize) != undefined;
+			break;
+		case 'box':
+			result = cell.findCell(Monster) != undefined;
+			break;
+		case 'lock':
+			result = cell.findCell(Lock) != undefined;
+			break;
+		case 'key':
+			result = cell.findCell(Key) != undefined;
+			break;
+		default:
+			return false;
+	}
+	if (condition.v == 'isNot')
+		result = !result;
+	return result;
+}

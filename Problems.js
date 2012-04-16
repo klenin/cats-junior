@@ -221,15 +221,18 @@ var ForStmt = $.inherit({
 });
 
 var IfStmt = $.inherit({
-	__constructor : function(testName, firstBlock, secondBlock, parent, id, problem) {
+	__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem) {
         this.curBlock = undefined;
+		this.args = args.clone();
 		this.testName = testName;
-		for (var i = 0; i < builtinFunctionsDict.length; ++i)
-		{
-			if (builtinFunctionsDict[i][0] == this.testName)
-			{
-				this.test = builtinFunctionsDict[i][2];
-			}
+		switch(testName){
+			case 'truly':
+				this.test = function(){return truly(selectObjects[args[0]][0], 
+					selectConditions[args[1]][0], 
+					selectDirections[args[2]][0])};
+				break;
+			default:
+				this.test = function(){return false};
 		}
 		this.blocks = [firstBlock, secondBlock];
 		this.parent = parent;	
@@ -240,7 +243,8 @@ var IfStmt = $.inherit({
 		return this.curBlock != undefined && (!this.blocks[this.curBlock] || this.blocks[this.curBlock].isFinished());
 	},
 	eq: function(block){
-		return block.getClass() == 'if' && this.testName == block.testName && 
+	
+		return block.getClass() == 'if' && this.args.compare(block.args) &&
 			((this.curBlock == undefined && block.curBlock == undefined) ||
 			(this.curBlock != undefined && block.curBlock != undefined && 
 			this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
@@ -298,6 +302,7 @@ var IfStmt = $.inherit({
 		}
 		this.test = block.test; //?
 		this.testName = block.testName;
+		this.args = block.args.clone();
 		this.id = block.id;
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
@@ -325,7 +330,18 @@ var IfStmt = $.inherit({
 		$('#' + this.id + '>select').css('background-color', 'green');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'if ' + this.testName + '():\n';
+		var str = generateTabs(tabsNum) + 'if ';
+		switch(this.testName){
+			case 'truly':
+				str += 'truly("' + 
+				selectObjects[this.args[0]][0] + '", "' + 
+				selectConditions[this.args[1]][0] + '", "' +
+				selectDirections[this.args[2]][0] + '"):\n';
+				break;
+			default:
+				str += 'False';
+		}
+		 
 		str += this.blocks[0].convertToCode(tabsNum + 1);
 		if (this.blocks[1])
 		{
@@ -341,12 +357,12 @@ var IfStmt = $.inherit({
 			false, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
 				var numId = $(newNode).prop('numId');
-				for (var i = 0; i < builtinFunctionsDict.length; ++i)
-				{
-					if (self.testName == builtinFunctionsDict[i][0])
-					{
-						$('#select' + numId).val(i)
-					}
+				switch (self.testName){
+					case 'truly':
+						$('#selectObjects' + numId).val(self.args[0]);
+						$('#selectConditions' + numId).val(self.args[1]);
+						$('#selectDirections' + numId).val(self.args[2]);
+						break;
 				}
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
@@ -362,17 +378,20 @@ var IfStmt = $.inherit({
 });
 
 var WhileStmt = $.inherit({
-	__constructor : function(testName, body, parent, id, problem) {
+	__constructor : function(testName, args, body, parent, id, problem) {
         this.finished = false;//
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
+		this.args = args.clone();
 		this.testName = testName;
-		for (var i = 0; i < builtinFunctionsDict.length; ++i)
-		{
-			if (builtinFunctionsDict[i][0] == this.testName)
-			{
-				this.test = builtinFunctionsDict[i][2];
-			}
+		switch(testName){
+			case 'truly':
+				this.test = function(){return truly(selectObjects[args[0]][0], 
+					selectConditions[args[1]][0], 
+					selectDirections[args[2]][0])};
+				break;
+			default:
+				this.test = function(){return false};
 		}
 		this.body = body;
 		this.parent = parent;	
@@ -383,8 +402,7 @@ var WhileStmt = $.inherit({
 		return this.finished;
 	},
 	eq: function(block){
-		return block.getClass() == 'while' && this.testName == block.testName && 
-			this.body.eq(block.body);
+		return block.getClass() == 'while' && this.args.compare(block.args) && 	this.body.eq(block.body);
 	},
 	exec: function(cnt)
 	{
@@ -447,6 +465,7 @@ var WhileStmt = $.inherit({
 		}
 		this.test = block.test; //?
 		this.testName = block.testName;
+		this.args = block.args.clone();
 		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
@@ -467,7 +486,17 @@ var WhileStmt = $.inherit({
 		$('#' + this.id + '>select').css('background-color', 'green');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'while ' + this.testName + '():\n';
+		var str = generateTabs(tabsNum) + 'while ';
+		switch(this.testName){
+			case 'truly':
+				str += 'truly("' + 
+				selectObjects[this.args[0]][0] + '", "' + 
+				selectConditions[this.args[1]][0] + '", "' +
+				selectDirections[this.args[2]][0] + '"):\n';
+				break;
+			default:
+				str += 'False';
+		}
 		return str + this.body.convertToCode(tabsNum + 1);
 	},
 	generateCommand: function(tree, node){
@@ -477,12 +506,12 @@ var WhileStmt = $.inherit({
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
 				var numId = $(newNode).prop('numId');
-				for (var i = 0; i < builtinFunctionsDict.length; ++i)
-				{
-					if (self.testName == builtinFunctionsDict[i][0])
-					{
-						$('#select' + numId).val(i)
-					}
+				switch (self.testName){
+					case 'truly':
+						$('#selectObjects' + numId).val(self.args[0]);
+						$('#selectConditions' + numId).val(self.args[1]);
+						$('#selectDirections' + numId).val(self.args[2]);
+						break;
 				}
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -1285,7 +1314,8 @@ var Problem = $.inherit({
 			{
 				if (!$('#codeMode' + this.tabIndex).prop('checked'))
 				{
-					codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
+					var str = this.convertCommandsToCode();
+					codeareas[this.tabIndex].setValue(str);
 				}
 				this.prepareForExecuting(!this.speed);
 				this.playing = true;
@@ -1360,6 +1390,7 @@ var Problem = $.inherit({
 		{
 			$gbl[problem][builtinFunctionsDict[i][0]] = builtinFunctionsDict[i][2];
 		}
+		$gbl[problem]['truly'] = truly_handler;
 		this.changed = false;
 	},
 	stop: function(){

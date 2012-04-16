@@ -229,14 +229,17 @@ function convert(commands, parent, problem)
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')
 		{
-			var test = builtinFunctionsDict[$('#' + id + ' option:selected').val()][0];
+		
+			var test1 = $('#' + id + ' option:selected')[0].value;
+			var test2 = $('#' + id + ' option:selected')[1].value;
+			var test3 = $('#' + id + ' option:selected')[2].value;
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
 			if (type == 'ifelse' && commands[++i].children)
 				block2 = convert(commands[i].children, block, problem);
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt(test, block1, block, id, problem) : 
-				new IfStmt(test, block1, block2, block, id, problem));
+				new WhileStmt('truly', [test1, test2, test3], block1, block, id, problem) : 
+				new IfStmt('truly', [test1, test2, test3], block1, block2, block, id, problem));
 		}
 		else if (type == 'for')
 		{
@@ -296,21 +299,37 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(forStmt);
 				break;
 			case 'If':
-				//__constructor : function(testName, firstBlock, secondBlock, parent, id) 
+				//__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem)
 				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
 					commands[i].test.func._astname != 'Name') //
 					return undefined;
+				if (!commands[i].test.args || !commands[i].test.args.length || commands[i].test.args.length != 3) //
+					return undefined;
 				var testName = '';
+				var args = [];
 				switch(commands[i].test.func.id.v)
 				{
-					case 'test1':
-					case 'test2':
+					case 'truly':
 						testName = commands[i].test.func.id.v;
+						if (commands[i].test.args.length != builtinFunctions[0]['args'].length)
+							return undefined;
+						for (var j = 0; j < commands[i].test.args.length; ++j){
+							if (commands[i].test.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
+								return undefined;
+							for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
+								for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
+									if (builtinFunctions[0]['args'][k]['dict'][l][0] == commands[i].test.args[j].s.v){
+										args.push(l);
+										break;
+									}
+								}
+							}
+						}
 						break;
 					default:
 						return undefined;
 				}
-				var ifStmt = new IfStmt(testName, undefined, undefined, block, undefined, problem);			
+				var ifStmt = new IfStmt(testName, args, undefined, undefined, block, undefined, problem);			
 				var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				var body2;
 				if (commands[i].orelse.length)
@@ -320,21 +339,37 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(ifStmt);
 				break;
 			case 'While':
-				//__constructor : function(testName, body, parent, id)
+				//__constructor : function(testName, args, body, parent, id, problem)
 				if (!commands[i].test || commands[i].test._astname != 'Call' ||  
 					commands[i].test.func._astname != 'Name') //
 					return undefined;
+				if (!commands[i].test.args || !commands[i].test.args.length || commands[i].test.args.length != 3) //
+					return undefined;
 				var testName = '';
+				var args = [];
 				switch(commands[i].test.func.id.v)
 				{
-					case 'test1':
-					case 'test2':
+					case 'truly':
 						testName = commands[i].test.func.id.v;
+						if (commands[i].test.args.length != builtinFunctions[0]['args'].length)
+							return undefined;
+						for (var j = 0; j < commands[i].test.args.length; ++j){
+							if (commands[i].test.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
+								return undefined;
+							for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
+								for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
+									if (builtinFunctions[0]['args'][k]['dict'][l][0] == commands[i].test.args[j].s.v){
+										args.push(l);
+										break;
+									}
+								}
+							}
+						}
 						break;
 					default:
 						return undefined;
 				}
-				var whileStmt = new WhileStmt(testName, undefined, block, undefined, problem)
+				var whileStmt = new WhileStmt(testName, args, undefined, block, undefined, problem)
 				var body = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				if (!body)
 					return undefined;
