@@ -18,7 +18,11 @@ var Command = $.inherit({
 			eval(this.name + '();');
 			if (!this.curCnt && !this.problem.codeMode())
 				++this.problem.divIndex;
-
+			if (this.problem.maxCmdNum && this.problem.divIndex == this.problem.maxCmdNum){
+				var mes = new MessageCmdLimit();
+				this.problem.arrow.dead = true;
+				return;
+			}
 			++this.curCnt;
 		}
 		if (this.problem.speed || this.cnt == this.curCnt)
@@ -303,6 +307,15 @@ var IfStmt = $.inherit({
 		this.test = block.test; //?
 		this.testName = block.testName;
 		this.args = block.args.clone();
+		switch(this.testName){
+			case 'truly':
+				this.test = function(){return truly(selectObjects[this.args[0]][0], 
+					selectConditions[this.args[2]][0], 
+					selectDirections[this.args[1]][0])};
+				break;
+			default:
+				this.test = function(){return false};
+		}
 		this.id = block.id;
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
@@ -468,6 +481,15 @@ var WhileStmt = $.inherit({
 		this.test = block.test; //?
 		this.testName = block.testName;
 		this.args = block.args.clone();
+		switch(this.testName){
+			case 'truly':
+				this.test = function(){return truly(selectObjects[this.args[0]][0], 
+					selectConditions[this.args[2]][0], 
+					selectDirections[this.args[1]][0])};
+				break;
+			default:
+				this.test = function(){return false};
+		}
 		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
@@ -835,10 +857,14 @@ var Problem = $.inherit({
 		if (this.maxCmdNum){ 
 			$('#curStep' + this.tabIndex).text(this.divIndex);
 			$('#progressBar'  + this.tabIndex).progressbar('option', 'value',  this.divIndex / this.maxCmdNum * 100);
+			//if (this.divIndex == this.maxCmdNum)
+			//	this.stopped = true;
 		} 
 		else if (this.maxStep){
 			$('#curStep' + this.tabIndex).text(this.step);
 			$('#progressBar'  + this.tabIndex).progressbar('option', 'value',  this.step  / this.maxStep * 100);
+			//if (this.step == this.maxStep)
+			//	this.stopped = true;
 		}
 	},
 	enableButtons: function(){
@@ -1050,11 +1076,27 @@ var Problem = $.inherit({
 		{
 			if ($('#codeMode' + this.tabIndex).prop('checked'))
 			{
-				for (var i = 0; i < cnt && !this.paused && this.tryNextStep(); ++i){};
+				for (var i = 0; i < cnt && i < maxStep && !this.paused && this.tryNextStep(); ++i){
+					if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
+						this.maxStep && this.step == this.maxStep){
+						var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
+						this.arrow.dead = true;
+						break;
+					}
+						
+				};
+				if (i < cnt && i == maxStep && !this.paused){
+					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+				}
 			}
 			else
 			{
-				this.executedCommandsNum += cnt - this.cmdList.exec(cnt);
+				var c = cnt == MAX_VALUE ? maxStep : cnt;
+				var executed = this.cmdList.exec(c);
+				this.executedCommandsNum += c - executed;
+				if (cnt == MAX_VALUE && !executed && !this.paused){
+					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+				}
 				if (this.cmdList.isFinished())
 					this.playing = false;
 			}
@@ -1413,6 +1455,11 @@ var Problem = $.inherit({
 		return $('#codeMode' + this.tabIndex).prop('checked');
 	},
 	next: function(){
+		if (this.maxCmdNum && this.divIndex == this.maxCmdNum){
+			var mes = new MessageCmdLimit();
+			this.arrow.dead = true;
+			return;
+		}
 		if (this.codeMode())
 		{
 			try
@@ -1517,7 +1564,7 @@ var Problem = $.inherit({
 			cX += changeDir['forward'][newDir.curDir].dx;
 			cY += changeDir['forward'][newDir.curDir].dy;
 		}
-		return this.map[cY][cX];
+		return this.labirintOverrun(cX, cY) ? new FieldElem(this, undefined, false) : this.map[cY][cX];
 	},
 	wallAtTheLeft: function(){
 		return this.getFieldElem('left').isWall;
