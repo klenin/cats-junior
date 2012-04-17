@@ -995,6 +995,7 @@ var Problem = $.inherit({
 		{
 			if (!this.cmdList.exec(1))
 				++this.executedCommandsNum;
+			this.changeProgressBar();
 			if (this.cmdList.isFinished())
 			{
 				this.playing = false;
