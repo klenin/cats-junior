@@ -127,7 +127,7 @@ var ForStmt = $.inherit({
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>span').css('background-color', 'green');
+					$('#' + this.id + '>span').css('background-color', '#1CB2B3');
 				}
 				this.problem.lastExecutedCmd = this;
 				if (this.curCnt + 1 > this.cnt)
@@ -200,7 +200,7 @@ var ForStmt = $.inherit({
 		this.body.highlightOff();
 	},
 	highlightOn: function(){
-		$('#' + this.id + '>span').css('background-color', 'green');
+		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
@@ -263,7 +263,7 @@ var IfStmt = $.inherit({
 						this.problem.prevCmd.highlightOff();
 					this.problem.prevCmd = this;
 				}
-				$('#' + this.id + '>select').css('background-color', 'green');
+				$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 
 			}
 			this.problem.lastExecutedCmd = this;
@@ -336,7 +336,7 @@ var IfStmt = $.inherit({
 			this.blocks[1].highlightOff();
 	},
 	highlightOn: function(){
-		$('#' + this.id + '>select').css('background-color', 'green');
+		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'if ';
@@ -431,7 +431,7 @@ var WhileStmt = $.inherit({
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>select').css('background-color', 'green');
+					$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 				}
 				this.problem.lastExecutedCmd = this;
 				if (!this.test())
@@ -503,7 +503,7 @@ var WhileStmt = $.inherit({
 		this.body.highlightOff();
 	},
 	highlightOn: function(){
-		$('#' + this.id + '>select').css('background-color', 'green');
+		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'while ';

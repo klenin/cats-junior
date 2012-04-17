@@ -17,4 +17,4 @@
 .cm-s-default span.cm-bracket {color: #cc7;}
 .cm-s-default span.cm-tag {color: #170;}
 .cm-s-default span.cm-attribute {color: #00c;}
-.cm-s-default pre.cm-curline {background-color: #BCE0FF;}
+.cm-s-default pre.cm-curline {background-color: #1CB2B3; opacity: 0.25;}
