@@ -423,7 +423,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 			}
 			$(newNode).append('</select>');
 			
-			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections').change(function(p){return function() {p.updated();}}(problem));
+			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'If');
 				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 
