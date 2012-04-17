@@ -243,3 +243,58 @@ function truly_handler(object, direction){
 	}
 	return result;
 }
+
+function tryNextStep_(){
+	var problem = problems.length + 1;
+	if (getCurBlock() >= 0){
+		if (nextline[problem] != undefined)
+			codeareas[problem].setLineClass(nextline[problem], null);
+		var e = 1;
+		while (getCurBlock() >= 0 && (e || $expr[problem]))
+		{
+			$expr[problem] = 0;
+			e = getScope().blocks[getCurBlock()].expr;
+			try
+			{
+				eval(finalcode[problem].code);
+			}catch(e)
+			{
+				$('#cons' + problem).append('\n' + e + '\n');
+				return 0;
+
+			}
+		}
+		if (getCurBlock() >= 0)
+		{
+			var b = getCurBlock();
+			while(getScope().blocks[b].funcdef)
+				++b;
+			nextline[problem] = getScope().blocks[b].lineno;		
+		}
+			
+		if (nextline[problem] != undefined)
+		{
+			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+			if (codeareas[problem].lineInfo(nextline[problem]).markerText)
+			{
+				//curProblem.playing = false;
+				return 1;
+			}
+		}
+		if (getCurBlock() < 0)
+		{
+			if (nextline[problem] != undefined)
+				codeareas[problem].setLineClass(nextline[problem], null);
+			$('#cons' + problem).append('\nfinished\n');
+			return 0;
+		} 
+	}
+	else
+	{
+		if (nextline[problem] != undefined)
+			codeareas[problem].setLineClass(nextline[problem], null);
+		$('#cons' + problem).append('\nfinished\n');
+		return 0;
+	}
+	return 1;
+}

@@ -19,6 +19,8 @@
 	getContests();
 	cmdId = problems.length;
 	$('#tabs').bind('tabsshow', function(event, ui) {
+		if (!curProblem)
+			return;
 		var problem = curProblem;
 		if (problem.visited)
 			return;

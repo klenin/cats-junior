@@ -54,7 +54,7 @@ function tryCode()
 		$scopestack[problem] = 0;
 		$('#codeRes1').html(finalcode[problem].code);
 		$gbl[problem]['my_function'] = my_function;
-		curProblem.updateWatchList();
+		//curProblem.updateWatchList();
 	} catch (e) {
 		alert(e);
 	}

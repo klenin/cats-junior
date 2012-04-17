@@ -370,8 +370,8 @@ function fillTabs(){
 	$('#addWatch' + (problems.length + 1)).button().click(onAddWatchClick);
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
-	//$('#btnPythonNext').button();
-	//$('#btnPythonNext').click(problems);
+	$('#btnPythonNext').button();
+	$('#btnPythonNext').click(tryNextStep_);
 }
 
 function setSpin(problem){
