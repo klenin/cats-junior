@@ -183,6 +183,9 @@ function truly(object, condition, direction){
 			result = cell.findCell(Prize) != undefined;
 			break;
 		case 'box':
+			result = cell.findCell(Box) != undefined;
+			break;
+		case 'monster':
 			result = cell.findCell(Monster) != undefined;
 			break;
 		case 'lock':
@@ -224,6 +227,9 @@ function truly_handler(object, direction){
 			result = cell.findCell(Prize) != undefined;
 			break;
 		case 'box':
+			result = cell.findCell(Box) != undefined;
+			break;
+		case 'monster':
 			result = cell.findCell(Monster) != undefined;
 			break;
 		case 'lock':
