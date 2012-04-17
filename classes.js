@@ -73,7 +73,7 @@ var FieldElem = $.inherit({
 	},
 	findCell: function(c, id){
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].__self == c && this.cells[i].id== id)//////
+			if (this.cells[i].__self == c && (id != undefined ? this.cells[i].id == id : true))//////
 				return this.cells[i];
 		return undefined;
 	},
