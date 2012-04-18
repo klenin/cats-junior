@@ -41,7 +41,7 @@
   };
   $.extend({
     spin: {
-      imageBasePath: '/courseWork/ev/images/',
+      imageBasePath: '/cats/ev/CourseWork/images/',
       spinBtnImage: 'spin-button.png',
       spinUpImage: 'spin-up.png',
       spinDownImage: 'spin-down.png',
