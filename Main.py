@@ -219,7 +219,7 @@ class State:
 		self.curMap = []
 		self.field = []
 		self.monsters = []
-		print self.specSymbols
+		#print self.specSymbols
 		for i in range(len(self.map)):
 			self.curMap.append([])
 			self.field.append([])
@@ -231,7 +231,7 @@ class State:
 					self.cur = Coord(j, i, translateDirs[self.curMap[i][j]])
 				for k in range(len(self.specSymbols)):
 					if self.curMap[i][j] == self.specSymbols[k]['symbol']:
-						print self.curMap[i][j], i, j
+						#print self.curMap[i][j], i, j
 						obj = Prize(j, i, self.specSymbols[k]) if self.specSymbols[k]['action'] == 'eat' else Box(j, i, self.specSymbols[k])
 						self.field[i][j].cells.append(obj)
 
@@ -293,7 +293,9 @@ def nextStep(direct):
 					changeCoord = False
 					break
 				if isinstance(cell, Monster):
-					return False
+					curState.dead = True
+					raise MyException('Arrow is dead')
+					
 				if isinstance(cell, Box):
 					tx = c_x + dx
 					ty = c_y + dy
@@ -332,17 +334,24 @@ def nextStep(direct):
 			c1 = monster.tryNextStep()
 			if (curState.field[c1.y][c1.x].mayPush(monster)):
 				if c1.y == curState.cur.y and c1.x == curState.cur.x:
-					return False
+					curState.dead = True
+					raise MyException('Arrow is dead')
+					
 				curState.field[monster.y][monster.x].cells.remove(monster)
 				monster.nextStep()
 				curState.field[c1.y][c1.x].cells.append(monster);
 					
 		if curState.life == 0 or curState.steps + 1 > curState.maxStep:
-			return False
+			curState.dead = True
+			raise MyException('Arrow is dead')
+			
 		curState.steps += 1
 	except Exception as e:
-		print e
-		raise MyException('Something bad happened in nextStep')
+		if not isinstance(e, Exception):
+			print e
+			raise MyException('Something bad happened in nextStep')
+		else:
+			raise e
 
 def forward(cnt = 1):
 	for i in range(cnt):
@@ -360,60 +369,36 @@ def wait(cnt = 1):
 	for i in range(cnt):
 		nextStep('wait')
 
-def wallAtTheLeft(): 
-		return curState.getFieldElem('left').isWall
+def truly(object, direction):
+	result = True
+	dir = ''
+	if direction == 'atTheLeft':
+		dir = 'left'
+	elif direction == 'atTheRight':
+		dir = 'right'
+	elif direction == 'inFrontOf':
+		dir = 'forward'
+	else:
+		return False
 
-def wallAtTheRight(): 
-		return curState.getFieldElem('right').isWall
+	cell = curState.getFieldElem(dir)
+	if object == 'wall':
+		result = cell.isWall
+	elif 'prize':
+		result = cell.findCell(Prize) != None;
+	elif 'box':
+		result = cell.findCell(Box) != None;
+	elif 'monster':
+		result = cell.findCell(Monster) != None;
+	elif 'lock':
+		result = cell.findCell(Lock) != None;
+	elif 'key':
+		result = cell.findCell(Key) != None;
+	else:
+		return False
 
-def wallInFrontOf(): 
-		return curState.getFieldElem('forward').isWall
+	return result
 
-def prizeAtTheLeft():
-		return curState.getFieldElem('left').findCell(Prize) != None
-
-def prizeAtTheRight():
-		return curState.getFieldElem('right').findCell(Prize) != None
-
-def prizeInFrontOf():
-		return curState.getFieldElem('forward').findCell(Prize) != None
-
-def monsterAtTheLeft():
-		return curState.getFieldElem('left').findCell(Monster) != None
-
-def monsterAtTheRight():
-		return curState.getFieldElem('right').findCell(Monster) != None
-
-def monsterInFrontOf():
-		return curState.getFieldElem('forward').findCell(Monster) != None
-
-def boxAtTheLeft():
-		return curState.getFieldElem('left').findCell(Box) != None
-
-def boxAtTheRight():
-		return curState.getFieldElem('right').findCell(Box) != None
-
-def boxInFrontOf():
-		return curState.getFieldElem('forward').findCell(Box) != None
-
-def lockAtTheLeft():
-		return curState.getFieldElem('left').findCell(Lock) != None
-
-def lockAtTheRight():
-		return curState.getFieldElem('right').findCell(Lock) != None
-
-def lockInFrontOf():
-		return curState.getFieldElem('forward').findCell(Lock) != None
-
-def keyAtTheLeft():
-		return curState.getFieldElem('left').findCell(Key) != None
-
-def keyAtTheRight():
-		return curState.getFieldElem('right').findCell(Key) != None
-
-def keyInFrontOf():
-		return curState.getFieldElem('forward').findCell(Key) != None
-			
 def solve():
 	try:
 		f = open('problem.json', 'r')
@@ -432,11 +417,10 @@ def solve():
 		curState = State(**problem)
 							
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
-		print sol
 		exec sol
-		print curState.pnts
 	except MyException as e:
 		print e
+		print curState.pnts
 			
 if __name__ == '__main__':
 	sys.exit(solve())

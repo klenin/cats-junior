@@ -1554,60 +1554,6 @@ var Problem = $.inherit({
 		}
 		return this.labirintOverrun(cX, cY) ? new FieldElem(this, undefined, false) : this.map[cY][cX];
 	},
-	wallAtTheLeft: function(){
-		return this.getFieldElem('left').isWall;
-	},
-	wallAtTheRight: function(){
-		return this.getFieldElem('right').isWall;
-	},
-	wallInFrontOf: function(){
-		return this.getFieldElem('forward').isWall;
-	},
-	prizeAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Prize) != undefined;
-	},
-	prizeAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Prize) != undefined;
-	},
-	prizeInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Prize) != undefined;
-	},
-	monsterAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Monster) != undefined;
-	},
-	monsterAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Monster) != undefined;
-	},
-	monsterInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Monster) != undefined;
-	},
-	boxAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Box) != undefined;
-	},
-	boxAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Box) != undefined;
-	},
-	boxInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Box) != undefined;
-	},
-	lockAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Lock) != undefined;
-	},
-	lockAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Lock) != undefined;
-	},
-	lockInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Lock) != undefined;
-	},
-	keyAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Key) != undefined;
-	},
-	keyAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Key) != undefined;
-	},
-	keyInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Key) != undefined;
-	},
 	checkLimit: function(){
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){

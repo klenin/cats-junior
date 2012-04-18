@@ -268,6 +268,7 @@ function fillTabs(){
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
 						$('#tdcommands' + j).show();
+						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#jstree-container' + j).empty();
 						//problems[j].cmdList = undefined;
@@ -287,6 +288,7 @@ function fillTabs(){
 						$('#jstree-container' + j).hide();
 						$('#tdcommands' + j).hide();
 						$('#tdcontainer' + j).hide();
+						$('#btn_clear' + j).hide();
 						$('#tdcode' + j).show();
 						problems[j].setDefault();
 						codeareas[j].setValue(problems[j].convertCommandsToCode());
