@@ -48,8 +48,7 @@ div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait,
 div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	list-style-type: none; 
 	margin: 5px; 
-	padding-left: 40px;
-	width: 150px; 
+	width: 32px; 
 	height: 32px;
 	border: 1px solid #ffffff;
 	color: #363636; 
@@ -57,23 +56,38 @@ div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	-moz-border-radius: 4px; 
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
-	
 }
-div.forward{ background: #A9A9A9 url('../images/forward_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
-div.forward1{ background: #1CB2B3 url('../images/forward_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
-div.left{ background: #A9A9A9 url('../images/left_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
-div.right{ background: #A9A9A9 url('../images/right_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
-div.left1{ 	background: #1CB2B3 url('../images/left_smallt.png') 5% 100% no-repeat !important;background-position: 5% 50%;}
-div.right1{ background: #1CB2B3 url('../images/right_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
-div.wait{ background: #A9A9A9 url('../images/wait_small.png') 5% 100% no-repeat; background-position: 5% 50%;}
-div.wait1{ background: #1CB2B3 url('../images/wait_small.png') 5% 100% no-repeat !important; background-position: 5% 50%;}
+div.block, div.if, div.ifelse, div.while, div.for{
+	list-style-type: none; 
+	margin: 5px; 
+	width: 32px; 
+	height: 32px;
+	border: 1px solid #A9A9A9;
+	color: #363636; 
+	z-index: 1;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
+}
+div.forward{ background: #A9A9A9 url('../images/forward_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.forward1{ background: #1CB2B3 url('../images/forward_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
+div.left{ background: #A9A9A9 url('../images/left_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.right{ background: #A9A9A9 url('../images/right_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.left1{ 	background: #1CB2B3 url('../images/left_smallt.png') 5% 100% no-repeat !important;background-position: 50% 50%;}
+div.right1{ background: #1CB2B3 url('../images/right_small.png') 5% 100% no-repeat !important; background-position: 5%0 50%;}
+div.wait{ background: #A9A9A9 url('../images/wait_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.wait1{ background: #1CB2B3 url('../images/wait_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
+div.if{ background: url('../images/if.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.ifelse{ background: url('../images/if_else.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.while{ background: url('../images/while.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.for{ background: url('../images/for.png') 5% 100% no-repeat; background-position: 50% 50%;}
 .highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
 }
 div.sortable{
-	width: 350px;
+	width: 100%;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;

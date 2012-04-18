@@ -194,7 +194,7 @@ function fillTabs(){
 				$('#ui-tabs-' + (i + 1)).empty();
 				$('#tabs').tabs('remove', i + 1);
 			}
-			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title, i + 1);
+			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1), problems[i].code, i + 1);
 			var divs = [];
 			for (var j = 0; j < problems[i].commands.length; ++j)
 			{
@@ -214,6 +214,7 @@ function fillTabs(){
 				'maxCmdNum': problems[i].maxCmdNum,
 				'maxStep': problems[i].maxStep,
 				'commands': divs,
+				'title': problems[i].title,
 				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
 			$('#hideStatement' + i)
 				.button({text: false, icons: {primary: 'ui-icon-minus'}})
