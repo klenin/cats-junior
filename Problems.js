@@ -342,11 +342,10 @@ var IfStmt = $.inherit({
 		var str = generateTabs(tabsNum) + 'if ';
 		switch(this.testName){
 			case 'truly':
-				if (this.args[2])
+				if (this.args[2] )
 					str += 'not ';
 				str += 'truly("' + 
 				selectObjects[this.args[0]][0] + '", "' + 
-				selectConditions[this.args[2]][0] + '", "' +
 				selectDirections[this.args[1]][0] + '"):\n';
 				break;
 			default:

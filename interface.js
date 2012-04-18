@@ -402,17 +402,17 @@ function onCreateItem(tree, newNode, initObject, problem){
 		case 'if':
 		case 'ifelse':
 		case 'while':
-			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
-			for (var i = 0; i < selectObjects.length; ++i)
-			{
-				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
-			}
-			$(newNode).append('</select>');
-
 			$(newNode).append('<select id = "selectConditions' + cmdId +'">');
 			for (var i = 0; i < selectConditions.length; ++i)
 			{
 				$('#selectConditions' + cmdId).append('<option value = ' + i + '>' + selectConditions[i][1] + '</option><br>');
+			}
+			$(newNode).append('</select>')
+			
+			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
+			for (var i = 0; i < selectObjects.length; ++i)
+			{
+				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
 			}
 			$(newNode).append('</select>');
 

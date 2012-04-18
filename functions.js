@@ -230,8 +230,8 @@ function convert(commands, parent, problem)
 		else if (type == 'if' || type == 'ifelse' || type == 'while')
 		{
 		
-			var test1 = parseInt($('#' + id + ' option:selected')[0].value);
-			var test3 = parseInt($('#' + id + ' option:selected')[1].value);
+			var test3 = parseInt($('#' + id + ' option:selected')[0].value);
+			var test1 = parseInt($('#' + id + ' option:selected')[1].value);
 			var test2 = parseInt($('#' + id + ' option:selected')[2].value);
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
