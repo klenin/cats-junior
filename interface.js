@@ -16,7 +16,8 @@ function login(callback){
 				$('#forJury' + i).show();
 		}
 		logined = true;
-		callback();
+		if (callback)
+			callback();
 		return true;
 	});
 }
