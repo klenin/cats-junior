@@ -338,7 +338,7 @@ function fillTabs(){
 			$('#tabs').tabs('remove', i);
 		}
 	}
-	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
+	/*$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
 	$('#pythonForm').append('<select id = "selectTest" name = "selectTest" onchange = "testChanged()"></select>');
@@ -374,7 +374,7 @@ function fillTabs(){
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();
-	$('#btnPythonNext').click(tryNextStep_);
+	$('#btnPythonNext').click(tryNextStep_);*/
 }
 
 function setSpin(problem){
@@ -410,7 +410,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 			{
 				$('#selectConditions' + cmdId).append('<option value = ' + i + '>' + selectConditions[i][1] + '</option><br>');
 			}
-			$(newNode).append('</select>')
+			$(newNode).append('</select> (')
 			
 			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
 			for (var i = 0; i < selectObjects.length; ++i)
@@ -424,7 +424,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 			{
 				$('#selectDirections' + cmdId).append('<option value = ' + i + '>' + selectDirections[i][1] + '</option><br>');
 			}
-			$(newNode).append('</select>');
+			$(newNode).append('</select>)');
 			
 			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){

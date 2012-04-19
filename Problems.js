@@ -1421,10 +1421,6 @@ var Problem = $.inherit({
 		$gbl[problem]['left'] = left;
 		$gbl[problem]['right'] = right;
 		$gbl[problem]['wait'] = wait;
-		for (var i = 0; i < builtinFunctionsDict.length; ++i)
-		{
-			$gbl[problem][builtinFunctionsDict[i][0]] = builtinFunctionsDict[i][2];
-		}
 		$gbl[problem]['truly'] = truly_handler;
 		this.changed = false;
 	},
