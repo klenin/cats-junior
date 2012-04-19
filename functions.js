@@ -113,8 +113,8 @@ function convert(commands, parent, problem)
 			if (type == 'ifelse' && commands[++i].children)
 				block2 = convert(commands[i].children, block, problem);
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt('truly', [test1, test2, test3], block1, block, id, problem) : 
-				new IfStmt('truly', [test1, test2, test3], block1, block2, block, id, problem));
+				new WhileStmt('objectPosition', [test1, test2, test3], block1, block, id, problem) : 
+				new IfStmt('objectPosition', [test1, test2, test3], block1, block2, block, id, problem));
 		}
 		else if (type == 'for')
 		{
@@ -141,7 +141,7 @@ function convertCondition(expr){
 			var args = [];
 			switch(expr.func.id.v)
 			{
-				case 'truly':
+				case 'objectPosition':
 					testName = expr.func.id.v;
 					if (expr.args.length != builtinFunctions[0]['args'].length)
 						return undefined;

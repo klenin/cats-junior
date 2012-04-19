@@ -48,7 +48,7 @@ var selectDirections = [
 
 var builtinFunctions = [
 	{
-		'name': 'truly',
+		'name': 'objectPosition',
 		'args': [
 			{
 				'type': 'Str',
@@ -59,13 +59,13 @@ var builtinFunctions = [
 				'dict': selectDirections
 			}
 		],
-		'jsFunc': truly,
-		'handlerFunc': truly_handler,
+		'jsFunc': objectPosition,
+		'handlerFunc': objectPosition_handler,
 		'dict': selectObjects,
 	}
 ];
 
-function truly(object, condition, direction){
+function objectPosition(object, condition, direction){
 	var result = true;
 	var dir = '';
 	switch(direction){
@@ -109,7 +109,7 @@ function truly(object, condition, direction){
 	return result;
 }
 
-function truly_handler(object, direction){
+function objectPosition_handler(object, direction){
 	var result = true;
 	var dir = '';
 	switch(direction.v){
