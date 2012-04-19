@@ -216,23 +216,23 @@
 		width: 350,
 		modal: true,
 		buttons: {
-			"addWatch": function() {
+			"Добавить": function() {
 				var problem = $('#tabs').tabs('option', 'selected') - 1;
-				$( '#watchTable' + problem).append( '<tr id = watchTr_' + problem + '_' + lastWatchedIndex[problem] + '>' +
-					'<td><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '">delete</button></td>' +
-					'<td>' + $('#watchName').val() + '</td>' + 
-					'<td id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' + 
+				$( '#watchTable' + problem).append( '<tr id = watchTr_' + problem + '_' + lastWatchedIndex[problem] + ' style = "border: 1px">' +
+					'<td style = "border: 1px solid white; width: 20px"><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '"></button></td>' +
+					'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' + 
+					'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' + 
 						calculateValue($('#watchName').val()) + '</td>' + 
 					'</tr>' ); 
 				$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).prop('varId', lastWatchedIndex[problem]);
-				$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button().bind('click', function(){
+				$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button({ text: false, icons: {primary:'ui-icon-close'}}).bind('click', function(){
 					delete watchList[problem][$(this).prop('varId')];
 					$('#watchTr_' + problem + '_' + $(this).prop('varId')).remove();
 				});
 				watchList[problem][lastWatchedIndex[problem]++] = $('#watchName').val();
 				$( this ).dialog( "close" );
 			},
-			Cancel: function() {
+			'Отмена': function() {
 				$( this ).dialog( "close" );
 			}
 		}
