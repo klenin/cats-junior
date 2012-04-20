@@ -203,8 +203,14 @@ var ForStmt = $.inherit({
 		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
+		var curCnt = this.problem.curCounter;
+		var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] + 
+			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.cnt + '):\n';
+		++this.problem.counters[curCnt]['cnt'];
+		this.problem.curCounter = (this.problem.curCounter + 1) % 3;
 		str += this.body.convertToCode(tabsNum + 1);
+		--this.problem.counters[curCnt]['cnt'];
+		this.problem.curCounter = curCnt;
 		return str;
 	},
 	generateCommand: function(tree, node){
@@ -682,6 +688,8 @@ var Problem = $.inherit({
 		this.setLabyrinth(problem.data.specSymbols);
 		this.setMonsters(problem.data.movingElements);
 		this.setKeysAndLocks(problem.data.keys, problem.data.locks);
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -803,6 +811,8 @@ var Problem = $.inherit({
 		this.prevCmd = undefined;
 		this.lastExecutedCmd = undefined;
 		this.executedCommandsNum = 0;
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 
 		this.hideFocus();
 		this.cmdHighlightOff();
@@ -1108,6 +1118,9 @@ var Problem = $.inherit({
 		
 	},
 	convertCommandsToCode: function(){
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
+
 		return this.cmdList.convertToCode(-1);
 	},
 	labirintOverrun: function(x, y){
