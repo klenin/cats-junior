@@ -6,6 +6,7 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
+		this.executed = false;
 	},
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
@@ -16,8 +17,10 @@ var Command = $.inherit({
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
 		{
 			eval(this.name + '();');
-			if (!this.curCnt && !this.problem.codeMode())
+			if (!this.executed){
 				++this.problem.divIndex;
+				this.executed = true;
+			}
 			this.problem.checkLimit();
 			++this.curCnt;
 		}
@@ -38,6 +41,7 @@ var Command = $.inherit({
 		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
+		this.executed = false;
 	},
 	isFinished: function() {
 		return this.curCnt >= this.cnt;
@@ -689,7 +693,8 @@ var Problem = $.inherit({
 		this.setMonsters(problem.data.movingElements);
 		this.setKeysAndLocks(problem.data.keys, problem.data.locks);
 		this.curCounter = 0;
-		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
+		this.playedLines = [];
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -813,7 +818,8 @@ var Problem = $.inherit({
 		this.executedCommandsNum = 0;
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
-
+		this.playedLines = [];
+		
 		this.hideFocus();
 		this.cmdHighlightOff();
 		if (!f){
@@ -1108,8 +1114,11 @@ var Problem = $.inherit({
 			if (this.maxStep && this.step == this.maxStep)
 				break;
 		}
-		if (this.codeMode())
+		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]]){
 			++this.divIndex;
+			this.playedLines[nextline[this.tabIndex]] = true;
+		}
+		
 		this.checkLimit();
 		if (this.speed)
 		{

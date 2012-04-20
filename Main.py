@@ -1,6 +1,7 @@
 import sys
 import json
 import codecs
+import traceback
 
 class MyException(Exception):
 	def __init__(self, value):
@@ -206,6 +207,7 @@ class State:
 		self.maxStep = kwargs.get('maxStep', 999999999)
 		self.maxCmdNum = kwargs.get('dLife', 10000)
 		self.steps = 0
+		self.cmdNum = 0
 
 		self.map = kwargs.get('map', [])
 		self.specSymbols = kwargs.get('specSymbols', [])
@@ -219,6 +221,8 @@ class State:
 		self.curMap = []
 		self.field = []
 		self.monsters = []
+		self.usedFunc = []
+		
 		#print self.specSymbols
 		for i in range(len(self.map)):
 			self.curMap.append([])
@@ -354,22 +358,58 @@ def nextStep(direct):
 			raise e
 
 def forward(cnt = 1):
+	try:
+		raise Exception()
+	except:
+		t, v, tb = sys.exc_info()
+		print tb
+		ttb = traceback.extract_tb(tb)
+		print ttb
+		tttt = traceback.extract_stack
+		print tttt
 	for i in range(cnt):
 		nextStep('forward')
 
 def left(cnt = 1):
+	try:
+		raise Exception()
+	except:
+		t, v, tb = sys.exc_info()
+		print tb
+		ttb = traceback.extract_tb(tb)
+		print ttb
+		tttt = traceback.extract_stack
+		print tttt
 	for i in range(cnt):
 		nextStep('left')
 
 def right(cnt = 1):
+	try:
+		raise Exception()
+	except:
+		t, v, tb = sys.exc_info()
+		print tb
+		ttb = traceback.extract_tb(tb)
+		print ttb
+		tttt = traceback.extract_stack
+		print tttt
 	for i in range(cnt):
 		nextStep('right')
 
 def wait(cnt = 1):
+	try:
+		raise Exception()
+	except:
+		t, v, tb = sys.exc_info()
+		print tb
+		ttb = traceback.extract_tb(tb)
+		print ttb
+		tttt = traceback.extract_stack
+		print tttt
 	for i in range(cnt):
 		nextStep('wait')
 
-def truly(object, direction):
+def objectPosition(object, direction):
 	result = True
 	dir = ''
 	if direction == 'atTheLeft':
