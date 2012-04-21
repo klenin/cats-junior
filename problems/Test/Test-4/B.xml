@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<CATS version="1.7">
+<Problem title="Спираль" lang="ru"
+  author="E. Vasilyeva" tlimit="1" mlimit="256" inputFile="input.txt" outputFile="output.txt">
+
+<Keyword code="cmp.trivial" />
+
+<ProblemStatement>
+<p>
+Условие</p><p>
+</p>
+</ProblemStatement>
+<JsonData><include src="problem.json"/></JsonData>
+<InputFormat>
+  Входной файл.
+</InputFormat>
+
+<OutputFormat>
+  Выходной файл.
+</OutputFormat>
+
+<FormalInput>
+string name = s, lenrange = [1, 100000], chars = {A-Z};
+</FormalInput>
+
+<ProblemConstraints>
+<p>$n$</p>
+</ProblemConstraints>
+
+<Sample rank="1">
+  <SampleIn>X</SampleIn>
+  <SampleOut>0</SampleOut>
+</Sample>
+
+<Solution src="sol_.pp" name="sol" />
+<Module name="problem" src="problem.json" type="checker" de_code="1"/>
+<Module name="json" src="jsonlib.zip" type="checker" de_code="4"/>
+<Checker style="partial" src="Main.java" />
+<Test rank="*"><Out use="sol" /></Test>
+
+<Test rank="1" points = "10"><In src="problem.json"/></Test>
+</Problem>
+</CATS>
