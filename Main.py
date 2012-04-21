@@ -1,7 +1,7 @@
 import sys
 import json
 import codecs
-import traceback
+import inspect
 
 class MyException(Exception):
 	def __init__(self, value):
@@ -205,7 +205,7 @@ class State:
 		self.life = kwargs.get('startLife', 0)
 		self.pnts = kwargs.get('startPoints', 0)
 		self.maxStep = kwargs.get('maxStep', 999999999)
-		self.maxCmdNum = kwargs.get('dLife', 10000)
+		self.maxCmdNum = kwargs.get('maxCmdNum', 10000)
 		self.steps = 0
 		self.cmdNum = 0
 
@@ -221,7 +221,7 @@ class State:
 		self.curMap = []
 		self.field = []
 		self.monsters = []
-		self.usedFunc = []
+		self.usedFunc ={'forward':[], 'left':[], 'right':[], 'wait':[]}
 		
 		#print self.specSymbols
 		for i in range(len(self.map)):
@@ -261,7 +261,6 @@ class State:
 		return self.field[cY][cX];
 
 global curState
-
 def swap(arr, i, j):
 	t = arr[i]
 	arr[i] = arr[j]
@@ -274,8 +273,12 @@ def sort(arr):
 				swap(arr, j, j + 1)
 
 def nextStep(direct):
-	result = True
 	global curState
+	st = inspect.stack()
+	if st[1][2] not in curState.usedFunc[st[1][3]]:
+		curState.cmdNum += 1
+		curState.usedFunc[st[1][3]].append(st[1][2])
+	result = True
 	try:
 		c = nextDirect(direct, curState.cur.dir)
 		dx = c.x
@@ -345,7 +348,7 @@ def nextStep(direct):
 				monster.nextStep()
 				curState.field[c1.y][c1.x].cells.append(monster);
 					
-		if curState.life == 0 or curState.steps + 1 > curState.maxStep:
+		if curState.life == 0 or curState.steps + 1 > curState.maxStep or curState.cmdNum == curState.maxCmdNum:
 			curState.dead = True
 			raise MyException('Arrow is dead')
 			
@@ -358,54 +361,18 @@ def nextStep(direct):
 			raise e
 
 def forward(cnt = 1):
-	try:
-		raise Exception()
-	except:
-		t, v, tb = sys.exc_info()
-		print tb
-		ttb = traceback.extract_tb(tb)
-		print ttb
-		tttt = traceback.extract_stack
-		print tttt
 	for i in range(cnt):
 		nextStep('forward')
 
 def left(cnt = 1):
-	try:
-		raise Exception()
-	except:
-		t, v, tb = sys.exc_info()
-		print tb
-		ttb = traceback.extract_tb(tb)
-		print ttb
-		tttt = traceback.extract_stack
-		print tttt
 	for i in range(cnt):
 		nextStep('left')
 
 def right(cnt = 1):
-	try:
-		raise Exception()
-	except:
-		t, v, tb = sys.exc_info()
-		print tb
-		ttb = traceback.extract_tb(tb)
-		print ttb
-		tttt = traceback.extract_stack
-		print tttt
 	for i in range(cnt):
 		nextStep('right')
 
 def wait(cnt = 1):
-	try:
-		raise Exception()
-	except:
-		t, v, tb = sys.exc_info()
-		print tb
-		ttb = traceback.extract_tb(tb)
-		print ttb
-		tttt = traceback.extract_stack
-		print tttt
 	for i in range(cnt):
 		nextStep('wait')
 
@@ -458,9 +425,12 @@ def solve():
 							
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		exec sol
+		print curState.pnts
+		print curState.cmdNum
 	except MyException as e:
 		print e
 		print curState.pnts
+		print curState.cmdNum
 			
 if __name__ == '__main__':
 	sys.exit(solve())
