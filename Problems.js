@@ -6,7 +6,6 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
-		this.executed = false;
 	},
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
@@ -14,12 +13,12 @@ var Command = $.inherit({
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead); ++i)
 		{
 			eval(this.name + '();');
-			if (!this.executed){
+			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
-				this.executed = true;
+				this.problem.usedCommands.push(this.id);
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
@@ -41,7 +40,6 @@ var Command = $.inherit({
 		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
-		this.executed = false;
 	},
 	isFinished: function() {
 		return this.curCnt >= this.cnt;
@@ -115,7 +113,7 @@ var ForStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused))
+		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -449,7 +447,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused))
+		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -569,7 +567,7 @@ var Block = $.inherit({
 	exec: function(cnt)
 	{
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused))
+		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt);
@@ -695,6 +693,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
 		this.playedLines = [];
+		this.usedCommands = [];
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -819,7 +818,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 		this.playedLines = [];
-		
+		this.usedCommands = [];
 		this.hideFocus();
 		this.cmdHighlightOff();
 		if (!f){
@@ -1114,7 +1113,7 @@ var Problem = $.inherit({
 			if (this.maxStep && this.step == this.maxStep)
 				break;
 		}
-		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]]){
+		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()){
 			++this.divIndex;
 			this.playedLines[nextline[this.tabIndex]] = true;
 		}
@@ -1563,7 +1562,7 @@ var Problem = $.inherit({
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
 			this.arrow.dead = true;
-			this.stopped = true;
+			//this.stopped = true;
 			this.heroIsDead();
 			return false;
 		}
