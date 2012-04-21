@@ -17,10 +17,13 @@ function callScript(url, callback){
 	if (atHome){
 		$.ajax({
 			async: false,
-			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: function(data){callback(data);},
+			success: function(data){
+				data = data.replace(new RegExp( "\t", "g" ), ' ');
+				var d = $.evalJSON(data);
+				callback(d);
+			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				alert(jqXHR, textStatus, errorThrown);
 			}
