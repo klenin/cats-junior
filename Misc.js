@@ -26,27 +26,6 @@ function generateTabs(tabsNum)
 	return str;
 }
 
-var builtinFunctionsDict = [
-	['wallAtTheLeft', 'Стена слева', wallAtTheLeft], 
-	['wallAtTheRight', 'Стена справа', wallAtTheRight],
-	['wallInFrontOf', 'Стена спереди', wallInFrontOf],
-	['prizeAtTheLeft', 'Приз слева', prizeAtTheLeft],
-	['prizeAtTheRight', 'Приз справа', prizeAtTheRight],
-	['prizeInFrontOf', 'Приз спереди', prizeInFrontOf],
-	['monsterAtTheLeft', 'Монстр слева', monsterAtTheLeft],
-	['monsterAtTheRight', 'Монстр справа', monsterAtTheRight],
-	['monsterInFrontOf', 'Монстр спереди', monsterInFrontOf],
-	['boxAtTheLeft', 'Ящик слева', boxAtTheLeft],
-	['boxAtTheRight', 'Ящик справа', boxAtTheRight],
-	['boxInFrontOf', 'Ящик спереди', boxInFrontOf],
-	['lockAtTheLeft', 'Замок слева', lockAtTheLeft],
-	['lockAtTheRight', 'Замок справа', lockAtTheRight],
-	['lockInFrontOf', 'Замок спереди', lockInFrontOf],
-	['keyAtTheLeft', 'Ключ слева',  keyAtTheLeft],
-	['keyAtTheRight', 'Ключ справа', keyAtTheRight],
-	['keyInFrontOf', 'Ключ спереди', keyInFrontOf]
-];
-
 var selectObjects = [
 	['wall', 'Стена'],
 	['prize', 'Приз'],
@@ -69,7 +48,7 @@ var selectDirections = [
 
 var builtinFunctions = [
 	{
-		'name': 'truly',
+		'name': 'objectPosition',
 		'args': [
 			{
 				'type': 'Str',
@@ -80,85 +59,13 @@ var builtinFunctions = [
 				'dict': selectDirections
 			}
 		],
-		'jsFunc': truly,
-		'handlerFunc': truly_handler,
+		'jsFunc': objectPosition,
+		'handlerFunc': objectPosition_handler,
 		'dict': selectObjects,
 	}
 ];
 
-function wallAtTheLeft(){
-	return curProblem.wallAtTheLeft();
-}
-
-function wallAtTheRight(){
-	return curProblem.wallAtTheRight();
-}
-
-function wallInFrontOf(){
-	return curProblem.wallInFrontOf();
-}
-
-function prizeAtTheLeft(){
-	return curProblem.prizeAtTheLeft();
-}
-
-function prizeAtTheRight(){
-	return curProblem.prizeAtTheRight();
-}
-
-function prizeInFrontOf(){
-	return curProblem.prizeInFrontOf();
-}
-
-function monsterAtTheLeft(){
-	return curProblem.monsterAtTheLeft();
-}
-
-function monsterAtTheRight(){
-	return curProblem.monsterAtTheRight();
-}
-
-function monsterInFrontOf(){
-	return curProblem.monsterInFrontOf();
-}
-
-function boxAtTheLeft(){
-	return curProblem.boxAtTheLeft();
-}
-
-function boxAtTheRight(){
-	return curProblem.boxAtTheRight();
-}
-
-function boxInFrontOf(){
-	return curProblem.boxInFrontOf();
-}
-
-function lockAtTheLeft(){
-	return curProblem.lockAtTheLeft();
-}
-
-function lockAtTheRight(){
-	return curProblem.lockAtTheRight();
-}
-
-function lockInFrontOf(){
-	return curProblem.lockInFrontOf();
-}
-
-function keyAtTheLeft(){
-	return curProblem.keyAtTheLeft();
-}
-
-function keyAtTheRight(){
-	return curProblem.keyAtTheRight();
-}
-
-function keyInFrontOf(){
-	return curProblem.keyInFrontOf();
-}
-
-function truly(object, condition, direction){
+function objectPosition(object, condition, direction){
 	var result = true;
 	var dir = '';
 	switch(direction){
@@ -202,7 +109,7 @@ function truly(object, condition, direction){
 	return result;
 }
 
-function truly_handler(object, direction){
+function objectPosition_handler(object, direction){
 	var result = true;
 	var dir = '';
 	switch(direction.v){
@@ -297,4 +204,40 @@ function tryNextStep_(){
 		return 0;
 	}
 	return 1;
+}
+
+function tryCode()
+{
+	var problem = problems.length + 1;
+	var output = $('#cons' + problem);
+	output.html('');
+	Sk.configure({output:outf, 'problem': problem});
+	var input = codeareas[problem].getValue();
+	try {
+		finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+		$scope[problem] = 0,
+		$gbl[problem] = {},
+		$loc[problem] = $gbl[problem];
+		for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
+		{
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+		}
+		eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+		nextline[problem] = getScope().firstlineno;
+		codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+		if (codeareas[problem].lineInfo(nextline[problem]).markerText)
+		{
+			curProblem.paused = true;
+			curProblem.playing = false;
+		}
+		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+		$scopestack[problem] = 0;
+		$('#codeRes1').html(finalcode[problem].code);
+		$gbl[problem]['my_function'] = my_function;
+		//curProblem.updateWatchList();
+	} catch (e) {
+		alert(e);
+	}
 }

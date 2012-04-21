@@ -50,12 +50,11 @@
         <script type="text/javascript" src="import/CodeMirror/mode/python/python.js"></script>
 		<script type="text/javascript" src="declaration.js"></script>
 		<script type="text/javascript" src="classes.js"></script>
-		<script type="text/javascript" src="actions.js"></script>
 		<script type="text/javascript" src="showMessages.js"></script>
-		<script type="text/javascript" src="checker.js"></script>
 		<script type="text/javascript" src="generatedTests.js"></script>
 		<script type="text/javascript" src="Misc.js"></script>
 		<script type="text/javascript" src="functions.js"></script>
+		<script type="text/javascript" src="WorkWithSkulpt.js"></script>
 		<script type="text/javascript" src="Problems.js"></script>
 		<script type="text/javascript" src="interface.js"></script>
 		<script type="text/javascript" src="main.js"></script>
@@ -74,9 +73,10 @@
 	</style>
 
 <script id = "commandsListTemplate" type="text/x-jquery-tmpl">
-	<div id = "${divclass}${tab}" class = "${divclass} jstree-draggable" type = "${divclass}" rel = "${divclass}">
-		${divname}
-	</div>
+	<td>
+		<div id = "${divclass}${tab}" class = "${divclass} jstree-draggable" type = "${divclass}" rel = "${divclass}" title = "${divname}">
+		</div>
+	</td>
 </script>
 
 <script id = "toolbarButtonsTemplate" type="text/x-jquery-tmpl">
@@ -85,6 +85,13 @@
 	
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
 	<table width = "100%">	
+		<tr>
+			<td colspan = "5">
+				<div id = "title${tab}">
+					<b>{{html $item.data.title}}</b>
+				</div>
+			</td>
+		</tr>
 		<tr>
 			<td colspan = "4">
 				<div id = "statement${tab}">
@@ -102,15 +109,19 @@
 					<tr>
 						<td colspan = "2">	
 							<form>
-								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель<br>
-								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python<br>
+								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель
+								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python
 							</form>
 						</td>
 					</tr>
 					<tr>
 						<td id = "tdcommands${tab}">
 							<div class = "ul_commands" id = "ulCommands${tab}">
-								{{tmpl($item.data.commands) "#commandsListTemplate"}}
+								<table>
+									<tr>
+										{{tmpl($item.data.commands) "#commandsListTemplate"}}
+									</tr>
+								</table>
 							</div>
 						</td>
 						<td id = "tdcode${tab}">
@@ -119,7 +130,7 @@
 					</tr>
 					<tr>
 						<td id = "tdcontainer${tab}">
-							<table>
+							<table width = "100%">
 								<tr>
 									<td>
 										<div id = "jstree-container${tab}" style = "height: 350px;" class = "sortable">
@@ -135,8 +146,8 @@
 							</table>
 						</td>
 						<td>
-							<button id = "addWatch${tab}">Добавить переменную для наблюдения</button><br>
-							<table id = "watchTable${tab}"></table>
+							<button id = "addWatch${tab}">Добавить наблюдение</button><br>
+							<table id = "watchTable${tab}" style = "background-color: #eeeeee; width: 400px"></table>
 						</td>
 					</tr>
 					<tr>
@@ -253,7 +264,7 @@
 		</div>
 	</div>
 	<div id="addWatchDialog" style="display: none;">
-		<label for="name">Name</label>
+		<label for="name">Выражение</label>
 		<input type="text" name="name" id="watchName" class="text ui-widget-content ui-corner-all" />
 	</div>
 </body>

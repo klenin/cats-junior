@@ -6,6 +6,7 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
+		this.executed = false;
 	},
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
@@ -16,8 +17,10 @@ var Command = $.inherit({
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
 		{
 			eval(this.name + '();');
-			if (!this.curCnt && !this.problem.codeMode())
+			if (!this.executed){
 				++this.problem.divIndex;
+				this.executed = true;
+			}
 			this.problem.checkLimit();
 			++this.curCnt;
 		}
@@ -38,6 +41,7 @@ var Command = $.inherit({
 		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
+		this.executed = false;
 	},
 	isFinished: function() {
 		return this.curCnt >= this.cnt;
@@ -203,8 +207,14 @@ var ForStmt = $.inherit({
 		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
-		var str = generateTabs(tabsNum) + 'for ' + this.id + 'Var in range(' + this.cnt + '):\n';
+		var curCnt = this.problem.curCounter;
+		var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] + 
+			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.cnt + '):\n';
+		++this.problem.counters[curCnt]['cnt'];
+		this.problem.curCounter = (this.problem.curCounter + 1) % 3;
 		str += this.body.convertToCode(tabsNum + 1);
+		--this.problem.counters[curCnt]['cnt'];
+		this.problem.curCounter = curCnt;
 		return str;
 	},
 	generateCommand: function(tree, node){
@@ -220,31 +230,91 @@ var ForStmt = $.inherit({
 	}
 });
 
-var IfStmt = $.inherit({
-	__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem) {
-        this.curBlock = undefined;
+var CondStmt = $.inherit({
+	__constructor : function(testName, args, parent, id, problem) {
 		this.args = args.clone();
 		this.testName = testName;
 		switch(testName){
-			case 'truly':
-				this.test = function(){return truly(selectObjects[args[0]][0], 
+			case 'objectPosition':
+				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
 					selectConditions[args[2]][0], 
 					selectDirections[args[1]][0])};
 				break;
 			default:
 				this.test = function(){return false};
 		}
-		this.blocks = [firstBlock, secondBlock];
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
+	},
+	eq: function(block){
+		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
+	},
+	copyDiff: function(block, compareCnt){
+		if (block.getClass() != this.getClass())
+		{
+			return block;
+		}
+		this.test = block.test; //?
+		this.testName = block.testName;
+		this.args = block.args.clone();
+		switch(this.testName){
+			case 'objectPosition':
+				this.test = function(){return objectPosition(selectObjects[this.args[0]][0], 
+					selectConditions[this.args[2]][0], 
+					selectDirections[this.args[1]][0])};
+				break;
+			default:
+				this.test = function(){return false};
+		}
+		this.id = block.id;
+	},
+	highlightOff: function(){
+		$('#' + this.id + '>select').css('background-color', 'white');
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+	},
+	convertToCode: function(tabsNum) {
+		//var str = generateTabs(tabsNum) + 'if ';
+		str = '';
+		switch(this.testName){
+			case 'objectPosition':
+				if (this.args[2] )
+					str += 'not ';
+				str += 'objectPosition("' + 
+				selectObjects[this.args[0]][0] + '", "' + 
+				selectDirections[this.args[1]][0] + '"):\n';
+				break;
+			default:
+				str += 'False';
+		}
+		return str;
+	},
+	generateSelect: function(newNode){
+		var numId = $(newNode).prop('numId');
+		switch (this.testName){
+			case 'objectPosition':
+				$('#selectObjects' + numId).val(this.args[0]);
+				$('#selectConditions' + numId).val(this.args[2]);
+				$('#selectDirections' + numId).val(this.args[1]);
+				break;
+		}
+	}
+});
+
+var IfStmt = $.inherit(CondStmt, {
+	__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem) {
+		this.__base(testName, args, parent, id, problem);
+        this.curBlock = undefined;
+		this.blocks = [firstBlock, secondBlock];
 	},
 	isFinished: function(){
 		return this.curBlock != undefined && (!this.blocks[this.curBlock] || this.blocks[this.curBlock].isFinished());
 	},
 	eq: function(block){
 	
-		return block.getClass() == 'if' && this.args.compare(block.args) &&
+		return this.__base(block) &&
 			((this.curBlock == undefined && block.curBlock == undefined) ||
 			(this.curBlock != undefined && block.curBlock != undefined && 
 			this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
@@ -296,23 +366,7 @@ var IfStmt = $.inherit({
 		return this.curBlock != undefined;
 	},
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != 'if')
-		{
-			return block;
-		}
-		this.test = block.test; //?
-		this.testName = block.testName;
-		this.args = block.args.clone();
-		switch(this.testName){
-			case 'truly':
-				this.test = function(){return truly(selectObjects[this.args[0]][0], 
-					selectConditions[this.args[2]][0], 
-					selectDirections[this.args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
-		}
-		this.id = block.id;
+		this.__base(block, compareCnt);
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
 			this.blocks[1] = block.blocks[1];
@@ -330,29 +384,14 @@ var IfStmt = $.inherit({
 		}
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>select').css('background-color', 'white');
+		this.__base();
 		this.blocks[0].highlightOff();
 		if (this.blocks[1])
 			this.blocks[1].highlightOff();
 	},
-	highlightOn: function(){
-		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
-	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'if ';
-		switch(this.testName){
-			case 'truly':
-				if (this.args[2])
-					str += 'not ';
-				str += 'truly("' + 
-				selectObjects[this.args[0]][0] + '", "' + 
-				selectConditions[this.args[2]][0] + '", "' +
-				selectDirections[this.args[1]][0] + '"):\n';
-				break;
-			default:
-				str += 'False';
-		}
-		 
+		str += this.__base(tabsNum);		 
 		str += this.blocks[0].convertToCode(tabsNum + 1);
 		if (this.blocks[1])
 		{
@@ -367,14 +406,7 @@ var IfStmt = $.inherit({
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
-				var numId = $(newNode).prop('numId');
-				switch (self.testName){
-					case 'truly':
-						$('#selectObjects' + numId).val(self.args[0]);
-						$('#selectConditions' + numId).val(self.args[2]);
-						$('#selectDirections' + numId).val(self.args[1]);
-						break;
-				}
+				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
 				{
@@ -388,7 +420,7 @@ var IfStmt = $.inherit({
 	}
 });
 
-var WhileStmt = $.inherit({
+var WhileStmt = $.inherit(CondStmt, {
 	__constructor : function(testName, args, body, parent, id, problem) {
         this.finished = false;//
 		this.executing = false;//
@@ -396,8 +428,8 @@ var WhileStmt = $.inherit({
 		this.args = args.clone();
 		this.testName = testName;
 		switch(testName){
-			case 'truly':
-				this.test = function(){return truly(selectObjects[args[0]][0], 
+			case 'objectPosition':
+				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
 					selectConditions[args[2]][0], 
 					selectDirections[args[1]][0])};
 				break;
@@ -413,7 +445,7 @@ var WhileStmt = $.inherit({
 		return this.finished;
 	},
 	eq: function(block){
-		return block.getClass() == 'while' && this.args.compare(block.args) && 	this.body.eq(block.body);
+		return this.__base(block) && this.body.eq(block.body);
 	},
 	exec: function(cnt)
 	{
@@ -470,23 +502,7 @@ var WhileStmt = $.inherit({
 		return this.isStarted;
 	},
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != 'while')
-		{
-			return block;
-		}
-		this.test = block.test; //?
-		this.testName = block.testName;
-		this.args = block.args.clone();
-		switch(this.testName){
-			case 'truly':
-				this.test = function(){return truly(selectObjects[this.args[0]][0], 
-					selectConditions[this.args[2]][0], 
-					selectDirections[this.args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
-		}
-		this.id = block.id;
+		this.__base(block, compareCnt);
 		this.body.copyDiff(block.body);
 		return this;
 	},
@@ -499,25 +515,12 @@ var WhileStmt = $.inherit({
 		}
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>select').css('background-color', 'white');
+		this.__base();
 		this.body.highlightOff();
-	},
-	highlightOn: function(){
-		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		var str = generateTabs(tabsNum) + 'while ';
-		switch(this.testName){
-			case 'truly':
-				if (this.args[2] )
-					str += 'not ';
-				str += 'truly("' + 
-				selectObjects[this.args[0]][0] + '", "' + 
-				selectDirections[this.args[1]][0] + '"):\n';
-				break;
-			default:
-				str += 'False';
-		}
+		str += this.__base(tabsNum);		 
 		return str + this.body.convertToCode(tabsNum + 1);
 	},
 	generateCommand: function(tree, node){
@@ -526,14 +529,7 @@ var WhileStmt = $.inherit({
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
-				var numId = $(newNode).prop('numId');
-				switch (self.testName){
-					case 'truly':
-						$('#selectObjects' + numId).val(self.args[0]);
-						$('#selectConditions' + numId).val(self.args[2]);
-						$('#selectDirections' + numId).val(self.args[1]);
-						break;
-				}
+				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	}
@@ -696,6 +692,9 @@ var Problem = $.inherit({
 		this.setLabyrinth(problem.data.specSymbols);
 		this.setMonsters(problem.data.movingElements);
 		this.setKeysAndLocks(problem.data.keys, problem.data.locks);
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
+		this.playedLines = [];
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -817,7 +816,10 @@ var Problem = $.inherit({
 		this.prevCmd = undefined;
 		this.lastExecutedCmd = undefined;
 		this.executedCommandsNum = 0;
-
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
+		this.playedLines = [];
+		
 		this.hideFocus();
 		this.cmdHighlightOff();
 		if (!f){
@@ -982,7 +984,6 @@ var Problem = $.inherit({
 			if (this.cmdList.isFinished())
 				this.cmdList.makeUnfinished();	
 		}
-		;
 	},
 	loop: function(cnt, i){
 		if (!this.playing || this.paused)
@@ -1113,8 +1114,11 @@ var Problem = $.inherit({
 			if (this.maxStep && this.step == this.maxStep)
 				break;
 		}
-		if (this.codeMode())
+		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]]){
 			++this.divIndex;
+			this.playedLines[nextline[this.tabIndex]] = true;
+		}
+		
 		this.checkLimit();
 		if (this.speed)
 		{
@@ -1123,6 +1127,9 @@ var Problem = $.inherit({
 		
 	},
 	convertCommandsToCode: function(){
+		this.curCounter = 0;
+		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
+
 		return this.cmdList.convertToCode(-1);
 	},
 	labirintOverrun: function(x, y){
@@ -1422,11 +1429,7 @@ var Problem = $.inherit({
 		$gbl[problem]['left'] = left;
 		$gbl[problem]['right'] = right;
 		$gbl[problem]['wait'] = wait;
-		for (var i = 0; i < builtinFunctionsDict.length; ++i)
-		{
-			$gbl[problem][builtinFunctionsDict[i][0]] = builtinFunctionsDict[i][2];
-		}
-		$gbl[problem]['truly'] = truly_handler;
+		$gbl[problem]['objectPosition'] = objectPosition_handler;
 		this.changed = false;
 	},
 	stop: function(){
@@ -1554,60 +1557,6 @@ var Problem = $.inherit({
 			cY += changeDir['forward'][newDir.curDir].dy;
 		}
 		return this.labirintOverrun(cX, cY) ? new FieldElem(this, undefined, false) : this.map[cY][cX];
-	},
-	wallAtTheLeft: function(){
-		return this.getFieldElem('left').isWall;
-	},
-	wallAtTheRight: function(){
-		return this.getFieldElem('right').isWall;
-	},
-	wallInFrontOf: function(){
-		return this.getFieldElem('forward').isWall;
-	},
-	prizeAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Prize) != undefined;
-	},
-	prizeAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Prize) != undefined;
-	},
-	prizeInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Prize) != undefined;
-	},
-	monsterAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Monster) != undefined;
-	},
-	monsterAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Monster) != undefined;
-	},
-	monsterInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Monster) != undefined;
-	},
-	boxAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Box) != undefined;
-	},
-	boxAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Box) != undefined;
-	},
-	boxInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Box) != undefined;
-	},
-	lockAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Lock) != undefined;
-	},
-	lockAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Lock) != undefined;
-	},
-	lockInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Lock) != undefined;
-	},
-	keyAtTheLeft: function(){
-		return this.getFieldElem('left').findCell(Key) != undefined;
-	},
-	keyAtTheRight: function(){
-		return this.getFieldElem('right').findCell(Key) != undefined;
-	},
-	keyInFrontOf: function(){
-		return this.getFieldElem('forward').findCell(Key) != undefined;
 	},
 	checkLimit: function(){
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 

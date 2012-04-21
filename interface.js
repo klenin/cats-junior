@@ -16,7 +16,8 @@ function login(callback){
 				$('#forJury' + i).show();
 		}
 		logined = true;
-		callback();
+		if (callback)
+			callback();
 		return true;
 	});
 }
@@ -194,7 +195,7 @@ function fillTabs(){
 				$('#ui-tabs-' + (i + 1)).empty();
 				$('#tabs').tabs('remove', i + 1);
 			}
-			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1),problems[i].title, i + 1);
+			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1), problems[i].code, i + 1);
 			var divs = [];
 			for (var j = 0; j < problems[i].commands.length; ++j)
 			{
@@ -214,6 +215,7 @@ function fillTabs(){
 				'maxCmdNum': problems[i].maxCmdNum,
 				'maxStep': problems[i].maxStep,
 				'commands': divs,
+				'title': problems[i].title,
 				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
 			$('#hideStatement' + i)
 				.button({text: false, icons: {primary: 'ui-icon-minus'}})
@@ -267,6 +269,7 @@ function fillTabs(){
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
 						$('#tdcommands' + j).show();
+						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#jstree-container' + j).empty();
 						//problems[j].cmdList = undefined;
@@ -286,6 +289,7 @@ function fillTabs(){
 						$('#jstree-container' + j).hide();
 						$('#tdcommands' + j).hide();
 						$('#tdcontainer' + j).hide();
+						$('#btn_clear' + j).hide();
 						$('#tdcode' + j).show();
 						problems[j].setDefault();
 						codeareas[j].setValue(problems[j].convertCommandsToCode());
@@ -335,7 +339,7 @@ function fillTabs(){
 			$('#tabs').tabs('remove', i);
 		}
 	}
-	$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
+	/*$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
 	$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
 	$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
 	$('#pythonForm').append('<select id = "selectTest" name = "selectTest" onchange = "testChanged()"></select>');
@@ -371,7 +375,7 @@ function fillTabs(){
 	$('#btnPython').button();
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();
-	$('#btnPythonNext').click(tryNextStep_);
+	$('#btnPythonNext').click(tryNextStep_);*/
 }
 
 function setSpin(problem){
@@ -402,17 +406,17 @@ function onCreateItem(tree, newNode, initObject, problem){
 		case 'if':
 		case 'ifelse':
 		case 'while':
-			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
-			for (var i = 0; i < selectObjects.length; ++i)
-			{
-				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
-			}
-			$(newNode).append('</select>');
-
 			$(newNode).append('<select id = "selectConditions' + cmdId +'">');
 			for (var i = 0; i < selectConditions.length; ++i)
 			{
 				$('#selectConditions' + cmdId).append('<option value = ' + i + '>' + selectConditions[i][1] + '</option><br>');
+			}
+			$(newNode).append('</select> (')
+			
+			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
+			for (var i = 0; i < selectObjects.length; ++i)
+			{
+				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
 			}
 			$(newNode).append('</select>');
 
@@ -421,7 +425,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 			{
 				$('#selectDirections' + cmdId).append('<option value = ' + i + '>' + selectDirections[i][1] + '</option><br>');
 			}
-			$(newNode).append('</select>');
+			$(newNode).append('</select>)');
 			
 			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
