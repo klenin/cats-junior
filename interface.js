@@ -51,6 +51,8 @@ function chooseUser(){
 			break;
 		}
 	}
+	$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
+	$.cookie('userId', user.prop('id'));
 }
 
 function changeUser(){
@@ -141,7 +143,6 @@ function getContests(){
 		cid = contests[0].id;
 		document.title = contests[0].name;
 	});
-	fillTabs();
 }
 
 function clearTabs(){

@@ -260,10 +260,20 @@
 	if ($.cookie('contestId') == undefined && tabIndex){
 		$('#tabs').tabs("select" , tabIndex);
 	}
-	if ($.cookie('contestId') != undefined){
+	else if ($.cookie('contestId') != undefined && $.cookie('userId') == undefined){
 		$('#' + $.cookie('contestId')).prop('checked', true);
 			changeContest();
 		if (tabIndex != undefined)
 			$('#tabs').tabs( "select" , tabIndex );
 	}
+	else if ($.cookie('userId') != undefined){
+		$('#' + $.cookie('contestId')).prop('checked', true);
+		changeContest();
+		$('#' + $.cookie('userId')).prop('checked', true);
+		chooseUser();	
+		if (tabIndex != undefined)
+			$('#tabs').tabs( "select" , tabIndex );
+	}
+	else 
+		fillTabs();
 });
