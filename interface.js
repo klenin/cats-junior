@@ -253,7 +253,7 @@ function fillTabs(){
 			    mode: {name: "python",
 		           version: 2,
 		           singleLineStringErrors: false},
-		        indentUnit: 4,
+		        indentUnit: 2,
 		        tabMode: "shift",
 		        matchBrackets: true
 			});
@@ -264,11 +264,13 @@ function fillTabs(){
 					
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
 			    		$('#ulCommands' + j).show();
+						//$('#ulCommands_' + j).hide();
 						$('#jstree-container' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
 						$('#tdcommands' + j).show();
+						//$('#tdcommands_' + j).hide();
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#jstree-container' + j).empty();
@@ -286,8 +288,10 @@ function fillTabs(){
 			    	}
 				    else {
 			    		$('#ulCommands' + j).hide();
+						//$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
 						$('#tdcommands' + j).hide();
+						//$('#tdcommands_' + j).show();
 						$('#tdcontainer' + j).hide();
 						$('#btn_clear' + j).hide();
 						$('#tdcode' + j).show();

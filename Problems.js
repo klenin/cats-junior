@@ -647,7 +647,7 @@ var Block = $.inherit({
 	convertToCode: function(tabsNum) {
 		str = '';
 		for (var i = 0; i < this.commands.length; ++i)
-			str += this.commands[i].convertToCode(tabsNum + 1);
+			str += this.commands[i].convertToCode(tabsNum);
 		return str;
 	},
 	generateCommand: function(tree, node){
@@ -1133,7 +1133,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 
-		return this.cmdList.convertToCode(-1);
+		return this.cmdList.convertToCode(0);
 	},
 	labirintOverrun: function(x, y){
 		return (x >= this.map[0].length || x < 0 || y >= this.map.length || y < 0);

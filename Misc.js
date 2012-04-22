@@ -22,7 +22,7 @@ function generateTabs(tabsNum)
 {
 	var str = '';
 	for (var i = 0; i < tabsNum; ++i)
-		str += '\t';
+		str += '  ';
 	return str;
 }
 
