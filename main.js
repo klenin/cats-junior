@@ -9,6 +9,7 @@
 			{
 				setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
 			}
+			$.cookie('tabIndex', ui.index);
 		}
 	});
 	$('#changeContest').hide();
@@ -255,4 +256,7 @@
 		$('#about').dialog('open');
 		return false;
 	});
+	if ($.cookie('tabIndex') != undefined){
+		$('#tabs').tabs( "select" , $.cookie('tabIndex') );
+	}
 });
