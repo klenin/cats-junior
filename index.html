@@ -86,14 +86,14 @@
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
 	<table width = "100%">	
 		<tr>
-			<td colspan = "5">
+			<td colspan = "4">
 				<div id = "title${tab}">
 					<b>{{html $item.data.title}}</b>
 				</div>
 			</td>
 		</tr>
 		<tr>
-			<td colspan = "4">
+			<td colspan = "3">
 				<div id = "statement${tab}">
 					{{html $item.data.statement}}
 				</div>
@@ -125,7 +125,9 @@
 							</div>
 						</td>
 						<td id = "tdcode${tab}">
-							<textarea id = "codearea${tab}" name = "codearea${tab}"></textarea>
+							<div id = "resizable${tab}">
+								<textarea id = "codearea${tab}" name = "codearea${tab}" class = "codearea"></textarea>
+							</div>
 						</td>
 					</tr>
 					<tr>
@@ -158,11 +160,11 @@
 					</tr>
 				</table>
 			</td>
-			<td valign = "top" colspan="2">
-				<table>
+			<td valign = "top">
+				<table width = "100%">
 					<tr>
 						<td width = "100%">
-							<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;">
+							<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px; max-width: 270px">
 								<span>
 									{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
 									{{if $item.data.maxCmdNum || $item.data.maxStep}}
@@ -180,7 +182,7 @@
 					</tr>
 				</table>
 			</td>
-			<td valign = "top" colspan="2">
+			<td valign = "top" style = "width:250px">
 				<table style='width: 250px; float: right'>
 					<tr>
 						<td> 

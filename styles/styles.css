@@ -89,7 +89,7 @@ ul.ul_commands{
 	margin: 0px;
 }
 div.sortable{
-	width: 100%;
+	min-width: 270px;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;
@@ -194,4 +194,21 @@ pre {
 
 pre.code {
   margin: 0 1em;
+  width: 100%;
+}
+
+.MySplitter {
+	min-height: 750px;
+	height: 100%;
+	width: 100%;
+}
+div.MySplitter1 {
+	overflow: auto;
+	height: 100%;
+}
+
+.vsplitbar {
+	width: 5px;
+	background: #eeeeee url(../images/vgrabber.gif) no-repeat center;
+	opacity: 0.5;
 }

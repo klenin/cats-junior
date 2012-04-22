@@ -37,6 +37,16 @@
 				}
 			}(k));
 		}
+		$('#resizable' + problem.tabIndex).resizable({
+			ghost: true,
+			minHeight: 300,
+			minWidth: 300,
+			resize: function(event, ui) {
+				$(codeareas[problem.tabIndex].getScrollerElement()).width(ui.size.width);
+				$(codeareas[problem.tabIndex].getScrollerElement()).height(ui.size.height);
+				codeareas[problem.tabIndex].refresh();
+			}
+		});
 	    $("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
 				"types" : {
