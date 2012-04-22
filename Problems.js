@@ -1550,12 +1550,12 @@ var Problem = $.inherit({
 		var newDir = changeDir[dir][this.arrow.dir];
 		var cX = this.arrow.coord.x + newDir.dx;
 		var cY = this.arrow.coord.y + newDir.dy;
-		if (dir != 'forward')
+		if (dir != 'forward' && dir != 'behind')
 		{
 			cX += changeDir['forward'][newDir.curDir].dx;
 			cY += changeDir['forward'][newDir.curDir].dy;
 		}
-		return this.labirintOverrun(cX, cY) ? new FieldElem(this, undefined, false) : this.map[cY][cX];
+		return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
 	},
 	checkLimit: function(){
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 

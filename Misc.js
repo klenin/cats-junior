@@ -32,7 +32,8 @@ var selectObjects = [
 	['monster', 'Монстр'],
 	['box', 'Ящик'],
 	['lock', 'Замок'],
-	['key', 'Ключ']
+	['key', 'Ключ'],
+	['border', 'Граница']
 ];
 
 var selectConditions = [
@@ -105,6 +106,9 @@ function objectPosition(object, condition, direction){
 		case 'key':
 			result = cell.findCell(Key) != undefined;
 			break;
+		case 'border':
+			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
+			break;
 		default:
 			return false;
 	}
@@ -151,6 +155,9 @@ function objectPosition_handler(object, direction){
 			break;
 		case 'key':
 			result = cell.findCell(Key) != undefined;
+			break;
+		case 'border':
+			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;
