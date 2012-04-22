@@ -43,7 +43,8 @@ var selectConditions = [
 var selectDirections = [
 	['atTheLeft', 'слева'],
 	['atTheRight', 'справа'],
-	['inFrontOf', 'спереди']
+	['inFrontOf', 'спереди'],
+	['behind', 'сзади']
 ];
 
 var builtinFunctions = [
@@ -77,6 +78,9 @@ function objectPosition(object, condition, direction){
 			break;
 		case 'inFrontOf':
 			dir = 'forward';
+			break;
+		case 'behind':
+			dir = 'behind';
 			break;
 		default:
 			return false; //should we throw exception?
@@ -121,6 +125,9 @@ function objectPosition_handler(object, direction){
 			break;
 		case 'inFrontOf':
 			dir = 'forward';
+			break;
+		case 'behind':
+			dir = 'behind';
 			break;
 		default:
 			return false; //should we throw exception?

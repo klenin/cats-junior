@@ -69,6 +69,17 @@ def nextDirect(direct, curDir):
 			return Coord(0, 0, 'right')
 		if curDir == 'wait':
 			return Coord(0, 0, 'wait')
+	if direct == 'behind':
+		if curDir == 'up':
+			return Coord(0, 1, 'up')
+		if curDir == 'down':
+			return Coord(0, -1, 'down')
+		if curDir == 'left':
+			return Coord(1, 0, 'left')
+		if curDir == 'right':
+			return Coord(-1, 0, 'right')
+		if curDir == 'wait':
+			return Coord(0, 0, 'forward')
 	raise MyException('Invalid direction')
 
 
@@ -385,6 +396,8 @@ def objectPosition(object, direction):
 		dir = 'right'
 	elif direction == 'inFrontOf':
 		dir = 'forward'
+	elif direction == 'behind':
+		dir = 'behind'
 	else:
 		return False
 

@@ -49,6 +49,12 @@ var changeDir = {
 		'down': {dx: 0, dy: 0, curDir: 'down'},
 		'left':{dx: 0, dy: 0, curDir: 'left'},
 		'right': {dx: 0, dy: 0, curDir: 'right'}
+	},
+	'behind':{
+		'up': {dx: 0, dy: 1, curDir: 'up'},
+		'down': {dx: 0, dy: -1, curDir: 'down'},
+		'left':{dx: 1, dy: 0, curDir: 'left'},
+		'right': {dx: -1, dy: 0, curDir: 'right'}
 	}
 	
 }
