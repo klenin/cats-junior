@@ -164,6 +164,7 @@ function changeContest(){
 			break;
 		}
 	}
+	$.cookie('contestId', contest.prop('id'));
 }
 
 function onAddWatchClick()

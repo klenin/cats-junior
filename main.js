@@ -256,7 +256,14 @@
 		$('#about').dialog('open');
 		return false;
 	});
-	if ($.cookie('tabIndex') != undefined){
-		$('#tabs').tabs( "select" , $.cookie('tabIndex') );
+	var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
+	if ($.cookie('contestId') == undefined && tabIndex){
+		$('#tabs').tabs("select" , tabIndex);
+	}
+	if ($.cookie('contestId') != undefined){
+		$('#' + $.cookie('contestId')).prop('checked', true);
+			changeContest();
+		if (tabIndex != undefined)
+			$('#tabs').tabs( "select" , tabIndex );
 	}
 });
