@@ -249,10 +249,6 @@ var CondStmt = $.inherit({
 		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
 	},
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != this.getClass())
-		{
-			return block;
-		}
 		this.test = block.test; //?
 		this.testName = block.testName;
 		this.args = block.args.clone();
@@ -364,6 +360,10 @@ var IfStmt = $.inherit(CondStmt, {
 		return this.curBlock != undefined;
 	},
 	copyDiff: function(block, compareCnt){
+		if (block.getClass() != this.getClass())
+		{
+			return block;
+		}
 		this.__base(block, compareCnt);
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
@@ -500,6 +500,10 @@ var WhileStmt = $.inherit(CondStmt, {
 		return this.isStarted;
 	},
 	copyDiff: function(block, compareCnt){
+		if (block.getClass() != this.getClass())
+		{
+			return block;
+		}
 		this.__base(block, compareCnt);
 		this.body.copyDiff(block.body);
 		return this;
@@ -1119,7 +1123,7 @@ var Problem = $.inherit({
 		}
 		
 		this.checkLimit();
-		if (this.speed)
+		//if (this.speed)
 		{
 			this.changeProgressBar();
 		}

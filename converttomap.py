@@ -1,4 +1,4 @@
-f = open('problem2.json')
+f = open('problem3.json')
 res = '['
 str = f.readline()
 while(str != ''):
