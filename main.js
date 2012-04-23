@@ -18,7 +18,6 @@
 	$('#about').hide();
 	$('#tabs').tabs('paging', { cycle: false, follow: true, tabsPerPage: 0 } );
 	getContests();
-	cmdId = problems.length;
 	$('#tabs').bind('tabsshow', function(event, ui) {
 		if (!curProblem)
 			return;
@@ -50,63 +49,59 @@
 		});
 	    $("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
+				"max_depth" : -2,
+	            "max_children" : -2,
 				"types" : {
 					"block" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"if" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"ifelse" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"else" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"while" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"for" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						},
-						"max_depth" : -1,
 					},
 					"left" : {
-						"max_depth" : 1,
+						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/left_small.png" 
 						},
 					},
 					"right" : {
-						"max_depth" : 1,
+						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/right_small.png" 
 						},
 					},
 					"forward" : {
-						"max_depth" : 1,
+						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/forward_small.png" 
 						},
 					},
 					"wait" : {
-						"max_depth" : 1,
+						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/wait_small.png" 
 						},
@@ -258,6 +253,7 @@
 	});
 	var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
 	if ($.cookie('contestId') == undefined && tabIndex){
+		fillTabs();
 		$('#tabs').tabs("select" , tabIndex);
 	}
 	else if ($.cookie('contestId') != undefined && $.cookie('userId') == undefined){
@@ -276,4 +272,5 @@
 	}
 	else 
 		fillTabs();
+	cmdId = problems.length;
 });

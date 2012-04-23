@@ -51,11 +51,11 @@ function onCreateItem(tree, newNode, initObject, problem){
 			}
 			break;
 	}
+	$(newNode).prop('id', type + cmdId);
 	$(newNode).prop('numId', cmdId);
 	$(newNode).prop('ifLi', 1);
 	$(newNode).prop('type', type);
 	$(newNode).addClass(type);
-	$(newNode).prop('id', type + cmdId);
 	setSpin(problem);
 	problem.updated();
 }
