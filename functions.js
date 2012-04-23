@@ -277,19 +277,3 @@ function wait(cnt)
 {
 	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
 }
-
-function getNextNode(tree, node)
-{
-	var parent = tree._get_parent(node);
-	var next;
-	var cur = node;
-	while(1)
-	{
-		next = tree._get_next(cur, true);
-		cur = next;
-		var p1 = tree._get_parent(next);
-		if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
-			break;
-	}
-	return next;
-}
