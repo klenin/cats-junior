@@ -19,10 +19,10 @@ var cmdClassToName = {
 	'right': 'Направо',
 	'wait': 'Ждать',
 	'block': 'Block',
-	'if': 'If',
-	'ifelse': 'If..Else..',
-	'while': 'While',
-	'for': 'For'
+	'if': 'Если',
+	'ifelse': 'Если...Иначе',
+	'while': 'Пока',
+	'for': 'Повтор'
 };
 var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse', 'while', 'for'];
 var changeDir = {

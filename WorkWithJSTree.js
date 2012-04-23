@@ -37,11 +37,11 @@ function onCreateItem(tree, newNode, initObject, problem){
 			
 			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
-				tree.rename_node(newNode, 'If');
+				tree.rename_node(newNode, 'Если');
 				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 
 					function(elseNode){
 					tree.set_type('else', elseNode);
-					tree.rename_node(elseNode, 'Else');
+					tree.rename_node(elseNode, 'Иначе');
 						$(elseNode).prop('numId', cmdId);
 						$(elseNode).prop('ifLi', 1);
 						$(elseNode).prop('type', 'else');
