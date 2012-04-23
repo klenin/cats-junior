@@ -297,9 +297,9 @@ function fillTabs(){
 						$('#tdcontainer' + j).hide();
 						$('#btn_clear' + j).hide();
 						$('#tdcode' + j).show();
-						problems[j].setDefault();
 						codeareas[j].setValue(problems[j].convertCommandsToCode());
 						codeareas[j].refresh();
+						problems[j].setDefault();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
 
