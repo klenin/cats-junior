@@ -265,9 +265,13 @@ var CondStmt = $.inherit({
 	},
 	highlightOff: function(){
 		$('#' + this.id + '>select').css('background-color', 'white');
+		$('#' + this.id + '>a').css('background-color', '');
+		//$('#' + this.id + '>ins').css('background-color', '#eeeeee');
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+		//$('#' + this.id + '>ins').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		//var str = generateTabs(tabsNum) + 'if ';
@@ -327,8 +331,7 @@ var IfStmt = $.inherit(CondStmt, {
 						this.problem.prevCmd.highlightOff();
 					this.problem.prevCmd = this;
 				}
-				$('#' + this.id + '>select').css('background-color', '#1CB2B3');
-
+				this.highlightOn();
 			}
 			this.problem.lastExecutedCmd = this;
 			if (!this.blocks[this.curBlock])
@@ -461,7 +464,7 @@ var WhileStmt = $.inherit(CondStmt, {
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+					this.highlightOn();
 				}
 				this.problem.lastExecutedCmd = this;
 				if (!this.test())

@@ -6,6 +6,9 @@ select{
 	min-width: 30px;
 	max-width: 100px;
 	width: auto;
+	height: 28px;
+	line-height: 28px;
+	padding-top: 5px;
 }
 table.field{
 	border-width:0px; 
