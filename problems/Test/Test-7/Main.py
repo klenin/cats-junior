@@ -240,7 +240,7 @@ class State:
 			for j in range(len(self.map[i])):
 				obj = Cell()
 				self.curMap[i].append(self.map[i][j])
-				self.field[i].append(FieldElem(i, j, self.curMap[i][j] == '#'))
+				self.field[i].append(FieldElem(j, i, self.curMap[i][j] == '#'))
 				if self.curMap[i][j] == 'R' or self.curMap[i][j] == 'U' or self.curMap[i][j] == 'D' or self.curMap[i][j] == 'L':
 					self.cur = Coord(j, i, translateDirs[self.curMap[i][j]])
 				for k in range(len(self.specSymbols)):
@@ -322,14 +322,14 @@ def nextStep(direct):
 							elem.cells.remove(cell)
 							cell.x = tx
 							cell.y = ty
-							el1.cells.add(cell)
+							el1.cells.append(cell)
 							curState.pnts += cell.points
 							curState.life += cell.dLife
 							continue
 						else:
-							changeCoord = false
+							changeCoord = False
 					else:
-						changeCoord = false
+						changeCoord = False
 				if isinstance(cell, Prize) and not cell.found:
 					cell.found = True
 					curState.pnts += cell.points
@@ -402,15 +402,15 @@ def objectPosition(object, direction):
 	cell = curState.getFieldElem(dir)
 	if object == 'wall':
 		result = cell.isWall
-	elif 'prize':
+	elif object == 'prize':
 		result = cell.findCell(Prize) != None;
-	elif 'box':
+	elif object == 'box':
 		result = cell.findCell(Box) != None;
-	elif 'monster':
+	elif object == 'monster':
 		result = cell.findCell(Monster) != None;
-	elif 'lock':
+	elif object == 'lock':
 		result = cell.findCell(Lock) != None;
-	elif 'key':
+	elif object == 'key':
 		result = cell.findCell(Key) != None;
 	else:
 		return False
@@ -439,6 +439,6 @@ def solve():
 	except MyException as e:
 		pass
 	print(curState.pnts)
-			
+				
 if __name__ == '__main__':
 	sys.exit(solve())

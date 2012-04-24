@@ -194,6 +194,7 @@
 				$(this).dialog('close');					
 			},
 			Cancel: function(){
+				$.cookie('userId', undefined);
 				$(this).dialog('close');	
 			}
 		}, 
