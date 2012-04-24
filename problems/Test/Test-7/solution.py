@@ -4,4 +4,4 @@ while not objectPosition("wall", "inFrontOf"):
   if objectPosition("wall", "atTheLeft"):
     right(1)
   else:
-    left(1)
+    left(1)  

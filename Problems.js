@@ -1296,7 +1296,7 @@ var Problem = $.inherit({
 		var result;
 		if ($('#codeMode' + this.tabIndex).prop('checked'))
 		{
-			result = codeareas[this.tabIndex].value();
+			result = codeareas[this.tabIndex].getValue();
 		}
 		else
 		{

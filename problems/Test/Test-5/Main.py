@@ -364,12 +364,11 @@ def nextStep(direct):
 			raise MyException('Arrow is dead')
 			
 		curState.steps += 1
+	except MyException as e:
+		raise e
 	except Exception as e:
-		if not isinstance(e, Exception):
-			print e
-			raise MyException('Something bad happened in nextStep')
-		else:
-			raise e
+		raise MyException('Something bad happened in nextStep')
+			
 
 def forward(cnt = 1):
 	for i in range(cnt):
@@ -437,13 +436,11 @@ def solve():
 		curState = State(**problem)
 							
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
-		exec sol
-		print curState.pnts
-		print curState.cmdNum
+		exec(sol)
+		print(curState.pnts)
 	except MyException as e:
-		print e
-		print curState.pnts
-		print curState.cmdNum
+		print(e)
+		print(curState.pnts)
 			
 if __name__ == '__main__':
 	sys.exit(solve())

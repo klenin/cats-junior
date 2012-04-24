@@ -158,10 +158,10 @@ function changeContest(){
 	document.title = name;
 	for (var i = 0; i < contests.length; ++i){
 		if (name == contests[i].name){
-			if (cid != contests[i].id){
+			//if (cid != contests[i].id){
 				cid = contests[i].id;
 				fillTabs();
-			}
+			//}
 			break;
 		}
 	}
