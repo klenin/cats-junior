@@ -106,7 +106,7 @@ function submit(data, sep, l, submitStr){
 		} 
 		else{
 			if (atHome){
-				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';json=1;', submitStr, function(data){
+				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
 					alert('Решение отослано на проверку');
 				});  
 			}
