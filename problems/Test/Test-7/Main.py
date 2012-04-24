@@ -38,7 +38,7 @@ def nextDirect(direct, curDir):
 			return Coord(0, 0, 'forward')
 	if direct == 'left':
 		if curDir == 'up':
-			return Coord(0, 0, 'up')
+			return Coord(0, 0, 'left')
 		if curDir == 'down':
 			return Coord(0, 0, 'right')
 		if curDir == 'left':
@@ -234,7 +234,6 @@ class State:
 		self.monsters = []
 		self.usedFunc ={'forward':[], 'left':[], 'right':[], 'wait':[]}
 		
-		#print self.specSymbols
 		for i in range(len(self.map)):
 			self.curMap.append([])
 			self.field.append([])
@@ -246,7 +245,6 @@ class State:
 					self.cur = Coord(j, i, translateDirs[self.curMap[i][j]])
 				for k in range(len(self.specSymbols)):
 					if self.curMap[i][j] == self.specSymbols[k]['symbol']:
-						#print self.curMap[i][j], i, j
 						obj = Prize(j, i, self.specSymbols[k]) if self.specSymbols[k]['action'] == 'eat' else Box(j, i, self.specSymbols[k])
 						self.field[i][j].cells.append(obj)
 
@@ -294,7 +292,7 @@ def nextStep(direct):
 		c = nextDirect(direct, curState.cur.dir)
 		dx = c.x
 		dy = c.y
-		curState.cur.dir = c.dir
+		#curState.cur.dir = c.dir
 		curState.life += curState.dLife
 		c_x = curState.cur.x + dx
 		c_y = curState.cur.y + dy
@@ -347,6 +345,7 @@ def nextStep(direct):
 		if changeCoord:
 			curState.cur.x = c_x
 			curState.cur.y = c_y
+			curState.cur.dir = c.dir
 
 		for monster in curState.monsters:
 			c1 = monster.tryNextStep()
@@ -437,10 +436,9 @@ def solve():
 							
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		exec(sol)
-		print(curState.pnts)
 	except MyException as e:
-		print(e)
-		print(curState.pnts)
+		pass
+	print(curState.pnts)
 			
 if __name__ == '__main__':
 	sys.exit(solve())
