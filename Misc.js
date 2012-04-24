@@ -249,7 +249,7 @@ function tryCode()
 		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 		$scopestack[problem] = 0;
 		$('#codeRes1').html(finalcode[problem].code);
-		$gbl[problem]['my_function'] = my_function;
+		//$gbl[problem]['my_function'] = my_function;
 		//curProblem.updateWatchList();
 	} catch (e) {
 		alert(e);
