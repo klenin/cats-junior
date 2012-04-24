@@ -668,7 +668,7 @@ var Problem = $.inherit({
 		this.divIndex = 0; 
 		this.step = 0; 
 		this.divName = '';
-		this.speed = 300; 
+		this.speed = 100; 
 		this.life = problem.data.startLife;
 		this.points = problem.data.startPoints;
 		this.paused = false; 
@@ -1028,7 +1028,7 @@ var Problem = $.inherit({
 		return true;
 	},
 	notSpeed: function(){ //check! looks like outdated
-		this.speed = 300;
+		this.speed = 100;
 		this.setCounters(0, true);
 		var lastCmd = (this.divI() >= this.list().length) ? 
 			$('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();

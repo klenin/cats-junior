@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <CATS version="1.7">
-<Problem title="Много ящиков" lang="ru"
+<Problem title="Лабиринт Дедала" lang="ru"
   author="E. Vasilyeva" tlimit="1" mlimit="256" inputFile="input.txt" outputFile="output.txt">
 
 <Keyword code="cmp.trivial" />
 
 <ProblemStatement>
 <p>
-Условие
+Условие</p><p>
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
@@ -37,6 +37,6 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 <Checker style="partial" src="Main.py" />
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "100"><In src="problem.json"/></Test>
+<Test rank="1" points = "10"><In src="problem.json"/></Test>
 </Problem>
 </CATS>

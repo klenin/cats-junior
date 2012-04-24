@@ -410,7 +410,7 @@ function onFinishExecuting(problem)
 
 function playClick(){
 	var problem = curProblem;
-	problem.callPlay(300);
+	problem.callPlay(100);
 	$('#btn_play'+ problem.tabIndex).addClass('ui-state-focus');
 }
 

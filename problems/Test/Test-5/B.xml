@@ -34,8 +34,7 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 
 <Solution src="sol_.pp" name="sol" />
 <Module name="problem" src="problem.json" type="checker" de_code="1"/>
-<Module name="json" src="jsonlib.zip" type="checker" de_code="4"/>
-<Checker style="partial" src="Main.java" />
+<Checker style="partial" src="Main.py" />
 <Test rank="*"><Out use="sol" /></Test>
 
 <Test rank="1" points = "10"><In src="problem.json"/></Test>
