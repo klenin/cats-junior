@@ -52,7 +52,6 @@ li.invisible{
 div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait, 
 div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	list-style-type: none; 
-	margin: 5px; 
 	width: 32px; 
 	height: 32px;
 	border: 1px solid #ffffff;
@@ -63,8 +62,7 @@ div.wait1, div.block, div.if, div.ifelse, div.while, div.for{
 	border-radius: 6px;
 }
 div.block, div.if, div.ifelse, div.while, div.for{
-	list-style-type: none; 
-	margin: 5px; 
+	list-style-type: none;
 	width: 32px; 
 	height: 32px;
 	border: 1px solid #A9A9A9;
@@ -92,7 +90,7 @@ ul.ul_commands{
 	margin: 0px;
 }
 div.sortable{
-	min-width: 270px;
+	min-width: 250px;
 	margin-left: 0px;
 	padding-left: 0px;
 	padding: 0px;
@@ -143,7 +141,7 @@ div.cons{
 }
 div.recycle-bin{
 	min-width: 270px;
-	height: 100px;
+	height: 50px;
 	background: url('../images/recycle-bin.png') #EEEEEE no-repeat;
 	border: 2px #A9A9A9 double;
 	overflow: auto;
