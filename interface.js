@@ -243,6 +243,14 @@ function fillTabs(){
 			$('#tdcode' + i).hide();
 			$('#addWatch' + i).hide();
 			$('#watchTable' + i).hide();
+			$('#slider' + i).slider({
+				min: 0,
+				max : 1000
+			}).bind("slidechange", function(j){
+				return function(){
+					problems[j].speed = Math.max(1, $(this).slider('option', 'max') - $(this).slider('value'));
+				}
+			}(i));
 			var CM = CodeMirror.fromTextArea($('#codearea' + i)[0], {
 				lineNumbers: true,
 				onGutterClick: function(cm, n) {
@@ -410,7 +418,7 @@ function onFinishExecuting(problem)
 
 function playClick(){
 	var problem = curProblem;
-	problem.callPlay(100);
+	problem.callPlay(problem.speed);
 	$('#btn_play'+ problem.tabIndex).addClass('ui-state-focus');
 }
 
