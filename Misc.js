@@ -22,7 +22,7 @@ function generateTabs(tabsNum)
 {
 	var str = '';
 	for (var i = 0; i < tabsNum; ++i)
-		str += '\t';
+		str += '  ';
 	return str;
 }
 
@@ -32,7 +32,8 @@ var selectObjects = [
 	['monster', 'Монстр'],
 	['box', 'Ящик'],
 	['lock', 'Замок'],
-	['key', 'Ключ']
+	['key', 'Ключ'],
+	['border', 'Граница']
 ];
 
 var selectConditions = [
@@ -43,7 +44,8 @@ var selectConditions = [
 var selectDirections = [
 	['atTheLeft', 'слева'],
 	['atTheRight', 'справа'],
-	['inFrontOf', 'спереди']
+	['inFrontOf', 'спереди'],
+	['behind', 'сзади']
 ];
 
 var builtinFunctions = [
@@ -78,6 +80,9 @@ function objectPosition(object, condition, direction){
 		case 'inFrontOf':
 			dir = 'forward';
 			break;
+		case 'behind':
+			dir = 'behind';
+			break;
 		default:
 			return false; //should we throw exception?
 	}
@@ -101,6 +106,9 @@ function objectPosition(object, condition, direction){
 		case 'key':
 			result = cell.findCell(Key) != undefined;
 			break;
+		case 'border':
+			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
+			break;
 		default:
 			return false;
 	}
@@ -121,6 +129,9 @@ function objectPosition_handler(object, direction){
 			break;
 		case 'inFrontOf':
 			dir = 'forward';
+			break;
+		case 'behind':
+			dir = 'behind';
 			break;
 		default:
 			return false; //should we throw exception?
@@ -144,6 +155,9 @@ function objectPosition_handler(object, direction){
 			break;
 		case 'key':
 			result = cell.findCell(Key) != undefined;
+			break;
+		case 'border':
+			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;
@@ -235,7 +249,7 @@ function tryCode()
 		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 		$scopestack[problem] = 0;
 		$('#codeRes1').html(finalcode[problem].code);
-		$gbl[problem]['my_function'] = my_function;
+		//$gbl[problem]['my_function'] = my_function;
 		//curProblem.updateWatchList();
 	} catch (e) {
 		alert(e);

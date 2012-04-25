@@ -6,7 +6,6 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
-		this.executed = false;
 	},
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
@@ -14,12 +13,12 @@ var Command = $.inherit({
 	exec: function(cnt) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused); ++i)
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead); ++i)
 		{
 			eval(this.name + '();');
-			if (!this.executed){
+			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
-				this.executed = true;
+				this.problem.usedCommands.push(this.id);
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
@@ -41,7 +40,6 @@ var Command = $.inherit({
 		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
-		this.executed = false;
 	},
 	isFinished: function() {
 		return this.curCnt >= this.cnt;
@@ -115,7 +113,7 @@ var ForStmt = $.inherit({
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused))
+		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -251,10 +249,6 @@ var CondStmt = $.inherit({
 		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
 	},
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != this.getClass())
-		{
-			return block;
-		}
 		this.test = block.test; //?
 		this.testName = block.testName;
 		this.args = block.args.clone();
@@ -271,9 +265,13 @@ var CondStmt = $.inherit({
 	},
 	highlightOff: function(){
 		$('#' + this.id + '>select').css('background-color', 'white');
+		$('#' + this.id + '>a').css('background-color', '');
+		//$('#' + this.id + '>ins').css('background-color', '#eeeeee');
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+		//$('#' + this.id + '>ins').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		//var str = generateTabs(tabsNum) + 'if ';
@@ -333,8 +331,7 @@ var IfStmt = $.inherit(CondStmt, {
 						this.problem.prevCmd.highlightOff();
 					this.problem.prevCmd = this;
 				}
-				$('#' + this.id + '>select').css('background-color', '#1CB2B3');
-
+				this.highlightOn();
 			}
 			this.problem.lastExecutedCmd = this;
 			if (!this.blocks[this.curBlock])
@@ -366,6 +363,10 @@ var IfStmt = $.inherit(CondStmt, {
 		return this.curBlock != undefined;
 	},
 	copyDiff: function(block, compareCnt){
+		if (block.getClass() != this.getClass())
+		{
+			return block;
+		}
 		this.__base(block, compareCnt);
 		this.blocks[0] = this.blocks[0].copyDiff(block.blocks[0], compareCnt);
 		if (!this.blocks[1] || !block.blocks[1])
@@ -449,7 +450,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	exec: function(cnt)
 	{
-		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused))
+		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -463,7 +464,7 @@ var WhileStmt = $.inherit(CondStmt, {
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+					this.highlightOn();
 				}
 				this.problem.lastExecutedCmd = this;
 				if (!this.test())
@@ -502,6 +503,10 @@ var WhileStmt = $.inherit(CondStmt, {
 		return this.isStarted;
 	},
 	copyDiff: function(block, compareCnt){
+		if (block.getClass() != this.getClass())
+		{
+			return block;
+		}
 		this.__base(block, compareCnt);
 		this.body.copyDiff(block.body);
 		return this;
@@ -569,7 +574,7 @@ var Block = $.inherit({
 	exec: function(cnt)
 	{
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused))
+		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt);
@@ -645,7 +650,7 @@ var Block = $.inherit({
 	convertToCode: function(tabsNum) {
 		str = '';
 		for (var i = 0; i < this.commands.length; ++i)
-			str += this.commands[i].convertToCode(tabsNum + 1);
+			str += this.commands[i].convertToCode(tabsNum);
 		return str;
 	},
 	generateCommand: function(tree, node){
@@ -663,7 +668,7 @@ var Problem = $.inherit({
 		this.divIndex = 0; 
 		this.step = 0; 
 		this.divName = '';
-		this.speed = 300; 
+		this.speed = 100; 
 		this.life = problem.data.startLife;
 		this.points = problem.data.startPoints;
 		this.paused = false; 
@@ -695,6 +700,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
 		this.playedLines = [];
+		this.usedCommands = [];
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -819,7 +825,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 		this.playedLines = [];
-		
+		this.usedCommands = [];
 		this.hideFocus();
 		this.cmdHighlightOff();
 		if (!f){
@@ -1022,7 +1028,7 @@ var Problem = $.inherit({
 		return true;
 	},
 	notSpeed: function(){ //check! looks like outdated
-		this.speed = 300;
+		this.speed = 100;
 		this.setCounters(0, true);
 		var lastCmd = (this.divI() >= this.list().length) ? 
 			$('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
@@ -1114,13 +1120,13 @@ var Problem = $.inherit({
 			if (this.maxStep && this.step == this.maxStep)
 				break;
 		}
-		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]]){
+		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()){
 			++this.divIndex;
 			this.playedLines[nextline[this.tabIndex]] = true;
 		}
 		
 		this.checkLimit();
-		if (this.speed)
+		//if (this.speed)
 		{
 			this.changeProgressBar();
 		}
@@ -1130,7 +1136,7 @@ var Problem = $.inherit({
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}]
 
-		return this.cmdList.convertToCode(-1);
+		return this.cmdList.convertToCode(0);
 	},
 	labirintOverrun: function(x, y){
 		return (x >= this.map[0].length || x < 0 || y >= this.map.length || y < 0);
@@ -1290,7 +1296,7 @@ var Problem = $.inherit({
 		var result;
 		if ($('#codeMode' + this.tabIndex).prop('checked'))
 		{
-			result = codeareas[this.tabIndex].value();
+			result = codeareas[this.tabIndex].getValue();
 		}
 		else
 		{
@@ -1551,19 +1557,19 @@ var Problem = $.inherit({
 		var newDir = changeDir[dir][this.arrow.dir];
 		var cX = this.arrow.coord.x + newDir.dx;
 		var cY = this.arrow.coord.y + newDir.dy;
-		if (dir != 'forward')
+		if (dir != 'forward' && dir != 'behind')
 		{
 			cX += changeDir['forward'][newDir.curDir].dx;
 			cY += changeDir['forward'][newDir.curDir].dy;
 		}
-		return this.labirintOverrun(cX, cY) ? new FieldElem(this, undefined, false) : this.map[cY][cX];
+		return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
 	},
 	checkLimit: function(){
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
 			this.arrow.dead = true;
-			this.stopped = true;
+			//this.stopped = true;
 			this.heroIsDead();
 			return false;
 		}

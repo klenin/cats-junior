@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="import/jquery/ui.tabs.paging.js"></script> 
 		<script type="text/javascript" src="import/jquery/jquery.tmpl.js"></script>
 		<script type="text/javascript" src="import/jquery/jquery.jstree.js"></script>
+		<script type="text/javascript" src="import/jquery/jquery.cookie.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/base.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/deps.js"></script>
 		<script type="text/javascript" src="import/skulpt/support/closure-library/closure/goog/string/string.js"></script>
@@ -54,6 +55,7 @@
 		<script type="text/javascript" src="generatedTests.js"></script>
 		<script type="text/javascript" src="Misc.js"></script>
 		<script type="text/javascript" src="functions.js"></script>
+		<script type="text/javascript" src="WorkWithJSTree.js"></script>
 		<script type="text/javascript" src="WorkWithSkulpt.js"></script>
 		<script type="text/javascript" src="Problems.js"></script>
 		<script type="text/javascript" src="interface.js"></script>
@@ -86,7 +88,7 @@
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
 	<table width = "100%">	
 		<tr>
-			<td colspan = "5">
+			<td colspan = "4">
 				<div id = "title${tab}">
 					<b>{{html $item.data.title}}</b>
 				</div>
@@ -94,101 +96,108 @@
 		</tr>
 		<tr>
 			<td colspan = "4">
-				<div id = "statement${tab}">
-					{{html $item.data.statement}}
+				<div style = "border-style: dotted; border-color: #eeeeee; border-width: 1px; min-height:16px">
+					<button id = "hideStatement${tab}" style = "float:right;"></button>
+					<div id = "statement${tab}">
+						{{html $item.data.statement}}
+					</div>
 				</div>
-			</td>
-			<td style = "float:right;">
-				<button id = "hideStatement${tab}">
-				</button>
 			</td>
 		</tr>
 		<tr>
-			<td valign = "top">
-				<table>
-					<tr>
-						<td colspan = "2">	
-							<form>
-								<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель
-								<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python
-							</form>
-						</td>
-					</tr>
-					<tr>
-						<td id = "tdcommands${tab}">
-							<div class = "ul_commands" id = "ulCommands${tab}">
-								<table>
+			<td valign = "top" style = "height: 100%">
+				<div style = "border-style: dotted; border-color: #eeeeee; border-width: 1px; height: 100%">
+					<table>
+						<tr>
+							<td colspan = "2">	
+								<form>
+									<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель
+									<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python
+								</form>
+							</td>
+						</tr>
+						<tr>
+							<td id = "tdcommands${tab}">
+								<div class = "ul_commands" id = "ulCommands${tab}">
+									<table>
+										<tr>
+											{{tmpl($item.data.commands) "#commandsListTemplate"}}
+										</tr>
+									</table>
+								</div>
+							</td>
+							<td id = "tdcode${tab}">
+								<div id = "resizable${tab}">
+									<textarea id = "codearea${tab}" name = "codearea${tab}" class = "codearea"></textarea>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td id = "tdcontainer${tab}">
+								<table width = "100%">
 									<tr>
-										{{tmpl($item.data.commands) "#commandsListTemplate"}}
+										<td>
+											<div id = "jstree-container${tab}" style = "height: 350px;" class = "sortable">
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td>
+											<div class = "jstree-drop recycle-bin">
+											</div>
+										</td>
 									</tr>
 								</table>
-							</div>
-						</td>
-						<td id = "tdcode${tab}">
-							<textarea id = "codearea${tab}" name = "codearea${tab}"></textarea>
-						</td>
-					</tr>
-					<tr>
-						<td id = "tdcontainer${tab}">
-							<table width = "100%">
-								<tr>
-									<td>
-										<div id = "jstree-container${tab}" style = "height: 350px;" class = "sortable">
-										</div>
-									</td>
-								</tr>
-								<tr>
-									<td>
-										<div class = "jstree-drop recycle-bin">
-										</div>
-									</td>
-								</tr>
-							</table>
-						</td>
-						<td>
-							<button id = "addWatch${tab}">Добавить наблюдение</button><br>
-							<table id = "watchTable${tab}" style = "background-color: #eeeeee; width: 400px"></table>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<button id = "btn_clear${tab}">Очистить список команд</button>
-							<button id = "submit${tab}">Отправить решение</button>
-						</td>
-					</tr>
-				</table>
+							</td>
+							<td>
+								<button id = "addWatch${tab}">Добавить наблюдение</button><br>
+								<table id = "watchTable${tab}" style = "background-color: #eeeeee; width: 400px"></table>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<button id = "btn_clear${tab}">Очистить список команд</button>
+								<button id = "submit${tab}">Отправить решение</button>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</td>
-			<td valign = "top" colspan="2">
-				<table>
-					<tr>
-						<td width = "100%">
-							<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px;">
-								<span>
-									{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
-									{{if $item.data.maxCmdNum || $item.data.maxStep}}
-										<div id = "progressBar${tab}"></div>
-										<span>Затрачено {{if $item.data.maxCmdNum}} команд {{else}} шагов {{/if}}:</span>
-										<span id = "curStep${tab}">0</span>
-										из {{if $item.data.maxCmdNum}} ${maxCmdNum} {{else}} ${maxStep} {{/if}}
-									{{/if}}
-								</span>
-							</div>
-						</td>
-					</tr>
-					<tr>
-						<td id = "tdField${tab}"></td>
-					</tr>
-				</table>
+			<td valign = "top" style = "height: 100%">
+				<div style = "border-style: dotted; border-color: #eeeeee; border-width: 1px; height: 100%">
+					<table width = "100%">
+						<tr>
+							<td width = "100%">
+								<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px; max-width: 270px">
+									<span>
+										{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
+										{{if $item.data.maxCmdNum || $item.data.maxStep}}
+											<div id = "progressBar${tab}"></div>
+											<span>Затрачено {{if $item.data.maxCmdNum}} команд {{else}} шагов {{/if}}:</span>
+											<span id = "curStep${tab}">0</span>
+											из {{if $item.data.maxCmdNum}} ${maxCmdNum} {{else}} ${maxStep} {{/if}}
+										{{/if}}
+									</span>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td id = "tdField${tab}"></td>
+						</tr>
+					</table>
+				</div>
 			</td>
-			<td valign = "top" colspan="2">
-				<table style='width: 250px; float: right'>
-					<tr>
-						<td> 
-							<pre id = "cons${tab}" class = "cons">
-							</pre>
-						</td>
-					</tr>
-				</table>
+			<td valign = "top" style = "width:250px; height: 100%">
+				<div style = "border-style: dotted; border-color: #eeeeee; border-width: 1px; height: 100%">
+					<table style='width: 250px; float: right'>
+						<tr>
+							<td> 
+								<pre id = "cons${tab}" class = "cons">
+								</pre>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</td>
 		</tr>
 	</table>				

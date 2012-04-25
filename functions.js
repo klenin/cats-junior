@@ -17,10 +17,13 @@ function callScript(url, callback){
 	if (atHome){
 		$.ajax({
 			async: false,
-			dataType : 'json',
 			url: 'script.php',
 			data: 'url='+ url,
-			success: function(data){callback(data);},
+			success: function(data){
+				data = data.replace(new RegExp( "\t", "g" ), ' ');
+				var d = $.evalJSON(data);
+				callback(d);
+			},
 			error: function(jqXHR, textStatus, errorThrown) {
 				alert(jqXHR, textStatus, errorThrown);
 			}
@@ -273,20 +276,4 @@ function right(cnt)
 function wait(cnt)
 {
 	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
-}
-
-function getNextNode(tree, node)
-{
-	var parent = tree._get_parent(node);
-	var next;
-	var cur = node;
-	while(1)
-	{
-		next = tree._get_next(cur, true);
-		cur = next;
-		var p1 = tree._get_parent(next);
-		if (!next || p1 == -1 || p1.prop('id') == parent.prop('id'))
-			break;
-	}
-	return next;
 }

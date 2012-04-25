@@ -172,10 +172,6 @@ Compiler.prototype._gr = function(hint, rest)
     out(v, " = ");
     for (var i = 1; i < arguments.length; ++i)
     {
-    	if (i == 4 && name)
-		{
-			out('"' + v + '", ');
-		}
         out(arguments[i]);
     }
     out(";");
