@@ -435,7 +435,7 @@ def solve():
 		curState = State(**problem)
 							
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
-		exec(sol)
+		exec(sol, {}, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition})
 	except MyException as e:
 		pass
 	print(curState.pnts)
