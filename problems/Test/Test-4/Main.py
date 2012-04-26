@@ -218,6 +218,9 @@ class State:
 		self.pnts = kwargs.get('startPoints', 0)
 		self.maxStep = kwargs.get('maxStep', 999999999)
 		self.maxCmdNum = kwargs.get('maxCmdNum', 10000)
+		self.commandsFine = kwargs.get('commandsFine', 0)
+		self.stepsFine = kwargs.get('stepsFine', 0)
+		self.invalidDirectionFine = kwargs.get('invalidDirectionFine', 0)
 		self.steps = 0
 		self.cmdNum = 0
 
@@ -347,6 +350,8 @@ def nextStep(direct):
 			curState.cur.x = c_x
 			curState.cur.y = c_y
 			curState.cur.dir = c.dir
+		else:
+			curState.pnts -= self.invalidDirectionFine
 
 		for monster in curState.monsters:
 			c1 = monster.tryNextStep()
@@ -442,7 +447,7 @@ def solve():
 		sys.stdout = oldstdout
 	except MyException as e:
 		pass
-	print(curState.pnts)
+	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
 if __name__ == '__main__':
 	sys.exit(solve())

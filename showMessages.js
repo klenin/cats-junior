@@ -34,6 +34,27 @@ var MessagePrizeFound = $.inherit(Message, {
 	}
 });
 
+var MessageStepFine = $.inherit(Message, {
+	__constructor: function(step, pnts) {
+		this.__base(['Шаг ', step + 1, ': Штраф за шаг \n', 'Текущее количество очков: ', 
+					pnts, '\n']);
+	}
+});
+
+var MessageCommandFine = $.inherit(Message, {
+	__constructor: function(step, pnts) {
+		this.__base(['Шаг ', step + 1, ': Штраф за команду \n', 'Текущее количество очков: ', 
+					pnts, '\n']);
+	}
+});
+
+var MessageInvalidDirectionFine = $.inherit(Message, {
+	__constructor: function(step, pnts) {
+		this.__base(['Шаг ', step + 1, ': Штраф за неправильное направление \n', 'Текущее количество очков: ', 
+					pnts, '\n']);
+	}
+});
+
 var MessageCellOpened = $.inherit(Message, {
 	__constructor: function(step, x, y) {
 		this.__base(['Шаг ', step + 1, ': Открыли ячейку с координатами ', x, ', ', y, '\n']);
