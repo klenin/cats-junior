@@ -1313,7 +1313,7 @@ var Problem = $.inherit({
 			var sep = '-------------' + boundary + '\r\n';
 			var l = 0;
 			function genPostQuery(serv, path, data)	{
-				var result = 'Content-Type: multipart/form-data, boundary=' + sep + '\r\n';
+				var result = 'Content-Type: multipart/form-data; Content-Disposition: multipart/form-data; boundary=' + sep + '\r\n';
 				result += 'Content-Length: ' + data.length + '\r\n\r\n';
 				l = data.length;
 				result += data;
