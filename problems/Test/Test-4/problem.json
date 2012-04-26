@@ -27,5 +27,7 @@
 	"commands": ["forward", "left", "right", "wait"],
 	"startLife": 1,
 	"dLife": 0,
-	"startPoints": 0
+	"startPoints": 0,
+	"maxCmdNum": 20,
+	"commandsFine": 1
 }

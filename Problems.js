@@ -21,7 +21,7 @@ var Command = $.inherit({
 				this.problem.usedCommands.push(this.id);
 				if (this.problem.commandsFine){
 					this.problem.points -= this.problem.commandsFine;
-					MessageCommandFine(this.problem.step, this.problem.points);
+					var mes = new MessageCommandFine(this.problem.step, this.problem.points);
 				}
 			}
 			this.problem.checkLimit();
@@ -1126,7 +1126,7 @@ var Problem = $.inherit({
 			++this.step;
 			if (this.stepsFine){
 				this.points -= this.stepsFine;
-				MessageStepFine(this.step - 1, this.points);
+				var mes = new MessageStepFine(this.step - 1, this.points);
 			}
 			if (this.maxStep && this.step == this.maxStep)
 				break;
@@ -1135,7 +1135,7 @@ var Problem = $.inherit({
 			++this.divIndex;
 			if (this.commandsFine){
 				this.points -= this.commandsFine;
-				MessageCommandFine(this.step, this.points);
+				var mes = new MessageCommandFine(this.step, this.points);
 			}
 			this.playedLines[nextline[this.tabIndex]] = true;
 		}
@@ -1264,7 +1264,7 @@ var Problem = $.inherit({
 		}
 		else if(this.invalidDirectionFine){
 			this.points -= this.invalidDirectionFine;
-			MessageCommandFine(this.step, this.points);
+			var mes = new MessageInvalidDirectionFine(this.step, this.points);
 		}
 		if (!this.arrow.dead){
 			for (var k = 0; k < this.monsters.length; ++k){
