@@ -899,7 +899,10 @@ var Problem = $.inherit({
 		}
 	},
 	tryNextStep: function(dontHiglight){
-		var problem = getCurProblem();
+		var problem = this.tabIndex;
+		if(!finalcode[problem]){
+			return;
+		}
 		if (getCurBlock() >= 0){
 			if (nextline[problem] != undefined && !dontHiglight)
 				codeareas[problem].setLineClass(nextline[problem], null);
@@ -1412,50 +1415,47 @@ var Problem = $.inherit({
 		this.setCounters();
 		this.compileCode();
 		this.updateWatchList();
-		if (!dontHighlight)
+		if (!dontHighlight && nextline[problem] != undefined){
 			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+		}
 	},
 	compileCode: function(){
-		var problem = this.tabIndex;
-		var output = $('#cons' + this.tabIndex);
-		var input = codeareas[problem].getValue();
-		/*if (this.maxCmdNum)
-		{
-			var cmds = (' ' + input).match(/\W(forward\(\)|left\(\)|right\(\)|wait\(\))/g);
-	 		var cmdNum = 0;
-			if (cmds)
-				cmdNum = cmds.length;
-			if (cmdNum > this.maxCmdNum)
+		try{
+			var problem = this.tabIndex;
+			var output = $('#cons' + this.tabIndex);
+			var input = codeareas[problem].getValue();
+			output.html('');
+			Sk.configure({output:outf, 'problem': problem});
+			finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+			$scope[problem] = 0,
+			$gbl[problem] = {},
+			$loc[problem] = $gbl[problem];
+			for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
 			{
-				$('#cons' + problem).html('Чиcло команд превышает допустимое');
-				this.playing = false;
-				return;
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
 			}
-			$('#curStep' + problem).text(cmdNum);
-			$('#progressBar'  + problem).progressbar('option', 'value',  cmdNum / this.maxCmdNum * 100);	
-		}*/
-		output.html('');
-		Sk.configure({output:outf, 'problem': problem});
-		finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
-		$scope[problem] = 0,
-		$gbl[problem] = {},
-		$loc[problem] = $gbl[problem];
-		for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
-		{
-			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
-			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
-			eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+			eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+			nextline[problem] = getScope().firstlineno;
+			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+			$scopestack[problem] = 0;
+			$gbl[problem]['forward'] = forward;
+			$gbl[problem]['left'] = left;
+			$gbl[problem]['right'] = right;
+			$gbl[problem]['wait'] = wait;
+			$gbl[problem]['objectPosition'] = objectPosition_handler;
+			this.changed = false;
 		}
-		eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
-		nextline[problem] = getScope().firstlineno;
-		$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
-		$scopestack[problem] = 0;
-		$gbl[problem]['forward'] = forward;
-		$gbl[problem]['left'] = left;
-		$gbl[problem]['right'] = right;
-		$gbl[problem]['wait'] = wait;
-		$gbl[problem]['objectPosition'] = objectPosition_handler;
-		this.changed = false;
+		catch(e){
+			var problem = this.tabIndex;
+			finalcode[problem] = undefined;
+			$scope[problem] = undefined,
+			$gbl[problem] = undefined,
+			$loc[problem] = $gbl[problem];
+			nextline[problem] = undefined;
+			this.updateWatchList();
+		}
 	},
 	stop: function(){
 		this.stopped = true;

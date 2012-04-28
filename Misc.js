@@ -167,6 +167,9 @@ function objectPosition_handler(object, direction){
 
 function tryNextStep_(){
 	var problem = problems.length + 1;
+	if(!finalcode[problem]){
+		return;
+	}
 	if (getCurBlock() >= 0){
 		if (nextline[problem] != undefined)
 			codeareas[problem].setLineClass(nextline[problem], null);

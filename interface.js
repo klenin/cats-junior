@@ -284,6 +284,11 @@ function fillTabs(){
 						$('#jstree-container' + j).empty();
 						//problems[j].cmdList = undefined;
 						problems[j].prepareForExecuting();
+						if(!finalcode[j]){
+							++cmdId;
+							problems[j].updated();
+							return;
+						}
 						var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
 						if (block) {
 							block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
@@ -291,8 +296,7 @@ function fillTabs(){
 						else {
 							alert('Невозможно сконвертировать код в команды. Все изменения будут потеряны');
 						}
-						++cmdId;
-						problems[j].updated();
+						
 			    	}
 				    else {
 			    		$('#ulCommands' + j).hide();

@@ -7,6 +7,9 @@ function outf(text)
 function getCurBlock()
 {
 	var problem = getCurProblem();
+	if(!finalcode[problem]){
+		return;
+	}
 	var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
 	return eval('$loc[' + problem + '].' + scope + '.stack[$loc[' + problem + '].' + scope + '.stack.length - 1].blk');
 }
@@ -14,6 +17,9 @@ function getCurBlock()
 function getScope()
 {
 	var problem = getCurProblem();
+	if(!finalcode[problem]){
+		return;
+	}
 	return finalcode[problem].compiled.scopes[$scope[problem]];
 }
 
@@ -23,6 +29,9 @@ function calculateExpression(expression)
 	{
 		var result = undefined;
 		var problem = getCurProblem();
+		if(!finalcode[problem]){
+			return;
+		}
 		if ($scope[problem] != undefined && $loc[problem] != undefined)
 		{
 			var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
