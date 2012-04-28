@@ -1,14 +1,24 @@
 ﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
 
-function login(callback){
+function login(callback, firstTrying){
 	logined = false;
 	callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
 		if (data.status == 'ok')
 			sid = data.sid;
+		else if(firstTrying){
+			$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
+				if (logined)
+					showNewUser();
+				$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
+			});
+			$('#enterPassword').dialog('open') ;
+			return;
+		}
 		else{
 			alert(data.message);
 			return false;
 		}
+		$.cookie('passwd', curUser.passwd);
 		if(curUser.jury){
 			curUser.passwd = '';
 			$('#password').prop('value', '');
@@ -38,16 +48,9 @@ function chooseUser(){
 	for (var i = 0; i < users.length; ++i){
 		if (name == users[i].name){
 			curUser = users[i];
-			if (curUser.jury) {
-				$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
-					if (logined)
-						showNewUser();
-					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
-				});
-				$('#enterPassword').dialog('open') ;
-			}
-			else
-				login(showNewUser);
+			if ($.cookie('passwd'))
+				curUser.passwd = $.cookie('passwd');
+			login(showNewUser, true);
 			break;
 		}
 	}
@@ -58,9 +61,14 @@ function chooseUser(){
 function changeUser(){
 	for (var i = 0; i < problems.length; ++i)
 		$('#forJury' + i).hide();
-	logined = false;
-	callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
+	try{ //temporary wa
+		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
+	}catch(e){
+	}
 	sid = undefined;
+	logined = false;
+	$.cookie('userId', undefined);
+	$.cookie('passwd', undefined);
 	callScript(pathPref +'f=users;cid=' + cid + ';rows=100;json=1;', function(data){
 		if (!data)
 			return;
@@ -92,17 +100,7 @@ function changeUser(){
 function submit(data, sep, l, submitStr){
 	callScript(pathPref + 'f=contests;filter=json;sid=' + sid + ';json=1;', function(data){
 		if (data.error == 'bad sid'){
-			if (curUser.jury) {
-				$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
-					if (logined && confirm('Переотправить решение?'))
-						submit(data, sep, l, submitStr);	
-					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
-				});
-				$('#enterPassword').dialog('title', 'sid устарел. Введите пароль снова');
-				$('#enterPassword').dialog('open');
-			}					
-			else
-				login(function() {submit(data, sep, l, submitStr)});
+			login(function() {submit(data, sep, l, submitStr)}, true);
 		} 
 		else{
 			if (atHome){

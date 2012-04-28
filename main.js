@@ -195,6 +195,7 @@
 			},
 			Cancel: function(){
 				$.cookie('userId', undefined);
+				$.cookie('passwd', undefined);
 				$(this).dialog('close');	
 			}
 		}, 
@@ -265,8 +266,11 @@
 	}
 	else if ($.cookie('userId') != undefined){
 		$('#' + $.cookie('contestId')).prop('checked', true);
+		var userId = $.cookie('userId');
+		var passwd = $.cookie('passwd');
 		changeContest();
-		$('#' + $.cookie('userId')).prop('checked', true);
+		$('#' + userId).prop('checked', true);
+		$.cookie('passwd', passwd);
 		chooseUser();	
 		if (tabIndex != undefined)
 			$('#tabs').tabs( "select" , tabIndex );

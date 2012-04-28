@@ -19,6 +19,10 @@ var Command = $.inherit({
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
 				this.problem.usedCommands.push(this.id);
+				if (this.problem.commandsFine){
+					this.problem.points -= this.problem.commandsFine;
+					var mes = new MessageCommandFine(this.problem.step, this.problem.points);
+				}
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
@@ -701,6 +705,9 @@ var Problem = $.inherit({
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
 		this.playedLines = [];
 		this.usedCommands = [];
+		this.commandsFine = this.commandsFine ? this.commandsFine : 0;
+		this.stepsFine = this.stepsFine ? this.stepsFine : 0;
+		this.invalidDirectionFine = this.invalidDirectionFine ? this.invalidDirectionFine : 0;
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -1117,11 +1124,19 @@ var Problem = $.inherit({
 			this.dy = changeDir[dir][this.arrow.dir].dy;
 			this.changeLabyrinth(this.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.speed);
 			++this.step;
+			if (this.stepsFine){
+				this.points -= this.stepsFine;
+				var mes = new MessageStepFine(this.step - 1, this.points);
+			}
 			if (this.maxStep && this.step == this.maxStep)
 				break;
 		}
 		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()){
 			++this.divIndex;
+			if (this.commandsFine){
+				this.points -= this.commandsFine;
+				var mes = new MessageCommandFine(this.step, this.points);
+			}
 			this.playedLines[nextline[this.tabIndex]] = true;
 		}
 		
@@ -1247,6 +1262,10 @@ var Problem = $.inherit({
 			this.arrow.dir = newDir;
 			this.map[cY][cX].pushCell(this.arrow);
 		}
+		else if(this.invalidDirectionFine){
+			this.points -= this.invalidDirectionFine;
+			var mes = new MessageInvalidDirectionFine(this.step, this.points);
+		}
 		if (!this.arrow.dead){
 			for (var k = 0; k < this.monsters.length; ++k){
 				var elem = this.map[this.monsters[k].y][this.monsters[k].x];
@@ -1313,7 +1332,7 @@ var Problem = $.inherit({
 			var sep = '-------------' + boundary + '\r\n';
 			var l = 0;
 			function genPostQuery(serv, path, data)	{
-				var result = 'Content-Type: multipart/form-data, boundary=' + sep + '\r\n';
+				var result = 'Content-Type: multipart/form-data; Content-Disposition: multipart/form-data; boundary=' + sep + '\r\n';
 				result += 'Content-Length: ' + data.length + '\r\n\r\n';
 				l = data.length;
 				result += data;
