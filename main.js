@@ -128,15 +128,15 @@
 			"dnd" : {
 				"drag_check" : function (data) {
 					return { 
-						after : false, 
-						before : false, 
+						after : true, 
+						before : true, 
 						inside : true 
 					};
 				},
 				"drag_finish" : function (data) { 
 					var node = data.r;
 					//; //=(
-					$("#jstree-container" + problem.tabIndex).jstree("create", node, isBlock(this._get_type(node)) ? "inside" : "after", false, function(newNode){
+					$("#jstree-container" + problem.tabIndex).jstree("create", node, data.p, false, function(newNode){
 						onCreateItem(this, newNode, $(data.o), problem);
 					}, true); 
 				},
