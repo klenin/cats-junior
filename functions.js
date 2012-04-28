@@ -44,7 +44,7 @@ function callSubmit_(serv, path, submitData, callback){
 		return;
 	$.ajax({  
 		async: false,
-		url: 'submit.php',
+		url: 'submit.pl',
 		type: 'POST',
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 		success: function(data){
