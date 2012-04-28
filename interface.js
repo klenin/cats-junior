@@ -431,6 +431,7 @@ function clearClick(){
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
 	problem.setDefault();
+	problem.cmdList = new Block([], undefined, this);
 	$('#jstree-container' + problem.tabIndex).children().remove();
 }
 
