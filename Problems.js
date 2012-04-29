@@ -1224,6 +1224,9 @@ var Problem = $.inherit({
 						++this.curNumOfPrizes == this.numOfPrizes);
 					this.life += cells[j].dLife;
 					this.points += cells[j].points;
+					this.map[cY][cX].deleteElement(cells[j]);
+					--j;
+					continue;
 				}
 				if (cells[j].__self == Key && !cells[j].found){
 					for (var k = 0; k < cells[j].locks.length; ++k){
@@ -1237,6 +1240,9 @@ var Problem = $.inherit({
 						changedElems.push(new Coord(x, y));
 					}
 					cells[j].found = true;
+					this.map[cY][cX].deleteElement(cells[j]);					
+					--j;
+					continue;
 				}						
 			}
 		}
