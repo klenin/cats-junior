@@ -1,4 +1,4 @@
-﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick, fastClick];
+﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 function login(callback, firstTrying){
 	logined = false;
@@ -420,14 +420,9 @@ function onFinishExecuting(problem)
 
 function playClick(){
 	var problem = curProblem;
+	problem.speed = Math.max(1, $('#slider' + problem.tabIndex).slider('option', 'max') - $('#slider' + problem.tabIndex).slider('value'));
 	problem.callPlay(problem.speed);
 	$('#btn_play'+ problem.tabIndex).addClass('ui-state-focus');
-}
-
-function fastClick(){
-	var problem = curProblem;
-	problem.cmdHighlightOff();
-	problem.callPlay(0);
 }
 
 function clearClick(){
