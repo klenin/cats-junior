@@ -819,6 +819,7 @@ var Problem = $.inherit({
 		this.arrow.setDefault();
 		this.paused = false;
 		this.stopped = false;
+		this.playing = false;
 		this.points = 0;
 		this.cmdListEnded = false;
 		this.curNumOfPrizes = 0;
