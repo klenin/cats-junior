@@ -1338,7 +1338,7 @@ var Problem = $.inherit({
 		{
 			result = this.convertCommandsToCode();
 		}
-		if (1){
+		if (atHome){
 			submitStr = 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
 			submit('', '', '', submitStr);
 		} 
@@ -1349,7 +1349,7 @@ var Problem = $.inherit({
 			var sep = '-------------' + boundary + '\r\n';
 			var l = 0;
 			function genPostQuery(serv, path, data)	{
-				var result = 'Content-Type: multipart/form-data; Content-Disposition: multipart/form-data; boundary=' + sep + '\r\n';
+				var result = 'Content-Type: multipart/form-data; Content-Disposition: multipart/form-data; boundary=' + boundary  + ';\r\n';
 				result += 'Content-Length: ' + data.length + '\r\n\r\n';
 				l = data.length;
 				result += data;
@@ -1371,10 +1371,10 @@ var Problem = $.inherit({
 			data += genFieldData('problem_id', problem_id);
 			data += genFieldData('de_id', de_id);
 			data += genFieldData('submit', 'send');
-			data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
+			data += genFileFieldData('source_text', 'ans.txt', 'text/plain', result);
 			data += '-------------' + boundary  + '--\r\n';
 			var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-			submit(data, sep, l, result);
+			submit(result,  sep, l, result);
 		}
 	},
 	exportCommands: function(){
