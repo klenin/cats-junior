@@ -1331,7 +1331,7 @@ var Problem = $.inherit({
 		{
 			result = this.convertCommandsToCode();
 		}
-		if (atHome){
+		if (1){
 			submitStr = 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
 			submit('', '', '', submitStr);
 		} 
@@ -1367,7 +1367,7 @@ var Problem = $.inherit({
 			data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
 			data += '-------------' + boundary  + '--\r\n';
 			var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-			submit(data, sep, l);
+			submit(data, sep, l, result);
 		}
 	},
 	exportCommands: function(){
