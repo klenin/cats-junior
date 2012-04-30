@@ -742,6 +742,7 @@ var Problem = $.inherit({
 		}
 	},
 	setMonsters: function(monsters){
+		this.monsters = [];
 		var obj = undefined;
 		for (var k = 0; k < monsters.length; ++k){
 			var c = new Coord(monsters[k].path[0].x, monsters[k].path[0].y);
@@ -1300,6 +1301,9 @@ var Problem = $.inherit({
 						this.die();
 					this.monsters[k].x = c.x;
 					this.monsters[k].y = c.y;
+				}
+				else{
+					++m.path[m.pathIndex].cnt;
 				}
 			}
 		}

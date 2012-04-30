@@ -26,26 +26,6 @@
 			"points": 40,
 			"dLife": 0
 			
-		},
-		{
-			"symbol": "@",
-			"count": 1,
-			"style": "BigStar",
-			"name": "Красная звезда",
-			"action": "eat",
-			"points": 60,
-			"dLife": 0
-			
-		},
-		{
-			"symbol": "!",
-			"count": 1,
-			"style": "MiddleStar",
-			"name": "Золотая звезда",
-			"action": "eat",
-			"points": 80,
-			"dLife": 0
-			
 		}
 	],
 	"keys": [{"x":6, "y":5}, {"x":3, "y":10}, {"x":5, "y":13}],

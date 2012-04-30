@@ -73,7 +73,7 @@ var FieldElem = $.inherit({
 	},
 	findCell: function(c, id){
 		for (var i = 0; i < this.cells.length; ++i)
-			if (this.cells[i].__self == c && (id != undefined ? this.cells[i].id == id : true))//////
+			if (this.cells[i].__self == c)
 				return this.cells[i];
 		return undefined;
 	},
@@ -253,8 +253,11 @@ var Monster = $.inherit(Cell,{
 		else
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				dir = this.path[this.pathIndex + 1].dir;
-		x = x + changeDir.forward[dirs[dir]].dx;
-		y = y + changeDir.forward[dirs[dir]].dy;			
+			
+		if (!this.problem.map[y + changeDir.forward[dirs[dir]].dy][x + changeDir.forward[dirs[dir]].dx].isWall){
+			x = x + changeDir.forward[dirs[dir]].dx;
+			y = y + changeDir.forward[dirs[dir]].dy;
+		}
 		return new Coord(x, y);
 	},
 	nextStep: function() {
@@ -267,8 +270,11 @@ var Monster = $.inherit(Cell,{
 		else
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				++this.pathIndex;
-		this.path[this.pathIndex].x += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dx;
-		this.path[this.pathIndex].y += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dy;
+		if (!this.problem.map[this.path[this.pathIndex].y + changeDir.forward[dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + changeDir.forward[dirs[this.path[this.pathIndex].dir]].dx].isWall){
+			this.path[this.pathIndex].x += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dx;
+			this.path[this.pathIndex].y += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dy;
+		}
+
 		++this.path[this.pathIndex].cnt;
 		this.coord.x = this.path[this.pathIndex].x;
 		this.coord.y = this.path[this.pathIndex].y;
