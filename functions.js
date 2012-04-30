@@ -54,38 +54,28 @@ function callSubmit_(serv, path, submitData, callback){
 	});  
 }
 
-function callSubmit(url, submitData, path, serv, sep, l, callback){
-	var formData = new FormData();
-	formData.append('search', '');
-	formData.append('rows', 20);
-	formData.append('problem_id', curProblem.id);//
-	//formData.append('source', '');
-	//formData.append('zip', '');
-	formData.append('de_id',772264);
-	formData.append('source_text', submitData);
-	formData.append('submit', 'Send');
-	if (atHome)
-		return;
-	$.ajax({  
-		async: false,
-		url: url,
-		type: 'POST',
-		processData: false,
-		contentType: false,
-		data: formData,
-		/*beforeSend: function(xhr){
-			xhr.setRequestHeader('Host', serv);
-			xhr.setRequestHeader('Connection', 'keep-alive');
-			xhr.setRequestHeader('Referer', url);
-			xhr.setRequestHeader('Content-Type', 'multipart/form-data');
-
-			return true;
-		},*/  
-		success: callback,
-		error: function(r, err1, err2){
-			alert('РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ');
-		}  
-	}); 
+function callSubmit(url, submitData, problem_id, callback){
+        var formData = new FormData();
+        formData.append('search', '');
+        formData.append('rows', 20);
+        formData.append('problem_id', problem_id);//
+        formData.append('de_id',772264);
+        formData.append('source_text', submitData);
+        formData.append('submit', 'Send');
+        if (atHome)
+                return;
+        $.ajax({
+                async: false,
+                url: url,
+                type: 'POST',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: callback,
+                error: function(r, err1, err2){
+                        alert('Ошибка подключения к серверу');
+                }
+        });
 }
 
 function changeCmdHighlight(elem){

@@ -97,10 +97,10 @@ function changeUser(){
 	});
 }
 
-function submit(data_, sep, l, submitStr){
+function submit(submitStr, problem_id){
 	callScript(pathPref + 'f=contests;filter=json;sid=' + sid + ';json=1;', function(data){
 		if (data.error == 'bad sid'){
-			login(function() {submit(data, sep, l, submitStr)}, true);
+			login(function() {submit(submitStr, problem_id)}, true);
 		} 
 		else{
 			if (atHome){
@@ -109,8 +109,7 @@ function submit(data_, sep, l, submitStr){
 				});  
 			}
 			else
-			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', data_,'imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' 
-					+ sid + ';cid=' + cid, sep, l, function(data){
+				callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', submitStr, problem_id, function(data){
 				alert('Решение отослано на проверку');
 			});
 		}
