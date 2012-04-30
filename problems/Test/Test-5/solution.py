@@ -6,4 +6,3 @@ while not objectPosition("wall", "inFrontOf"):
 		left(2)
 		forward(1)
 		right(1)
-		forward(1)

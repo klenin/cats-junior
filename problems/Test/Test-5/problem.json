@@ -21,11 +21,11 @@
 	"specSymbols": [
 		{
 			"symbol": "*",
-			"count": 1,
+			"count": 5,
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 50,
+			"points": 20,
 			"dLife": 0
 		}
 	],
@@ -35,5 +35,8 @@
 	"commands": ["forward", "left", "right", "wait"],
 	"startLife": 1,
 	"dLife": 0,
-	"startPoints": 0
+	"startPoints": 0,
+	"maxCmdNum": 30,
+	"commandsFine": 2,
+	"invalidDirectionFine": 1
 }

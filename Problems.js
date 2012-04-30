@@ -698,9 +698,14 @@ var Problem = $.inherit({
 		this.tabIndex = tabIndex;
 		if (this.maxCmdNum)
 			this.maxStep = 0;
-		this.setLabyrinth(problem.data.specSymbols);
-		this.setMonsters(problem.data.movingElements);
-		this.setKeysAndLocks(problem.data.keys, problem.data.locks);
+		this.specSymbols = problem.data.specSymbols;
+		this.movingElements = problem.data.movingElements;
+		this.keys = problem.data.keys;
+		this.locks = problem.data.locks
+		this.setLabyrinth(this.specSymbols);
+		this.setMonsters(this.movingElements);
+		this.setKeysAndLocks(this.keys, this.locks);
+		//this.map = jQuery.extend(true, [], this.defaultLabirint);
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
 		this.playedLines = [];
@@ -793,9 +798,11 @@ var Problem = $.inherit({
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('enable');	
 		$('#jstree-container' + this.tabIndex).sortable('enable');
-		for (var i = 0; i < this.map.length; ++i)
-			for (var j = 0; j < this.map[i].length; ++j)
-				this.map[i][j].setDefault();
+		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
+		*/
+		this.setLabyrinth(this.specSymbols);
+		this.setMonsters(this.movingElements);
+		this.setKeysAndLocks(this.keys, this.locks);
 		for (var i = 0; i < this.map.length; ++i){
 			for (var j = 0; j < this.map[i].length; ++j){
 				var arr = this.map[i][j].changedCells();
