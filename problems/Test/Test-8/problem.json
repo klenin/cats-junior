@@ -1,0 +1,53 @@
+{	
+	"map": [["#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"],
+			["#", ".", ".", ".", ".", "*", "#", ".", ".", ".", ".", ".", ".", "L"],
+			["#", "#", "*", "#", ".", ".", ".", ".", "*", "#", "#", "#", "#", "#"]],
+	"specSymbols": [
+		{
+			"symbol": "*",
+			"count": 3,
+			"style": "star",
+			"name": "звезда",
+			"action": "eat",
+			"points": 50,
+			"dLife": 0, 
+			"zIndex": 2 
+		}
+	],
+	"keys": [],
+	"locks": [],
+	"movingElements":[
+	{
+		"style": "monster",
+		"path": [
+			{"x": 7, "y": 1, "dir": "R", "initCnt": 5}, 
+			{"x": 12, "y": 1, "dir": "L", "initCnt": 7}
+			],
+		"looped": true,
+		"die": true
+	},
+	{
+		"style": "monster",
+		"path": [
+			{"x": 1, "y": 1, "dir": "R", "initCnt": 3}, 
+			{"x": 4, "y": 1, "dir": "L", "initCnt": 5}
+			],
+		"looped": true,
+		"die": true
+	},
+	{
+		"style": "monster",
+		"path": [
+			{"x": 4, "y": 2, "dir": "R", "initCnt": 3}, 
+			{"x": 7, "y": 2, "dir": "L", "initCnt": 5}
+			],
+		"looped": true,
+		"die": true
+	}],
+	"commands": ["forward", "left", "right", "wait"],
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0,
+	"maxCmdNum": 40,
+	"commandsFine": 1
+}
