@@ -41,7 +41,7 @@
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 25,
+			"points": 10,
 			"dLife": 0, 
 			"zIndex": 2 
 		}
@@ -53,5 +53,6 @@
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,
-	"maxCmdNum": 40
+	"maxCmdNum": 100,
+	"commandsFine": 1
 }

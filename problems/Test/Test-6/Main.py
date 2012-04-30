@@ -288,9 +288,9 @@ def sort(arr):
 def nextStep(direct):
 	global curState
 	st = inspect.stack()
-	if st[1][2] not in curState.usedFunc[st[1][3]]:
+	if st[2][2] not in curState.usedFunc[st[1][3]]:
 		curState.cmdNum += 1
-		curState.usedFunc[st[1][3]].append(st[1][2])
+		curState.usedFunc[st[1][3]].append(st[2][2])
 	result = True
 	try:
 		c = nextDirect(direct, curState.cur.dir)
@@ -338,11 +338,15 @@ def nextStep(direct):
 					cell.found = True
 					curState.pnts += cell.points
 					curState.life += cell.dLife
+					elem.cells.remove(cell)
+					continue
 				if isinstance(cell, Key) and not cell.found:
 					cell.found = True
 					for lock in cell.locks:
 						lock.locked = False
 						lock.zIndex = 0
+					elem.cells.remove(cell)
+					continue
 		else:
 			changeCoord = False
 
@@ -351,7 +355,7 @@ def nextStep(direct):
 			curState.cur.y = c_y
 			curState.cur.dir = c.dir
 		else:
-			curState.pnts -= self.invalidDirectionFine
+			curState.pnts -= curState.invalidDirectionFine
 
 		for monster in curState.monsters:
 			c1 = monster.tryNextStep()
@@ -438,14 +442,14 @@ def solve():
 				raise MyException("Keys and locks length aren't equal")
 
 		global curState
-		curState = State(**problem)
-							
+		curState = State(**problem)				
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		oldstdout = sys.stdout
 		sys.stdout = open(os.devnull, 'w')
 		exec(sol, {}, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition})
 		sys.stdout = oldstdout
 	except MyException as e:
+		sys.stdout = oldstdout
 		pass
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
