@@ -105,12 +105,12 @@ function submit(submitStr, problem_id){
 		else{
 			if (atHome){
 				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
-					alert('Решение отослано на проверку');
+					alert(data.message ? data.message : 'Решение отослано на проверку');
 				});  
 			}
 			else
-				callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', submitStr, problem_id, function(data){
-				alert('Решение отослано на проверку');
+			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', submitStr, problem_id, function(data){
+				alert(data.message ? data.message :'Решение отослано на проверку');
 			});
 		}
 	})
