@@ -1340,41 +1340,10 @@ var Problem = $.inherit({
 		}
 		if (atHome){
 			submitStr = 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
-			submit('', '', '', submitStr);
+			submit(submitStr, this.id);
 		} 
 		else {
-			var problem_id = this.id;  //problem_id = 
-			var de_id = 772264;
-			var boundary = Math.round((Math.random() * 999999999999));
-			var sep = '-------------' + boundary + '\r\n';
-			var l = 0;
-			function genPostQuery(serv, path, data)	{
-				var result = 'Content-Type: multipart/form-data; Content-Disposition: multipart/form-data; boundary=' + sep + '\r\n';
-				result += 'Content-Length: ' + data.length + '\r\n\r\n';
-				l = data.length;
-				result += data;
-				return result;
-			}
-			function genFieldData(name, value){
-				var result = sep + 'Content-Disposition: form-data; name="' + name + '"' + "\r\n\r\n";
-				result += value + '\r\n';
-				return result;
-			}
-			function genFileFieldData(name, filename, type, data){
-				var result = sep + 'Content-Disposition: form-data; name="' + name  +  '"; filename="' + filename + '"' + "\r\n";
-				result += 'Content-Type: ' + type + "\r\n\r\n";
-				result += data + '\r\n\r\n';
-				return result;
-			}
-			var data = genFieldData('search', '');
-			data += genFieldData('rows', '20');
-			data += genFieldData('problem_id', problem_id);
-			data += genFieldData('de_id', de_id);
-			data += genFieldData('submit', 'send');
-			data += genFileFieldData('source', 'ans.txt', 'text/plain', result);
-			data += '-------------' + boundary  + '--\r\n';
-			var query = genPostQuery('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid, data);
-			submit(data, sep, l);
+			submit(result, this.id);
 		}
 	},
 	exportCommands: function(){
