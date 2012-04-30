@@ -7,7 +7,7 @@
 
 <ProblemStatement>
 <p>
-Условие</p><p>
+Вам необходимо пройти лабиринт за как можно меньшее количество шагов. За каждую команду штраф 2 очка, за попадание в стену -- минус 1 очко</p><p>
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
@@ -37,6 +37,6 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 <Checker style="partial" src="Main.py" />
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "10"><In src="problem.json"/></Test>
+<Test rank="1" points = "100"><In src="problem.json"/></Test>
 </Problem>
 </CATS>

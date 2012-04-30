@@ -7,7 +7,7 @@
 
 <ProblemStatement>
 <p>
-Условие
+Необходимо, передвигая ящики, добраться до звезды. За звезду Вы получаете 100 очков. За каждую затраченную команду -- минус одно очко.
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
