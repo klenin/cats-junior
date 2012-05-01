@@ -97,7 +97,8 @@ div.sortable{
 	padding-left: 0px;
 	padding: 0px;
 	border: 2px #A9A9A9 double;
-	height: 400px;
+	min-height: 400px;
+	height: 100%;
 	overflow: auto;
 	-moz-border-radius: 4px; 
 	-webkit-border-radius: 4px; 
