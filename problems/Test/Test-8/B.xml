@@ -7,7 +7,7 @@
 
 <ProblemStatement>
 <p>
-За каждую звездочку -- 40 баллов, за каждую команду -- одно штрафное очко. Наткнувшись на монстра, проигрываете</p><p>
+За каждую звездочку -- 20 баллов, за каждую команду -- одно штрафное очко. Наткнувшись на монстра, проигрываете</p><p>
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
@@ -37,6 +37,6 @@ string name = s, lenrange = [1, 100000], chars = {A-Z};
 <Checker style="partial" src="Main.py" />
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "100"><In src="problem.json"/></Test>
+<Test rank="1" points = "180"><In src="problem.json"/></Test>
 </Problem>
 </CATS>
