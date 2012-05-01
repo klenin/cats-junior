@@ -121,22 +121,41 @@
 						if (type == 'ifelse'){
 							elseStmt = getNextNode(this, node);
 						}
+						node = data.r;
+						type = this._get_type(node);
+						if (type == 'ifelse' && data.p == 'after'){
+							return false;
+						}
+						if (type == 'else' && data.p == 'before'){
+							return false;
+						}
 						return true;
 					}
 				}
 				},
 			"dnd" : {
 				"drag_check" : function (data) {
-					return { 
+					result = { 
 						after : true, 
 						before : true, 
 						inside : true 
 					};
+					if (this._get_type(data.r) == 'ifelse'){
+						result['after'] = false;
+					}
+					if (this._get_type(data.r) == 'else'){
+						result['before'] = false;
+					}
+					return result;
 				},
 				"drag_finish" : function (data) { 
 					var node = data.r;
 					//; //=(
-					$("#jstree-container" + problem.tabIndex).jstree("create", node, data.p, false, function(newNode){
+					var pos = data.p;
+					if (!isBlock(this._get_type(node)) && pos == 'inside'){
+						pos = 'after';
+					}
+					$("#jstree-container" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
 						onCreateItem(this, newNode, $(data.o), problem);
 					}, true); 
 				},
