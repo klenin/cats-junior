@@ -113,8 +113,14 @@ function convert(commands, parent, problem)
 			var test2 = parseInt($('#' + id + ' option:selected')[2].value);
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
-			if (type == 'ifelse' && commands[++i].children)
-				block2 = convert(commands[i].children, block, problem);
+			if (type == 'ifelse'){
+				if (commands[++i].children){
+					block2 = convert(commands[i].children, block, problem);
+				}
+				else{
+					block2 = new Block([], block, problem);
+				}
+			}
 			block.pushCommand(type == 'while' ? 
 				new WhileStmt('objectPosition', [test1, test2, test3], block1, block, id, problem) : 
 				new IfStmt('objectPosition', [test1, test2, test3], block1, block2, block, id, problem));

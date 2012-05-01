@@ -268,34 +268,41 @@ function fillTabs(){
 			var groupBox = "input[name='group" + i + "']";
 			$(groupBox).change(function(j){
 				return function(){
-					
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
+						var l = codeareas[j].getValue().length;
+						problems[j].prepareForExecuting();
+						if(!finalcode[j]){
+							++cmdId;
+							problems[j].updated();
+							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+								$("#commandsMode" + j).prop('checked', false);
+								$("#codeMode" + j).prop('checked', true);
+								return;
+							}
+						}
+						else {
+							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
+							if (block) {
+								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+							}
+							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+								$("#commandsMode" + j).prop('checked', false);
+								$("#codeMode" + j).prop('checked', true);
+								problems[j].updated();
+								return;
+							}
+						}
 			    		$('#ulCommands' + j).show();
-						//$('#ulCommands_' + j).hide();
 						$('#jstree-container' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
 						$('#tdcommands' + j).show();
-						//$('#tdcommands_' + j).hide();
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#jstree-container' + j).empty();
-						//problems[j].cmdList = undefined;
-						problems[j].prepareForExecuting();
-						if(!finalcode[j]){
-							++cmdId;
-							problems[j].updated();
-							return;
-						}
-						var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
-						if (block) {
-							block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-						}
-						else {
-							alert('Невозможно сконвертировать код в команды. Все изменения будут потеряны');
-						}
-						
+						problems[j].updated();
+						//problems[j].cmdList = undefined;						
 			    	}
 				    else {
 			    		$('#ulCommands' + j).hide();

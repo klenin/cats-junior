@@ -653,8 +653,9 @@ var Block = $.inherit({
 	},
 	convertToCode: function(tabsNum) {
 		str = '';
-		for (var i = 0; i < this.commands.length; ++i)
+		for (var i = 0; i < this.commands.length; ++i){
 			str += this.commands[i].convertToCode(tabsNum);
+		}
 		return str;
 	},
 	generateCommand: function(tree, node){
