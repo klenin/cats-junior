@@ -891,13 +891,20 @@ var Problem = $.inherit({
 	enableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('enable');
 		for (var i = 0; i < btnsPlay.length; ++i)
-			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');		
+			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
+		$('#tabs').tabs( "option", "disabled", [] );
 	},
 
 	disableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('disable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).prop('disabled', true);
+		var disabled = [];
+		for (var i = 0; i < $('#tabs').tabs('length'); ++i){
+			if (i != this.tabIndex + 1)
+				disabled.push(i);
+		}
+		$('#tabs').tabs( "option", "disabled", disabled );
 	},
 	updateWatchList: function()
 	{
