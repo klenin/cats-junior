@@ -269,6 +269,7 @@ function fillTabs(){
 			$(groupBox).change(function(j){
 				return function(){
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
+						$('#jstree-container' + j).empty();
 						var l = codeareas[j].getValue().length;
 						problems[j].prepareForExecuting();
 						if(!finalcode[j]){
@@ -300,7 +301,6 @@ function fillTabs(){
 						$('#tdcommands' + j).show();
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
-						$('#jstree-container' + j).empty();
 						problems[j].updated();
 						//problems[j].cmdList = undefined;						
 			    	}
