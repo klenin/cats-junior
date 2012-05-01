@@ -458,7 +458,6 @@ def solve():
 		sys.stdout = oldstdout
 	except MyException as e:
 		sys.stdout = oldstdout
-		print e
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
 if __name__ == '__main__':
