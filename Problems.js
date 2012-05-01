@@ -202,11 +202,13 @@ var ForStmt = $.inherit({
 		}
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>span').css('background-color', 'white');
+		$('#' + this.id + '> span').css('background-color', '');
+		$('#' + this.id + '> a').css('background-color', '');
 		this.body.highlightOff();
 	},
 	highlightOn: function(){
-		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+		$('#' + this.id + '> span').css('background-color', '#1CB2B3');
+		$('#' + this.id + '> a').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		var curCnt = this.problem.curCounter;
