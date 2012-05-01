@@ -124,7 +124,7 @@ class Monster(Cell):
 		x1 = self.x
 		y1 = self.y
 		c = Coord(0, 0)
-		if self.index == len(self.path) and self.path[self.index].cnt == self.path[self.index].initCnt:
+		if self.index == len(self.path) - 1 and self.path[self.index].cnt == self.path[self.index].initCnt:
 			if not self.looped:
 				return Coord(self.x, self.y)
 			x1 = self.path[0].x
@@ -133,11 +133,15 @@ class Monster(Cell):
 		elif self.path[self.index].cnt == self.path[self.index].initCnt:
 			dir = self.path[self.index + 1].dir
 		c = nextDirect('forward', translateDirs[dir])
-		return Coord(x1 + c.x, y1 + c.y)
+		global curState
+		if not curState.field[y1 + c.y][x1 + c.x].isWall:
+			x1 += c.x
+			y1 += c.y
+		return Coord(x1, y1)
 
 	def nextStep(self):
 		c = Coord(0, 0)
-		if self.index == len(self.path) - 1  and self.path[self.index].cnt == self.path[self.index].cnt:
+		if self.index == len(self.path) - 1  and self.path[self.index].cnt == self.path[self.index].initCnt:
 			if not self.looped:
 				return
 			self.index = 0
@@ -145,9 +149,12 @@ class Monster(Cell):
 				p.cnt = 0
 		elif self.path[self.index].cnt == self.path[self.index].initCnt:
 			self.index += 1
+			self.path[self.index].cnt = -1
 		c = nextDirect('forward', translateDirs[self.path[self.index].dir])
-		self.x += c.x
-		self.y += c.y
+		global curState
+		if not curState.field[self.y + c.y][self.x + c.x].isWall:
+			self.y += c.y
+			self.x += c.x
 		self.path[self.index].cnt += 1
 
 class Lock(Cell):
@@ -216,7 +223,7 @@ class State:
 		self.dLife = kwargs.get('dLife', 0)
 		self.life = kwargs.get('startLife', 0)
 		self.pnts = kwargs.get('startPoints', 0)
-		self.maxStep = kwargs.get('maxStep', 999999999)
+		self.maxStep = kwargs.get('maxStep', 10000)
 		self.maxCmdNum = kwargs.get('maxCmdNum', 10000)
 		self.commandsFine = kwargs.get('commandsFine', 0)
 		self.stepsFine = kwargs.get('stepsFine', 0)
@@ -349,7 +356,6 @@ def nextStep(direct):
 					continue
 		else:
 			changeCoord = False
-
 		if changeCoord:
 			curState.cur.x = c_x
 			curState.cur.y = c_y
@@ -363,10 +369,12 @@ def nextStep(direct):
 				if c1.y == curState.cur.y and c1.x == curState.cur.x:
 					curState.dead = True
 					raise MyException('Arrow is dead')
-					
+
 				curState.field[monster.y][monster.x].cells.remove(monster)
 				monster.nextStep()
-				curState.field[c1.y][c1.x].cells.append(monster);
+				curState.field[monster.y][monster.x].cells.append(monster);
+			else:
+				monster.path[monster.index].cnt += 1
 					
 		if curState.life == 0 or curState.steps + 1 > curState.maxStep or curState.cmdNum == curState.maxCmdNum:
 			curState.dead = True
@@ -450,7 +458,7 @@ def solve():
 		sys.stdout = oldstdout
 	except MyException as e:
 		sys.stdout = oldstdout
-		pass
+		print e
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
 if __name__ == '__main__':
