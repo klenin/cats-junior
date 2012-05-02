@@ -41,7 +41,7 @@
   };
   $.extend({
     spin: {
-      imageBasePath: '/ev/images/',
+      imageBasePath: 'images/',
       spinBtnImage: 'spin-button.png',
       spinUpImage: 'spin-up.png',
       spinDownImage: 'spin-down.png',
@@ -51,7 +51,7 @@
       timeInterval: 500,
       timeBlink: 200,
       btnClass: null,
-      btnCss: {paddingTop: 1, marginLeft: 0, paddingLeft:0, margin: 0, marginTop: 5, verticalAlign: 'top'},
+      btnCss: {paddingTop: 0, marginLeft: 0, paddingLeft:0, margin: 0, marginTop: 5, verticalAlign: 'top'},
       txtCss: {marginLeft: 0, paddingLeft:0, marginRight: 0, paddingRight: 0, fontFamily: 'Verdana'},
       lock: false,
       decimal: null,
