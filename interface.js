@@ -269,19 +269,10 @@ function fillTabs(){
 			$(groupBox).change(function(j){
 				return function(){
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
-						$('#jstree-container' + j).empty();
 						var l = codeareas[j].getValue().length;
-						problems[j].prepareForExecuting();
-						if(!finalcode[j]){
-							++cmdId;
-							problems[j].updated();
-							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-								$("#commandsMode" + j).prop('checked', false);
-								$("#codeMode" + j).prop('checked', true);
-								return;
-							}
-						}
-						else {
+						try {
+							$('#jstree-container' + j).empty();					
+							problems[j].prepareForExecuting()
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
 							if (block) {
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
@@ -293,7 +284,16 @@ function fillTabs(){
 								return;
 							}
 						}
-			    		$('#ulCommands' + j).show();
+						catch(e){
+							++cmdId;
+							problems[j].updated();
+							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+								$("#commandsMode" + j).prop('checked', false);
+								$("#codeMode" + j).prop('checked', true);
+								return;
+							}
+						}
+						$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
