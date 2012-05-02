@@ -966,7 +966,7 @@ var Problem = $.inherit({
 			{
 				if (nextline[problem] != undefined && !dontHiglight)
 					codeareas[problem].setLineClass(nextline[problem], null);
-				$('#cons' + problem).append('\nfinished\n');
+				//$('#cons' + problem).append('\nfinished\n');
 				this.playing = false;
 				return 0;
 			} 
@@ -975,7 +975,7 @@ var Problem = $.inherit({
 		{
 			if (nextline[problem] != undefined)
 				codeareas[problem].setLineClass(nextline[problem], null);
-			$('#cons' + problem).append('\nfinished\n');
+			//$('#cons' + problem).append('\nfinished\n');
 			this.playing = false;
 			return 0;
 		}
