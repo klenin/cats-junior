@@ -966,7 +966,7 @@ var Problem = $.inherit({
 			{
 				if (nextline[problem] != undefined && !dontHiglight)
 					codeareas[problem].setLineClass(nextline[problem], null);
-				$('#cons' + problem).append('\nfinished\n');
+				//$('#cons' + problem).append('\nfinished\n');
 				this.playing = false;
 				return 0;
 			} 
@@ -975,7 +975,7 @@ var Problem = $.inherit({
 		{
 			if (nextline[problem] != undefined)
 				codeareas[problem].setLineClass(nextline[problem], null);
-			$('#cons' + problem).append('\nfinished\n');
+			//$('#cons' + problem).append('\nfinished\n');
 			this.playing = false;
 			return 0;
 		}
@@ -1400,7 +1400,7 @@ var Problem = $.inherit({
 		catch(e)
 		{
 			this.playing = false;
-			$('#cons' + this.tabIndex).html('Invalid commands');
+			$('#cons' + this.tabIndex).html('Некорректный код');
 		}
 	},
 	prepareForExecuting: function(dontHighlight)
@@ -1410,7 +1410,7 @@ var Problem = $.inherit({
 		this.playing = false;
 		this.cmdHighlightOff();
 		this.setCounters();
-		this.compileCode();
+		this.compileCode()
 		this.updateWatchList();
 		if (!dontHighlight && nextline[problem] != undefined){
 			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
@@ -1452,6 +1452,9 @@ var Problem = $.inherit({
 			$loc[problem] = $gbl[problem];
 			nextline[problem] = undefined;
 			this.updateWatchList();
+			if (codeareas[problem].getValue().length){
+				throw "Некорректный код\n";
+			}
 		}
 	},
 	stop: function(){
@@ -1491,56 +1494,56 @@ var Problem = $.inherit({
 			catch (e)
 			{
 				this.playing = false;
-				alert(e)
+				$('#cons' + this.tabIndex).append(e);
 			}
 		}
 		else
 		{
-			this.speed = 0;
-			this.paused = false;
-			this.hideCounters();
-			if (!this.playing || this.changed)
-			{
-				try
+			try{
+				this.speed = 0;
+				this.paused = false;
+				this.hideCounters();
+				if (!this.playing || this.changed)
 				{
-					if (!this.playing)
-					{
-						this.setCounters();
-						this.hideCounters();
-						var needReturn = this.cmdList.isFinished();
-						this.setDefault();
-						if (needReturn)
-							return;
-					}
-					codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
-					if (!this.playing)
-					{
-						this.prepareForExecuting();
-					}
-					else
-					{
-						this.compileCode();
-					}
-					this.playing = true;
+					
+						if (!this.playing)
+						{
+							this.setCounters();
+							this.hideCounters();
+							var needReturn = this.cmdList.isFinished();
+							this.setDefault();
+							if (needReturn)
+								return;
+						}
+						codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
+						if (!this.playing)
+						{
+							this.prepareForExecuting();
+						}
+						else
+						{
+							this.compileCode();
+						}
+						this.playing = true;
+					
 				}
-				catch(e)
-				{
-					$('#cons' + this.tabIndex).html('Invalid commands');
-					return;
-				}
+				this.lastExecutedCmd = undefined;
+				this.cmdHighlightOff();
+				this.cmdList.exec(1);
+				this.changeProgressBar();
+				++this.executedCommandsNum;
+				this.highlightLast();
+				this.drawLabirint();
+				if (this.cmdList.isFinished())
+					this.playing = false;
 			}
-			this.lastExecutedCmd = undefined;
-			this.cmdHighlightOff();
-			this.cmdList.exec(1);
-			this.changeProgressBar();
-			++this.executedCommandsNum;
-			this.highlightLast();
-			this.drawLabirint();
-			if (this.cmdList.isFinished())
-				this.playing = false;
+			catch(e){
+				$('#cons' + this.tabIndex).append(e);
+			}
 		}
 	},
 	prev: function(){
+		try {
 		var t = this.executedCommandsNum;
 		if (t <= 1) {
 			this.setDefault();
@@ -1567,6 +1570,10 @@ var Problem = $.inherit({
 		this.speed = 0;
 		this.playing = true;
 		this.play(t);
+		} 
+		catch(e) {
+			$('#cons' + this.tabIndex).append(e);
+		}
 	},
 	getFieldElem: function(dir)
 	{
