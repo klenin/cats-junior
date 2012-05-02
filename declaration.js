@@ -8,8 +8,8 @@ var defaultPass = 12345;
 var cid = 791634; // contest id
 var sid; // session id
 var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
-var pathPref = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?' : '/main.pl?';
-var resultsUrl = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/main.pl?f=rank_table_content;cid=';
+var pathPref = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?' : '/cats/main.pl?';
+var resultsUrl = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/cats/main.pl?f=rank_table_content;cid=';
 var visited = []; // if tab have already been visited -- for proper tabs displaying
 var arrow = [];
 var contests;
