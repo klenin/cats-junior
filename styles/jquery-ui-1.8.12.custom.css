@@ -575,5 +575,5 @@ D:\TMP\FTMP000G.7F0\jquery-ui-1.8.12.custom.css */
  *
  * http://docs.jquery.com/UI/Progressbar#theming
  */
-.ui-progressbar { height:2em; text-align: left; }
+.ui-progressbar { height:1em; text-align: left; }
 .ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }

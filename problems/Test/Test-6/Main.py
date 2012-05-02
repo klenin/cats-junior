@@ -128,7 +128,7 @@ class Monster(Cell):
 			if not self.looped:
 				return Coord(self.x, self.y)
 			x1 = self.path[0].x
-			x2 = self.path[0].y
+			y1 = self.path[0].y
 			dir = self.path[0].dir
 		elif self.path[self.index].cnt == self.path[self.index].initCnt:
 			dir = self.path[self.index + 1].dir
@@ -149,7 +149,7 @@ class Monster(Cell):
 				p.cnt = 0
 		elif self.path[self.index].cnt == self.path[self.index].initCnt:
 			self.index += 1
-			self.path[self.index].cnt = -1
+			self.path[self.index].cnt = 0
 		c = nextDirect('forward', translateDirs[self.path[self.index].dir])
 		global curState
 		if not curState.field[self.y + c.y][self.x + c.x].isWall:
@@ -375,7 +375,6 @@ def nextStep(direct):
 				curState.field[monster.y][monster.x].cells.append(monster);
 			else:
 				monster.path[monster.index].cnt += 1
-					
 		if curState.life == 0 or curState.steps + 1 > curState.maxStep or curState.cmdNum == curState.maxCmdNum:
 			curState.dead = True
 			raise MyException('Arrow is dead')
@@ -454,9 +453,9 @@ def solve():
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		oldstdout = sys.stdout
 		sys.stdout = open(os.devnull, 'w')
-		exec(sol, {}, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition})
+		exec(sol, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition})
 		sys.stdout = oldstdout
-	except MyException as e:
+	except:
 		sys.stdout = oldstdout
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				

@@ -1,4 +1,4 @@
-/**
+/*
  * jQuery Spin 1.1.1
  *
  * Copyright (c) 2009 Naohiko MORI
@@ -41,7 +41,7 @@
   };
   $.extend({
     spin: {
-      imageBasePath: '/cats/ev/CourseWork/images/',
+      imageBasePath: 'images/',
       spinBtnImage: 'spin-button.png',
       spinUpImage: 'spin-up.png',
       spinDownImage: 'spin-down.png',
@@ -51,8 +51,8 @@
       timeInterval: 500,
       timeBlink: 200,
       btnClass: null,
-      btnCss: {paddingTop: 6, marginLeft: 0, paddingLeft:0, margin: 0, verticalAlign: 'top'},
-      txtCss: {marginLeft: 0, paddingLeft:0, marginRight: 0, paddingRight: 0, fontFamily: 'Times New Roman'},
+      btnCss: {paddingTop: 0, marginLeft: 0, paddingLeft:0, margin: 0, marginTop: 5, verticalAlign: 'top'},
+      txtCss: {marginLeft: 0, paddingLeft:0, marginRight: 0, paddingRight: 0, fontFamily: 'Verdana'},
       lock: false,
       decimal: null,
       beforeChange: null,
