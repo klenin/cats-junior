@@ -242,7 +242,8 @@ function fillTabs(){
 			$('#watchTable' + i).hide();
 			$('#slider' + i).slider({
 				min: 0,
-				max : 1000
+				max : 1000,
+				value: 650
 			}).bind("slidechange", function(j){
 				return function(){
 					problems[j].speed = Math.max(1, $(this).slider('option', 'max') - $(this).slider('value'));
