@@ -55,57 +55,57 @@
 					"block" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"if" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"ifelse" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"else" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"while" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"for" : {
 						"icon" : { 
 							"image" : "images/block_small.png" 
-						},
+						}
 					},
 					"left" : {
 						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/left_small.png" 
-						},
+						}
 					},
 					"right" : {
 						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/right_small.png" 
-						},
+						}
 					},
 					"forward" : {
 						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/forward_small.png" 
-						},
+						}
 					},
 					"wait" : {
 						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/wait_small.png" 
-						},
-					},
+						}
+					}
 					
 				}
 			},
@@ -176,10 +176,10 @@
 			},
 			"ui" : {
 				"initially_select" : [ "phtml_2" ],
-				"select_limit" : 1,
+				"select_limit" : 1
 			},
 			"core" : { "initially_open" : [ "phtml_1" ] },
-			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ],
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]
 			
 			
 		})
