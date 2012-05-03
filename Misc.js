@@ -63,7 +63,7 @@ var builtinFunctions = [
 		],
 		'jsFunc': objectPosition,
 		'handlerFunc': objectPosition_handler,
-		'dict': selectObjects,
+		'dict': selectObjects
 	}
 ];
 
