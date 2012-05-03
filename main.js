@@ -210,17 +210,21 @@
 			Ok: function() {
 				curUser.passwd = $('#password').prop('value');
 				login();
-				$(this).dialog('close');					
+				$('#enterPassword').dialog('close');					
 			},
 			Cancel: function(){
 				$.cookie('userId', undefined);
 				$.cookie('passwd', undefined);
-				$(this).dialog('close');	
+				$('#enterPassword').dialog('close');	
 			}
 		}, 
 		autoOpen: false,
 		close: function(){this.title = 'Введите пароль';}
 	});
+	$('#enterPassword').live('keyup', function(e){
+	  if (e.keyCode == 13) {
+	    $(this).dialog( "option", "buttons" )['Ok']();
+	  }});
 	$('#changeContest').dialog({
 		modal: true,
 		buttons: {
