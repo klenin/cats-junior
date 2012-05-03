@@ -1,4 +1,8 @@
 ﻿$(document).ready(function(){
+	if ($.browser.msie){
+		$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
+		return;
+	}
 	$('#tabs').tabs({
 		select: function(event, ui) {
 			if (ui.index > 0 && ui.index - 1 < problems.length){
@@ -210,17 +214,21 @@
 			Ok: function() {
 				curUser.passwd = $('#password').prop('value');
 				login();
-				$(this).dialog('close');					
+				$('#enterPassword').dialog('close');					
 			},
 			Cancel: function(){
 				$.cookie('userId', undefined);
 				$.cookie('passwd', undefined);
-				$(this).dialog('close');	
+				$('#enterPassword').dialog('close');	
 			}
 		}, 
 		autoOpen: false,
 		close: function(){this.title = 'Введите пароль';}
 	});
+	$('#enterPassword').live('keyup', function(e){
+	  if (e.keyCode == 13) {
+	    $(this).dialog( "option", "buttons" )['Ok']();
+	  }});
 	$('#changeContest').dialog({
 		modal: true,
 		buttons: {
