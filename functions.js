@@ -1,4 +1,4 @@
-var curCodeMirror;
+﻿var curCodeMirror;
 
 function showHideCode()
 {
@@ -19,13 +19,16 @@ function callScript(url, callback){
 			async: false,
 			url: 'script.php',
 			data: 'url='+ url,
+			dataType: 'json',
 			success: function(data){
-				data = data.replace(new RegExp( "\t", "g" ), ' ');
-				var d = $.evalJSON(data);
-				callback(d);
+				//data = data.replace(new RegExp( "\t", "g" ), ' ');
+				//var d = $.evalJSON(data);
+				callback(data);
 			},
 			error: function(jqXHR, textStatus, errorThrown) {
-				alert(jqXHR, textStatus, errorThrown);
+				if(url.search('rank_table_content') == -1){
+					alert('Ошибка подключения к серверу');
+				}
 			}
 		});
 	} 
@@ -34,7 +37,12 @@ function callScript(url, callback){
 			async: false,
 			dataType : 'json',
 			url: url,
-			success: callback
+			success: callback,
+			error: function(jqXHR, textStatus, errorThrown) {
+				if(url.search('rank_table_content') == -1){
+					alert('Ошибка подключения к серверу');
+				}			
+			}
 		});
 	}
 }
@@ -75,7 +83,7 @@ function callSubmit(url, submitData, problem_id, callback){
                 data: formData,
                 success: callback,
                 error: function(r, err1, err2){
-                        alert('������ ����������� � �������');
+                        alert('Ошибка подключения к серверу');
                 }
         });
 }
