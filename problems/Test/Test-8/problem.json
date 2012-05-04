@@ -118,6 +118,6 @@
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,
-	"maxCmdNum": 40,
+	"maxCmdNum": 100,
 	"commandsFine": 1
 }

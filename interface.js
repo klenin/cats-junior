@@ -127,7 +127,7 @@ submitClick = function(){
 }
 
 function getContests(){
-	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=0;json=1;', function(data){ ////
+	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', function(data){ ////
 		if (!data)
 			return;
 		contests = data.contests;
