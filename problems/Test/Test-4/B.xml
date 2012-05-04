@@ -6,8 +6,7 @@
 <Keyword code="cmp.trivial" />
 
 <ProblemStatement>
-<p>
-Ваша задача -- найти звездочку за минимальное количество шагов. Звездочка дает 50 очков, за каждый шаг штраф -- 1 очко</p><p>
+<p>За звездочку получаете по 10 очков, за каждую команду -- штраф одно очко</p><p>
 </p>
 </ProblemStatement>
 <JsonData><include src="problem.json"/></JsonData>
