@@ -51,7 +51,7 @@
 				codeareas[problem.tabIndex].refresh();
 			}
 		});
-	    $("#jstree-container" + problem.tabIndex).jstree({ 
+		$("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
 				"max_depth" : -2,
 	            "max_children" : -2,
@@ -109,8 +109,13 @@
 						"icon" : { 
 							"image" : "images/wait_small.png" 
 						}
+					},
+					"func" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
 					}
-					
 				}
 			},
 			"crrm":{
@@ -183,21 +188,181 @@
 				"select_limit" : 1
 			},
 			"core" : { "initially_open" : [ "phtml_1" ] },
-			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]
-			
-			
-		})
-		.bind("move_node.jstree", function(event, data){
-			var node = data.args[0].o;
-			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
-				data.inst.move_node(elseStmt, node, 'after', false, false, true);
-				elseStmt = undefined;
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+	})
+	.bind("move_node.jstree", function(event, data){
+		var node = data.args[0].o;
+		if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+			data.inst.move_node(elseStmt, node, 'after', false, false, true);
+			elseStmt = undefined;
+		}
+		problem.updated();
+	}).bind('click', function(event, ui) {
+		problem.showCounters();
+	});
+	$("#jstree-funcDef" + problem.tabIndex).jstree({  //copypaste!!!!!!!!!!!!!
+		"types" : {
+			"max_depth" : -2,
+            "max_children" : -2,
+			"types" : {
+				"block" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"if" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"ifelse" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"else" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"while" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"for" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"left" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/left_small.png" 
+					}
+				},
+				"right" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/right_small.png" 
+					}
+				},
+				"forward" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/forward_small.png" 
+					}
+				},
+				"wait" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/wait_small.png" 
+					}
+				},
+				"for" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
 			}
-			problem.updated();
-		}).bind('click', function(event, ui) {
-			problem.showCounters();
-		});
-	});  
+		},
+		"crrm":{
+			"move" : {
+				"default_position" : "inside", 
+				"check_move" : function (data) {
+					var curNode = data.o;
+					var curType = this._get_type(curNode);
+					if (curType == 'else')
+						return false;
+					elseStmt = undefined;
+					if (curType == 'ifelse'){
+						elseStmt = getNextNode(this, curNode);
+					}
+					node = data.r;
+					type = this._get_type(node);
+					if (type == 'ifelse' && data.p == 'after'){
+						return false;
+					}
+					if (type == 'else' && data.p == 'before'){
+						return false;
+					}
+					if (curType == 'func' && type != 'func' && (data.p == 'after' || data.p == 'before')) {
+						return false;
+					}
+					return true;
+				}
+			}
+			},
+		"dnd" : {
+			"drag_check" : function (data) {
+				result = { 
+					after : true, 
+					before : true, 
+					inside : true 
+				};
+				if (this._get_type(data.r) == 'ifelse'){
+					result['after'] = false;
+				}
+				if (this._get_type(data.r) == 'else') {
+					result['before'] = false;
+				}
+				if (this._get_type(data.r) == 'func' && this._get_type(data.o) != 'func') {
+					if (this._get_type(data.o) == 'func') {
+						result['inside'] = false;
+					}
+					else {
+						result['after'] = false;
+						result['before'] = false;
+					}
+				}
+
+				return result;
+			},
+			"drag_finish" : function (data) { 
+				var node = data.r;
+				//; //=(
+				var pos = data.p;
+				if ((!isBlock(this._get_type(node))|| this._get_type(node) == 'func') && pos == 'inside' ){
+					pos = 'after';
+				}
+				$("#jstree-funcDef" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
+					onCreateItem(this, newNode, $(data.o), problem);
+				}, true); 
+			},
+			"drop_finish": function(data){
+				var node = data.o;
+				var type = this._get_type(node);
+				if (type == 'else')
+					return false;
+				var next = undefined;
+				if (type == 'ifelse'){
+					next = getNextNode(this, node);
+				}
+				this.remove(data.o);
+				if (next)
+					this.remove(next);
+				problem.updated();
+			}
+		},
+		"ui" : {
+			"initially_select" : [ "phtml_2" ],
+			"select_limit" : 1
+		},
+		"core" : { "initially_open" : [ "phtml_1" ] },
+		"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+	})
+	.bind("move_node.jstree", function(event, data){
+		var node = data.args[0].o;
+		if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+			data.inst.move_node(elseStmt, node, 'after', false, false, true);
+			elseStmt = undefined;
+		}
+		problem.updated();
+	}).bind('click', function(event, ui) {
+		problem.showCounters();
+	});
+
+	});
 	$('#about').dialog({
 		modal: true,
 		autoOpen: false,

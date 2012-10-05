@@ -89,7 +89,7 @@ var Command = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
+		$(getTreeIdByObject(tree)).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
 				var numId = $(newNode).prop('numId');
@@ -223,7 +223,7 @@ var ForStmt = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
+		$(getTreeIdByObject(tree)).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#for0'), self.problem);
@@ -409,7 +409,7 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
+		$(getTreeIdByObject(tree)).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
@@ -536,7 +536,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
+		$(getTreeIdByObject(tree)).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
@@ -664,6 +664,108 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i)
 		{
 			this.commands[i].generateCommand(tree, node ? node : 0);
+		}
+	}
+});
+
+var Func = $.inherit({
+	__constructor : function(blocks, parent, problem) {
+        this.curBlock = 0;
+		this.blocks = blocks;
+		this.parent = parent;
+		this.problem = problem;
+	},
+	insertBlock: function(block, pos) {
+	    this.blocks.splice(pos, block);
+	},
+	pushBlock: function(block){
+		this.blocks.push(blocks);
+	},
+	isFinished: function(){
+		return this.blocks.length <= this.curBlock;
+	},
+	eq: function(func) {
+		if (func.getClass() != 'function')
+			return false;
+		var f = true;
+		for (var i = 0; i < Math.min(this.blocks.length, this.curBlock + 1) && f; ++i) //rewrite!
+		{
+			if (i >= func.blocks.length)
+				return false;
+			var f1 = this.blocks[i].eq(func.blocks[i], func.blocks[i].getClass() == 'block' && 
+				i == Math.min(this.blocks.length - 1, this.curBlock));
+			f = f && f1;
+		}
+		return f;
+	},
+	exec: function(cnt) {
+		var cmd = undefined;
+		while(cnt && this.blocks.length > this.curBlocks && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		{
+			cmd = this.blocks[this.curBlock];
+			cnt = cmd.exec(cnt);
+			if (cmd.isFinished())
+				++this.curBlock;
+		}
+		return cnt;
+	},
+	getClass: function(){
+		return 'function';
+	},
+	setDefault: function(){
+		for (var i = 0; i < this.blocks.length; ++i)
+			this.blocks[i].setDefault();
+		this.curBlock = 0;
+	},
+	showCounters: function() {
+		for (var i = 0; i < this.blocks.length; ++i)
+			this.blocks[i].showCounters(); 
+	},
+	hideCounters: function() {
+		for (var i = 0; i < this.blocks.length; ++i)
+			this.blocks[i].hideCounters(); 
+	},
+	started: function() {
+		return this.curBlock > 0 || (this.blocks.length && this.blocks[0].started());
+	},
+	copyDiff: function(func, compareCnt) {
+		if (func.getClass() != 'function'){
+			return func;
+		}
+		for (var i = 0; i < Math.min(this.blocks.length, func.blocks.length); ++i){
+			this.blocks[i] = this.blocks[i].copyDiff(func.blocks[i], 
+													this.isFinished() && i == this.blocks.length - 1 && compareCnt);
+		}
+		if (this.blocks.length < func.blocks.length)
+			this.blocks = this.blocks.concat(func.blocks.slice(this.blocks.length))
+		else if (this.blocks.length > func.blocks.length)
+			this.blocks.splice(func.blocks.length, this.blocks.length - func.blocks.length);
+		return this;
+	},
+	makeUnfinished: function(){
+		if (this.isFinished()) {
+			this.curBlock = Math.max(this.blocks.length - 1, 0);
+			if (this.blocks.length)
+				this.blocks[this.curBlock].makeUnfinished();
+		}
+	},
+	highlightOff: function(){
+		for (var i = 0; i < this.blocks.length; ++i)
+			this.blocks[i].highlightOff();
+	},
+	highlightOn: function(){
+		return;
+	},
+	convertToCode: function(tabsNum) {
+		str = '';
+		for (var i = 0; i < this.blocks.length; ++i){
+			str += this.blocks[i].convertToCode(tabsNum);
+		}
+		return str;
+	},
+	generateCommand: function(tree, node){
+		for (var i = 0; i < this.blocks.length; ++i){
+			this.blocks[i].generateCommand(tree, node ? node : 0);
 		}
 	}
 });
@@ -892,6 +994,7 @@ var Problem = $.inherit({
 	},
 	enableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('enable');
+		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 		$('#tabs').tabs( "option", "disabled", [] );
@@ -899,6 +1002,7 @@ var Problem = $.inherit({
 
 	disableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('disable');
+		$('#jstree-funcDef' + this.tabIndex).sortable('disable');	
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).prop('disabled', true);
 		var disabled = [];
@@ -1046,6 +1150,7 @@ var Problem = $.inherit({
 			$('#btn_' + btns[i] + this.tabIndex).button('disable');
 		$('#btn_stop' + this.tabIndex).button('enable');
 		$('#jstree-container' + this.tabIndex).sortable('enable');
+		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		if (!this.speed)
 			this.notSpeed();
 		this.playing = false;

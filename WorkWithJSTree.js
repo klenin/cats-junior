@@ -62,7 +62,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 	
 function isBlock(type){
 	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || 
-		type == 'while' || type == 'for' || type == 'else';
+		type == 'while' || type == 'for' || type == 'else' || type == 'func';
 }
 function getNextNode(tree, node)
 {
@@ -80,3 +80,6 @@ function getNextNode(tree, node)
 	return next;
 }
 
+function getTreeIdByObject(tree) {
+	return tree.data.html_data.original_container_html.context;
+}
