@@ -141,7 +141,7 @@ function convert(commands, parent, problem, funcDef){
 			if (funcDef){
 				obj = new FuncDef(commands[i].data, [], block, problem);
 				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
-				obj.blocks = [blocks];
+				obj.body = blocks;
 				problem.functions[commands[i].data] = obj;
 				++problem.numOfFunctions;
 				block.pushCommand(obj);
@@ -263,12 +263,18 @@ function convertTreeToCommands(commands, parent, problem)
 				if (!dict)
 					return undefined;
 				var whileStmt = new WhileStmt(dict['testName'], dict['args'], undefined, block, undefined, problem)
-				var body = convertTreeToCommands(commands[i].body, ifStmt, problem);
+				var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 				if (!body)
 					return undefined;
 				whileStmt.body = body;
 				block.pushCommand(whileStmt);
 				break;
+			case 'FunctionDef':
+				var funcDef = new FuncDef(commands[i].name.v, undefined, block, problem);
+				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
+				funcDef.body = body;
+				block.pushCommand(funcDef);
+				break;	
 			default: 
 				return undefined;
 		}

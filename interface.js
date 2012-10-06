@@ -278,7 +278,11 @@ function fillTabs(){
 							problems[j].prepareForExecuting()
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
 							if (block) {
-								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+								for (var i = 0; i < block.commands.length; ++i) {
+									block.commands[i].generateCommand(jQuery.jstree._reference('#jstree-' +
+										(block.commands[i].getClass() == 'functionDef' ? 'funcDef' : 'container') + j))
+								}
+								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
 								$("#commandsMode" + j).prop('checked', false);
@@ -288,6 +292,7 @@ function fillTabs(){
 							}
 						}
 						catch(e){
+							console.log(e);
 							++cmdId;
 							problems[j].updated();
 							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
