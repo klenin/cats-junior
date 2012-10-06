@@ -105,19 +105,15 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem)
-{
+function convert(commands, parent, problem, funcDef){
 	var block = new Block([], parent, problem);
-	for (var i = 0; i < commands.length; ++i)
-	{
+	for (var i = 0; i < commands.length; ++i){
 		var type = commands[i].attr['rel'];
 		var id = commands[i].attr['id'];
-		if (type == 'block' && commands[i].children)
-		{
+		if (type == 'block' && commands[i].children)		{
 			block.pushCommand(convert(commands[i].children, block, problem));
 		}
-		else if (type == 'if' || type == 'ifelse' || type == 'while')
-		{
+		else if (type == 'if' || type == 'ifelse' || type == 'while')		{
 		
 			var test3 = parseInt($('#' + id + ' option:selected')[0].value);
 			var test1 = parseInt($('#' + id + ' option:selected')[1].value);
@@ -136,14 +132,25 @@ function convert(commands, parent, problem)
 				new WhileStmt('objectPosition', [test1, test2, test3], block1, block, id, problem) : 
 				new IfStmt('objectPosition', [test1, test2, test3], block1, block2, block, id, problem));
 		}
-		else if (type == 'for')
-		{
+		else if (type == 'for')		{
 			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
 			var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
-		else
-		{
+		else if (type == 'func'){
+			if (funcDef){
+				obj = new FuncDef(commands[i].data, [], block, problem);
+				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
+				obj.blocks = [blocks];
+				problem.functions[commands[i].data] = obj;
+				++problem.numOfFunctions;
+				block.pushCommand(obj);
+			}
+			else {
+				block.pushCommand(new FuncCall(problem.functions[commands[i].data], block, problem));
+			}
+		}
+		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
 				block, id, problem);
 			block.pushCommand(cmd);

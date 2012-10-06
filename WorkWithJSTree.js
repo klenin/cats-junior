@@ -1,7 +1,7 @@
 function onCreateItem(tree, newNode, initObject, problem){
 	var type = initObject.attr('rel');
 	tree.set_type(type, newNode);
-	tree.rename_node(newNode, cmdClassToName[type]);
+	tree.rename_node(newNode, type == 'func' ? 'func_' + problem.numOfFunctions : cmdClassToName[type]);
 	switch(type){
 		case 'left':
 		case 'right':
@@ -38,7 +38,7 @@ function onCreateItem(tree, newNode, initObject, problem){
 			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'Если');
-				$("#jstree-container" + problem.tabIndex).jstree("create", $(newNode), "after", false, 
+				$(getTreeIdByObject(tree)).jstree("create", $(newNode), "after", false, 
 					function(elseNode){
 					tree.set_type('else', elseNode);
 					tree.rename_node(elseNode, 'Иначе');
@@ -49,6 +49,14 @@ function onCreateItem(tree, newNode, initObject, problem){
 						$(elseNode).prop('id', 'else' + cmdId);
 				}, true); 
 			}
+			break;
+		case 'func':
+			//tree.rename(newNode);
+			$(newNode).bind('dblclick', function(node, t){
+				return function() {
+					t.rename(node);
+				};
+			}(newNode, tree));
 			break;
 	}
 	$(newNode).prop('id', type + cmdId);

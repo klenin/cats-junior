@@ -32,8 +32,9 @@
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
 				return function() {
-					if ($(this).prop('ifLi'))
+					if ($(this).prop('ifLi')) {
 						return;
+					}
 					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", false, function(newNode){
 							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex), problem);
 						}, true); 
@@ -136,6 +137,9 @@
 							return false;
 						}
 						if (type == 'else' && data.p == 'before'){
+							return false;
+						}
+						if (this._get_type(data.o) == 'func' && data.np[0] != data.op[0]) {//trying to move function definition in code
 							return false;
 						}
 						return true;
@@ -286,7 +290,10 @@
 					if (type == 'else' && data.p == 'before'){
 						return false;
 					}
-					if (curType == 'func' && type != 'func' && (data.p == 'after' || data.p == 'before')) {
+					if ((curType == 'func' && type != 'func' || curType != 'func' && type == 'func') && (data.p == 'after' || data.p == 'before')) {
+						return false;
+					}
+					if (this._get_type(data.o) == 'func' && data.np[0] != data.op[0]) {//trying to move function definition in code
 						return false;
 					}
 					return true;
@@ -315,15 +322,24 @@
 						result['before'] = false;
 					}
 				}
-
+				if (this._get_type(data.o) != 'func' && data.is_root) {
+					result = { 
+						after : false, 
+						before : false, 
+						inside : false 
+					};
+				}
 				return result;
 			},
 			"drag_finish" : function (data) { 
 				var node = data.r;
 				//; //=(
 				var pos = data.p;
-				if ((!isBlock(this._get_type(node))|| this._get_type(node) == 'func') && pos == 'inside' ){
+				if (!isBlock(this._get_type(node)) && pos == 'inside' ){
 					pos = 'after';
+				}
+				if (this._get_type(node) == 'func' && (pos == 'after' || pos == 'before')) {
+					pos = 'inside';
 				}
 				$("#jstree-funcDef" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
 					onCreateItem(this, newNode, $(data.o), problem);

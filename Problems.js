@@ -668,8 +668,9 @@ var Block = $.inherit({
 	}
 });
 
-var Func = $.inherit({
-	__constructor : function(blocks, parent, problem) {
+var FuncDef = $.inherit({
+	__constructor : function(name, blocks, parent, problem) {
+		this.name = name;
         this.curBlock = 0;
 		this.blocks = blocks;
 		this.parent = parent;
@@ -685,8 +686,9 @@ var Func = $.inherit({
 		return this.blocks.length <= this.curBlock;
 	},
 	eq: function(func) {
-		if (func.getClass() != 'function')
+		if (func.getClass() != 'functionDef')
 			return false;
+		return func.name == this.name; //???
 		var f = true;
 		for (var i = 0; i < Math.min(this.blocks.length, this.curBlock + 1) && f; ++i) //rewrite!
 		{
@@ -710,7 +712,7 @@ var Func = $.inherit({
 		return cnt;
 	},
 	getClass: function(){
-		return 'function';
+		return 'functionDef';
 	},
 	setDefault: function(){
 		for (var i = 0; i < this.blocks.length; ++i)
@@ -729,7 +731,7 @@ var Func = $.inherit({
 		return this.curBlock > 0 || (this.blocks.length && this.blocks[0].started());
 	},
 	copyDiff: function(func, compareCnt) {
-		if (func.getClass() != 'function'){
+		if (func.getClass() != 'functionDef'){
 			return func;
 		}
 		for (var i = 0; i < Math.min(this.blocks.length, func.blocks.length); ++i){
@@ -740,6 +742,7 @@ var Func = $.inherit({
 			this.blocks = this.blocks.concat(func.blocks.slice(this.blocks.length))
 		else if (this.blocks.length > func.blocks.length)
 			this.blocks.splice(func.blocks.length, this.blocks.length - func.blocks.length);
+		this.name = func.name;
 		return this;
 	},
 	makeUnfinished: function(){
@@ -757,9 +760,9 @@ var Func = $.inherit({
 		return;
 	},
 	convertToCode: function(tabsNum) {
-		str = '';
+		str = generateTabs(tabsNum) + 'def ' + this.name + '():\n';
 		for (var i = 0; i < this.blocks.length; ++i){
-			str += this.blocks[i].convertToCode(tabsNum);
+			str += this.blocks[i].convertToCode(tabsNum + 1);
 		}
 		return str;
 	},
@@ -768,6 +771,106 @@ var Func = $.inherit({
 			this.blocks[i].generateCommand(tree, node ? node : 0);
 		}
 	}
+});
+
+var FuncCall = $.inherit({
+	__constructor : function(name, parent, problem) {
+		this.name = name;
+		this.parent = parent;
+		this.problem = problem;
+		this.executing = false;
+	},
+	isFinished: function(){
+		return this.funcDef.finished; //?
+	},
+	getFuncDef: function() {
+		return this.problem.functions[this.name];
+	},
+	operateFuncDef: function(func) {
+		var funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef[func]();
+		}
+	},
+	eq: function(func) {
+		return (func.getClass() == 'functionCall') && this.name == func.name;
+	},
+	exec: function(cnt) {
+		funcDef = this.getFuncDef();
+		if (!this.executing)
+		{
+			cnt -= 1;
+			var numId = $('#' + this.id).prop('numId');
+			if (!cnt || this.problem.speed)
+			{
+				if (this.problem.speed)
+				{
+					if (this.problem.prevCmd)
+						this.problem.prevCmd.highlightOff();
+					this.problem.prevCmd = this;
+				}
+				$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+			}
+			this.problem.lastExecutedCmd = this;
+			if (this.curCnt + 1 > this.cnt)
+			{
+				++this.curCnt;
+				return cnt;
+			}
+			this.executing = true;
+			if (funcDef) {
+				funcDef.setDefault();
+			}
+		}
+		if (funcDef) {
+			cnt = this.funcDef.exec(cnt);
+		}
+		return cnt;
+	},
+	getClass: function(){
+		return 'functionCall';
+	},
+	setDefault: function(){
+		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
+		this.operateFuncDef('setDefault');
+	},
+	showCounters: function() {
+		this.operateFuncDef('showCounters');
+	},
+	hideCounters: function() {
+		this.operateFuncDef('hideCounters');
+	},
+	started: function() {
+		return this.executing;
+	},
+	copyDiff: function(func, compareCnt) {
+		if (func.getClass() != 'functionDef'){
+			return func;
+		}
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.copydiff(func.getFuncDef(), compareCnt);
+		}
+		return this;
+	},
+	makeUnfinished: function(){
+		this.operateFuncDef('makeUnfinished');
+	},
+	highlightOff: function(){
+		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+	},
+	convertToCode: function(tabsNum) {
+		return this.name + '();';
+	},
+	generateCommand: function(tree, node){
+		var self = this;
+		$(getTreeIdByObject(tree)).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			false, function(newNode){
+				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
+			}, true); 	}
 });
 
 var Problem = $.inherit({
@@ -818,6 +921,8 @@ var Problem = $.inherit({
 		this.commandsFine = this.commandsFine ? this.commandsFine : 0;
 		this.stepsFine = this.stepsFine ? this.stepsFine : 0;
 		this.invalidDirectionFine = this.invalidDirectionFine ? this.invalidDirectionFine : 0;
+		this.functions = {};
+		this.numOfFunctions = 0;
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -904,6 +1009,7 @@ var Problem = $.inherit({
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('enable');	
 		$('#jstree-container' + this.tabIndex).sortable('enable');
+		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 		this.setLabyrinth(this.specSymbols);
@@ -1088,8 +1194,7 @@ var Problem = $.inherit({
 	divI: function(){ return this.divIndex; },
 	divN: function(){ return this.divName;},
 	list: function() {return this.cmdList; },
-	setCounters: function(j, dontReload){
-		var el = $('#jstree-container' + this.tabIndex).children();
+	setCounters_: function(el, j, dontReload){
 		while(j){
 			el = el.next();
 			j--;
@@ -1103,8 +1208,15 @@ var Problem = $.inherit({
 			el = el.next();
 		}
 	},
+	setCounters: function(j, dontReload){
+		this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
+		this.setCounters_($('#jstree-funcDef' + this.tabIndex).children(), j, dontReload);
+	},
 	updated: function(){
-		var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this);
+		this.functions = {};
+		this.numOfFunctions = 0;
+		var newCmdList = convert($("#jstree-funcDef" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
+		newCmdList = $.extend(true, newCmdList, convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this, false));
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
 		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
