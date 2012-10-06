@@ -1216,7 +1216,8 @@ var Problem = $.inherit({
 		this.functions = {};
 		this.numOfFunctions = 0;
 		var newCmdList = convert($("#jstree-funcDef" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
-		newCmdList = $.extend(true, newCmdList, convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this, false));
+		code = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
+		newCmdList.pushCommand(code);
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
 		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {

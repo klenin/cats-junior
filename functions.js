@@ -147,7 +147,7 @@ function convert(commands, parent, problem, funcDef){
 				block.pushCommand(obj);
 			}
 			else {
-				block.pushCommand(new FuncCall(problem.functions[commands[i].data], block, problem));
+				block.pushCommand(new FuncCall(commands[i].data, block, problem));
 			}
 		}
 		else{
