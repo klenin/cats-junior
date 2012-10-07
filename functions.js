@@ -202,9 +202,14 @@ function convertCondition(expr){
 	return undefined;
 }
 
-function convertTreeToCommands(commands, parent, problem)
+function convertTreeToCommands(commands, parent, problem, isRoot)
 {
-	var block = new Block([], parent, problem);
+	var rootBlock = new Block([], parent, problem);
+	if (isRoot){ //cheat!! fix it!!
+		rootBlock.pushCommand(new Block([], rootBlock, problem));
+		rootBlock.pushCommand(new Block([], rootBlock, problem));
+	}
+	var block = isRoot ? rootBlock.commands[1] : rootBlock;
 	for (var i = 0; i < commands.length; ++i)
 	{
 		switch(commands[i]._astname)
@@ -226,7 +231,8 @@ function convertTreeToCommands(commands, parent, problem)
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
 					default:
-						return undefined;
+						block.pushCommand(new FuncCall(commands[i].value.func.id.v, block, problem));
+						break;
 				}
 				break;
 			case 'For':
@@ -270,16 +276,16 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				var funcDef = new FuncDef(commands[i].name.v, undefined, block, problem);
+				var funcDef = new FuncDef(commands[i].name.v, undefined, rootBlock.commands[0], problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
-				block.pushCommand(funcDef);
+				rootBlock.commands[0].pushCommand(funcDef);
 				break;	
 			default: 
 				return undefined;
 		}
 	}
-	return block;
+	return rootBlock;
 }
 
 

@@ -203,7 +203,10 @@
 		problem.updated();
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
+	}).bind("rename.jstree", function(event, data) {
+		problem.updated();
 	});
+	
 	$("#jstree-funcDef" + problem.tabIndex).jstree({  //copypaste!!!!!!!!!!!!!
 		"types" : {
 			"max_depth" : -2,
@@ -376,9 +379,11 @@
 		problem.updated();
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
+	}).bind('rename', function(event, data) {
+		problem.updated();
 	});
-
 	});
+	
 	$('#about').dialog({
 		modal: true,
 		autoOpen: false,

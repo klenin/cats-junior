@@ -276,12 +276,10 @@ function fillTabs(){
 							$('#jstree-container' + j).empty();	
 							$('#jstree-funcDef' + j).empty();	
 							problems[j].prepareForExecuting()
-							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
+							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
-								for (var i = 0; i < block.commands.length; ++i) {
-									block.commands[i].generateCommand(jQuery.jstree._reference('#jstree-' +
-										(block.commands[i].getClass() == 'functionDef' ? 'funcDef' : 'container') + j))
-								}
+								block.commands[0].generateCommand(jQuery.jstree._reference('#jstree-funcDef' + j));
+								block.commands[1].generateCommand(jQuery.jstree._reference('#jstree-container' + j));
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){

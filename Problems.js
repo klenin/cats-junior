@@ -824,13 +824,13 @@ var FuncCall = $.inherit({
 		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
-		return this.name + '();';
+		return this.name + '()\n';
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
+				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
 			}, true); 	}
 });
 
