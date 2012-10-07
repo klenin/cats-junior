@@ -728,7 +728,7 @@ var FuncDef = $.inherit({
 		$(getTreeIdByObject(tree)).jstree("create", node, 
 			isBlock(tree._get_type(node)) ? "last" : "after", 
 			false, function(newNode){
-				onCreateItem(tree, newNode, $('#func0'), self.problem);
+				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	}

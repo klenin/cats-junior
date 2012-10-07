@@ -1,7 +1,7 @@
-function onCreateItem(tree, newNode, initObject, problem){
+function onCreateItem(tree, newNode, initObject, problem, name){
 	var type = initObject.attr('rel');
 	tree.set_type(type, newNode);
-	tree.rename_node(newNode, type == 'func' ? 'func_' + problem.numOfFunctions : cmdClassToName[type]);
+	tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + problem.numOfFunctions) : cmdClassToName[type]);
 	switch(type){
 		case 'left':
 		case 'right':
