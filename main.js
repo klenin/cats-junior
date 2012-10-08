@@ -212,6 +212,8 @@
 		problem.showCounters();
 	}).bind("rename.jstree", function(event, data) {
 		problem.updated();
+	}).bind('refresh.jstree', function(event, data) {
+		problem.updated();
 	});
 	
 	$("#jstree-funcDef" + problem.tabIndex).jstree({  //copypaste!!!!!!!!!!!!!
@@ -388,7 +390,9 @@
 		problem.updated();
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
-	}).bind('rename', function(event, data) {
+	}).bind('rename.jstree', function(event, data) {
+		problem.updated();
+	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	});
 	});

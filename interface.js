@@ -64,6 +64,7 @@ function changeUser(){
 	try{ //temporary wa
 		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
 	}catch(e){
+		console.log(e);
 	}
 	sid = undefined;
 	logined = false;

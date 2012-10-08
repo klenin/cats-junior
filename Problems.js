@@ -93,6 +93,7 @@ var Command = $.inherit({
 			{'data': cmdClassToName[self.name]}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
 				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
 	}
@@ -227,6 +228,7 @@ var ForStmt = $.inherit({
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0'), self.problem);
 				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				$('#for' + numId + ' > span > input').prop('value', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -411,6 +413,8 @@ var IfStmt = $.inherit(CondStmt, {
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
@@ -537,6 +541,8 @@ var WhileStmt = $.inherit(CondStmt, {
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -666,14 +672,16 @@ var Block = $.inherit({
 });
 
 var FuncDef = $.inherit({
-	__constructor : function(name, body, parent, problem) {
+	__constructor : function(name, body, parent, id, problem) {
 		this.name = name;
 		this.body = body;
 		this.parent = parent;
 		this.problem = problem;
+		this.finished = false;
+		this.id = id;
 	},
 	isFinished: function(){
-		return this.body.isFinished();
+		return this.finished;
 	},
 	eq: function(func) {
 		if (func.getClass() != 'functionDef')
@@ -681,22 +689,24 @@ var FuncDef = $.inherit({
 		return func.name == this.name && this.body.eq(func.body); //???
 	},
 	exec: function(cnt) {
-		return this.body.exec(cnt);
+		//return this.body.exec(cnt);
+		this.finished = true;
 	},
 	getClass: function(){
 		return 'functionDef';
 	},
 	setDefault: function(){
-		this.body.setDefault();
+		this.finished = false;
+		//this.body.setDefault();
 	},
 	showCounters: function() {
-		this.body.showCounters();
+		//this.body.showCounters();
 	},
 	hideCounters: function() {
-		this.body.hideCounters();
+		//this.body.hideCounters();
 	},
 	started: function() {
-		return this.body.started();
+		return this.finished;
 	},
 	copyDiff: function(func, compareCnt) {
 		if (func.getClass() != 'functionDef'){
@@ -725,20 +735,24 @@ var FuncDef = $.inherit({
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': this.name}, function(newNode){
 				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	}
 });
 
 var FuncCall = $.inherit({
-	__constructor : function(name, parent, problem) {
+	__constructor : function(name, parent, id, problem) {
 		this.name = name;
 		this.parent = parent;
 		this.problem = problem;
 		this.executing = false;
+		this.id = id;
 	},
 	isFinished: function(){
-		return this.funcDef.finished; //?
+		funcDef = this.getFuncDef();
+		return funcDef ? funcDef.body.isFinished() : false;
 	},
 	getFuncDef: function() {
 		return this.problem.functions[this.name];
@@ -766,7 +780,7 @@ var FuncCall = $.inherit({
 						this.problem.prevCmd.highlightOff();
 					this.problem.prevCmd = this;
 				}
-				$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+				$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 			}
 			this.problem.lastExecutedCmd = this;
 			if (this.curCnt + 1 > this.cnt)
@@ -776,11 +790,11 @@ var FuncCall = $.inherit({
 			}
 			this.executing = true;
 			if (funcDef) {
-				funcDef.setDefault();
+				funcDef.body.setDefault();
 			}
 		}
 		if (funcDef) {
-			cnt = this.funcDef.exec(cnt);
+			cnt = funcDef.body.exec(cnt);
 		}
 		return cnt;
 	},
@@ -789,13 +803,23 @@ var FuncCall = $.inherit({
 	},
 	setDefault: function(){
 		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
-		this.operateFuncDef('setDefault');
+		this.executing = false;
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.setDefault();	
+		}
 	},
 	showCounters: function() {
-		this.operateFuncDef('showCounters');
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.showCounters();	
+		}	
 	},
 	hideCounters: function() {
-		this.operateFuncDef('hideCounters');
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.hideCounters();
+		}
 	},
 	started: function() {
 		return this.executing;
@@ -811,13 +835,16 @@ var FuncCall = $.inherit({
 		return this;
 	},
 	makeUnfinished: function(){
-		this.operateFuncDef('makeUnfinished');
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.makeUnfinished();	
+		}
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
+		$('#' + this.id + '>a').css('background-color', '#FFFFFF');
 	},
 	highlightOn: function(){
-		$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
 		return this.name + '()\n';
@@ -827,6 +854,8 @@ var FuncCall = $.inherit({
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
 				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 			}, true); 	}
 });
 
@@ -1103,6 +1132,7 @@ var Problem = $.inherit({
 					this.updateWatchList();
 				}catch(e)
 				{
+					console.log(e);
 					$('#cons' + problem).append('\n' + e + '\n');
 					return 0;
 
@@ -1574,6 +1604,7 @@ var Problem = $.inherit({
 		}
 		catch(e)
 		{
+			console.log(e);
 			this.playing = false;
 			$('#cons' + this.tabIndex).html('Некорректный код');
 		}
@@ -1620,6 +1651,7 @@ var Problem = $.inherit({
 			this.changed = false;
 		}
 		catch(e){
+			console.log(e);
 			var problem = this.tabIndex;
 			finalcode[problem] = undefined;
 			$scope[problem] = undefined,
@@ -1668,6 +1700,7 @@ var Problem = $.inherit({
 			}
 			catch (e)
 			{
+				console.log(e);
 				this.playing = false;
 				$('#cons' + this.tabIndex).append(e);
 			}
@@ -1713,6 +1746,7 @@ var Problem = $.inherit({
 					this.playing = false;
 			}
 			catch(e){
+				console.log(e);
 				$('#cons' + this.tabIndex).append(e);
 			}
 		}
@@ -1747,6 +1781,7 @@ var Problem = $.inherit({
 		this.play(t);
 		} 
 		catch(e) {
+			console.log(e);
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},

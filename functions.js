@@ -139,7 +139,7 @@ function convert(commands, parent, problem, funcDef){
 		}
 		else if (type == 'func'){
 			if (funcDef){
-				obj = new FuncDef(commands[i].data, [], block, problem);
+				obj = new FuncDef(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), [], block, id, problem);
 				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
 				obj.body = blocks;
 				problem.functions[commands[i].data] = obj;
@@ -147,7 +147,7 @@ function convert(commands, parent, problem, funcDef){
 				block.pushCommand(obj);
 			}
 			else {
-				block.pushCommand(new FuncCall(commands[i].data, block, problem));
+				block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), block, id, problem));
 			}
 		}
 		else{
@@ -231,7 +231,7 @@ function convertTreeToCommands(commands, parent, problem, isRoot)
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
 					default:
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, block, problem));
+						block.pushCommand(new FuncCall(commands[i].value.func.id.v, block, undefined, problem));
 						break;
 				}
 				break;
@@ -276,7 +276,7 @@ function convertTreeToCommands(commands, parent, problem, isRoot)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				var funcDef = new FuncDef(commands[i].name.v, undefined, rootBlock.commands[0], problem);
+				var funcDef = new FuncDef(commands[i].name.v, undefined, rootBlock.commands[0], undefined, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				rootBlock.commands[0].pushCommand(funcDef);
