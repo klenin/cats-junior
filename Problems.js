@@ -89,8 +89,8 @@ var Command = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.name]}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
@@ -223,9 +223,8 @@ var ForStmt = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0'), self.problem);
 				var numId = $(newNode).prop('numId');
 				$('#for' + numId + ' > span > input').prop('value', self.cnt);
@@ -409,9 +408,8 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
@@ -536,9 +534,8 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
@@ -725,9 +722,8 @@ var FuncDef = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$(getTreeIdByObject(tree)).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': this.name}, function(newNode){
 				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -829,7 +825,7 @@ var FuncCall = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+			{'data': self.name}, function(newNode){
 				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
 			}, true); 	}
 });

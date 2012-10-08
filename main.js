@@ -35,9 +35,10 @@
 					if ($(this).prop('ifLi')) {
 						return;
 					}
-					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", false, function(newNode){
+					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
+							{'data': (classes[j] == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[classes[j]]}, function(newNode){
 							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex), problem);
-						}, true); 
+						}, classes[j] != 'func'); 
 					problem.updated();
 				}
 			}(k));
@@ -125,8 +126,9 @@
 					"check_move" : function (data) {
 						var node = data.o;
 						var type = this._get_type(node);
-						if (type == 'else')
+						if (type == 'else') {
 							return false;
+						}
 						elseStmt = undefined;
 						if (type == 'ifelse'){
 							elseStmt = getNextNode(this, node);
@@ -139,7 +141,8 @@
 						if (type == 'else' && data.p == 'before'){
 							return false;
 						}
-						if (this._get_type(data.o) == 'func' && data.np[0] != data.op[0]) {//trying to move function definition in code
+						if (this._get_type(data.o) == 'func' && data.ot[0] != data.rt[0]) {//trying to move function definition in code
+							console.log(data.ot, data.rt);
 							return false;
 						}
 						return true;
@@ -168,9 +171,13 @@
 					if (!isBlock(this._get_type(node)) && pos == 'inside'){
 						pos = 'after';
 					}
-					$("#jstree-container" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
-						onCreateItem(this, newNode, $(data.o), problem);
-					}, true); 
+					var type = this._get_type(data.o);
+					$("#jstree-container" + problem.tabIndex).jstree(
+						"create", node, pos, 
+						{'data': (type == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[type]}, 
+						function(newNode){
+							onCreateItem(this, newNode, $(data.o), problem);
+						}, type != 'func'); 
 				},
 				"drop_finish": function(data){
 					var node = data.o;
@@ -344,9 +351,11 @@
 				if (this._get_type(node) == 'func' && (pos == 'after' || pos == 'before')) {
 					pos = 'inside';
 				}
-				$("#jstree-funcDef" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
+				var type = this._get_type(data.o); 
+				$("#jstree-funcDef" + problem.tabIndex).jstree("create", node, pos, 
+					{'data': (type == 'func') ? ('func_' + problem.numOfFunctions) : cmdClassToName[type]}, function(newNode){
 					onCreateItem(this, newNode, $(data.o), problem);
-				}, true); 
+				}, type != 'func'); 
 			},
 			"drop_finish": function(data){
 				var node = data.o;
