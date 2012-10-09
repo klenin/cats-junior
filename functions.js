@@ -105,7 +105,7 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem, funcDef){
+function convert(commands, parent, problem){
 	var block = new Block([], parent, problem);
 	for (var i = 0; i < commands.length; ++i){
 		var type = commands[i].attr['rel'];
@@ -138,10 +138,13 @@ function convert(commands, parent, problem, funcDef){
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
 		else if (type == 'func'){
-			if (funcDef){
+			if (commands[i].children){
 				obj = new FuncDef(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), [], block, id, problem);
 				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
 				obj.body = blocks;
+				if (problem.functions[commands[i].data]) {
+					throw "The function with the same name " + commands[i].data + " already exists"
+				}
 				problem.functions[commands[i].data] = obj;
 				++problem.numOfFunctions;
 				block.pushCommand(obj);
@@ -202,14 +205,9 @@ function convertCondition(expr){
 	return undefined;
 }
 
-function convertTreeToCommands(commands, parent, problem, isRoot)
+function convertTreeToCommands(commands, parent, problem)
 {
-	var rootBlock = new Block([], parent, problem);
-	if (isRoot){ //cheat!! fix it!!
-		rootBlock.pushCommand(new Block([], rootBlock, problem));
-		rootBlock.pushCommand(new Block([], rootBlock, problem));
-	}
-	var block = isRoot ? rootBlock.commands[1] : rootBlock;
+	var block = new Block([], parent, problem);
 	for (var i = 0; i < commands.length; ++i)
 	{
 		switch(commands[i]._astname)
@@ -276,16 +274,16 @@ function convertTreeToCommands(commands, parent, problem, isRoot)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				var funcDef = new FuncDef(commands[i].name.v, undefined, rootBlock.commands[0], undefined, problem);
+				var funcDef = new FuncDef(commands[i].name.v, undefined, block, undefined, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
-				rootBlock.commands[0].pushCommand(funcDef);
+				block.pushCommand(funcDef);
 				break;	
 			default: 
 				return undefined;
 		}
 	}
-	return rootBlock;
+	return block;
 }
 
 

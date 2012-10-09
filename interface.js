@@ -275,12 +275,10 @@ function fillTabs(){
 						var l = codeareas[j].getValue().length;
 						try {
 							$('#jstree-container' + j).empty();	
-							$('#jstree-funcDef' + j).empty();	
 							problems[j].prepareForExecuting()
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
-								block.commands[0].generateCommand(jQuery.jstree._reference('#jstree-funcDef' + j));
-								block.commands[1].generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -302,7 +300,6 @@ function fillTabs(){
 						}
 						$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
-						$('#jstree-funcDef' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
@@ -316,7 +313,6 @@ function fillTabs(){
 			    		$('#ulCommands' + j).hide();
 						//$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
-						$('#jstree-funcDef' + j).hide();
 						$('#tdcommands' + j).hide();
 						//$('#tdcommands_' + j).show();
 						$('#tdcontainer' + j).hide();
@@ -448,7 +444,6 @@ function clearClick(){
 	problem.setDefault();
 	problem.cmdList = new Block([], undefined, this);
 	$('#jstree-container' + problem.tabIndex).children().remove();
-	$('#jstree-funcDef' + problem.tabIndex).children().remove();
 }
 
 function stopClick(){

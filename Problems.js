@@ -998,7 +998,6 @@ var Problem = $.inherit({
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('enable');	
 		$('#jstree-container' + this.tabIndex).sortable('enable');
-		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 		this.setLabyrinth(this.specSymbols);
@@ -1089,7 +1088,6 @@ var Problem = $.inherit({
 	},
 	enableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('enable');
-		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 		$('#tabs').tabs( "option", "disabled", [] );
@@ -1097,7 +1095,6 @@ var Problem = $.inherit({
 
 	disableButtons: function(){
 		$('#jstree-container' + this.tabIndex).sortable('disable');
-		$('#jstree-funcDef' + this.tabIndex).sortable('disable');	
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).prop('disabled', true);
 		var disabled = [];
@@ -1200,31 +1197,33 @@ var Problem = $.inherit({
 	},
 	setCounters: function(j, dontReload){
 		this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
-		this.setCounters_($('#jstree-funcDef' + this.tabIndex).children(), j, dontReload);
 	},
 	updated: function(){
-		this.functions = {};
-		this.numOfFunctions = 0;
-		var newCmdList = convert($("#jstree-funcDef" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
-		code = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
-		newCmdList.pushCommand(code);
-		var needHideCounters = this.cmdList && this.cmdList.started();
-		this.changed = true;
-		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
-			this.cmdList = newCmdList;
-			this.setDefault();
-			this.showCounters();
-		}
-		else {
-			this.cmdList = this.cmdList.copyDiff(newCmdList, true);
-			if (!this.playing)
+		try {
+			this.functions = {};
+			this.numOfFunctions = 0;
+			var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
+			var needHideCounters = this.cmdList && this.cmdList.started();
+			this.changed = true;
+			if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
+				this.cmdList = newCmdList;
+				this.setDefault();
 				this.showCounters();
-			if (needHideCounters) {
-				this.playing = true;
-				//this.hideCounters();
 			}
-			if (this.cmdList.isFinished())
-				this.cmdList.makeUnfinished();	
+			else {
+				this.cmdList = this.cmdList.copyDiff(newCmdList, true);
+				if (!this.playing)
+					this.showCounters();
+				if (needHideCounters) {
+					this.playing = true;
+					//this.hideCounters();
+				}
+				if (this.cmdList.isFinished())
+					this.cmdList.makeUnfinished();	
+			}
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
 	},
 	loop: function(cnt, i){
@@ -1258,7 +1257,6 @@ var Problem = $.inherit({
 			$('#btn_' + btns[i] + this.tabIndex).button('disable');
 		$('#btn_stop' + this.tabIndex).button('enable');
 		$('#jstree-container' + this.tabIndex).sortable('enable');
-		$('#jstree-funcDef' + this.tabIndex).sortable('enable');
 		if (!this.speed)
 			this.notSpeed();
 		this.playing = false;
