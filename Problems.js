@@ -768,6 +768,9 @@ var FuncCall = $.inherit({
 	},
 	exec: function(cnt) {
 		funcDef = this.getFuncDef();
+		if (!funcDef) {
+			throw "Undefined function " + this.name;
+		}
 		if (!this.executing)
 		{
 			cnt -= 1;
@@ -1225,25 +1228,30 @@ var Problem = $.inherit({
 		}
 	},
 	loop: function(cnt, i){
-		if (!this.playing || this.paused)
-			return;// cheat
-		if ($('#codeMode' + this.tabIndex).prop('checked'))
-		{
-			this.tryNextStep();
-		}
-		else
-		{
-			if (!this.cmdList.exec(1))
-				++this.executedCommandsNum;
-			this.changeProgressBar();
-			if (this.cmdList.isFinished())
+		try{
+			if (!this.playing || this.paused)
+				return;// cheat
+			if ($('#codeMode' + this.tabIndex).prop('checked'))
 			{
-				this.playing = false;
-				this.enableButtons();
-				return;
+				this.tryNextStep();
 			}
+			else
+			{
+				if (!this.cmdList.exec(1))
+					++this.executedCommandsNum;
+				this.changeProgressBar();
+				if (this.cmdList.isFinished())
+				{
+					this.playing = false;
+					this.enableButtons();
+					return;
+				}
+			}
+			this.nextStep(cnt - 1, ++i);	
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
-		this.nextStep(cnt - 1, ++i);	
 	},
 	heroIsDead: function(){
 		for (var i = 0; i < btns.length; ++i)
@@ -1310,36 +1318,41 @@ var Problem = $.inherit({
 		}
 	},
 	play: function(cnt){
-		if (!this.speed)
-		{
-			if ($('#codeMode' + this.tabIndex).prop('checked'))
+		try{
+			if (!this.speed)
 			{
-				for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i){};
-				if (i < cnt && i == maxStep && !this.paused){
-					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+				if ($('#codeMode' + this.tabIndex).prop('checked'))
+				{
+					for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i){};
+					if (i < cnt && i == maxStep && !this.paused){
+						$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+					}
 				}
+				else
+				{
+					var c = cnt == MAX_VALUE ? maxStep : cnt;
+					var executed = this.cmdList.exec(c);
+					this.executedCommandsNum += c - executed;
+					if (cnt == MAX_VALUE && !executed && !this.paused){
+						$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+					}
+					if (this.cmdList.isFinished())
+						this.playing = false;
+				}
+				this.changeProgressBar();
+				this.drawLabirint();
+				this.enableButtons();
+				
+				this.cmdList.highlightOff();//inefficiency!!!!!!!!
+				
+				this.highlightLast();
 			}
 			else
-			{
-				var c = cnt == MAX_VALUE ? maxStep : cnt;
-				var executed = this.cmdList.exec(c);
-				this.executedCommandsNum += c - executed;
-				if (cnt == MAX_VALUE && !executed && !this.paused){
-					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
-				}
-				if (this.cmdList.isFinished())
-					this.playing = false;
-			}
-			this.changeProgressBar();
-			this.drawLabirint();
-			this.enableButtons();
-			
-			this.cmdList.highlightOff();//inefficiency!!!!!!!!
-			
-			this.highlightLast();
+				this.nextStep(cnt);
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
-		else
-			this.nextStep(cnt);
 	},
 	oneStep: function(dir, cnt)
 	{
