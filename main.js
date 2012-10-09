@@ -32,11 +32,13 @@
 		for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
 				return function() {
-					if ($(this).prop('ifLi'))
+					if ($(this).prop('ifLi')) {
 						return;
-					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", false, function(newNode){
+					}
+					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
+							{'data': (classes[j] == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[classes[j]]}, function(newNode){
 							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex), problem);
-						}, true); 
+						}, classes[j] != 'func'); 
 					problem.updated();
 				}
 			}(k));
@@ -51,7 +53,7 @@
 				codeareas[problem.tabIndex].refresh();
 			}
 		});
-	    $("#jstree-container" + problem.tabIndex).jstree({ 
+		$("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
 				"max_depth" : -2,
 	            "max_children" : -2,
@@ -109,8 +111,12 @@
 						"icon" : { 
 							"image" : "images/wait_small.png" 
 						}
+					},
+					"func" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
 					}
-					
 				}
 			},
 			"crrm":{
@@ -119,8 +125,9 @@
 					"check_move" : function (data) {
 						var node = data.o;
 						var type = this._get_type(node);
-						if (type == 'else')
+						if (type == 'else') {
 							return false;
+						}
 						elseStmt = undefined;
 						if (type == 'ifelse'){
 							elseStmt = getNextNode(this, node);
@@ -159,9 +166,13 @@
 					if (!isBlock(this._get_type(node)) && pos == 'inside'){
 						pos = 'after';
 					}
-					$("#jstree-container" + problem.tabIndex).jstree("create", node, pos, false, function(newNode){
-						onCreateItem(this, newNode, $(data.o), problem);
-					}, true); 
+					var type = this._get_type(data.o);
+					$("#jstree-container" + problem.tabIndex).jstree(
+						"create", node, pos, 
+						{'data': (type == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[type]}, 
+						function(newNode){
+							onCreateItem(this, newNode, $(data.o), problem);
+						}, type != 'func'); 
 				},
 				"drop_finish": function(data){
 					var node = data.o;
@@ -183,21 +194,23 @@
 				"select_limit" : 1
 			},
 			"core" : { "initially_open" : [ "phtml_1" ] },
-			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]
-			
-			
-		})
-		.bind("move_node.jstree", function(event, data){
-			var node = data.args[0].o;
-			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
-				data.inst.move_node(elseStmt, node, 'after', false, false, true);
-				elseStmt = undefined;
-			}
-			problem.updated();
-		}).bind('click', function(event, ui) {
-			problem.showCounters();
-		});
-	});  
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+	})
+	.bind("move_node.jstree", function(event, data){
+		var node = data.args[0].o;
+		if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+			data.inst.move_node(elseStmt, node, 'after', false, false, true);
+			elseStmt = undefined;
+		}
+		problem.updated();
+	}).bind('click', function(event, ui) {
+		problem.showCounters();
+	}).bind("rename.jstree", function(event, data) {
+		problem.updated();
+	}).bind('refresh.jstree', function(event, data) {
+		problem.updated();
+	});
+	});
 	$('#about').dialog({
 		modal: true,
 		autoOpen: false,

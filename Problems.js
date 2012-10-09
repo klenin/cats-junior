@@ -89,10 +89,11 @@ var Command = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.name]}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
 				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
 	}
@@ -223,11 +224,11 @@ var ForStmt = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0'), self.problem);
 				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				$('#for' + numId + ' > span > input').prop('value', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -409,10 +410,11 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
@@ -536,10 +538,11 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		$("#jstree-container" + this.problem.tabIndex).jstree("create", node, 
-			isBlock(tree._get_type(node)) ? "last" : "after", 
-			false, function(newNode){
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': cmdClassToName[self.getClass()]}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0'), self.problem);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -668,6 +671,197 @@ var Block = $.inherit({
 	}
 });
 
+var FuncDef = $.inherit({
+	__constructor : function(name, body, parent, id, problem) {
+		this.name = name;
+		this.body = body;
+		this.parent = parent;
+		this.problem = problem;
+		this.finished = false;
+		this.id = id;
+	},
+	isFinished: function(){
+		return this.finished;
+	},
+	eq: function(func) {
+		if (func.getClass() != 'functionDef')
+			return false;
+		return func.name == this.name && this.body.eq(func.body); //???
+	},
+	exec: function(cnt) {
+		//return this.body.exec(cnt);
+		this.finished = true;
+	},
+	getClass: function(){
+		return 'functionDef';
+	},
+	setDefault: function(){
+		this.finished = false;
+		//this.body.setDefault();
+	},
+	showCounters: function() {
+		//this.body.showCounters();
+	},
+	hideCounters: function() {
+		//this.body.hideCounters();
+	},
+	started: function() {
+		return this.finished;
+	},
+	copyDiff: function(func, compareCnt) {
+		if (func.getClass() != 'functionDef'){
+			return func;
+		}
+		this.body.copyDiff(func.body, compareCnt);
+		this.name = func.name;
+		return this;
+	},
+	makeUnfinished: function(){
+		this.body.makeUnfinished();
+	},
+	highlightOff: function(){
+		this.body.highlightOff();
+	},
+	highlightOn: function(){
+		return;
+	},
+	convertToCode: function(tabsNum) {
+		str = generateTabs(tabsNum) + 'def ' + this.name + '():\n';
+		str += this.body.convertToCode(tabsNum + 1);
+		return str;
+	},
+	generateCommand: function(tree, node){
+		var self = this;
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': this.name}, function(newNode){
+				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
+				self.body.generateCommand(tree, $(newNode));
+			}, true); 
+	}
+});
+
+var FuncCall = $.inherit({
+	__constructor : function(name, parent, id, problem) {
+		this.name = name;
+		this.parent = parent;
+		this.problem = problem;
+		this.executing = false;
+		this.id = id;
+	},
+	isFinished: function(){
+		funcDef = this.getFuncDef();
+		return funcDef ? funcDef.body.isFinished() : false;
+	},
+	getFuncDef: function() {
+		return this.problem.functions[this.name];
+	},
+	operateFuncDef: function(func) {
+		var funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef[func]();
+		}
+	},
+	eq: function(func) {
+		return (func.getClass() == 'functionCall') && this.name == func.name;
+	},
+	exec: function(cnt) {
+		funcDef = this.getFuncDef();
+		if (!funcDef) {
+			throw "Undefined function " + this.name;
+		}
+		if (!this.executing)
+		{
+			cnt -= 1;
+			var numId = $('#' + this.id).prop('numId');
+			if (!cnt || this.problem.speed)
+			{
+				if (this.problem.speed)
+				{
+					if (this.problem.prevCmd)
+						this.problem.prevCmd.highlightOff();
+					this.problem.prevCmd = this;
+				}
+				$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+			}
+			this.problem.lastExecutedCmd = this;
+			if (this.curCnt + 1 > this.cnt)
+			{
+				++this.curCnt;
+				return cnt;
+			}
+			this.executing = true;
+			if (funcDef) {
+				funcDef.body.setDefault();
+			}
+		}
+		if (funcDef) {
+			cnt = funcDef.body.exec(cnt);
+		}
+		return cnt;
+	},
+	getClass: function(){
+		return 'functionCall';
+	},
+	setDefault: function(){
+		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
+		this.executing = false;
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.setDefault();	
+		}
+	},
+	showCounters: function() {
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.showCounters();	
+		}	
+	},
+	hideCounters: function() {
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.hideCounters();
+		}
+	},
+	started: function() {
+		return this.executing;
+	},
+	copyDiff: function(func, compareCnt) {
+		if (func.getClass() != 'functionDef'){
+			return func;
+		}
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.copydiff(func.getFuncDef(), compareCnt);
+		}
+		return this;
+	},
+	makeUnfinished: function(){
+		funcDef = this.getFuncDef();
+		if (funcDef) {
+			funcDef.body.makeUnfinished();	
+		}
+	},
+	highlightOff: function(){
+		$('#' + this.id + '>a').css('background-color', '#FFFFFF');
+	},
+	highlightOn: function(){
+		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+	},
+	convertToCode: function(tabsNum) {
+		return this.name + '()\n';
+	},
+	generateCommand: function(tree, node){
+		var self = this;
+		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
+			{'data': self.name}, function(newNode){
+				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				var numId = $(newNode).prop('numId');
+				self.id = numId;
+			}, true); 	}
+});
+
 var Problem = $.inherit({
 	__constructor : function(problem, tabIndex) {
 		$.extend(true, this, problem, problem.data);
@@ -716,6 +910,8 @@ var Problem = $.inherit({
 		this.commandsFine = this.commandsFine ? this.commandsFine : 0;
 		this.stepsFine = this.stepsFine ? this.stepsFine : 0;
 		this.invalidDirectionFine = this.invalidDirectionFine ? this.invalidDirectionFine : 0;
+		this.functions = {};
+		this.numOfFunctions = 0;
 	},
 	setLabyrinth: function(specSymbols){
 		var obj = undefined;
@@ -936,6 +1132,7 @@ var Problem = $.inherit({
 					this.updateWatchList();
 				}catch(e)
 				{
+					console.log(e);
 					$('#cons' + problem).append('\n' + e + '\n');
 					return 0;
 
@@ -984,8 +1181,7 @@ var Problem = $.inherit({
 	divI: function(){ return this.divIndex; },
 	divN: function(){ return this.divName;},
 	list: function() {return this.cmdList; },
-	setCounters: function(j, dontReload){
-		var el = $('#jstree-container' + this.tabIndex).children();
+	setCounters_: function(el, j, dontReload){
 		while(j){
 			el = el.next();
 			j--;
@@ -999,47 +1195,62 @@ var Problem = $.inherit({
 			el = el.next();
 		}
 	},
+	setCounters: function(j, dontReload){
+		this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
+	},
 	updated: function(){
-		var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this);
-		var needHideCounters = this.cmdList && this.cmdList.started();
-		this.changed = true;
-		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
-			this.cmdList = newCmdList;
-			this.setDefault();
-			this.showCounters();
-		}
-		else {
-			this.cmdList = this.cmdList.copyDiff(newCmdList, true);
-			if (!this.playing)
+		try {
+			this.functions = {};
+			this.numOfFunctions = 0;
+			var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
+			var needHideCounters = this.cmdList && this.cmdList.started();
+			this.changed = true;
+			if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
+				this.cmdList = newCmdList;
+				this.setDefault();
 				this.showCounters();
-			if (needHideCounters) {
-				this.playing = true;
-				//this.hideCounters();
 			}
-			if (this.cmdList.isFinished())
-				this.cmdList.makeUnfinished();	
+			else {
+				this.cmdList = this.cmdList.copyDiff(newCmdList, true);
+				if (!this.playing)
+					this.showCounters();
+				if (needHideCounters) {
+					this.playing = true;
+					//this.hideCounters();
+				}
+				if (this.cmdList.isFinished())
+					this.cmdList.makeUnfinished();	
+			}
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
 	},
 	loop: function(cnt, i){
-		if (!this.playing || this.paused)
-			return;// cheat
-		if ($('#codeMode' + this.tabIndex).prop('checked'))
-		{
-			this.tryNextStep();
-		}
-		else
-		{
-			if (!this.cmdList.exec(1))
-				++this.executedCommandsNum;
-			this.changeProgressBar();
-			if (this.cmdList.isFinished())
+		try{
+			if (!this.playing || this.paused)
+				return;// cheat
+			if ($('#codeMode' + this.tabIndex).prop('checked'))
 			{
-				this.playing = false;
-				this.enableButtons();
-				return;
+				this.tryNextStep();
 			}
+			else
+			{
+				if (!this.cmdList.exec(1))
+					++this.executedCommandsNum;
+				this.changeProgressBar();
+				if (this.cmdList.isFinished())
+				{
+					this.playing = false;
+					this.enableButtons();
+					return;
+				}
+			}
+			this.nextStep(cnt - 1, ++i);	
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
-		this.nextStep(cnt - 1, ++i);	
 	},
 	heroIsDead: function(){
 		for (var i = 0; i < btns.length; ++i)
@@ -1105,36 +1316,41 @@ var Problem = $.inherit({
 		}
 	},
 	play: function(cnt){
-		if (!this.speed)
-		{
-			if ($('#codeMode' + this.tabIndex).prop('checked'))
+		try{
+			if (!this.speed)
 			{
-				for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i){};
-				if (i < cnt && i == maxStep && !this.paused){
-					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+				if ($('#codeMode' + this.tabIndex).prop('checked'))
+				{
+					for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i){};
+					if (i < cnt && i == maxStep && !this.paused){
+						$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+					}
 				}
+				else
+				{
+					var c = cnt == MAX_VALUE ? maxStep : cnt;
+					var executed = this.cmdList.exec(c);
+					this.executedCommandsNum += c - executed;
+					if (cnt == MAX_VALUE && !executed && !this.paused){
+						$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+					}
+					if (this.cmdList.isFinished())
+						this.playing = false;
+				}
+				this.changeProgressBar();
+				this.drawLabirint();
+				this.enableButtons();
+				
+				this.cmdList.highlightOff();//inefficiency!!!!!!!!
+				
+				this.highlightLast();
 			}
 			else
-			{
-				var c = cnt == MAX_VALUE ? maxStep : cnt;
-				var executed = this.cmdList.exec(c);
-				this.executedCommandsNum += c - executed;
-				if (cnt == MAX_VALUE && !executed && !this.paused){
-					$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
-				}
-				if (this.cmdList.isFinished())
-					this.playing = false;
-			}
-			this.changeProgressBar();
-			this.drawLabirint();
-			this.enableButtons();
-			
-			this.cmdList.highlightOff();//inefficiency!!!!!!!!
-			
-			this.highlightLast();
+				this.nextStep(cnt);
+		} catch(e) {
+			console.log(e);
+			$('#cons' + this.tabIndex).append(e);
 		}
-		else
-			this.nextStep(cnt);
 	},
 	oneStep: function(dir, cnt)
 	{
@@ -1399,6 +1615,7 @@ var Problem = $.inherit({
 		}
 		catch(e)
 		{
+			console.log(e);
 			this.playing = false;
 			$('#cons' + this.tabIndex).html('Некорректный код');
 		}
@@ -1445,6 +1662,7 @@ var Problem = $.inherit({
 			this.changed = false;
 		}
 		catch(e){
+			console.log(e);
 			var problem = this.tabIndex;
 			finalcode[problem] = undefined;
 			$scope[problem] = undefined,
@@ -1493,6 +1711,7 @@ var Problem = $.inherit({
 			}
 			catch (e)
 			{
+				console.log(e);
 				this.playing = false;
 				$('#cons' + this.tabIndex).append(e);
 			}
@@ -1538,6 +1757,7 @@ var Problem = $.inherit({
 					this.playing = false;
 			}
 			catch(e){
+				console.log(e);
 				$('#cons' + this.tabIndex).append(e);
 			}
 		}
@@ -1572,6 +1792,7 @@ var Problem = $.inherit({
 		this.play(t);
 		} 
 		catch(e) {
+			console.log(e);
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},

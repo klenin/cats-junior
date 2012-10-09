@@ -3888,8 +3888,14 @@
 				}
 			},
 			_get_type : function (obj) {
+				var obj1 = obj;
 				obj = this._get_node(obj);
-				return (!obj || !obj.length) ? false : obj.attr(this._get_settings().types.type_attr) || "default";
+				if (!obj) {
+					return $(obj1).attr('rel');
+				}
+				else {
+					return (!obj || !obj.length) ? false : obj.attr(this._get_settings().types.type_attr) || "default";
+				}
 			},
 			set_type : function (str, obj) {
 				obj = this._get_node(obj);

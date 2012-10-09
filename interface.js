@@ -64,12 +64,17 @@ function changeUser(){
 	try{ //temporary wa
 		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
 	}catch(e){
+		console.log(e);
 	}
 	sid = undefined;
 	logined = false;
 	$.cookie('userId', undefined);
 	$.cookie('passwd', undefined);
-	callScript(pathPref +'f=users;cid=' + cid + ';rows=200;sort=1;sort_dir=0;json=1;', function(data){
+
+
+
+	callScript(pathPref +'f=users;cid=' + cid + ';rows=300;json=1;sort=1;sort_dir=0;', function(data){
+
 		if (!data)
 			return;
 		curUser = new Object();
@@ -204,6 +209,7 @@ function fillTabs(){
 			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
 			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
 			divs.push({'tab': i, 'divclass': 'for', 'divname': cmdClassToName['for']});
+			divs.push({'tab': i, 'divclass': 'func', 'divname': cmdClassToName['func']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -272,11 +278,12 @@ function fillTabs(){
 				    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
 						var l = codeareas[j].getValue().length;
 						try {
-							$('#jstree-container' + j).empty();					
+							$('#jstree-container' + j).empty();	
 							problems[j].prepareForExecuting()
-							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j]);
+							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
-								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
 								$("#commandsMode" + j).prop('checked', false);
@@ -286,6 +293,7 @@ function fillTabs(){
 							}
 						}
 						catch(e){
+							console.log(e);
 							++cmdId;
 							problems[j].updated();
 							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -399,6 +407,7 @@ function fillTabs(){
 	$('#btnPython').click(tryCode);
 	$('#btnPythonNext').button();
 	$('#btnPythonNext').click(tryNextStep_);*/
+	cmdId = problems.length;
 }
 
 function setSpin(problem){

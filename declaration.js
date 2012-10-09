@@ -22,9 +22,10 @@ var cmdClassToName = {
 	'if': 'Если',
 	'ifelse': 'Если...Иначе',
 	'while': 'Пока',
-	'for': 'Повтор'
+	'for': 'Повтор',
+	'func': 'Функция'
 };
-var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse', 'while', 'for'];
+var classes = ['forward', 'left', 'right', 'wait', 'block', 'if', 'ifelse', 'while', 'for', 'func'];
 var changeDir = {
 	'forward':{
 		'up': {dx: 0, dy: -1, curDir: 'up'},
