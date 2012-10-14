@@ -135,8 +135,7 @@ function convert(commands, parent, problem){
 			var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
-		else if (type == 'func'){
-			if (commands[i].children){
+		else if (type == 'funcdef'){
 				obj = new FuncDef(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), [], block, id, problem);
 				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
 				obj.body = blocks;
@@ -147,9 +146,8 @@ function convert(commands, parent, problem){
 				++problem.numOfFunctions;
 				block.pushCommand(obj);
 			}
-			else {
+		else if (type == 'funccall'){
 				block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), block, id, problem));
-			}
 		}
 		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),

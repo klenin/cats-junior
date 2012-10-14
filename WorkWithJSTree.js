@@ -1,5 +1,5 @@
-function onCreateItem(tree, newNode, initObject, problem, name){
-	var type = initObject.attr('rel');
+function onCreateItem(tree, newNode, type, problem, name){
+	//var type = initObject.attr('rel');
 	tree.set_type(type, newNode);
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
 	switch(type){
@@ -50,13 +50,18 @@ function onCreateItem(tree, newNode, initObject, problem, name){
 				}, true); 
 			}
 			break;
-		case 'func':
+		case 'funcdef':
 			//tree.rename(newNode);
 			$(newNode).bind('dblclick', function(node, t){
 				return function() {
 					t.rename(node);
 				};
 			}(newNode, tree));
+			$('#funccall-container' + problem.tabIndex).append(
+				'<div id = "funccall' + cmdId + 
+				'" class = "funccall jstree-draggable" type = "funccall" rel = "funccall" title = "funccall">' +
+				$.trim(newNode.text()) + '</div>'
+				)
 			break;
 	}
 	$(newNode).prop('id', type + cmdId);
@@ -70,7 +75,7 @@ function onCreateItem(tree, newNode, initObject, problem, name){
 	
 function isBlock(type){
 	return type == false || type == 'block' || type == 'if' || type == 'ifelse' || 
-		type == 'while' || type == 'for' || type == 'else' || type == 'func';
+		type == 'while' || type == 'for' || type == 'else' || type == 'funcdef';
 }
 function getNextNode(tree, node)
 {
