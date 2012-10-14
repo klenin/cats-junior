@@ -205,7 +205,7 @@ function fillTabs(){
 			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
 			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
 			divs.push({'tab': i, 'divclass': 'for', 'divname': cmdClassToName['for']});
-			divs.push({'tab': i, 'divclass': 'func', 'divname': cmdClassToName['func']});
+			divs.push({'tab': i, 'divclass': 'funcdef', 'divname': cmdClassToName['funcdef']});
 			var buttons = [];
 			for (var j = 0; j < btns.length; ++j)
 			{
@@ -275,6 +275,7 @@ function fillTabs(){
 						var l = codeareas[j].getValue().length;
 						try {
 							$('#jstree-container' + j).empty();	
+							$('#funccall-container' + j).empty();
 							problems[j].prepareForExecuting()
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
@@ -300,6 +301,7 @@ function fillTabs(){
 						}
 						$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
+						$('#funccall-container' + j).show();
 						$('#tdcode' + j).hide();
 						$('#addWatch' + j).hide();
 						$('#watchTable' + j).hide();
@@ -313,6 +315,7 @@ function fillTabs(){
 			    		$('#ulCommands' + j).hide();
 						//$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
+						$('#funccall-container' + j).hide();
 						$('#tdcommands' + j).hide();
 						//$('#tdcommands_' + j).show();
 						$('#tdcontainer' + j).hide();
@@ -444,6 +447,7 @@ function clearClick(){
 	problem.setDefault();
 	problem.cmdList = new Block([], undefined, this);
 	$('#jstree-container' + problem.tabIndex).children().remove();
+	$('#funccall-container' + problem.tabIndex).children().remove();
 }
 
 function stopClick(){

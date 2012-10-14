@@ -36,9 +36,9 @@
 						return;
 					}
 					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
-							{'data': (classes[j] == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[classes[j]]}, function(newNode){
-							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex), problem);
-						}, classes[j] != 'func'); 
+							{'data': (classes[j] == 'funcdef') ? ('func_' + problem.numOfFunctions) : cmdClassToName[classes[j]]}, function(newNode){
+							onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex).attr('rel'), problem);
+						}, classes[j] != 'funcdef'); 
 					problem.updated();
 				}
 			}(k));
@@ -112,7 +112,13 @@
 							"image" : "images/wait_small.png" 
 						}
 					},
-					"func" : {
+					"funcdef" : {
+						"icon" : { 
+							"image" : "images/funcdef_small.png" 
+						}
+					},
+					"funccall" : {
+						"valid_children" : "none",
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						}
@@ -140,6 +146,12 @@
 						if (type == 'else' && data.p == 'before'){
 							return false;
 						}
+						if (type == 'funcdef' && this._get_type(data.o) == 'funcdef' && data.p == 'inside' ){
+							return false;
+						}
+						if (type == 'funccall' && data.p == 'inside' ){
+							return false;
+						}
 						return true;
 					}
 				}
@@ -157,22 +169,35 @@
 					if (this._get_type(data.r) == 'else'){
 						result['before'] = false;
 					}
+					if (this._get_type(data.r) == 'funcdef' && this._get_type(data.o) == 'funccall'){
+						result['inside'] = false;
+					}
+					if (this._get_type(data.r) == 'funccall'){
+						result['inside'] = false;
+					}
 					return result;
 				},
 				"drag_finish" : function (data) { 
 					var node = data.r;
 					//; //=(
 					var pos = data.p;
-					if (!isBlock(this._get_type(node)) && pos == 'inside'){
+					if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
 						pos = 'after';
 					}
 					var type = this._get_type(data.o);
+					var name = cmdClassToName[type];
+					if (type == 'funcdef') {
+						name = 'func_' + problem.numOfFunctions;
+					}
+					else if (type == 'funccall') {
+						name = $(data.o).text();
+					}
 					$("#jstree-container" + problem.tabIndex).jstree(
 						"create", node, pos, 
-						{'data': (type == 'func') ? ('func_' + Math.max(problem.numOfFunctions - 1, 0)) : cmdClassToName[type]}, 
+						{'data': name}, 
 						function(newNode){
-							onCreateItem(this, newNode, $(data.o), problem);
-						}, type != 'func'); 
+							onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
+						}, type != 'funcdef'); 
 				},
 				"drop_finish": function(data){
 					var node = data.o;

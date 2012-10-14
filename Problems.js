@@ -91,7 +91,7 @@ var Command = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.name]}, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + '0'), self.problem);
+				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
@@ -226,7 +226,7 @@ var ForStmt = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
-				onCreateItem(tree, newNode, $('#for0'), self.problem);
+				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				$('#for' + numId + ' > span > input').prop('value', self.cnt);
@@ -412,7 +412,7 @@ var IfStmt = $.inherit(CondStmt, {
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
-				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0') : $('#if0'), self.problem);
+				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				self.generateSelect(newNode);
@@ -540,7 +540,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': cmdClassToName[self.getClass()]}, function(newNode){
-				onCreateItem(tree, newNode, $('#while0'), self.problem);
+				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				self.generateSelect(newNode);
@@ -734,7 +734,7 @@ var FuncDef = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': this.name}, function(newNode){
-				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				onCreateItem(tree, newNode, $('#funcdef0').attr('rel'), self.problem, self.name);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				self.body.generateCommand(tree, $(newNode));
@@ -856,7 +856,7 @@ var FuncCall = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, $('#func0'), self.problem, self.name);
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.name);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 			}, true); 	}

@@ -50,7 +50,7 @@ li.invisible{
 	list-style-type: none; 
 }
 div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait, 
-div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.func{
+div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.funcdef, div.funccall{
 	list-style-type: none; 
 	margin: 5px; 
 	width: 32px; 
@@ -62,7 +62,7 @@ div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.func{
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
 }
-div.block, div.if, div.ifelse, div.while, div.for, div.func{
+div.block, div.if, div.ifelse, div.while, div.for, div.funcdef, div.funccall{
 	list-style-type: none; 
 	margin: 5px; 
 	width: 32px; 
@@ -86,7 +86,7 @@ div.if{ background: url('../images/if.png') 5% 100% no-repeat; background-positi
 div.ifelse{ background: url('../images/if_else.png') 5% 100% no-repeat; background-position: 50% 50%;}
 div.while{ background: url('../images/while.png') 5% 100% no-repeat; background-position: 50% 50%;}
 div.for{ background: url('../images/for.png') 5% 100% no-repeat; background-position: 50% 50%;}
-div.func{ background: url('../images/func.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.funcdef{ background: url('../images/func.png') 5% 100% no-repeat; background-position: 50% 50%;}
 
 .highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
