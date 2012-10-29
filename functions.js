@@ -105,8 +105,16 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem){
+function convert(commands, parent, problem, funcName){
 	var block = new Block([], parent, problem);
+	var func = undefined;
+	if (funcName) {
+		func = new FuncDef(funcName, [], parent, id, problem);
+		block = new Block([], func, problem);
+		func.body = block;
+		problem.functions[funcName] = func;
+		++problem.numOfFunctions;
+	}
 	for (var i = 0; i < commands.length; ++i){
 		var type = commands[i].attr['rel'];
 		var id = commands[i].attr['id'];
@@ -137,19 +145,8 @@ function convert(commands, parent, problem){
 			var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
-		else if (type == 'funcdef'){
-				obj = new FuncDef(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), [], block, id, problem);
-				blocks = commands[i].children ? (convert(commands[i].children, obj, problem)) : new Block([], obj, problem);
-				obj.body = blocks;
-				if (problem.functions[commands[i].data]) {
-					throw "The function with the same name " + commands[i].data + " already exists"
-				}
-				problem.functions[commands[i].data] = obj;
-				++problem.numOfFunctions;
-				block.pushCommand(obj);
-			}
-		else if (type == 'funccall'){
-				block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), block, id, problem));
+		else if (type == 'func'){
+			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id +' > input.jstree-rename-input').attr('value'), block, id, problem));
 		}
 		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
@@ -157,7 +154,7 @@ function convert(commands, parent, problem){
 			block.pushCommand(cmd);
 		}
 	}
-	return block;
+	return func ? func : block;
 }
 
 function convertCondition(expr){

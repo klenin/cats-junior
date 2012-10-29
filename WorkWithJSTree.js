@@ -96,3 +96,185 @@ function getNextNode(tree, node)
 function getTreeIdByObject(tree) {
 	return tree.data.html_data.original_container_html.context;
 }
+
+function createJsTreeForFunction(funcId, problem) {
+	$(funcId).jstree({ 
+		"types" : {
+			"max_depth" : -2,
+	        "max_children" : -2,
+			"types" : {
+				"block" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"if" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"ifelse" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"else" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"while" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"for" : {
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"left" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/left_small.png" 
+					}
+				},
+				"right" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/right_small.png" 
+					}
+				},
+				"forward" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/forward_small.png" 
+					}
+				},
+				"wait" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/wait_small.png" 
+					}
+				},
+				"funccall" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				}
+			}
+		},
+		"crrm":{
+			"move" : {
+				"default_position" : "inside", 
+				"check_move" : function (data) {
+					var node = data.o;
+					var type = this._get_type(node);
+					if (type == 'else') {
+						return false;
+					}
+					elseStmt = undefined;
+					if (type == 'ifelse'){
+						elseStmt = getNextNode(this, node);
+					}
+					node = data.r;
+					type = this._get_type(node);
+					if (type == 'ifelse' && data.p == 'after'){
+						return false;
+					}
+					if (type == 'else' && data.p == 'before'){
+						return false;
+					}
+					if (type == 'funcdef' && this._get_type(data.o) == 'funcdef' && data.p == 'inside' ){
+						return false;
+					}
+					if (type == 'funccall' && data.p == 'inside' ){
+						return false;
+					}
+					return true;
+				}
+			}
+			},
+		"dnd" : {
+			"drag_check" : function (data) {
+				result = { 
+					after : true, 
+					before : true, 
+					inside : true 
+				};
+				if (this._get_type(data.r) == 'ifelse'){
+					result['after'] = false;
+				}
+				if (this._get_type(data.r) == 'else'){
+					result['before'] = false;
+				}
+				if (this._get_type(data.r) == 'funcdef' && this._get_type(data.o) == 'funccall'){
+					result['inside'] = false;
+				}
+				if (this._get_type(data.r) == 'funccall'){
+					result['inside'] = false;
+				}
+				return result;
+			},
+			"drag_finish" : function (data) { 
+				var node = data.r;
+				//; //=(
+				var pos = data.p;
+				if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
+					pos = 'after';
+				}
+				var type = this._get_type(data.o);
+				var name = cmdClassToName[type];
+				if (type == 'funcdef') {
+					name = 'func_' + problem.numOfFunctions;
+				}
+				else if (type == 'funccall') {
+					name = $(data.o).text();
+				}
+				if (type != 'funcdef') {
+					$(funcId).jstree(
+						"create", node, pos, 
+						{'data': name}, 
+						function(newNode){
+							onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
+						}, type != 'funcdef'); 
+				}
+			},
+			"drop_finish": function(data){
+				var node = data.o;
+				var type = this._get_type(node);
+				if (type == 'else')
+					return false;
+				var next = undefined;
+				if (type == 'ifelse'){
+					next = getNextNode(this, node);
+				}
+				this.remove(data.o);
+				if (next)
+					this.remove(next);
+				problem.updated();
+			}
+		},
+		"ui" : {
+			"initially_select" : [ "phtml_2" ],
+			"select_limit" : 1
+		},
+		"core" : { "initially_open" : [ "phtml_1" ] },
+		"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+	})
+	.bind("move_node.jstree", function(event, data){
+		var node = data.args[0].o;
+		if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+			data.inst.move_node(elseStmt, node, 'after', false, false, true);
+			elseStmt = undefined;
+	}
+		problem.updated();
+	}).bind('click', function(event, ui) {
+		problem.showCounters();
+	}).bind("rename.jstree", function(event, data) {
+		problem.updated();
+	}).bind('refresh.jstree', function(event, data) {
+		problem.updated();
+	});
+}

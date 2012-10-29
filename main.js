@@ -192,12 +192,25 @@
 					else if (type == 'funccall') {
 						name = $(data.o).text();
 					}
-					$("#jstree-container" + problem.tabIndex).jstree(
-						"create", node, pos, 
-						{'data': name}, 
-						function(newNode){
-							onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
-						}, type != 'funcdef'); 
+					if (type != 'funcdef') {
+						$("#jstree-container" + problem.tabIndex).jstree(
+							"create", node, pos, 
+							{'data': name}, 
+							function(newNode){
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
+							}, type != 'funcdef'); 
+					}
+					else {
+
+						$('#accordion' + problem.tabIndex).append('<h3>func' +
+							problem.numOfFunctions + 
+							'</h3><div id = "funcDef' + problem.numOfFunctions + '" height = "200px"></div>').accordion('destroy').accordion();
+						createJsTreeForFunction('#funcDef' + problem.numOfFunctions, problem);
+							problem.updated();
+						$('#accordion' + problem.tabIndex).accordion( "enable" );
+						$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );
+						$('#accordion' + problem.tabIndex).accordion( "option", "collapsible", true );
+					}
 				},
 				"drop_finish": function(data){
 					var node = data.o;
@@ -235,6 +248,9 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	});
+		$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
+		$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );
+
 	});
 	$('#about').dialog({
 		modal: true,

@@ -1199,31 +1199,40 @@ var Problem = $.inherit({
 		this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
 	},
 	updated: function(){
-		try {
-			this.functions = {};
-			this.numOfFunctions = 0;
-			var newCmdList = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), undefined, this, true);
-			var needHideCounters = this.cmdList && this.cmdList.started();
-			this.changed = true;
-			if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
-				this.cmdList = newCmdList;
-				this.setDefault();
+		this.functions = {};
+		this.numOfFunctions = 0;
+		var newCmdList = new Block([], undefined, this);
+		for (var i = 0; $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').length; ++i) {
+			var name = $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').text().split(' ').join('');
+			var code = convert($('#' + name).jstree('get_json', -1), newCmdList, this, name);
+			newCmdList.pushCommand(code);
+		}
+
+		var code = convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
+		if (newCmdList){
+			newCmdList.pushCommand(code);
+		}
+		else {
+			newCmdList = code;
+		}
+		$('#accordion' + this.tabIndex).accordion('resize');
+		var needHideCounters = this.cmdList && this.cmdList.started();
+		this.changed = true;
+		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
+			this.cmdList = newCmdList;
+			this.setDefault();
+			this.showCounters();
+		}
+		else {
+			this.cmdList = this.cmdList.copyDiff(newCmdList, true);
+			if (!this.playing)
 				this.showCounters();
+			if (needHideCounters) {
+				this.playing = true;
+				//this.hideCounters();
 			}
-			else {
-				this.cmdList = this.cmdList.copyDiff(newCmdList, true);
-				if (!this.playing)
-					this.showCounters();
-				if (needHideCounters) {
-					this.playing = true;
-					//this.hideCounters();
-				}
-				if (this.cmdList.isFinished())
-					this.cmdList.makeUnfinished();	
-			}
-		} catch(e) {
-			console.log(e);
-			$('#cons' + this.tabIndex).append(e);
+			if (this.cmdList.isFinished())
+				this.cmdList.makeUnfinished();	
 		}
 	},
 	loop: function(cnt, i){
