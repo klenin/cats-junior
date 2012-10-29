@@ -70,7 +70,11 @@ function changeUser(){
 	logined = false;
 	$.cookie('userId', undefined);
 	$.cookie('passwd', undefined);
+
+
+
 	callScript(pathPref +'f=users;cid=' + cid + ';rows=300;json=1;sort=1;sort_dir=0;', function(data){
+
 		if (!data)
 			return;
 		curUser = new Object();

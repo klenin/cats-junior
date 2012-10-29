@@ -1,4 +1,4 @@
-#!perl
+#!/usr/bin/perl
 use strict;
 use CGI qw(:standard);
 use HTTP::Request::Common qw(POST);
@@ -6,14 +6,14 @@ use LWP::UserAgent;
 use Data::Dumper;
 my $q = new CGI;
 my $ua = new LWP::UserAgent;
-if ($ENV{MOD_PERL}) {
-    require Apache2::Request;
-    require Apache2::Upload;
-    $q = Apache2::Request->new(Apache2::RequestUtil->request,
-        POST_MAX => 10 * 1024 * 1024, # Actual limit is defined by Apache config.
-        DISABLE_UPLOADS => 0);
-    *param = sub { $q->param(@_) };
-}
+#if ($ENV{MOD_PERL}) {
+#    require Apache2::Request;
+#    require Apache2::Upload;
+#    $q = Apache2::Request->new(Apache2::RequestUtil->request,
+#        POST_MAX => 10 * 1024 * 1024, # Actual limit is defined by Apache config.
+#        DISABLE_UPLOADS => 0);
+#    *param = sub { $q->param(@_) };
+#}
 print "Content-type: text/html\n\n";
 
 my $request = HTTP::Request->new('POST', 'http://'.$q->param('serv').$q->param('path').';sid='.$q->param('sid').';cid='.$q->param('cid'));

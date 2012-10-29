@@ -49,8 +49,6 @@ function callScript(url, callback){
 }
 
 function callSubmit_(serv, path, submitData, callback){
-	if (!atHome)
-		return;
 	$.ajax({  
 		async: false,
 		url: 'submit.pl',

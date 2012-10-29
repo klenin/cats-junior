@@ -1,4 +1,4 @@
-/**
+/*
  * jQuery Spin 1.1.1
  *
  * Copyright (c) 2009 Naohiko MORI
