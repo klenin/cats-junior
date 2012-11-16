@@ -280,7 +280,8 @@ function fillTabs(){
 						try {
 							$('#jstree-container' + j).empty();	
 							$('#accordion' + j).accordion("disable");
-							//$('#accordion' + j).remove();
+							//$('#accordion' + j).empty();
+							//$('#accordion' + j).children().remove();
 							problems[j].prepareForExecuting();
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
@@ -455,9 +456,9 @@ function clearClick(){
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
 	problem.setDefault();
-	problem.cmdList = new Block([], undefined, this);
+	problem.cmdList = new Block([], undefined, problem);
 	$('#jstree-container' + problem.tabIndex).children().remove();
-	$('#funccall-container' + problem.tabIndex).children().remove();
+	$('#accordion' + problem.tabIndex).children().remove();
 }
 
 function stopClick(){
