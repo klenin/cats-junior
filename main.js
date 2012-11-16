@@ -53,6 +53,7 @@
 				codeareas[problem.tabIndex].refresh();
 			}
 		});
+		$("#jstree-container" + problem.tabIndex).jstree();
 		$("#jstree-container" + problem.tabIndex).jstree({ 
 			"types" : {
 				"max_depth" : -2,
@@ -204,12 +205,10 @@
 
 						$('#accordion' + problem.tabIndex).append('<h3>func' +
 							problem.numOfFunctions + 
-							'</h3><div id = "funcDef' + problem.numOfFunctions + '" height = "200px"></div>').accordion('destroy').accordion();
-						createJsTreeForFunction('#funcDef' + problem.numOfFunctions, problem);
+							'</h3><div id = "funcDef-func' + problem.numOfFunctions + '" style="min-height:200px"></div>').accordion('destroy').accordion();
+						createJsTreeForFunction('#funcDef-func' + problem.numOfFunctions, problem);
 							problem.updated();
-						$('#accordion' + problem.tabIndex).accordion( "enable" );
-						$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );
-						$('#accordion' + problem.tabIndex).accordion( "option", "collapsible", true );
+
 					}
 				},
 				"drop_finish": function(data){
@@ -248,6 +247,8 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	});
+		$('#accordion' + problem.tabIndex).accordion();
+		$('#accordion' + problem.tabIndex).accordion( "enable" );
 		$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
 		$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );
 
@@ -334,6 +335,7 @@
 		$('#about').dialog('open');
 		return false;
 	});
+	$('#tabs').tabs();
 	var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
 	if ($.cookie('contestId') == undefined && tabIndex){
 		fillTabs();

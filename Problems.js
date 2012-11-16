@@ -732,13 +732,21 @@ var FuncDef = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			{'data': this.name}, function(newNode){
-				onCreateItem(tree, newNode, $('#funcdef0').attr('rel'), self.problem, self.name);
-				var numId = $(newNode).prop('numId');
-				self.id = numId;
-				self.body.generateCommand(tree, $(newNode));
-			}, true); 
+		//TODO: we should clear $('#accordion' + this.problem.tabIndex) during switching to the commands mode, but now accordion somewhy is cleared after its filling
+		if ( $('#funcDef-' + this.name).length == 0 )
+		{
+			$('#accordion' + this.problem.tabIndex).append('<h3>' + this.name + '</h3><div id = "funcDef-' + this.name 
+				+ '" style="min-height:200px"></div>')
+				.accordion('destroy')
+				.accordion()
+				.accordion('enable');
+			createJsTreeForFunction('#funcDef-' + this.name, this.problem);
+		}
+		else
+		{
+			$('#funcDef-' + this.name).empty(); 
+		}
+		self.body.generateCommand( jQuery.jstree._reference('#funcDef-' + this.name) );
 	}
 });
 
@@ -1204,7 +1212,7 @@ var Problem = $.inherit({
 		var newCmdList = new Block([], undefined, this);
 		for (var i = 0; $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').length; ++i) {
 			var name = $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').text().split(' ').join('');
-			var code = convert($('#' + name).jstree('get_json', -1), newCmdList, this, name);
+			var code = convert($('#funcDef-' + name).jstree('get_json', -1), newCmdList, this, name);
 			newCmdList.pushCommand(code);
 		}
 
@@ -1215,7 +1223,7 @@ var Problem = $.inherit({
 		else {
 			newCmdList = code;
 		}
-		$('#accordion' + this.tabIndex).accordion('resize');
+		//$('#accordion' + this.tabIndex).accordion('resize');
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
 		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
@@ -1234,6 +1242,7 @@ var Problem = $.inherit({
 			if (this.cmdList.isFinished())
 				this.cmdList.makeUnfinished();	
 		}
+		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
 	loop: function(cnt, i){
 		try{

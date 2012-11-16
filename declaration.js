@@ -1,4 +1,4 @@
-﻿var atHome = 0; //for testing
+﻿var atHome = 1; //for testing
 var curProblem;
 var problems = [];
 var users = [];

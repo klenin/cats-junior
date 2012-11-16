@@ -240,6 +240,16 @@ function createJsTreeForFunction(funcId, problem) {
 							onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
 						}, type != 'funcdef'); 
 				}
+				/*var active = $('#accordion' + problem.tabIndex).accordion( "option", "active" );
+				$('#accordion' + problem.tabIndex).accordion( "option", "animated", false );
+				$('#accordion' + problem.tabIndex).accordion( "destroy" );
+				$('#accordion' + problem.tabIndex).accordion( {animated: false} );
+				$('#accordion' + problem.tabIndex).accordion( "enable" );
+				$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
+				$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", true );
+				$('#accordion' + problem.tabIndex).accordion( "option", "active", active );
+				//$('#accordion' + problem.tabIndex).accordion( "option", "animated", true );*/
+
 			},
 			"drop_finish": function(data){
 				var node = data.o;

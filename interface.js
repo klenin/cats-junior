@@ -279,8 +279,9 @@ function fillTabs(){
 						var l = codeareas[j].getValue().length;
 						try {
 							$('#jstree-container' + j).empty();	
-							$('#funccall-container' + j).empty();
-							problems[j].prepareForExecuting()
+							$('#accordion' + j).accordion("disable");
+							//$('#accordion' + j).remove();
+							problems[j].prepareForExecuting();
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
@@ -303,6 +304,7 @@ function fillTabs(){
 								return;
 							}
 						}
+						//$('#accordion' + j).accordion( "enable" );
 						$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
 						$('#funccall-container' + j).show();
@@ -312,10 +314,14 @@ function fillTabs(){
 						$('#tdcommands' + j).show();
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
+						$('#accordion' + j).show();
+						$('#accordion' + j).accordion();
+						$('#accordion' + j).accordion( "enable" );
 						problems[j].updated();
 						//problems[j].cmdList = undefined;						
 			    	}
 				    else {
+						$('#accordion' + j).hide();
 			    		$('#ulCommands' + j).hide();
 						//$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
