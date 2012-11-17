@@ -735,11 +735,16 @@ var FuncDef = $.inherit({
 		//TODO: we should clear $('#accordion' + this.problem.tabIndex) during switching to the commands mode, but now accordion somewhy is cleared after its filling
 		if ( $('#funcDef-' + this.name).length == 0 )
 		{
-			$('#accordion' + this.problem.tabIndex).append('<h3>' + this.name + '</h3><div id = "funcDef-' + this.name 
-				+ '" style="min-height:200px"></div>')
-				.accordion('destroy')
+			accordionPush( '#accordion' + this.problem.tabIndex, this.name );
+			accordionUpdateEvents( '#accordion' + this.problem.tabIndex );
+
+				/*.accordion('destroy')
 				.accordion()
-				.accordion('enable');
+				.accordion('enable');*/
+			/*$('#accordion' + this.problem.tabIndex + ' >div >h3').click(function(eventObject){
+   				$(this).next().slideToggle(500);
+        		return false;
+    		});*/
 			createJsTreeForFunction('#funcDef-' + this.name, this.problem);
 		}
 		else
@@ -1005,7 +1010,7 @@ var Problem = $.inherit({
 	setDefault: function(f){
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('enable');	
-		$('#jstree-container' + this.tabIndex).sortable('enable');
+		//$('#jstree-container' + this.tabIndex).sortable('enable');
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 		this.setLabyrinth(this.specSymbols);
@@ -1095,14 +1100,14 @@ var Problem = $.inherit({
 		}
 	},
 	enableButtons: function(){
-		$('#jstree-container' + this.tabIndex).sortable('enable');
+		//$('#jstree-container' + this.tabIndex).sortable('enable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 		$('#tabs').tabs( "option", "disabled", [] );
 	},
 
 	disableButtons: function(){
-		$('#jstree-container' + this.tabIndex).sortable('disable');
+		//$('#jstree-container' + this.tabIndex).sortable('disable');
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).prop('disabled', true);
 		var disabled = [];
@@ -1274,7 +1279,7 @@ var Problem = $.inherit({
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('disable');
 		$('#btn_stop' + this.tabIndex).button('enable');
-		$('#jstree-container' + this.tabIndex).sortable('enable');
+		//$('#jstree-container' + this.tabIndex).sortable('enable');
 		if (!this.speed)
 			this.notSpeed();
 		this.playing = false;

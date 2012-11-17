@@ -50,7 +50,7 @@ li.invisible{
 	list-style-type: none; 
 }
 div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait, 
-div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.funcdef, div.funccall{
+div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
 	list-style-type: none; 
 	width: 32px; 
 	height: 32px;
@@ -62,13 +62,7 @@ div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.funcdef, div.f
 	border-radius: 6px;
 }
 
-
-
-
-
-
-
-div.block, div.if, div.ifelse, div.while, div.for, div.funcdef, div.funccall{
+div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
 
 	list-style-type: none; 
 	margin: 5px;
@@ -101,7 +95,7 @@ ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
 }
-div.sortable{
+div.sortable-func{
 	min-width: 350px;
 	margin-left: 0px;
 	padding-left: 0px;
@@ -115,18 +109,6 @@ div.sortable{
 	border-radius: 6px;
 }
 
-div.sortable-func{
-	min-width: 270px;
-	margin-left: 0px;
-	padding-left: 0px;
-	padding: 0px;
-	border: 2px #A9A9A9 double;
-	min-height: 100px;
-	overflow: auto;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
-	border-radius: 6px;
-}
 td.wall, td.floor, td.highlightFloor, td.highlightWall{
 	width: 30px;
 	height: 30px;

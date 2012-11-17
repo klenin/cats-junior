@@ -279,7 +279,7 @@ function fillTabs(){
 						var l = codeareas[j].getValue().length;
 						try {
 							$('#jstree-container' + j).empty();	
-							$('#accordion' + j).accordion("disable");
+							//$('#accordion' + j).accordion("disable");
 							//$('#accordion' + j).empty();
 							//$('#accordion' + j).children().remove();
 							problems[j].prepareForExecuting();
@@ -316,8 +316,8 @@ function fillTabs(){
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#accordion' + j).show();
-						$('#accordion' + j).accordion();
-						$('#accordion' + j).accordion( "enable" );
+						//$('#accordion' + j).accordion();
+						//$('#accordion' + j).accordion( "enable" );
 						problems[j].updated();
 						//problems[j].cmdList = undefined;						
 			    	}
@@ -476,3 +476,4 @@ function nextClick(){
 function prevClick(){
 	curProblem.prev();
 }
+

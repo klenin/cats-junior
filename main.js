@@ -203,12 +203,10 @@
 					}
 					else {
 
-						$('#accordion' + problem.tabIndex).append('<h3>func' +
-							problem.numOfFunctions + 
-							'</h3><div id = "funcDef-func' + problem.numOfFunctions + '" style="min-height:200px"></div>').accordion('destroy').accordion();
-						createJsTreeForFunction('#funcDef-func' + problem.numOfFunctions, problem);
-							problem.updated();
-
+						accordionPush( '#accordion' + problem.tabIndex, 'func' + problem.numOfFunctions );
+						createJsTreeForFunction( '#funcDef-func' + problem.numOfFunctions, problem );
+						accordionUpdateEvents( '#accordion' + problem.tabIndex );
+						problem.updated();
 					}
 				},
 				"drop_finish": function(data){
@@ -247,10 +245,11 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	});
-		$('#accordion' + problem.tabIndex).accordion();
+
+		/*$('#accordion' + problem.tabIndex).accordion();
 		$('#accordion' + problem.tabIndex).accordion( "enable" );
 		$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
-		$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );
+		$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );*/
 
 	});
 	$('#about').dialog({

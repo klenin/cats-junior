@@ -17,7 +17,7 @@
 .jstree-default a .jstree-icon { background-position:-56px -18px; }
 .jstree-default a.jstree-loading .jstree-icon { background:url("throbber.gif") center center no-repeat !important; }
 
-.jstree-default.jstree-focused { background:#eeeeee; }
+.jstree-default.jstree-focused {  }
 
 .jstree-default .jstree-no-dots li, 
 .jstree-default .jstree-no-dots .jstree-leaf > ins { background:transparent; }
