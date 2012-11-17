@@ -737,14 +737,6 @@ var FuncDef = $.inherit({
 		{
 			accordionPush( '#accordion' + this.problem.tabIndex, this.name );
 			accordionUpdateEvents( '#accordion' + this.problem.tabIndex );
-
-				/*.accordion('destroy')
-				.accordion()
-				.accordion('enable');*/
-			/*$('#accordion' + this.problem.tabIndex + ' >div >h3').click(function(eventObject){
-   				$(this).next().slideToggle(500);
-        		return false;
-    		});*/
 			createJsTreeForFunction('#funcDef-' + this.name, this.problem);
 		}
 		else
@@ -1215,8 +1207,8 @@ var Problem = $.inherit({
 		this.functions = {};
 		this.numOfFunctions = 0;
 		var newCmdList = new Block([], undefined, this);
-		for (var i = 0; $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').length; ++i) {
-			var name = $('#accordion' + this.tabIndex + ' >h3:eq(' + i + ')').text().split(' ').join('');
+		for (var i = 0; $('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').length; ++i) {
+			var name = $('#accordion' + this.tabIndex + ' .func-header:eq(' + i + ')').text().split(' ').join('');
 			var code = convert($('#funcDef-' + name).jstree('get_json', -1), newCmdList, this, name);
 			newCmdList.pushCommand(code);
 		}
