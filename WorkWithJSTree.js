@@ -50,18 +50,7 @@ function onCreateItem(tree, newNode, type, problem, name){
 				}, true); 
 			}
 			break;
-		case 'funcdef':
-			//tree.rename(newNode);
-			$(newNode).bind('dblclick', function(node, t){
-				return function() {
-					t.rename(node);
-				};
-			}(newNode, tree));
-			$('#funccall-container' + problem.tabIndex).append(
-				'<div id = "funccall' + cmdId + 
-				'" class = "funccall jstree-draggable" type = "funccall" rel = "funccall" title = "funccall">' +
-				$.trim(newNode.text()) + '</div>'
-				)
+		case 'funccall':
 			break;
 	}
 	$(newNode).prop('id', type + cmdId);

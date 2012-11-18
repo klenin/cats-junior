@@ -727,7 +727,10 @@ var FuncDef = $.inherit({
 	},
 	convertToCode: function(tabsNum) {
 		str = generateTabs(tabsNum) + 'def ' + this.name + '():\n';
-		str += this.body.convertToCode(tabsNum + 1);
+		if ( this.body.commands.length )
+			str += this.body.convertToCode(tabsNum + 1);
+		else
+			str += generateTabs(tabsNum + 1) + 'pass\n';
 		return str;
 	},
 	generateCommand: function(tree, node){

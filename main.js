@@ -185,13 +185,15 @@
 					if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
 						pos = 'after';
 					}
+					if ( !$(data.o).hasClass('jstree-draggable') )
+						data.o = $(data.o).parent()[0];
 					var type = this._get_type(data.o);
 					var name = cmdClassToName[type];
 					if (type == 'funcdef') {
 						name = 'func_' + problem.numOfFunctions;
 					}
 					else if (type == 'funccall') {
-						name = $(data.o).text();
+						name = $(data.o).children('.func-header').text();
 					}
 					if (type != 'funcdef') {
 						$("#jstree-container" + problem.tabIndex).jstree(

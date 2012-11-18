@@ -322,7 +322,8 @@ function fillTabs(){
 						//problems[j].cmdList = undefined;						
 			    	}
 				    else {
-						$('#accordion' + j).hide();
+						//$('#accordion' + j).empty();
+						$('#accordion' + j).hide()
 			    		$('#ulCommands' + j).hide();
 						//$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
