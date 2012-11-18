@@ -213,13 +213,15 @@ function createJsTreeForFunction(funcId, problem) {
 				if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
 					pos = 'after';
 				}
+				if ( !$(data.o).hasClass('jstree-draggable') )
+					data.o = $(data.o).parent()[0];
 				var type = this._get_type(data.o);
 				var name = cmdClassToName[type];
 				if (type == 'funcdef') {
 					name = 'func_' + problem.numOfFunctions;
 				}
 				else if (type == 'funccall') {
-					name = $(data.o).text();
+					name = $(data.o).children('.func-header').text();
 				}
 				if (type != 'funcdef') {
 					$(funcId).jstree(
@@ -229,15 +231,6 @@ function createJsTreeForFunction(funcId, problem) {
 							onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
 						}, type != 'funcdef'); 
 				}
-				/*var active = $('#accordion' + problem.tabIndex).accordion( "option", "active" );
-				$('#accordion' + problem.tabIndex).accordion( "option", "animated", false );
-				$('#accordion' + problem.tabIndex).accordion( "destroy" );
-				$('#accordion' + problem.tabIndex).accordion( {animated: false} );
-				$('#accordion' + problem.tabIndex).accordion( "enable" );
-				$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
-				$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", true );
-				$('#accordion' + problem.tabIndex).accordion( "option", "active", active );
-				//$('#accordion' + problem.tabIndex).accordion( "option", "animated", true );*/
 
 			},
 			"drop_finish": function(data){

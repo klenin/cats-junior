@@ -616,8 +616,11 @@ var Block = $.inherit({
 		this.curCmd = 0;
 	},
 	showCounters: function() {
-		for (var i = 0; i < this.commands.length; ++i)
+		var i = 0;
+		for (; i < this.commands.length; ++i)
+		{
 			this.commands[i].showCounters(); 
+		}
 	},
 	hideCounters: function() {
 		for (var i = 0; i < this.commands.length; ++i)
@@ -700,10 +703,12 @@ var FuncDef = $.inherit({
 		//this.body.setDefault();
 	},
 	showCounters: function() {
-		//this.body.showCounters();
+		this.body.showCounters();
+		return;
 	},
 	hideCounters: function() {
-		//this.body.hideCounters();
+		this.body.hideCounters();
+		return;
 	},
 	started: function() {
 		return this.finished;
@@ -815,22 +820,22 @@ var FuncCall = $.inherit({
 	setDefault: function(){
 		$('#' + this.id + '>span').css('background-color', '#FFFFFF');
 		this.executing = false;
-		funcDef = this.getFuncDef();
+		/*funcDef = this.getFuncDef();
 		if (funcDef) {
 			funcDef.body.setDefault();	
-		}
+		}*/
 	},
 	showCounters: function() {
-		funcDef = this.getFuncDef();
+		/*funcDef = this.getFuncDef();
 		if (funcDef) {
 			funcDef.body.showCounters();	
-		}	
+		}	*/
 	},
 	hideCounters: function() {
-		funcDef = this.getFuncDef();
+		/*funcDef = this.getFuncDef();
 		if (funcDef) {
 			funcDef.body.hideCounters();
-		}
+		}*/
 	},
 	started: function() {
 		return this.executing;
@@ -858,7 +863,7 @@ var FuncCall = $.inherit({
 		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
-		return this.name + '()\n';
+		return generateTabs(tabsNum) + this.name + '()\n';
 	},
 	generateCommand: function(tree, node){
 		var self = this;
