@@ -90,6 +90,24 @@ div.while{ background: url('../images/while.png') 5% 100% no-repeat; background-
 div.for{ background: url('../images/for.png') 5% 100% no-repeat; background-position: 50% 50%;}
 div.funcdef{ background: url('../images/func.png') 5% 100% no-repeat; background-position: 50% 50%;}
 
+.func-icon {
+	background-repeat: no-repeat;
+	width: 16px; 
+	height: 16px;
+	background-image: url(images/ui-icons_222222_256x240.png);
+	text-indent: 16px;
+	display: inline-block; 
+	overflow: hidden;
+}
+
+.plus {
+	background-position: -16px -128px;
+}
+
+.minus {
+	background-position: -48px -128px;
+}
+
 .highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
 	padding-left: 5px;

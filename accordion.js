@@ -2,7 +2,7 @@ function accordionPush( id, name )
 {
 	$(id).append(
 		'<div class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
-			'<span class="ui-accordion-icon ui-icon ui-icon-circle-minus func-icon"></span>'+
+			'<span class="func-icon minus">&nbsp;&nbsp;&nbsp</span>'+
 			'<span class="func-header">' +
 				'<label data-type="editable" data-for=".input1">' + 
 					name + 
@@ -28,8 +28,8 @@ function accordionUpdateEvents( id )
 {
 	$(id + ' >div .func-icon').unbind('click').bind('click', function(eventObject){
 		$(this).next().next().toggle( 'fold', 1000 );
-		$(this).toggleClass( 'ui-icon-circle-plus' );
-		$(this).toggleClass( 'ui-icon-circle-minus' );
+		$(this).toggleClass( 'plus' );
+		$(this).toggleClass( 'minus' );
 		return false;
 	});
 }
