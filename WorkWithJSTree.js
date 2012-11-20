@@ -215,6 +215,8 @@ function createJsTreeForFunction(funcId, problem) {
 				}
 				if ( !$(data.o).hasClass('jstree-draggable') )
 					data.o = $(data.o).parent()[0];
+				if ( !$(data.o).hasClass('jstree-draggable') )
+					data.o = $(data.o).parent()[0];
 				var type = this._get_type(data.o);
 				var name = cmdClassToName[type];
 				if (type == 'funcdef') {
