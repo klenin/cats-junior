@@ -743,8 +743,7 @@ var FuncDef = $.inherit({
 		//TODO: we should clear $('#accordion' + this.problem.tabIndex) during switching to the commands mode, but now accordion somewhy is cleared after its filling
 		if ( $('#funcDef-' + this.name).length == 0 )
 		{
-			accordionPush( '#accordion' + this.problem.tabIndex, this.name );
-			accordionUpdateEvents( '#accordion' + this.problem.tabIndex );
+			$( '#accordion' + this.problem.tabIndex ).myAccordion( 'push', this.name );
 			createJsTreeForFunction('#funcDef-' + this.name, this.problem);
 		}
 		else

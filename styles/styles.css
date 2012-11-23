@@ -108,6 +108,10 @@ div.funcdef{ background: url('../images/func.png') 5% 100% no-repeat; background
 	background-position: -48px -128px;
 }
 
+.minus {
+	background-position: -48px -128px;
+}
+
 .highlighted{ background: #1CB2B3 !important; }
 ul.ul_commands{
 	padding-left: 5px;

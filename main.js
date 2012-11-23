@@ -206,9 +206,8 @@
 							}, type != 'funcdef'); 
 					}
 					else {
-						accordionPush( '#accordion' + problem.tabIndex, 'func' + problem.numOfFunctions );
+						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
 						createJsTreeForFunction( '#funcDef-func' + problem.numOfFunctions, problem );
-						accordionUpdateEvents( '#accordion' + problem.tabIndex );
 						problem.updated();
 					}
 				},
@@ -248,6 +247,7 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	});
+	$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 		/*$('#accordion' + problem.tabIndex).accordion();
 		$('#accordion' + problem.tabIndex).accordion( "enable" );
 		$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
