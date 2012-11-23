@@ -34,7 +34,7 @@
 		updateEvents: function( )
 		{
 			var $this = $(this);
-			$this.children('div').children('.func-icon').first().unbind('click').bind('click', function(eventObject){
+			$this.children('div').children('.func-icon').unbind('click').bind('click', function(eventObject){
 				$(this).next().next().next().toggle( 'fold', 1000 );
 				$(this).toggleClass( 'ui-icon-plus' );
 				$(this).toggleClass( 'ui-icon-minus' );
