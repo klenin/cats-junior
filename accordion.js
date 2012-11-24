@@ -23,7 +23,7 @@
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
-					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+
+					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
 					'<span class="func-header" >' + name + '</span>' +
 					'<input />'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content"></div>' +
