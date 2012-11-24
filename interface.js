@@ -450,10 +450,11 @@ function clearClick(){
 	var problem = curProblem;
 	if (!confirm('Вы уверены, что хотите очистить список команд?'))
 		return;
-	problem.setDefault();
 	problem.cmdList = new Block([], undefined, problem);
 	$('#jstree-container' + problem.tabIndex).children().remove();
 	$('#accordion' + problem.tabIndex).children().remove();
+	problem.setDefault();
+	problem.updated();
 }
 
 function stopClick(){
