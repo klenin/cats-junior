@@ -207,7 +207,7 @@
 					}
 					else {
 						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
-						createJsTreeForFunction( '#funcDef-func' + problem.numOfFunctions, problem );
+						createJsTreeForFunction( '#funcDef-' + cmdId++, problem );
 						problem.updated();
 					}
 				},

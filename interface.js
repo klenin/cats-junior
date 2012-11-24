@@ -279,9 +279,7 @@ function fillTabs(){
 						var l = codeareas[j].getValue().length;
 						try {
 							$('#jstree-container' + j).empty();	
-							//$('#accordion' + j).accordion("disable");
-							//$('#accordion' + j).empty();
-							//$('#accordion' + j).children().remove();
+							$('#accordion' + j).myAccordion( 'clear' );
 							problems[j].prepareForExecuting();
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
@@ -305,7 +303,6 @@ function fillTabs(){
 								return;
 							}
 						}
-						//$('#accordion' + j).accordion( "enable" );
 						$('#ulCommands' + j).show();
 						$('#jstree-container' + j).show();
 						$('#funccall-container' + j).show();
@@ -316,20 +313,18 @@ function fillTabs(){
 						$('#btn_clear' + j).show();
 						$('#tdcontainer' + j).show();
 						$('#accordion' + j).show();
-						//$('#accordion' + j).accordion();
-						//$('#accordion' + j).accordion( "enable" );
 						problems[j].updated();
-						//problems[j].cmdList = undefined;						
+				
 			    	}
 				    else {
-						//$('#accordion' + j).empty();
+						$('#accordion' + j).empty();
 						$('#accordion' + j).hide()
 			    		$('#ulCommands' + j).hide();
-						//$('#ulCommands_' + j).show();
+						$('#ulCommands_' + j).show();
 						$('#jstree-container' + j).hide();
 						$('#funccall-container' + j).hide();
 						$('#tdcommands' + j).hide();
-						//$('#tdcommands_' + j).show();
+						$('#tdcommands_' + j).show();
 						$('#tdcontainer' + j).hide();
 						$('#btn_clear' + j).hide();
 						$('#tdcode' + j).show();
@@ -338,7 +333,6 @@ function fillTabs(){
 						problems[j].setDefault();
 						$('#addWatch' + j).show();
 						$('#watchTable' + j).show();
-
 			    	}
 				}
 			}(i));

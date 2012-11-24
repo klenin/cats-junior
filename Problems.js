@@ -740,17 +740,13 @@ var FuncDef = $.inherit({
 	},
 	generateCommand: function(tree, node){
 		var self = this;
-		//TODO: we should clear $('#accordion' + this.problem.tabIndex) during switching to the commands mode, but now accordion somewhy is cleared after its filling
-		if ( $('#funcDef-' + this.name).length == 0 )
-		{
-			$( '#accordion' + this.problem.tabIndex ).myAccordion( 'push', this.name );
-			createJsTreeForFunction('#funcDef-' + this.name, this.problem);
-		}
-		else
-		{
-			$('#funcDef-' + this.name).empty(); 
-		}
-		self.body.generateCommand( jQuery.jstree._reference('#funcDef-' + this.name) );
+		var c = cmdId;
+		$( '#accordion' + this.problem.tabIndex ).myAccordion( 'push', this.name );
+		$('#funcDef-' + c).bind('loaded.jstree', function(){		
+			self.body.generateCommand( jQuery.jstree._reference('funcDef-' +  c) );
+			++cmdId;
+		});
+		createJsTreeForFunction( '#funcDef-' + c, this.problem );
 	}
 });
 
@@ -1216,7 +1212,7 @@ var Problem = $.inherit({
 		var newCmdList = new Block([], undefined, this);
 		for (var i = 0; $('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').length; ++i) {
 			var name = $('#accordion' + this.tabIndex + ' .func-header:eq(' + i + ')').text().split(' ').join('');
-			var code = convert($('#funcDef-' + name).jstree('get_json', -1), newCmdList, this, name);
+			var code = convert($('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name);
 			newCmdList.pushCommand(code);
 		}
 

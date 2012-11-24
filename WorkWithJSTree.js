@@ -87,7 +87,7 @@ function getTreeIdByObject(tree) {
 }
 
 function createJsTreeForFunction(funcId, problem) {
-	$(funcId).jstree({ 
+	return $(funcId).jstree({ 
 		"types" : {
 			"max_depth" : -2,
 	        "max_children" : -2,
