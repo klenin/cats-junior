@@ -48,17 +48,20 @@
 				$(this).next('input').toggle();
 				$(this).next('input').focus();
 				$(this).toggle();
-				$this.data('myAccordion', 'editing', true);
+				$this.data('myAccordion').editing = true;
 				return false;
 			});
 			$this.children('div').children('input').unbind('blur').bind('blur', function(eventObject)
 			{
-				if ( $this.data('myAccordion', 'editing' ) )
+				if ( $this.data('myAccordion').editing )
 				{
+					var oldName = $(this).prev('span').html();
+					var newName = $(this).val();
 					$(this).prev('span').html($(this).val());
 					$(this).prev('span').toggle();
 					$(this).toggle();
-					$this.data('myAccordion', 'editing', false);
+					$this.data('myAccordion').editing = false;
+					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );	
 				}
 				return false;
 			});
