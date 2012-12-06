@@ -22,14 +22,20 @@
 		{
 			var $this = $(this);
 			$this.append(
-				'<div id = "funcDiv' + cmdId + '"class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
+				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
-					'<span class="func-header" >' + name + '</span>' +
-					'<input />'  +
-					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content"></div>' +
+					'<span class="func-header jstree-draggable" style="width: 95%; display: inline-block" rel="func-header">' + name + '</span>' +
+					'<input id = "input' + cmdId + '"/>'  +
+					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "jstree-draggable func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			$this.children('div').children('input').hide();
 			$this.myAccordion('updateEvents');
+			$this.children('div').children('input').unbind('click').bind('click', function(eventObject){
+				//eventObject.stopPropagation();
+				console.log('accordion');
+				//var i = i;
+				//$this.children('div').children('input').focus();										
+			});
 		},
 		
 		updateEvents: function( )
@@ -57,8 +63,8 @@
 				{
 					var oldName = $(this).prev('span').html();
 					var newName = $(this).val();
-					$(this).prev('span').html($(this).val());
-					$(this).prev('span').toggle();
+					$(this).prev('.func-header').html($(this).val());
+					$(this).prev('.func-header').toggle();
 					$(this).toggle();
 					$this.data('myAccordion').editing = false;
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );	

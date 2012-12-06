@@ -123,6 +123,18 @@
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						}
+					},
+					"func-header" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"func-body" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
 					}
 				}
 			},
@@ -196,6 +208,12 @@
 					}
 					else if (type == 'funccall') {
 						name = $(data.o).children('.func-header').text();
+					}
+					else if (type == 'func-header') {
+						name = $(data.o).text()
+					}
+					else if(type == 'func-body') {
+						name = $(data.o).prev().prev().text();
 					}
 					if (type != 'funcdef') {
 						$("#jstree-container" + problem.tabIndex).jstree(

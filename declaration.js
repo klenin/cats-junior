@@ -155,3 +155,4 @@ var MAX_VALUE = 999999999999999;
 var receiveStarted = false;
 var elseStmt = undefined;
 var maxStep = 100;
+var undo = false;

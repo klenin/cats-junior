@@ -2482,7 +2482,12 @@
 			if(s.drag_target) {
 				$(document)
 					.delegate(s.drag_target, "mousedown.jstree-" + this.get_index(), $.proxy(function (e) {
+						console.log('jstree');
 						o = e.target;
+						if ($(o).is('input'))
+						{
+							e.stopPropagation();
+						}
 						$.vakata.dnd.drag_start(e, { jstree : true, obj : e.target }, "<ins class='jstree-icon'></ins>" + $(e.target).text() );
 						if(this.data.themes) { 
 							if(m) { m.attr("class", "jstree-" + this.data.themes.theme); }
@@ -2501,16 +2506,19 @@
 			if(s.drop_target) {
 				$(document)
 					.delegate(s.drop_target, "mouseenter.jstree-" + this.get_index(), $.proxy(function (e) {
+					console.log(5);
 							if(this.data.dnd.active && this._get_settings().dnd.drop_check.call(this, { "o" : o, "r" : $(e.target), "e" : e })) {
 								$.vakata.dnd.helper.children("ins").attr("class","jstree-ok");
 							}
 						}, this))
 					.delegate(s.drop_target, "mouseleave.jstree-" + this.get_index(), $.proxy(function (e) {
+					console.log(6);
 							if(this.data.dnd.active) {
 								$.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
 							}
 						}, this))
 					.delegate(s.drop_target, "mouseup.jstree-" + this.get_index(), $.proxy(function (e) {
+					console.log(7);
 							if(this.data.dnd.active && $.vakata.dnd.helper.children("ins").hasClass("jstree-ok")) {
 								this._get_settings().dnd.drop_finish.call(this, { "o" : o, "r" : $(e.target), "e" : e });
 							}
@@ -2700,6 +2708,7 @@
 		$.vakata.css.add_sheet({ str : css_string, title : "jstree" });
 		m = $("<div />").attr({ id : "jstree-marker" }).hide().html("&raquo;")
 			.bind("mouseleave mouseenter", function (e) { 
+			console.log(4);
 				m.hide();
 				ml.hide();
 				e.preventDefault(); 
@@ -2709,6 +2718,7 @@
 			.appendTo("body");
 		ml = $("<div />").attr({ id : "jstree-marker-line" }).hide()
 			.bind("mouseup", function (e) { 
+			console.log(3);
 				if(r && r.length) { 
 					r.children("a").trigger(e); 
 					e.preventDefault(); 
@@ -2717,6 +2727,7 @@
 				} 
 			})
 			.bind("mouseleave", function (e) { 
+			console.log(2);
 				var rt = $(e.relatedTarget);
 				if(rt.is(".jstree") || rt.closest(".jstree").length === 0) {
 					if(r && r.length) { 
@@ -2731,9 +2742,11 @@
 			})
 			.appendTo("body");
 		$(document).bind("drag_start.vakata", function (e, data) {
+			console.log(1);
 			if(data.data.jstree) { m.show(); if(ml) { ml.show(); } }
 		});
 		$(document).bind("drag_stop.vakata", function (e, data) {
+			console.log(1);
 			if(data.data.jstree) { m.hide(); if(ml) { ml.hide(); } }
 		});
 	});
@@ -3890,7 +3903,7 @@
 			_get_type : function (obj) {
 				var obj1 = obj;
 				obj = this._get_node(obj);
-				if (!obj) {
+				if (!obj || obj == -1) {
 					return $(obj1).attr('rel');
 				}
 				else {

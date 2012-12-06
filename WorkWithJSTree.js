@@ -1,5 +1,7 @@
 function onCreateItem(tree, newNode, type, problem, name){
 	//var type = initObject.attr('rel');
+	if (type == 'func-header' ||type == 'func-body')
+		type = 'funccall';
 	tree.set_type(type, newNode);
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
 	switch(type){
@@ -224,6 +226,12 @@ function createJsTreeForFunction(funcId, problem) {
 				}
 				else if (type == 'funccall') {
 					name = $(data.o).children('.func-header').text();
+				}
+				else if (type == 'func-header') {
+					name = $(data.o).text()
+				}
+				else if(type == 'func-body') {
+					name = $(data.o).prev().prev().text();
 				}
 				if (type != 'funcdef') {
 					$(funcId).jstree(
