@@ -230,6 +230,7 @@
 					}
 				},
 				"drop_finish": function(data){
+					alert('dropped');
 					var node = data.o;
 					var type = this._get_type(node);
 					if (type == 'else')

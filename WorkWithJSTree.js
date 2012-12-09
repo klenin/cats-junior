@@ -245,17 +245,23 @@ function createJsTreeForFunction(funcId, problem) {
 			},
 			"drop_finish": function(data){
 				var node = data.o;
-				var type = this._get_type(node);
-				if (type == 'else')
-					return false;
-				var next = undefined;
-				if (type == 'ifelse'){
-					next = getNextNode(this, node);
+				if (node) {
+					var type = this._get_type(node);
+					if (type == 'else')
+						return false;
+					var next = undefined;
+					if (type == 'ifelse'){
+						next = getNextNode(this, node);
+					}
+					this.remove(data.o);
+					if (next)
+						this.remove(next);
+					problem.updated();				
 				}
-				this.remove(data.o);
-				if (next)
-					this.remove(next);
-				problem.updated();
+				else {
+					var i = 0;
+					$(this.data.html_data.original_container_html.context).parent().remove();
+				}
 			}
 		},
 		"ui" : {
