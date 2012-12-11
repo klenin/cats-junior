@@ -3,6 +3,7 @@
 		$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 		return;
 	}
+	$('#funcName').hide();
 	$('#tabs').tabs({
 		select: function(event, ui) {
 			if (ui.index > 0 && ui.index - 1 < problems.length){

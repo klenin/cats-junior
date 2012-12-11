@@ -24,11 +24,11 @@
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="funccall jstree-draggable ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
-					'<span class="func-header" style="width: 95%; display: inline-block" rel="func-header">' + name + '</span>' +
-					'<input id = "input' + cmdId + '"/>'  +
+					'<span class="func-header" style="width: 95%; display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
+					//'<input id = "input' + cmdId + '"/>'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
-			$this.children('div').children('input').hide();
+			//$this.children('div').children('input').hide();
 			$this.myAccordion('updateEvents');
 			$this.children('div').children('input').unbind('click').bind('click', function(eventObject){
 				//eventObject.stopPropagation();
@@ -50,21 +50,22 @@
 			});
 			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject)
 			{
-				$(this).next('input').val($(this).html());
-				$(this).next('input').toggle();
-				$(this).next('input').focus();
-				$(this).toggle();
+				$('#funcName').val($(this).html());
+				$('#funcName').attr('funcId', $(this).parent().attr('id'));
+				$('#funcName').css({'top': $(this).offset().top, 'left': $(this).offset().left});
+				$('#funcName').toggle();
+				$('#funcName').focus();
+				//$(this).html('&nbsp;');
 				$this.data('myAccordion').editing = true;
 				return false;
 			});
-			$this.children('div').children('input').unbind('blur').bind('blur', function(eventObject)
+			$('#funcName').unbind('blur').bind('blur', function(eventObject)
 			{
 				if ( $this.data('myAccordion').editing )
 				{
-					var oldName = $(this).prev('span').html();
+					var oldName = $('#' + $('#funcName').attr('funcId')).children('.func-header').html();
 					var newName = $(this).val();
-					$(this).prev('.func-header').html($(this).val());
-					$(this).prev('.func-header').toggle();
+					$('#' + $('#funcName').attr('funcId')).children('.func-header').html($(this).val());
 					$(this).toggle();
 					$this.data('myAccordion').editing = false;
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );	

@@ -2500,6 +2500,10 @@
 					.delegate(s.drag_target, "mousedown.jstree-" + this.get_index(), $.proxy(function (e) {
 						console.log("mousedown.jstree-" + this.get_index(), 2492);
 						console.log(e.target);
+						if ($(e.target).is('input')){
+							e.preventDefault();
+							return false;
+						}
 						this.start_drag1(e.target, e, $(e.target).text());
 						this.data.dnd.foreign = true;
 						e.preventDefault();
