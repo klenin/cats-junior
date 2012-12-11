@@ -2471,12 +2471,12 @@
 							if(et.closest(".jstree").hasClass("jstree-" + this.get_index())) {
 								this.dnd_enter(et);
 							}
-							if (et.hasClass("jstree-" + this.get_index())){
+							/*if (et.hasClass("jstree-" + this.get_index())){
 								this.data.dnd.mto = setTimeout( 
 									(function (t) { return function () { t.dnd_leave(e); }; })(this),
 										0);
 								this.start_drag(e.currentTarget, e);
-							}
+							}*/
 						}
 					}, this));
 				/*
@@ -2499,20 +2499,11 @@
 				$(document)
 					.delegate(s.drag_target, "mousedown.jstree-" + this.get_index(), $.proxy(function (e) {
 						console.log("mousedown.jstree-" + this.get_index(), 2492);
-						o = e.target;
-						$.vakata.dnd.drag_start(e, { jstree : true, obj : e.target }, "<ins class='jstree-icon'></ins>" + $(e.target).text() );
-						if(this.data.themes) { 
-							if(m) { m.attr("class", "jstree-" + this.data.themes.theme); }
-							if(ml) { ml.attr("class", "jstree-" + this.data.themes.theme); }
-							$.vakata.dnd.helper.attr("class", "jstree-dnd-helper jstree-" + this.data.themes.theme); 
-						}
-						$.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
-						var cnt = this.get_container();
-						this.data.dnd.cof = cnt.offset();
-						this.data.dnd.cw = parseInt(cnt.width(),10);
-						this.data.dnd.ch = parseInt(cnt.height(),10);
+						console.log(e.target);
+						this.start_drag1(e.target, e, $(e.target).text());
 						this.data.dnd.foreign = true;
 						e.preventDefault();
+						return false;
 					}, this));
 			}
 			if(s.drop_target) {
@@ -2699,15 +2690,21 @@
 				console.log('start_drag', 2689);
 				o = this._get_node(obj);
 				if(this.data.ui && this.is_selected(o)) { o = this._get_node(null, true); }
-				var dt = o.length > 1 ? this._get_string("multiple_selection") : this.get_text(o) ? this.get_text(o) : "",
-					cnt = this.get_container();
+				var dt = o.length > 1 ? this._get_string("multiple_selection") : this.get_text(o) ? this.get_text(o) : "";
 				if(!this._get_settings().core.html_titles) { dt = dt.replace(/</ig,"&lt;").replace(/>/ig,"&gt;"); }
+				this.start_drag1(o, e, dt);
+			},
+			start_drag1: function(obj, e, dt) {
+				console.log('start_drag1', 2721);
+				console.log(o);
+				o = obj;
 				$.vakata.dnd.drag_start(e, { jstree : true, obj : o }, "<ins class='jstree-icon'></ins>" + dt );
 				if(this.data.themes) { 
 					if(m) { m.attr("class", "jstree-" + this.data.themes.theme); }
 					if(ml) { ml.attr("class", "jstree-" + this.data.themes.theme); }
 					$.vakata.dnd.helper.attr("class", "jstree-dnd-helper jstree-" + this.data.themes.theme); 
 				}
+				var cnt = this.get_container();
 				this.data.dnd.cof = cnt.offset();
 				this.data.dnd.cw = parseInt(cnt.width(),10);
 				this.data.dnd.ch = parseInt(cnt.height(),10);

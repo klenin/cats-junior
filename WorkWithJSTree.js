@@ -258,10 +258,6 @@ function createJsTreeForFunction(funcId, problem) {
 						this.remove(next);
 					problem.updated();				
 				}
-				else {
-					var i = 0;
-					$(this.data.html_data.original_container_html.context).parent().remove();
-				}
 			}
 		},
 		"ui" : {

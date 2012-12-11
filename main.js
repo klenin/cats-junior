@@ -230,8 +230,20 @@
 					}
 				},
 				"drop_finish": function(data){
-					alert('dropped');
 					var node = data.o;
+					
+					if ($(node).hasClass('jstree-draggable') && $(node).hasClass('funccall'))
+					{
+						$(node).remove();
+						return true;
+					}
+
+					if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					{
+						$(node).parent().remove();
+						return true;
+					}
+					
 					var type = this._get_type(node);
 					if (type == 'else')
 						return false;
