@@ -97,8 +97,10 @@ var Command = $.inherit({
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
 	},
-	updateFunctonName: function( oldName, newName )
-	{
+	updateFunctonName: function(oldName, newName) {
+		return;
+	},
+	removeFunctionCall: function(name) {
 		return;
 	}
 });
@@ -237,9 +239,11 @@ var ForStmt = $.inherit({
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	},
-	updateFunctonName: function( oldName, newName )
-	{
-		return;
+	updateFunctonName: function(oldName, newName) {
+		this.body.updateFunctonName(oldName, newName);
+	},
+	removeFunctionCall: function(name) {
+		this.body.removeFunctionCall(name);
 	}
 });
 
@@ -314,9 +318,11 @@ var CondStmt = $.inherit({
 				break;
 		}
 	},
-	updateFunctonName: function( oldName, newName )
-	{
-		return;
+	updateFunctonName: function(oldName, newName) {
+		this.body.updateFunctonName(oldName, newName);
+	},
+	removeFunctionCall: function(name) {
+		this.body.removeFunctionCall(name);
 	}
 });
 
@@ -438,10 +444,6 @@ var IfStmt = $.inherit(CondStmt, {
 					}
 				}
 			}, true); 
-	},
-	updateFunctonName: function( oldName, newName )
-	{
-		return;
 	}
 });
 
@@ -562,10 +564,6 @@ var WhileStmt = $.inherit(CondStmt, {
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
-	},
-	updateFunctonName: function( oldName, newName )
-	{
-		return;
 	}
 });
 
@@ -693,9 +691,13 @@ var Block = $.inherit({
 		}
 	},
 	updateFunctonName: function(oldName, newName){
-		for (var i = 0; i < this.commands.length; ++i)
-		{
+		for (var i = 0; i < this.commands.length; ++i) {
 			this.commands[i].updateFunctonName(oldName, newName);
+		}
+	},
+	removeFunctionCall: function(name){
+		for (var i = 0; i < this.commands.length; ++i) {
+			this.commands[i].removeFunctionCall(name);
 		}
 	}
 });
@@ -784,6 +786,9 @@ var FuncDef = $.inherit({
 	},
 	updateJstreeObject: function(){
 		$('#' + this.id).children('.func-header').text(this.name);
+	},
+	removeFunctionCall: function (name){
+		this.body.removeFunctionCall(name);
 	}
 });
 
@@ -906,15 +911,19 @@ var FuncCall = $.inherit({
 				self.id = numId;
 			}, true); 	
 	},
-	updateFunctonName: function(oldName, newName){
-		if (this.name == oldName)
-		{
+	updateFunctonName: function(oldName, newName) {
+		if (this.name == oldName) {
 			this.name = newName;
 			this.updateJstreeObject();
 		}
 	},
 	updateJstreeObject: function(){
-		$('#' + this.id).children('a').text(this.name);
+		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
+	},
+	removeFunctionCall: function (name){
+		if (this.name == name) {
+			$('#' + this.id).remove();
+		}
 	}
 });
 
@@ -1293,9 +1302,14 @@ var Problem = $.inherit({
 		}
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
-	updateFunctonName: function( oldName, newName )
-	{
-		this.cmdList.updateFunctonName( oldName, newName );
+	updateFunctonName: function(oldName, newName) {
+		this.cmdList.updateFunctonName(oldName, newName);
+	},
+	removeFunctionCall: function(name) {
+		this.updated();
+		if (!this.functions[name]){
+			this.cmdList.removeFunctionCall(name);	
+		}
 	},
 	loop: function(cnt, i){
 		try{
