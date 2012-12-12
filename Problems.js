@@ -96,6 +96,10 @@ var Command = $.inherit({
 				self.id = numId;
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		return;
 	}
 });
 
@@ -232,6 +236,10 @@ var ForStmt = $.inherit({
 				$('#for' + numId + ' > span > input').prop('value', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		return;
 	}
 });
 
@@ -305,6 +313,10 @@ var CondStmt = $.inherit({
 				$('#selectDirections' + numId).val(this.args[1]);
 				break;
 		}
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		return;
 	}
 });
 
@@ -426,6 +438,10 @@ var IfStmt = $.inherit(CondStmt, {
 					}
 				}
 			}, true); 
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		return;
 	}
 });
 
@@ -546,6 +562,10 @@ var WhileStmt = $.inherit(CondStmt, {
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		return;
 	}
 });
 
@@ -671,6 +691,12 @@ var Block = $.inherit({
 		{
 			this.commands[i].generateCommand(tree, node ? node : 0);
 		}
+	},
+	updateFunctonName: function(oldName, newName){
+		for (var i = 0; i < this.commands.length; ++i)
+		{
+			this.commands[i].updateFunctonName(oldName, newName);
+		}
 	}
 });
 
@@ -747,6 +773,17 @@ var FuncDef = $.inherit({
 			++cmdId;
 		});
 		createJsTreeForFunction( '#funcDef-' + c, this.problem );
+	},
+	updateFunctonName: function (oldName, newName){
+		if (this.name == oldName)
+		{
+			this.name = newName;
+			this.updateJstreeObject();
+			this.body.updateFunctonName(oldName, newName);
+		}
+	},
+	updateJstreeObject: function(){
+		$('#' + this.id).children('.func-header').text(this.name);
 	}
 });
 
@@ -867,7 +904,18 @@ var FuncCall = $.inherit({
 				onCreateItem(tree, newNode, 'funccall', self.problem, self.name);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
-			}, true); 	}
+			}, true); 	
+	},
+	updateFunctonName: function(oldName, newName){
+		if (this.name == oldName)
+		{
+			this.name = newName;
+			this.updateJstreeObject();
+		}
+	},
+	updateJstreeObject: function(){
+		$('#' + this.id).children('a').text(this.name);
+	}
 });
 
 var Problem = $.inherit({
@@ -1212,7 +1260,8 @@ var Problem = $.inherit({
 		var newCmdList = new Block([], undefined, this);
 		for (var i = 0; $('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').length; ++i) {
 			var name = $('#accordion' + this.tabIndex + ' .func-header:eq(' + i + ')').text().split(' ').join('');
-			var code = convert($('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name);
+			var id = $('#accordion' + this.tabIndex + ' .jstree-draggable:eq(' + i + ')').attr('id');
+			var code = convert($('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name, id);
 			newCmdList.pushCommand(code);
 		}
 
@@ -1243,6 +1292,10 @@ var Problem = $.inherit({
 				this.cmdList.makeUnfinished();	
 		}
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
+	},
+	updateFunctonName: function( oldName, newName )
+	{
+		this.cmdList.updateFunctonName( oldName, newName );
 	},
 	loop: function(cnt, i){
 		try{

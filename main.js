@@ -3,6 +3,7 @@
 		$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 		return;
 	}
+	$('#funcName').hide();
 	$('#tabs').tabs({
 		select: function(event, ui) {
 			if (ui.index > 0 && ui.index - 1 < problems.length){
@@ -123,6 +124,18 @@
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						}
+					},
+					"func-header" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"func-body" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
 					}
 				}
 			},
@@ -197,6 +210,12 @@
 					else if (type == 'funccall') {
 						name = $(data.o).children('.func-header').text();
 					}
+					else if (type == 'func-header') {
+						name = $(data.o).text()
+					}
+					else if(type == 'func-body') {
+						name = $(data.o).prev().prev().text();
+					}
 					if (type != 'funcdef') {
 						$("#jstree-container" + problem.tabIndex).jstree(
 							"create", node, pos, 
@@ -213,6 +232,19 @@
 				},
 				"drop_finish": function(data){
 					var node = data.o;
+					
+					if ($(node).hasClass('jstree-draggable') && $(node).hasClass('funccall'))
+					{
+						$(node).remove();
+						return true;
+					}
+
+					if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					{
+						$(node).parent().remove();
+						return true;
+					}
+					
 					var type = this._get_type(node);
 					if (type == 'else')
 						return false;
