@@ -244,3 +244,8 @@ div.MySplitter1 {
 	background: #eeeeee url(../images/vgrabber.gif) no-repeat center;
 	opacity: 0.5;
 }
+
+input.funcInput {
+	position: absolute; 
+	height: 25px;
+}

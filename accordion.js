@@ -2,8 +2,7 @@
 {
 	var methods = 
 	{
-		init: function( options )
-		{
+		init: function( options ) {
 			return this.each(function(){
 				var $this = $(this);
 				data = $this.data('myAccordion');
@@ -18,8 +17,7 @@
 			});
 		},
 		
-		push: function( name )
-		{
+		push: function( name ) {
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="funccall jstree-draggable ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
@@ -30,16 +28,11 @@
 				'</div>');
 			//$this.children('div').children('input').hide();
 			$this.myAccordion('updateEvents');
-			$this.children('div').children('input').unbind('click').bind('click', function(eventObject){
-				//eventObject.stopPropagation();
-				console.log('accordion');
-				//var i = i;
-				//$this.children('div').children('input').focus();										
-			});
+			$this.data('myAccordion').editing = true;
+			$this.myAccordion('showInput', $('#funcDiv' + cmdId).children('.func-header'));
 		},
 		
-		updateEvents: function( )
-		{
+		updateEvents: function( ) {
 			var $this = $(this);
 			$this.children('div').children('.func-icon').unbind('click').bind('click', function(eventObject)
 			{
@@ -50,33 +43,38 @@
 			});
 			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject)
 			{
-				$('#funcName').val($(this).html());
-				$('#funcName').attr('funcId', $(this).parent().attr('id'));
-				$('#funcName').css({'top': $(this).offset().top, 'left': $(this).offset().left});
-				$('#funcName').toggle();
-				$('#funcName').focus();
+				$this.myAccordion( 'showInput', this );
 				//$(this).html('&nbsp;');
 				$this.data('myAccordion').editing = true;
 				return false;
 			});
-			$('#funcName').unbind('blur').bind('blur', function(eventObject)
-			{
-				if ( $this.data('myAccordion').editing )
-				{
-					var oldName = $('#' + $('#funcName').attr('funcId')).children('.func-header').html();
+		},
+
+		clear: function( ) {
+			$(this).children().detach();
+		},
+
+		showInput: function( div ) {
+			var $this = $(this);
+			var input = $('<input class="funcInput"\>')
+				.val($(div).html())
+				.attr('funcId', $(div).parent().attr('id'))
+				.css({'top': $(div).offset().top, 'left': $(div).offset().left})
+				.focus()
+				.appendTo('body');
+			
+			input.bind('blur', function(eventObject) {
+				if ( $this.data('myAccordion').editing ) {
+					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
 					var newName = $(this).val();
-					$('#' + $('#funcName').attr('funcId')).children('.func-header').html($(this).val());
+					$('#' + $(this).attr('funcId')).children('.func-header').html($(this).val());
 					$(this).toggle();
 					$this.data('myAccordion').editing = false;
-					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );	
+					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
+					$(this).remove();
 				}
 				return false;
 			});
-		},
-
-		clear: function( )
-		{
-			$(this).children().detach();
 		}
 	}
 
