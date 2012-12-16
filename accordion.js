@@ -78,10 +78,22 @@
 					$this.data('myAccordion').editing = false;
 					$this.data('myAccordion').problem.updated();
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
+					$this.myAccordion( 'sort' );
 					$(this).remove();
 				}
 				return false;
 			});
+		},
+		sort: function( ) {
+			for (var i = 0; i < $(this).children('.funccall').length; ++i) {
+				for (var j = 0; j < $(this).children('.funccall').length - i - 1; ++j) {
+						var first = $(this).children('.funccall:eq(' + j +')');
+						var second = $(this).children('.funccall:eq(' + (j + 1) +')');
+						if (first.children('.func-header').text() > second.children('.func-header').text())	{
+							first.insertAfter(second);
+						}
+				} 
+			}
 		}
 	}
 
