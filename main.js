@@ -227,7 +227,7 @@
 					else {
 						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
 						createJsTreeForFunction( '#funcDef-' + cmdId++, problem );
-						problem.updated();
+						//problem.updated();
 					}
 				},
 				"drop_finish": function(data){

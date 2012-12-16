@@ -60,16 +60,23 @@
 				.val($(div).html())
 				.attr('funcId', $(div).parent().attr('id'))
 				.css({'top': $(div).offset().top, 'left': $(div).offset().left})
-				.focus()
-				.appendTo('body');
+				.appendTo('body')
+				.focus();
 			
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('myAccordion').editing ) {
 					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
 					var newName = $(this).val();
+					if ($this.data('myAccordion').problem.functions[newName]) {
+						if (!confirm('The function with the same name already exists, continue anyway?')) {
+							$(this).focus();
+							return false;
+						}
+					}
 					$('#' + $(this).attr('funcId')).children('.func-header').html($(this).val());
 					$(this).toggle();
 					$this.data('myAccordion').editing = false;
+					$this.data('myAccordion').problem.updated();
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
 					$(this).remove();
 				}
