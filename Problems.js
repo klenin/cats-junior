@@ -1303,7 +1303,9 @@ var Problem = $.inherit({
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
 	updateFunctonName: function(oldName, newName) {
-		this.cmdList.updateFunctonName(oldName, newName);
+		if (!this.functions[oldName]) {
+			this.cmdList.updateFunctonName(oldName, newName);
+		}
 	},
 	removeFunctionCall: function(name) {
 		this.updated();
