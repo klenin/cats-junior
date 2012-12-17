@@ -306,3 +306,8 @@ function wait(cnt)
 {
 	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
 }
+
+function checkName(name) {
+	var re =  /^[a-z_]+[a-z_0-9]*$/i;
+	return re.test(name);
+}

@@ -77,6 +77,11 @@
 							return false;
 						}
 					}
+					if (!checkName(newName)) {
+						alert('Invalid function name!');
+						$(this).focus();
+						return false;
+					}
 					$('#' + $(this).attr('funcId')).children('.func-header').html($(this).val());
 					$(this).toggle();
 					$this.data('myAccordion').editing = false;
