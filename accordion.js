@@ -27,25 +27,26 @@
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			//$this.children('div').children('input').hide();
-			$this.myAccordion('updateEvents');
-			$this.data('myAccordion').editing = true;
 			$this.myAccordion('showInput', $('#funcDiv' + cmdId).children('.func-header'));
+			$this.myAccordion('updateEvents');			
 		},
 		
 		updateEvents: function( ) {
 			var $this = $(this);
 			$this.children('div').children('.func-icon').unbind('click').bind('click', function(eventObject)
 			{
-				$(this).next().next().next().toggle( 'fold', 1000 );
+				//$this.myAccordion('hideInput');
+				$(this).next().next().toggle( 'fold', 1000 );
 				$(this).toggleClass( 'ui-icon-plus' );
 				$(this).toggleClass( 'ui-icon-minus' );
 				return false;
 			});
 			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject)
 			{
-				$this.myAccordion( 'showInput', this );
+				//$this.myAccordion('hideInput');
+				$this.myAccordion('showInput', this);
 				//$(this).html('&nbsp;');
-				$this.data('myAccordion').editing = true;
+				
 				return false;
 			});
 		},
@@ -56,18 +57,21 @@
 
 		showInput: function( div ) {
 			var $this = $(this);
+			$this.data('myAccordion').editing = true;
 			var input = $('<input class="funcInput"\>')
 				.val($(div).html())
 				.attr('funcId', $(div).parent().attr('id'))
 				.css({'top': $(div).offset().top, 'left': $(div).offset().left})
 				.appendTo('body')
 				.focus();
+
+			$this.data('myAccordion').input = input;
 			
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('myAccordion').editing ) {
 					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
 					var newName = $(this).val();
-					if ($this.data('myAccordion').problem.functions[newName]) {
+					if (oldName != newName && $this.data('myAccordion').problem.functions[newName]) {
 						if (!confirm('The function with the same name already exists, continue anyway?')) {
 							$(this).focus();
 							return false;
@@ -79,7 +83,9 @@
 					$this.data('myAccordion').problem.updated();
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
 					$this.myAccordion( 'sort' );
+					//$(this).unbind('blur');
 					$(this).remove();
+					$this.data('myAccordion').input = false;
 				}
 				return false;
 			});

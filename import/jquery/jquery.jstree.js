@@ -2504,6 +2504,7 @@
 							e.preventDefault();
 							return false;
 						}
+						$('input').blur();
 						this.start_drag1(e.target, e, $(e.target).text());
 						this.data.dnd.foreign = true;
 						e.preventDefault();
