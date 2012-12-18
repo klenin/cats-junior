@@ -277,6 +277,15 @@
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
 	}).bind("rename.jstree", function(event, data) {
+		if (!checkName(data.rslt.new_name)) {
+			alert('Invalid function name!!!');
+			setTimeout(function(tree, node, name) { 
+				return function() {
+					$(tree).jstree('rename', node, name);
+				} }(this, data.rslt.obj, data.rslt.old_name), 500);
+			
+			return false;
+		}
 		problem.updated();
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
