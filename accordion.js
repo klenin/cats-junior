@@ -2,8 +2,7 @@
 {
 	var methods = 
 	{
-		init: function( options )
-		{
+		init: function( options ) {
 			return this.each(function(){
 				var $this = $(this);
 				data = $this.data('myAccordion');
@@ -18,8 +17,7 @@
 			});
 		},
 		
-		push: function( name )
-		{
+		push: function( name ) {
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="funccall jstree-draggable ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
@@ -29,54 +27,85 @@
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			//$this.children('div').children('input').hide();
-			$this.myAccordion('updateEvents');
-			$this.children('div').children('input').unbind('click').bind('click', function(eventObject){
-				//eventObject.stopPropagation();
-				console.log('accordion');
-				//var i = i;
-				//$this.children('div').children('input').focus();										
-			});
+			$this.myAccordion('showInput', $('#funcDiv' + cmdId).children('.func-header'));
+			$this.myAccordion('updateEvents');			
 		},
 		
-		updateEvents: function( )
-		{
+		updateEvents: function( ) {
 			var $this = $(this);
 			$this.children('div').children('.func-icon').unbind('click').bind('click', function(eventObject)
 			{
-				$(this).next().next().next().toggle( 'fold', 1000 );
+				//$this.myAccordion('hideInput');
+				$(this).next().next().toggle( 'fold', 1000 );
 				$(this).toggleClass( 'ui-icon-plus' );
 				$(this).toggleClass( 'ui-icon-minus' );
 				return false;
 			});
 			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject)
 			{
-				$('#funcName').val($(this).html());
-				$('#funcName').attr('funcId', $(this).parent().attr('id'));
-				$('#funcName').css({'top': $(this).offset().top, 'left': $(this).offset().left});
-				$('#funcName').toggle();
-				$('#funcName').focus();
+				//$this.myAccordion('hideInput');
+				$this.myAccordion('showInput', this);
 				//$(this).html('&nbsp;');
-				$this.data('myAccordion').editing = true;
-				return false;
-			});
-			$('#funcName').unbind('blur').bind('blur', function(eventObject)
-			{
-				if ( $this.data('myAccordion').editing )
-				{
-					var oldName = $('#' + $('#funcName').attr('funcId')).children('.func-header').html();
-					var newName = $(this).val();
-					$('#' + $('#funcName').attr('funcId')).children('.func-header').html($(this).val());
-					$(this).toggle();
-					$this.data('myAccordion').editing = false;
-					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );	
-				}
+				
 				return false;
 			});
 		},
 
-		clear: function( )
-		{
+		clear: function( ) {
 			$(this).children().detach();
+		},
+
+		showInput: function( div ) {
+			var $this = $(this);
+			$this.data('myAccordion').editing = true;
+			var input = $('<input class="funcInput"\>')
+				.val($(div).html())
+				.attr('funcId', $(div).parent().attr('id'))
+				.css({'top': $(div).offset().top, 'left': $(div).offset().left})
+				.appendTo('body')
+				.focus();
+
+			$this.data('myAccordion').input = input;
+			
+			input.bind('blur', function(eventObject) {
+				if ( $this.data('myAccordion').editing ) {
+					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
+					var newName = $(this).val();
+					if (oldName != newName && $this.data('myAccordion').problem.functions[newName]) {
+						if (!confirm('The function with the same name already exists, continue anyway?')) {
+							$(this).focus();
+							return false;
+						}
+					}
+					if (!checkName(newName)) {
+						alert('Invalid function name!');
+						$(this).focus();
+						return false;
+					}
+					$('#' + $(this).attr('funcId')).children('.func-header').html($(this).val());
+					$(this).toggle();
+					$this.data('myAccordion').editing = false;
+					$this.data('myAccordion').problem.updated();
+					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
+					$this.data('myAccordion').problem.highlightWrongNames();
+					$this.myAccordion( 'sort' );
+					//$(this).unbind('blur');
+					$(this).remove();
+					$this.data('myAccordion').input = false;
+				}
+				return false;
+			});
+		},
+		sort: function( ) {
+			for (var i = 0; i < $(this).children('.funccall').length; ++i) {
+				for (var j = 0; j < $(this).children('.funccall').length - i - 1; ++j) {
+						var first = $(this).children('.funccall:eq(' + j +')');
+						var second = $(this).children('.funccall:eq(' + (j + 1) +')');
+						if (first.children('.func-header').text() > second.children('.func-header').text())	{
+							first.insertAfter(second);
+						}
+				} 
+			}
 		}
 	}
 

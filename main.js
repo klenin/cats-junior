@@ -227,7 +227,7 @@
 					else {
 						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
 						createJsTreeForFunction( '#funcDef-' + cmdId++, problem );
-						problem.updated();
+						//problem.updated();
 					}
 				},
 				"drop_finish": function(data){
@@ -277,10 +277,25 @@
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
 	}).bind("rename.jstree", function(event, data) {
+		if (!checkName(data.rslt.new_name)) {
+			alert('Invalid function name!!!');
+			setTimeout(function(tree, node, name) { 
+				return function() {
+					$(tree).jstree('rename', node, name);
+				} }(this, data.rslt.obj, data.rslt.old_name), 500);
+			
+			return false;
+		}
 		problem.updated();
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
-	});
+	}).bind("dblclick.jstree", function (e, data) {
+        var node = $(e.target).closest("li");
+        var type = $.jstree._reference(this)._get_type(node);
+		if (type == 'funccall') {
+			$.jstree._reference(this).rename(node);
+		}
+    });
 	$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 		/*$('#accordion' + problem.tabIndex).accordion();
 		$('#accordion' + problem.tabIndex).accordion( "enable" );
