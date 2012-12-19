@@ -244,6 +244,9 @@ var ForStmt = $.inherit({
 	},
 	removeFunctionCall: function(name) {
 		this.body.removeFunctionCall(name);
+	},
+	highlightWrongNames: function() {
+		return;
 	}
 });
 
@@ -283,7 +286,7 @@ var CondStmt = $.inherit({
 		this.id = block.id;
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>select').css('background-color', 'white');
+		$('#' + this.id + '>select').css('background-color', '');
 		$('#' + this.id + '>a').css('background-color', '');
 		//$('#' + this.id + '>ins').css('background-color', '#eeeeee');
 	},
@@ -323,6 +326,9 @@ var CondStmt = $.inherit({
 	},
 	removeFunctionCall: function(name) {
 		this.body.removeFunctionCall(name);
+	},
+	highlightWrongNames: function() {
+		return;
 	}
 });
 
@@ -699,6 +705,11 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i) {
 			this.commands[i].removeFunctionCall(name);
 		}
+	},
+	highlightWrongNames: function() {
+		for (var i = 0; i < this.commands.length; ++i) {
+			this.commands[i].highlightWrongNames();
+		}
 	}
 });
 
@@ -789,6 +800,14 @@ var FuncDef = $.inherit({
 	},
 	removeFunctionCall: function (name){
 		this.body.removeFunctionCall(name);
+	},
+	highlightWrongNames: function() {
+		if (!checkName(this.name)) {
+			$('#' + this.id).children('span:eq(1)').addClass('wrongName');
+		}
+		else {
+			$('#' + this.id).children('span:eq(1)').removeClass('wrongName');
+		}
 	}
 });
 
@@ -878,13 +897,10 @@ var FuncCall = $.inherit({
 		return this.executing;
 	},
 	copyDiff: function(func, compareCnt) {
-		if (func.getClass() != 'functionDef'){
+		if (func.getClass() != 'functionCall'){
 			return func;
 		}
-		funcDef = this.getFuncDef();
-		if (funcDef) {
-			funcDef.copydiff(func.getFuncDef(), compareCnt);
-		}
+		this.name = func.name;
 		return this;
 	},
 	makeUnfinished: function(){
@@ -894,7 +910,7 @@ var FuncCall = $.inherit({
 		}
 	},
 	highlightOff: function(){
-		$('#' + this.id + '>a').css('background-color', '#FFFFFF');
+		$('#' + this.id + '>a').css('background-color', '');
 	},
 	highlightOn: function(){
 		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
@@ -923,6 +939,14 @@ var FuncCall = $.inherit({
 	removeFunctionCall: function (name){
 		if (this.name == name) {
 			$('#' + this.id).remove();
+		}
+	},
+	highlightWrongNames: function() {
+		if (!this.problem.functions[this.name] || !checkName(this.name)) {
+			$('#' + this.id).children('a').addClass('wrongName');
+		}
+		else {
+			$('#' + this.id).children('a').removeClass('wrongName');
 		}
 	}
 });
@@ -1300,6 +1324,8 @@ var Problem = $.inherit({
 			if (this.cmdList.isFinished())
 				this.cmdList.makeUnfinished();	
 		}
+
+		this.highlightWrongNames();
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
 	updateFunctonName: function(oldName, newName) {
@@ -1312,6 +1338,10 @@ var Problem = $.inherit({
 		if (!this.functions[name]){
 			this.cmdList.removeFunctionCall(name);	
 		}
+		this.highlightWrongNames();
+	},
+	highlightWrongNames: function() {
+		this.cmdList.highlightWrongNames();
 	},
 	loop: function(cnt, i){
 		try{

@@ -87,6 +87,7 @@
 					$this.data('myAccordion').editing = false;
 					$this.data('myAccordion').problem.updated();
 					$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
+					$this.data('myAccordion').problem.highlightWrongNames();
 					$this.myAccordion( 'sort' );
 					//$(this).unbind('blur');
 					$(this).remove();
