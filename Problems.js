@@ -10,7 +10,7 @@ var Command = $.inherit({
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
-	exec: function(cnt) {
+	exec: function(cnt, arguments) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead); ++i)
@@ -102,6 +102,9 @@ var Command = $.inherit({
 	},
 	removeFunctionCall: function(name) {
 		return;
+	},
+	highlightWrongNames: function() {
+		return;
 	}
 });
 
@@ -122,7 +125,7 @@ var ForStmt = $.inherit({
 	eq: function(block){
 		return block.getClass() == 'for' && this.body.eq(block.body);
 	},
-	exec: function(cnt)
+	exec: function(cnt, arguments)
 	{
 		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
@@ -254,15 +257,6 @@ var CondStmt = $.inherit({
 	__constructor : function(testName, args, parent, id, problem) {
 		this.args = args.clone();
 		this.testName = testName;
-		switch(testName){
-			case 'objectPosition':
-				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
-					selectConditions[args[2]][0], 
-					selectDirections[args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
-		}
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
@@ -271,18 +265,9 @@ var CondStmt = $.inherit({
 		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
 	},
 	copyDiff: function(block, compareCnt){
-		this.test = block.test; //?
+		//this.test = block.test; //?
 		this.testName = block.testName;
 		this.args = block.args.clone();
-		switch(this.testName){
-			case 'objectPosition':
-				this.test = function(){return objectPosition(selectObjects[this.args[0]][0], 
-					selectConditions[this.args[2]][0], 
-					selectDirections[this.args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
-		}
 		this.id = block.id;
 	},
 	highlightOff: function(){
@@ -300,11 +285,11 @@ var CondStmt = $.inherit({
 		str = '';
 		switch(this.testName){
 			case 'objectPosition':
-				if (this.args[2] )
+				if (this.args[2])
 					str += 'not ';
-				str += 'objectPosition("' + 
-				selectObjects[this.args[0]][0] + '", "' + 
-				selectDirections[this.args[1]][0] + '"):\n';
+				var object = selectObjects[this.args[0]] === undefined ? this.args[0] : selectObjects[this.args[0]][0];
+				var direction = selectDirections[this.args[1]] === undefined ? this.args[1] : selectDirections[this.args[1]][0];
+				str += 'objectPosition("' + object + '", "' + direction + '"):\n';
 				break;
 			default:
 				str += 'False';
@@ -329,6 +314,46 @@ var CondStmt = $.inherit({
 	},
 	highlightWrongNames: function() {
 		return;
+	},
+	constructTestFunc: function(args) {
+		switch(this.testName){
+			case 'objectPosition':
+				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
+					selectConditions[args[2]][0], 
+					selectDirections[args[1]][0])};
+				break;
+			default:
+				this.test = function(){return false};
+		}
+	},
+	convertArguments: function(arguments) {
+		var selects = [selectObjects, selectDirections, selectConditions];
+
+		var args = [];
+
+		for (var i = 0; i < selects.length; ++i) {
+			if (selects[i][this.args[i]] === undefined) {
+				var j = 0;
+				for (j = 0; j < selects[i].length; ++j) {
+					if (selects[i][j][1] === arguments[this.args[i]]) {
+						args.push(j);
+						break;
+					}
+				}
+				if (j == selects[i].length) {
+					throw 'Invalid argument ' + this.args[i] + '!!!';
+				}
+			}
+			else {
+				args.push(this.args[i]);
+			}
+		}
+
+		return args;
+	},
+	checkArguments: function() {
+		if (this.args[2] != 0 && this.args[2] != 1)
+			throw 'Invalid argument ' + this.args[2];
 	}
 });
 
@@ -348,10 +373,11 @@ var IfStmt = $.inherit(CondStmt, {
 			(this.curBlock != undefined && block.curBlock != undefined && 
 			this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
 	},
-	exec: function(cnt)
+	exec: function(cnt, arguments)
 	{
 		if (this.curBlock == undefined && cnt)
-		{
+		{		
+			this.constructTestFunc(this.convertArguments(arguments));
 			this.curBlock = this.test() ? 0 : 1;
 			cnt -= 1;
 			if (!cnt || this.problem.speed)
@@ -368,7 +394,7 @@ var IfStmt = $.inherit(CondStmt, {
 			if (!this.blocks[this.curBlock])
 				return cnt;
 		}
-		return this.blocks[this.curBlock].exec(cnt);
+		return this.blocks[this.curBlock].exec(cnt, arguments);
 	},
 	getClass: function(){
 		return 'if';
@@ -460,15 +486,6 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false; //should be changed to one or two properties.
 		this.args = args.clone();
 		this.testName = testName;
-		switch(testName){
-			case 'objectPosition':
-				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
-					selectConditions[args[2]][0], 
-					selectDirections[args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
-		}
 		this.body = body;
 		this.parent = parent;	
 		this.id = id;
@@ -480,13 +497,14 @@ var WhileStmt = $.inherit(CondStmt, {
 	eq: function(block){
 		return this.__base(block) && this.body.eq(block.body);
 	},
-	exec: function(cnt)
+	exec: function(cnt, arguments)
 	{
 		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
 			if (!this.executing)
 			{
+				this.constructTestFunc(this.convertArguments(arguments));
 				cnt -= 1;
 				if (!cnt || this.problem.speed)
 				{
@@ -507,7 +525,7 @@ var WhileStmt = $.inherit(CondStmt, {
 				this.executing = true;
 				this.body.setDefault();
 			}
-			cnt = this.body.exec(cnt);
+			cnt = this.body.exec(cnt, arguments);
 			if (this.body.isFinished())
 			{
 				this.executing = false;
@@ -604,13 +622,13 @@ var Block = $.inherit({
 		}
 		return f;
 	},
-	exec: function(cnt)
+	exec: function(cnt, arguments)
 	{
 		var cmd = undefined;
 		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			cmd = this.commands[this.curCmd];
-			cnt = cmd.exec(cnt);
+			cnt = cmd.exec(cnt, arguments);
 			if (cmd.isFinished())
 				++this.curCmd;
 		}
@@ -714,9 +732,10 @@ var Block = $.inherit({
 });
 
 var FuncDef = $.inherit({
-	__constructor : function(name, body, parent, id, problem) {
+	__constructor : function(name, argumentsList, body, parent, id, problem) {
 		this.name = name;
 		this.body = body;
+		this.argumentsList = argumentsList;
 		this.parent = parent;
 		this.problem = problem;
 		this.finished = false;
@@ -808,16 +827,20 @@ var FuncDef = $.inherit({
 		else {
 			$('#' + this.id).children('span:eq(1)').removeClass('wrongName');
 		}
+	},
+	getArguments: function() {
+		return this.argumentsList;
 	}
 });
 
 var FuncCall = $.inherit({
-	__constructor : function(name, parent, id, problem) {
+	__constructor : function(name, argumentsValues, parent, id, problem) {
 		this.name = name;
 		this.parent = parent;
 		this.problem = problem;
 		this.executing = false;
 		this.id = id;
+		this.argumentsValues = argumentsValues;
 	},
 	isFinished: function(){
 		funcDef = this.getFuncDef();
@@ -842,6 +865,7 @@ var FuncCall = $.inherit({
 		}
 		if (!this.executing)
 		{
+			this.setArguments(funcDef.getArguments(), this.argumentsValues);
 			cnt -= 1;
 			var numId = $('#' + this.id).prop('numId');
 			if (!cnt || this.problem.speed)
@@ -866,7 +890,7 @@ var FuncCall = $.inherit({
 			}
 		}
 		if (funcDef) {
-			cnt = funcDef.body.exec(cnt);
+			cnt = funcDef.body.exec(cnt, this.arguments);
 		}
 		return cnt;
 	},
@@ -948,6 +972,21 @@ var FuncCall = $.inherit({
 		else {
 			$('#' + this.id).children('a').removeClass('wrongName');
 		}
+	},
+	setArguments: function(argumentsList, argumentsValues) {
+		var i = 0;
+		this.arguments = {};
+		
+		for (i = 0; i < Math.min(argumentsList[i].length, argumentsValues.length); ++i) {
+			this.arguments[argumentsList[i]] = argumentsValues[i];
+		}
+
+		if (i != argumentsList[i].length) {
+			throw "Invalid arguments list ";
+			return false;
+		}
+
+		return true;
 	}
 });
 
