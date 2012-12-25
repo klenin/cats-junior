@@ -11,7 +11,8 @@
 					$(this).data('myAccordion', {
 						target : $this,
 						'problem' : options.problem,
-						'editing': false
+						'editing': false,
+						'arguments': []
 					});
 				}
 			});
@@ -20,34 +21,33 @@
 		push: function( name ) {
 			var $this = $(this);
 			$this.append(
-				'<div id = "funcDiv' + cmdId + '"class="funccall jstree-draggable ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
+				'<div id = "funcDiv' + cmdId + '"class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
-					'<span class="func-header" style="width: 95%; display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
+					'<span class="func-header" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
+					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+
 					//'<input id = "input' + cmdId + '"/>'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			//$this.children('div').children('input').hide();
-			$this.myAccordion('showInput', $('#funcDiv' + cmdId).children('.func-header'));
+			$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			$this.myAccordion('updateEvents');			
 		},
 		
 		updateEvents: function( ) {
 			var $this = $(this);
-			$this.children('div').children('.func-icon').unbind('click').bind('click', function(eventObject)
-			{
-				//$this.myAccordion('hideInput');
-				$(this).next().next().toggle( 'fold', 1000 );
-				$(this).toggleClass( 'ui-icon-plus' );
-				$(this).toggleClass( 'ui-icon-minus' );
+			$this.children('div').children('.func-icon:eq(0)').unbind('click').bind('click', function(eventObject) {
+				$(this).next().next().toggle('fold', 1000);
+				$(this).toggleClass('ui-icon-plus');
+				$(this).toggleClass('ui-icon-minus');
 				return false;
 			});
-			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject)
-			{
-				//$this.myAccordion('hideInput');
-				$this.myAccordion('showInput', this);
-				//$(this).html('&nbsp;');
-				
+			$this.children('div').children('.func-header').unbind('dblclick').bind('dblclick', function(eventObject) {
+				$this.myAccordion('showFunctionNameInput', this);
 				return false;
+			});
+			$this.children('div').children('.func-icon:eq(1)').unbind('click').bind('click', function(eventObject) {
+				var argInput = $('<input class="argInput"\>');
+				argInput.insertAfter($(this).prev('.func-header'));
 			});
 		},
 
@@ -55,13 +55,21 @@
 			$(this).children().detach();
 		},
 
-		showInput: function( div ) {
+		showFunctionNameInput: function( div ) {
+			var top = $(div).offset().top;
+			var left = $(div).offset().left;
+			var id = $(div).parent().attr('id');
+			var value = $(div).html();		
+			$(this).myAccordion('showInput', top, left, id, value);
+		},
+
+		showInput: function( top, left, id, value ) {
 			var $this = $(this);
 			$this.data('myAccordion').editing = true;
 			var input = $('<input class="funcInput"\>')
-				.val($(div).html())
-				.attr('funcId', $(div).parent().attr('id'))
-				.css({'top': $(div).offset().top, 'left': $(div).offset().left})
+				.val(value)
+				.attr('funcId', id)
+				.css({'top': top, 'left': left})
 				.appendTo('body')
 				.focus();
 

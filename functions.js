@@ -107,7 +107,7 @@ function convert(commands, parent, problem, funcName, id){
 	var block = new Block([], parent, problem);
 	var func = undefined;
 	if (funcName) {
-		func = new FuncDef(funcName, [], parent, id, problem);
+		func = new FuncDef(funcName, [], [], parent, id, problem);
 		block = new Block([], func, problem);
 		func.body = block;
 		problem.functions[funcName] = func;
@@ -144,7 +144,7 @@ function convert(commands, parent, problem, funcName, id){
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
 		else if (type == 'funccall'){
-			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id).text().split(' ').join(''), block, id, problem));
+			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id).text().split(' ').join(''), [],  block, id, problem));
 		}
 		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
@@ -222,7 +222,7 @@ function convertTreeToCommands(commands, parent, problem)
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
 					default:
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, block, undefined, problem));
+						block.pushCommand(new FuncCall(commands[i].value.func.id.v, [], block, undefined, problem));
 						break;
 				}
 				break;
@@ -267,7 +267,7 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				var funcDef = new FuncDef(commands[i].name.v, undefined, block, undefined, problem);
+				var funcDef = new FuncDef(commands[i].name.v, [], undefined, block, undefined, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);

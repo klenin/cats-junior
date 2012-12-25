@@ -250,6 +250,11 @@ input.funcInput {
 	height: 25px;
 }
 
+input.argInput {
+	width: 25px;
+	right: 5px;
+}
+
 a.wrongName {
 	border: 1px dotted red !important;
 }
