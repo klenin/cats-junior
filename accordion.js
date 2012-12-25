@@ -31,6 +31,7 @@
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			//$this.children('div').children('input').hide();
+			$this.data('myAccordion').arguments.push([]);
 			$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			$this.myAccordion('updateEvents');			
 		},
@@ -48,7 +49,7 @@
 				return false;
 			});
 			$this.children('div').children('.func-icon:eq(1)').unbind('click').bind('click', function(eventObject) {
-				var index = $this.data('myAccordion').arguments.length; 
+				var index = $this.data('myAccordion').arguments[$this.index()].length; 
 				var argSpan = $('<span class="argInput">arg' + index + '</span>')
 					.insertBefore($(this).prev('span'))
 					.bind('dblclick', function(eventObject) {
@@ -62,7 +63,7 @@
 						$(this).css('border', 'none');
 					});
 
-				$this.data('myAccordion').arguments.push(argSpan);
+				$this.data('myAccordion').arguments[$this.index()].push(argSpan);
 				if (index != 0) {
 					var comma = $('<span>, </span>')
 						.insertBefore(argSpan);
@@ -158,10 +159,24 @@
 						var first = $(this).children('.funccall:eq(' + j +')');
 						var second = $(this).children('.funccall:eq(' + (j + 1) +')');
 						if (first.children('.func-header').text() > second.children('.func-header').text())	{
+							var tmp = $(this).data('myAccordion').arguments[i];
+							$(this).data('myAccordion').arguments[i] = $(this).data('myAccordion').arguments[j];
+							$(this).data('myAccordion').arguments[j] = tmp;
 							first.insertAfter(second);
 						}
 				} 
 			}
+		},
+		getFunctionName: function(div) {
+			return $(div).children('.func-header').text().split(' ').join('');
+		},
+		getArguments: function(div) {
+			var index = $(div).index();
+			var arguments = [];
+			for (var i = 0; i < $(this).data('myAccordion').arguments[index].length; ++i) {
+				arguments.push($(this).data('myAccordion').arguments[index][i].html().split(' ').join(''))
+			}
+			return arguments;
 		}
 	}
 

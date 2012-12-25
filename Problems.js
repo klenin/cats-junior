@@ -1329,11 +1329,14 @@ var Problem = $.inherit({
 	updated: function(){
 		this.functions = {};
 		this.numOfFunctions = 0;
+		var accordion = $('#accordion' + this.tabIndex);
 		var newCmdList = new Block([], undefined, this);
-		for (var i = 0; $('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').length; ++i) {
-			var name = $('#accordion' + this.tabIndex + ' .func-header:eq(' + i + ')').text().split(' ').join('');
-			var id = $('#accordion' + this.tabIndex + ' .jstree-draggable:eq(' + i + ')').attr('id');
-			var code = convert($('#accordion' + this.tabIndex + ' .func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name, id);
+		for (var i = 0; i < accordion.children('.funccall').length; ++i) {
+			var div =  accordion.children('.funccall:eq(' + i + ')');
+			var name = accordion.myAccordion('getFunctionName', div);
+			var id = $(div).attr('id');
+			var code = convert(accordion.children('.func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name, id);
+			code.argumentsList = accordion.myAccordion('getArguments', div);
 			newCmdList.pushCommand(code);
 		}
 
