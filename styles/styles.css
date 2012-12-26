@@ -256,6 +256,11 @@ input.argInput {
 	height: 25px;
 }
 
+input.argCallInput {
+	width: 25px;
+	height: 25px;
+}
+
 a.wrongName {
 	border: 1px dotted red !important;
 }

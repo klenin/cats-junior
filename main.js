@@ -221,7 +221,7 @@
 							"create", node, pos, 
 							{'data': name}, 
 							function(newNode){
-								onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, data.o);
 							}, type != 'funcdef'); 
 					}
 					else {

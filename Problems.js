@@ -776,6 +776,7 @@ var FuncDef = $.inherit({
 			return func;
 		}
 		this.body.copyDiff(func.body, compareCnt);
+		this.argumentsList = func.argumentsList.clone();
 		this.name = func.name;
 		return this;
 	},
@@ -789,7 +790,14 @@ var FuncDef = $.inherit({
 		return;
 	},
 	convertToCode: function(tabsNum) {
-		str = generateTabs(tabsNum) + 'def ' + this.name + '():\n';
+		str = generateTabs(tabsNum) + 'def ' + this.name + '(';
+		for (var i = 0; i < this.argumentsList.length; ++i) {
+			if (i != 0) {
+				str += ', ';
+			}
+			str += this.argumentsList[i];
+		}
+		str += '):\n';
 		if ( this.body.commands.length )
 			str += this.body.convertToCode(tabsNum + 1);
 		else
@@ -799,12 +807,12 @@ var FuncDef = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		var c = cmdId;
-		$( '#accordion' + this.problem.tabIndex ).myAccordion( 'push', this.name );
+		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
-			self.body.generateCommand( jQuery.jstree._reference('funcDef-' +  c) );
+			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
 			++cmdId;
 		});
-		createJsTreeForFunction( '#funcDef-' + c, this.problem );
+		createJsTreeForFunction('#funcDef-' + c, this.problem);
 	},
 	updateFunctonName: function (oldName, newName){
 		if (this.name == oldName)
@@ -840,7 +848,7 @@ var FuncCall = $.inherit({
 		this.problem = problem;
 		this.executing = false;
 		this.id = id;
-		this.argumentsValues = argumentsValues;
+		this.argumentsValues = argumentsValues.clone();
 	},
 	isFinished: function(){
 		funcDef = this.getFuncDef();
@@ -925,6 +933,7 @@ var FuncCall = $.inherit({
 			return func;
 		}
 		this.name = func.name;
+		this.argumentsValues = func.argumentsValues.clone();
 		return this;
 	},
 	makeUnfinished: function(){
@@ -940,13 +949,21 @@ var FuncCall = $.inherit({
 		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 	},
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '()\n';
+		var str = generateTabs(tabsNum) + this.name + '(';
+		for (var i = 0; i < this.argumentsValues.length; ++i) {
+			if (i != 0) {
+				str += ', ';
+			}
+			str += this.argumentsValues[i];
+		}
+		str += ')\n';
+		return str;
 	},
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.name);  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, this.getFuncDef());  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 			}, true); 	
