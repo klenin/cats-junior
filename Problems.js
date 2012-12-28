@@ -735,11 +735,12 @@ var FuncDef = $.inherit({
 	__constructor : function(name, argumentsList, body, parent, id, problem) {
 		this.name = name;
 		this.body = body;
-		this.argumentsList = argumentsList;
+		this.argumentsList = argumentsList.clone();
 		this.parent = parent;
 		this.problem = problem;
 		this.finished = false;
 		this.id = id;
+		this.problem.functions[this.name] = this; //cheat!!! needs to be reworked
 	},
 	isFinished: function(){
 		return this.finished;
@@ -807,7 +808,7 @@ var FuncDef = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		var c = cmdId;
-		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name);
+		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
 			++cmdId;
@@ -963,9 +964,12 @@ var FuncCall = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, this.getFuncDef());  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.getFuncDef().getArguments());  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
+				for (var i = 0; i < self.argumentsValues.length; ++i) {
+					$(newNode).children('input:eq(' + i + ')').val(self.argumentsValues[i]);
+				}
 			}, true); 	
 	},
 	updateFunctonName: function(oldName, newName) {

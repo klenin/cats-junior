@@ -226,8 +226,15 @@ function convertTreeToCommands(commands, parent, problem)
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
 					default:
-						//TODO: construct arguments list!
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, [], block, undefined, problem));
+						var arguments = [];
+						for (var j = 0; j < commands[i].value.args.length; ++j) {
+							var arg;
+							if (commands[i].value.args[j]._astname == 'Num') {
+								arg = commands[i].value.args[j].n;
+							}
+							arguments.push(arg);
+						}
+						block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, problem));
 						break;
 				}
 				break;
@@ -272,8 +279,11 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				//TODO: construct arguments list!
-				var funcDef = new FuncDef(commands[i].name.v, [], undefined, block, undefined, problem);
+				var arguments = [];
+				for (var j = 0; j < commands[i].args.args.length; ++j) {
+					arguments.push(commands[i].args.args[j].id.v);
+				}
+				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);

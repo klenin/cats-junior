@@ -18,7 +18,7 @@
 			});
 		},
 		
-		push: function(name) {
+		push: function(name, arguments) {
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
@@ -32,7 +32,32 @@
 				'</div>');
 			//$this.children('div').children('input').hide();
 			$this.data('myAccordion').arguments.push([]);
-			$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
+			if (!arguments) {
+				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
+			}
+			else {
+				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next();
+				var index = $this.data('myAccordion').arguments.length - 1;
+				for (var i = 0; i < arguments.length; ++i) {
+					if (i != 0) {
+						var comma = $('<span>, </span>')
+								.insertBefore(bracket);	
+					}
+					var argSpan = $('<span class="argInput">' + arguments[i] + '</span>')
+						.insertBefore(bracket)
+						.bind('dblclick', function(eventObject) {
+							$this.myAccordion('showFunctionArgumentInput', this);
+							return false;
+						})
+						.bind('mouseover', function(eventObject){
+							$(this).css('border', 'dotted');
+						})
+						.bind('mouseout', function(eventObject){
+							$(this).css('border', 'none');
+						});
+					$this.data('myAccordion').arguments[index].push(argSpan);
+				}
+			}
 			$this.myAccordion('updateEvents');			
 		},
 		
@@ -68,12 +93,13 @@
 					var comma = $('<span>, </span>')
 						.insertBefore(argSpan);
 				}
-				
+				$this.data('myAccordion').problem.updated();				
 			});
 		},
 
 		clear: function() {
 			$(this).children().detach();
+			$(this).data('myAccordion').arguments = [];
 		},
 
 		showFunctionNameInput: function(div) {
@@ -173,8 +199,10 @@
 		getArguments: function(div) {
 			var index = $(div).index();
 			var arguments = [];
-			for (var i = 0; i < $(this).data('myAccordion').arguments[index].length; ++i) {
-				arguments.push($(this).data('myAccordion').arguments[index][i].html().split(' ').join(''))
+			var l = $(this).data('myAccordion').arguments[index].length;
+			for (var k = 0; k < l && typeof $(this).data('myAccordion').arguments[index][k] === 'object'; ++k) {
+				console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
+				arguments.push($(this).data('myAccordion').arguments[index][k].html().split(' ').join(''))
 			}
 			return arguments;
 		}
