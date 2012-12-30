@@ -103,11 +103,11 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem, funcName, id){
+function convert(commands, parent, problem, funcName, id, arguments){
 	var block = new Block([], parent, problem);
 	var func = undefined;
 	if (funcName) {
-		func = new FuncDef(funcName, [], [], parent, id, problem);
+		func = new FuncDef(funcName, arguments, [], parent, id, problem);
 		block = new Block([], func, problem);
 		func.body = block;
 		problem.functions[funcName] = func;

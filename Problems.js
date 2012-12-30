@@ -105,6 +105,9 @@ var Command = $.inherit({
 	},
 	highlightWrongNames: function() {
 		return;
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -250,6 +253,9 @@ var ForStmt = $.inherit({
 	},
 	highlightWrongNames: function() {
 		return;
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -260,6 +266,7 @@ var CondStmt = $.inherit({
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
+		this.generateArguments();
 	},
 	eq: function(block){
 		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
@@ -269,6 +276,7 @@ var CondStmt = $.inherit({
 		this.testName = block.testName;
 		this.args = block.args.clone();
 		this.id = block.id;
+		this.generateArguments();
 	},
 	highlightOff: function(){
 		$('#' + this.id + '>select').css('background-color', '');
@@ -354,6 +362,30 @@ var CondStmt = $.inherit({
 	checkArguments: function() {
 		if (this.args[2] != 0 && this.args[2] != 1)
 			throw 'Invalid argument ' + this.args[2];
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
+	},
+	generateArguments: function() {
+		var funcDef = this.getFunction();
+		if (funcDef) {
+			var arguments = funcDef.getArguments();
+			for (var i = 0; i < $('#' + this.id).children('select').length; ++i) {
+				var index = $('#' + this.id).children('select:eq(' + i + ')').children('option').length;
+				for (var j = 0; j < arguments.length; ++j) {
+					var k = 0;
+					for (k = 0; k < $('#' + this.id).children('select:eq(' + i + ')').children('option').length; ++k) {
+						if ($('#' + this.id).children('select:eq(' + i + ')').children('option:eq(' + k +')').html() == arguments[j]) {
+							break;
+						}
+					}
+					if (k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
+						$('#' + this.id).children('select:eq(' + i + ')').append(
+							'<option value="' + (index + j) + '">' + arguments[j] + '</option><br>');
+					}
+				}
+			}
+		}
 	}
 });
 
@@ -476,6 +508,9 @@ var IfStmt = $.inherit(CondStmt, {
 					}
 				}
 			}, true); 
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -588,6 +623,9 @@ var WhileStmt = $.inherit(CondStmt, {
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -728,6 +766,9 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i) {
 			this.commands[i].highlightWrongNames();
 		}
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -839,6 +880,9 @@ var FuncDef = $.inherit({
 	},
 	getArguments: function() {
 		return this.argumentsList;
+	},
+	getFunction: function() { 
+		return this;
 	}
 });
 
@@ -1008,6 +1052,9 @@ var FuncCall = $.inherit({
 		}
 
 		return true;
+	},
+	getFunction: function() { 
+		return this.parent ? this.parent.getFunction() : undefined;
 	}
 });
 
@@ -1356,8 +1403,8 @@ var Problem = $.inherit({
 			var div =  accordion.children('.funccall:eq(' + i + ')');
 			var name = accordion.myAccordion('getFunctionName', div);
 			var id = $(div).attr('id');
-			var code = convert(accordion.children('.func-body:eq(' + i + ')').jstree('get_json', -1), newCmdList, this, name, id);
-			code.argumentsList = accordion.myAccordion('getArguments', div);
+			var argumentsList = accordion.myAccordion('getArguments', div);
+			var code = convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, id, argumentsList);
 			newCmdList.pushCommand(code);
 		}
 

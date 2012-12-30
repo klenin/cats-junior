@@ -233,19 +233,20 @@
 				"drop_finish": function(data){
 					var node = data.o;
 					
-					if ($(node).hasClass('jstree-draggable') && $(node).hasClass('funccall'))
+					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
 					{
+						node = $(node).parent();
 						$(node).remove();
 						problem.removeFunctionCall($(node).children('.func-header').html());
 						return true;
 					}
 
-					if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
 					{
 						$(node).parent().remove();
 						problem.removeFunctionCall($(node).parent().children('.func-header').html());
 						return true;
-					}
+					}*/
 					
 					var type = this._get_type(node);
 					if (type == 'else')

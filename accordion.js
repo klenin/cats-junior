@@ -21,9 +21,9 @@
 		push: function(name, arguments) {
 			var $this = $(this);
 			$this.append(
-				'<div id = "funcDiv' + cmdId + '"class="jstree-draggable funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
+				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
-					'<span class="func-header" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
+					'<span class="func-header jstree-draggable" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
 					'<span> (</span>' + 
 					'<span>)</span>' + 
 					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+

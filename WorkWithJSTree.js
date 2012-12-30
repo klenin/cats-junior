@@ -37,7 +37,11 @@ function onCreateItem(tree, newNode, type, problem, arguments){
 			}
 			$(newNode).append('</select>)');
 			
-			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){return function() {p.updated();}}(problem));
+			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){
+				return function() {
+					p.updated();
+				}
+			}(problem));
 			if (type == 'ifelse'){
 				tree.rename_node(newNode, 'Если');
 				tree.create($(newNode), "after", false, 
