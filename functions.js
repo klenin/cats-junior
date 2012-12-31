@@ -327,3 +327,8 @@ function checkName(name) {
 	var re =  /^[a-z_]+[a-z_0-9]*$/i;
 	return re.test(name);
 }
+
+function checkNumber(number) {
+	var re =  /^[0-9]+[0-9]*$/i;
+	return re.test(number);
+}

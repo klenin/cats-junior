@@ -295,8 +295,28 @@ var CondStmt = $.inherit({
 			case 'objectPosition':
 				if (this.args[2])
 					str += 'not ';
-				var object = selectObjects[this.args[0]] === undefined ? this.args[0] : selectObjects[this.args[0]][0];
-				var direction = selectDirections[this.args[1]] === undefined ? this.args[1] : selectDirections[this.args[1]][0];
+				var funcDef = this.getFunction();
+				var funcArguments = funcDef ? funcDef.getArguments() : [];
+				var object = selectObjects[this.args[0]];
+				if (object === undefined) { 
+					if (!funcDef || this.args[0] - selectObjects.length < 0 || this.args[0] - selectObjects.length > funcArguments.length) {
+						throw 'Invalid argument ' + this.args[0];
+					}
+					object = funcArguments[this.args[0] - selectObjects.length];
+				}
+				else {
+					object = object[0];
+				}
+				var direction = selectDirections[this.args[1]];
+				if (direction=== undefined){
+					if (!funcDef || this.args[1] - selectDirections.length < 0 || this.args[1] - selectDirections.length > funcArguments.length) {
+						throw 'Invalid argument ' + this.args[1];
+					}
+					direction = funcArguments[this.args[1] - selectDirections.length];
+				}
+				else {
+					direction = direction[0];
+				}
 				str += 'objectPosition("' + object + '", "' + direction + '"):\n';
 				break;
 			default:
@@ -326,9 +346,10 @@ var CondStmt = $.inherit({
 	constructTestFunc: function(args) {
 		switch(this.testName){
 			case 'objectPosition':
-				this.test = function(){return objectPosition(selectObjects[args[0]][0], 
-					selectConditions[args[2]][0], 
-					selectDirections[args[1]][0])};
+				this.test = function(){
+					return objectPosition(selectObjects[args[0]][0], 
+						selectConditions[args[2]][0], 
+						selectDirections[args[1]][0])};
 				break;
 			default:
 				this.test = function(){return false};
@@ -336,6 +357,8 @@ var CondStmt = $.inherit({
 	},
 	convertArguments: function(arguments) {
 		var selects = [selectObjects, selectDirections, selectConditions];
+		var funcDef = this.getFunction();
+		var funcArguments = funcDef ? funcDef.getArguments() : [];
 
 		var args = [];
 
@@ -343,7 +366,8 @@ var CondStmt = $.inherit({
 			if (selects[i][this.args[i]] === undefined) {
 				var j = 0;
 				for (j = 0; j < selects[i].length; ++j) {
-					if (selects[i][j][1] === arguments[this.args[i]]) {
+					var arg = this.args[i];
+					if (selects[i][j][1] === arguments[funcArguments[this.args[i] - selects[i].length]]) {
 						args.push(j);
 						break;
 					}
@@ -999,7 +1023,12 @@ var FuncCall = $.inherit({
 			if (i != 0) {
 				str += ', ';
 			}
-			str += this.argumentsValues[i];
+			if (checkNumber(this.argumentsValues[i]) || checkName(this.argumentsValues[i])) {
+				str += this.argumentsValues[i];
+			}
+			else {
+				str += "u'" + encodeURIComponent(this.argumentsValues[i]) + "'";
+			}
 		}
 		str += ')\n';
 		return str;
@@ -1042,11 +1071,11 @@ var FuncCall = $.inherit({
 		var i = 0;
 		this.arguments = {};
 		
-		for (i = 0; i < Math.min(argumentsList[i].length, argumentsValues.length); ++i) {
+		for (i = 0; i < Math.min(argumentsList.length, argumentsValues.length); ++i) {
 			this.arguments[argumentsList[i]] = argumentsValues[i];
 		}
 
-		if (i != argumentsList[i].length) {
+		if (i != argumentsList.length) {
 			throw "Invalid arguments list ";
 			return false;
 		}

@@ -1442,7 +1442,9 @@ function astForIfexpr(c, n)
 function parsestr(c, s)
 {
     var encodeUtf8 = function(s) { return unescape(encodeURIComponent(s)); };
-    var decodeUtf8 = function(s) { return decodeURIComponent(escape(s)); };
+    var decodeUtf8 = function(s) { 
+		return decodeURIComponent(escape(s)); 
+	};
     var decodeEscape = function(s, quote)
     {
         var len = s.length;
