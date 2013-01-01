@@ -233,9 +233,9 @@
 				"drop_finish": function(data){
 					var node = data.o;
 					
-					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
-					{
+					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
 						node = $(node).parent();
+						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
 						$(node).remove();
 						problem.removeFunctionCall($(node).children('.func-header').html());
 						return true;

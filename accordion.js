@@ -102,6 +102,10 @@
 			$(this).data('myAccordion').arguments = [];
 		},
 
+		clearDiv: function(div) {
+			$(this).data('myAccordion').arguments[$(div).index()] = [];
+		},
+
 		showFunctionNameInput: function(div) {
 			var top = $(div).offset().top;
 			var left = $(div).offset().left;
