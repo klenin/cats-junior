@@ -1,4 +1,4 @@
-function onCreateItem(tree, newNode, type, problem, arguments){
+function onCreateItem(tree, newNode, type, problem, funcId){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
@@ -57,6 +57,7 @@ function onCreateItem(tree, newNode, type, problem, arguments){
 			}
 			break;
 		case 'funccall':
+			var arguments = problem.functionsWithId[funcId].getArguments();
 			for (var i = 0; i < arguments.length; ++i) {
 				$(newNode)
 					.append('<input class="argCallInput"/>')
@@ -66,6 +67,7 @@ function onCreateItem(tree, newNode, type, problem, arguments){
 						}(problem)
 					})
 			}
+			$(newNode).attr('funcId', funcId);
 			break;
 	}
 	$(newNode).prop('id', type + cmdId);

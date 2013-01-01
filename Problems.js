@@ -100,7 +100,7 @@ var Command = $.inherit({
 	updateFunctonName: function(oldName, newName) {
 		return;
 	},
-	removeFunctionCall: function(name) {
+	removeFunctionCall: function(funcId) {
 		return;
 	},
 	highlightWrongNames: function() {
@@ -248,8 +248,8 @@ var ForStmt = $.inherit({
 	updateFunctonName: function(oldName, newName) {
 		this.body.updateFunctonName(oldName, newName);
 	},
-	removeFunctionCall: function(name) {
-		this.body.removeFunctionCall(name);
+	removeFunctionCall: function(funcId) {
+		this.body.removeFunctionCall(funcId);
 	},
 	highlightWrongNames: function() {
 		return;
@@ -337,8 +337,8 @@ var CondStmt = $.inherit({
 	updateFunctonName: function(oldName, newName) {
 		this.body.updateFunctonName(oldName, newName);
 	},
-	removeFunctionCall: function(name) {
-		this.body.removeFunctionCall(name);
+	removeFunctionCall: function(funcId) {
+		this.body.removeFunctionCall(funcId);
 	},
 	highlightWrongNames: function() {
 		return;
@@ -781,9 +781,9 @@ var Block = $.inherit({
 			this.commands[i].updateFunctonName(oldName, newName);
 		}
 	},
-	removeFunctionCall: function(name){
+	removeFunctionCall: function(funcId){
 		for (var i = 0; i < this.commands.length; ++i) {
-			this.commands[i].removeFunctionCall(name);
+			this.commands[i].removeFunctionCall(funcId);
 		}
 	},
 	highlightWrongNames: function() {
@@ -797,7 +797,7 @@ var Block = $.inherit({
 });
 
 var FuncDef = $.inherit({
-	__constructor : function(name, argumentsList, body, parent, id, problem) {
+	__constructor : function(name, argumentsList, body, parent, id, funcId, problem) {
 		this.name = name;
 		this.body = body;
 		this.argumentsList = argumentsList.clone();
@@ -806,6 +806,7 @@ var FuncDef = $.inherit({
 		this.finished = false;
 		this.id = id;
 		this.problem.functions[this.name] = this; //cheat!!! needs to be reworked
+		this.funcId = funcId;
 	},
 	isFinished: function(){
 		return this.finished;
@@ -873,26 +874,26 @@ var FuncDef = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		var c = cmdId;
-		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList);
+		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, this.funcId);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
 			++cmdId;
 		});
 		createJsTreeForFunction('#funcDef-' + c, this.problem);
 	},
-	updateFunctonName: function (oldName, newName){
-		if (this.name == oldName)
+	updateFunctonName: function (funcId, newName){
+		if (this.funcId == funcId)
 		{
 			this.name = newName;
 			this.updateJstreeObject();
-			this.body.updateFunctonName(oldName, newName);
+			this.body.updateFunctonName(funcId, newName);
 		}
 	},
 	updateJstreeObject: function(){
 		$('#' + this.id).children('.func-header').text(this.name);
 	},
-	removeFunctionCall: function (name){
-		this.body.removeFunctionCall(name);
+	removeFunctionCall: function (funcId){
+		this.body.removeFunctionCall(funcId);
 	},
 	highlightWrongNames: function() {
 		if (!checkName(this.name)) {
@@ -911,13 +912,14 @@ var FuncDef = $.inherit({
 });
 
 var FuncCall = $.inherit({
-	__constructor : function(name, argumentsValues, parent, id, problem) {
+	__constructor : function(name, argumentsValues, parent, id, funcId, problem) {
 		this.name = name;
 		this.parent = parent;
 		this.problem = problem;
 		this.executing = false;
 		this.id = id;
 		this.argumentsValues = argumentsValues.clone();
+		this.funcId = funcId;
 	},
 	isFinished: function(){
 		funcDef = this.getFuncDef();
@@ -1043,10 +1045,11 @@ var FuncCall = $.inherit({
 				for (var i = 0; i < self.argumentsValues.length; ++i) {
 					$(newNode).children('input:eq(' + i + ')').val(self.argumentsValues[i]);
 				}
+				$(newNode).attr('funcId', this.funcId);
 			}, true); 	
 	},
-	updateFunctonName: function(oldName, newName) {
-		if (this.name == oldName) {
+	updateFunctonName: function(funcId, newName) {
+		if (this.funcId == funcId) {
 			this.name = newName;
 			this.updateJstreeObject();
 		}
@@ -1054,8 +1057,8 @@ var FuncCall = $.inherit({
 	updateJstreeObject: function(){
 		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 	},
-	removeFunctionCall: function (name){
-		if (this.name == name) {
+	removeFunctionCall: function (funcId){
+		if (this.funcId == funcId) {
 			$('#' + this.id).remove();
 		}
 	},
@@ -1425,6 +1428,7 @@ var Problem = $.inherit({
 	},
 	updated: function(){
 		this.functions = {};
+		this.functionsWithId = [];
 		this.numOfFunctions = 0;
 		var accordion = $('#accordion' + this.tabIndex);
 		var newCmdList = new Block([], undefined, this);
@@ -1432,8 +1436,9 @@ var Problem = $.inherit({
 			var div =  accordion.children('.funccall:eq(' + i + ')');
 			var name = accordion.myAccordion('getFunctionName', div);
 			var id = $(div).attr('id');
+			var funcId = $(div).attr('funcId');
 			var argumentsList = accordion.myAccordion('getArguments', div);
-			var code = convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, id, argumentsList);
+			var code = convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, id, argumentsList, funcId);
 			newCmdList.pushCommand(code);
 		}
 
@@ -1467,16 +1472,16 @@ var Problem = $.inherit({
 		this.highlightWrongNames();
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
-	updateFunctonName: function(oldName, newName) {
-		if (!this.functions[oldName]) {
-			this.cmdList.updateFunctonName(oldName, newName);
-		}
+	updateFunctonName: function(funcId, newName) {
+		//if (!this.functions[oldName]) {
+			this.cmdList.updateFunctonName(funcId, newName);
+		//}
 	},
-	removeFunctionCall: function(name) {
+	removeFunctionCall: function(funcId) {
 		this.updated();
-		if (!this.functions[name]){
-			this.cmdList.removeFunctionCall(name);	
-		}
+		//if (!this.functions[name]){
+			this.cmdList.removeFunctionCall(funcId);	
+		//}
 		this.highlightWrongNames();
 	},
 	highlightWrongNames: function() {

@@ -103,14 +103,18 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem, funcName, id, arguments){
+function convert(commands, parent, problem, funcName, id, arguments, funcId){
 	var block = new Block([], parent, problem);
 	var func = undefined;
 	if (funcName) {
-		func = new FuncDef(funcName, arguments, [], parent, id, problem);
+		func = new FuncDef(funcName, arguments, [], parent, id, funcId, problem);
 		block = new Block([], func, problem);
 		func.body = block;
-		problem.functions[funcName] = func;
+		if (!problem.functions[funcName]) {
+			problem.functions[funcName] = [];
+		}
+		problem.functions[funcName][arguments.length] = func;
+		problem.functionsWithId[funcId] = func;
 		++problem.numOfFunctions;
 	}
 	for (var i = 0; i < commands.length; ++i){
@@ -148,7 +152,8 @@ function convert(commands, parent, problem, funcName, id, arguments){
 			for (var j = 0; j < $('#' + id).children('input').length; ++j) {
 				arguments.push($('#' + id).children('input:eq(' + j + ')').val());
 			}
-			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id).text().split(' ').join(''), arguments,  block, id, problem));
+			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : 
+				$('#' + id).text().split(' ').join(''), arguments,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
@@ -234,7 +239,8 @@ function convertTreeToCommands(commands, parent, problem)
 							}
 							arguments.push(arg);
 						}
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, problem));
+						var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
+						block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
 						break;
 				}
 				break;
@@ -283,7 +289,7 @@ function convertTreeToCommands(commands, parent, problem)
 				for (var j = 0; j < commands[i].args.args.length; ++j) {
 					arguments.push(commands[i].args.args[j].id.v);
 				}
-				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, problem);
+				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, cmdId, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);

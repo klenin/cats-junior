@@ -221,7 +221,7 @@
 							"create", node, pos, 
 							{'data': name}, 
 							function(newNode){
-								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, problem.functions[name] ? problem.functions[name].getArguments() : []);
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'));
 							}, type != 'funcdef'); 
 					}
 					else {
@@ -237,7 +237,7 @@
 						node = $(node).parent();
 						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
 						$(node).remove();
-						problem.removeFunctionCall($(node).children('.func-header').html());
+						problem.removeFunctionCall($(node).attr('funcId'));
 						return true;
 					}
 

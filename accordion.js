@@ -18,7 +18,7 @@
 			});
 		},
 		
-		push: function(name, arguments) {
+		push: function(name, arguments, funcId) {
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
@@ -30,6 +30,7 @@
 					//'<input id = "input' + cmdId + '"/>'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
+			$('#funcDiv' + cmdId).attr('funcId', funcId === undefined ? cmdId : funcId);
 			//$this.children('div').children('input').hide();
 			$this.data('myAccordion').arguments.push([]);
 			if (!arguments) {
@@ -109,11 +110,15 @@
 		showFunctionNameInput: function(div) {
 			var top = $(div).offset().top;
 			var left = $(div).offset().left;
-			var span = $(div).children('.func-header');
+			var span = div;
 			var value = $(div).html();	
 			var $this = $(this);
 			$(this).myAccordion('showInput', top, left, span, value, 'funcInput', function(oldName, newName, input) {
-				if (oldName != newName && $this.data('myAccordion').problem.functions[newName]) {
+				var span = $this.data('myAccordion').span;
+				var index = $(span).parent().index();
+				var argumentsNum = $this.data('myAccordion').arguments[index].length;
+				if (oldName != newName && $this.data('myAccordion').problem.functions[newName] && 
+					$this.data('myAccordion').problem.functions[newName][argumentsNum]) {
 					if (!confirm('The function with the same name already exists, continue anyway?')) {
 						$(input).focus();
 						return false;
@@ -125,7 +130,7 @@
 					return false;
 				}
 				$($this.data('myAccordion').span).html($(input).val());
-				$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
+				$this.data('myAccordion').problem.updateFunctonName( $(div).parent().attr('funcId'), newName );
 			});
 		},
 
@@ -183,6 +188,7 @@
 				return false;
 			});
 		},
+		
 		sort: function() {
 			for (var i = 0; i < $(this).children('.funccall').length; ++i) {
 				for (var j = 0; j < $(this).children('.funccall').length - i - 1; ++j) {
@@ -197,9 +203,11 @@
 				} 
 			}
 		},
+		
 		getFunctionName: function(div) {
 			return $(div).children('.func-header').text().split(' ').join('');
 		},
+		
 		getArguments: function(div) {
 			var index = $(div).index();
 			var arguments = [];
