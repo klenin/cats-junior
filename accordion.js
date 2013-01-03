@@ -165,6 +165,7 @@
 			var input = $('<input class="' + className + '"\>')
 				.val(value)
 				.css({'top': top, 'left': left, 'width': $(span).css('width')})
+				.attr('funcId', $(span).parent().attr('funcId'))
 				.appendTo('body')
 				.focus();
 
