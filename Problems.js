@@ -825,8 +825,12 @@ var FuncDef = $.inherit({
 		this.problem = problem;
 		this.finished = false;
 		this.id = id;
-		this.problem.functions[this.name] = this; //cheat!!! needs to be reworked
+		if (!this.problem.functions[this.name]) {
+			this.problem.functions[this.name] = [];
+		}
+		this.problem.functions[this.name][this.argumentsList.length] = this; //cheat!!! needs to be reworked
 		this.funcId = funcId;
+		this.problem.functionsWithId[this.funcId] = this;
 	},
 	isFinished: function(){
 		return this.finished;
@@ -1064,7 +1068,7 @@ var FuncCall = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.getFuncDef().getArguments());  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				for (var i = 0; i < self.argumentsValues.length; ++i) {

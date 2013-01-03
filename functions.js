@@ -212,14 +212,12 @@ function convertTreeToCommands(commands, parent, problem)
 	var block = new Block([], parent, problem);
 	for (var i = 0; i < commands.length; ++i)
 	{
-		switch(commands[i]._astname)
-		{
+		switch(commands[i]._astname) {
 			case 'Expr':
 				if (commands[i].value._astname != 'Call' || 
 					commands[i].value.func._astname != 'Name')
 					return undefined;
-				switch(commands[i].value.func.id.v)
-				{
+				switch(commands[i].value.func.id.v) {
 					case 'left':
 					case 'right':
 					case 'forward':
@@ -234,8 +232,13 @@ function convertTreeToCommands(commands, parent, problem)
 						var arguments = [];
 						for (var j = 0; j < commands[i].value.args.length; ++j) {
 							var arg;
-							if (commands[i].value.args[j]._astname == 'Num') {
-								arg = commands[i].value.args[j].n;
+							switch(commands[i].value.args[j]._astname) {
+								case 'Num':
+									arg = commands[i].value.args[j].n;
+									break;
+								case 'Str':
+									arg = commands[i].value.args[j].s.v;
+									break;
 							}
 							arguments.push(arg);
 						}
