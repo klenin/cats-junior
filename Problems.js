@@ -111,6 +111,9 @@ var Command = $.inherit({
 	},
 	updateArguments: function(funcId, arguments) {
 		return;
+	},
+	funcCallUpdated: function() {
+		return;
 	}
 });
 
@@ -262,6 +265,9 @@ var ForStmt = $.inherit({
 	},
 	updateArguments: function(funcId, arguments) {
 		this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		this.body.funcCallUpdated();
 	}
 });
 
@@ -419,6 +425,9 @@ var CondStmt = $.inherit({
 	},
 	updateArguments: function(funcId, arguments) {
 		this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		this.body.funcCallUpdated();
 	}
 });
 
@@ -547,6 +556,9 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	updateArguments: function(funcId, arguments) {
 		this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		this.body.funcCallUpdated();
 	}
 });
 
@@ -665,6 +677,9 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	updateArguments: function(funcId, arguments) {
 		this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		this.body.funcCallUpdated();
 	}
 });
 
@@ -813,6 +828,11 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i) {
 			this.commands[i].updateArguments(funcId, arguments);
 		}
+	},
+	funcCallUpdated: function() {
+		for (var i = 0; i < this.commands.length; ++i) {
+			this.commands[i].funcCallUpdated();
+		}
 	}
 });
 
@@ -937,6 +957,9 @@ var FuncDef = $.inherit({
 		this.argumentsList = arguments.clone();
 		//this.updateJstreeObject();
 		this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		this.body.funcCallUpdated();
 	}
 });
 
@@ -1139,6 +1162,9 @@ var FuncCall = $.inherit({
 			this.updateJstreeObject(arguments);
 		}
 		//this.body.updateArguments(funcId, arguments);
+	},
+	funcCallUpdated: function() {
+		//TODO:
 	}
 });
 
@@ -1541,6 +1567,9 @@ var Problem = $.inherit({
 	},
 	highlightWrongNames: function() {
 		this.cmdList.highlightWrongNames();
+	},
+	funcCallUpdated: function() {
+		this.cmdList.funcCallUpdated();
 	},
 	loop: function(cnt, i){
 		try{

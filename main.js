@@ -291,11 +291,13 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	}).bind("dblclick.jstree", function (e, data) {
-        var node = $(e.target).closest("li");
+        /*var node = $(e.target).closest("li");
         var type = $.jstree._reference(this)._get_type(node);
 		if (type == 'funccall') {
 			$.jstree._reference(this).rename(node);
-		}
+			problem.funcCallUpdated();
+		}*/
+		//TODO:
     });
 	$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 		/*$('#accordion' + problem.tabIndex).accordion();
