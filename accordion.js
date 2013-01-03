@@ -94,6 +94,8 @@
 					var comma = $('<span>, </span>')
 						.insertBefore(argSpan);
 				}
+				$this.data('myAccordion').problem.updateArguments($(this).parent().attr('funcId'), 
+					$this.myAccordion('getArguments', $(this).parent()));
 				$this.data('myAccordion').problem.updated();				
 			});
 		},
