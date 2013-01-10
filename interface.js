@@ -336,7 +336,7 @@ function fillTabs(){
 			    	}
 				}
 			}(i));
-			problems[i].fillLabyrinth();
+			problems[i].initExecutor();
 			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});

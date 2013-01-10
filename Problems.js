@@ -15,7 +15,8 @@ var Command = $.inherit({
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead); ++i)
 		{
-			eval(this.name + '();');
+			this.problem.oneStep(this.name, 1);
+			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
 				this.problem.usedCommands.push(this.id);
@@ -1173,41 +1174,19 @@ var Problem = $.inherit({
 		$.extend(true, this, problem, problem.data);
 		this.cmdIndex = 0; 
 		this.divIndex = 0; 
-		this.step = 0; 
 		this.divName = '';
 		this.speed = 1000; 
-		this.life = problem.data.startLife;
-		this.points = problem.data.startPoints;
 		this.paused = false; 
 		this.stopped = false; 
 		this.playing = false; 
 		this.cmdListEnded = false; 
 		this.cmdList = new Block([], undefined, this);
-		this.mapFromTest = problem.data.map.slice(); 
-		this.map = [];
-		this.maxBoxId = 0; 
-		this.maxMonsterId = 0;
-		this.maxPrizeId = 0; 
-		this.maxCellId = 0;
-		this.monsters = [];
-		this.numOfPrizes = 0;
-		this.curNumOfPrizes = 0; 
-		this.visited = false; 
-		this.dx = 0;
-		this.dy = 0;
 		this.executedCommandsNum = 0;
 		this.lastExecutedCmd = undefined;
 		this.prevCmd = undefined;
 		this.tabIndex = tabIndex;
 		if (this.maxCmdNum)
 			this.maxStep = 0;
-		this.specSymbols = problem.data.specSymbols;
-		this.movingElements = problem.data.movingElements;
-		this.keys = problem.data.keys;
-		this.locks = problem.data.locks
-		this.setLabyrinth(this.specSymbols);
-		this.setMonsters(this.movingElements);
-		this.setKeysAndLocks(this.keys, this.locks);
 		//this.map = jQuery.extend(true, [], this.defaultLabirint);
 		this.curCounter = 0;
 		this.counters = [{'name': 'i', 'cnt': 0}, {'name': 'j', 'cnt': 0}, {'name': 'k', 'cnt': 0}];
@@ -1215,130 +1194,31 @@ var Problem = $.inherit({
 		this.usedCommands = [];
 		this.commandsFine = this.commandsFine ? this.commandsFine : 0;
 		this.stepsFine = this.stepsFine ? this.stepsFine : 0;
-		this.invalidDirectionFine = this.invalidDirectionFine ? this.invalidDirectionFine : 0;
 		this.functions = {};
+		this.functionsWithId = [];
 		this.numOfFunctions = 0;
 	},
-	setLabyrinth: function(specSymbols){
-		var obj = undefined;
-		for (var i = 0; i < this.mapFromTest.length; ++i){
-			this.map[i] = [];
-			for (var j = 0; j < this.mapFromTest[i].length; ++j){
-				this.map[i][j] = [];
-				var c = new Coord(j, i);
-				this.map[i][j] = new FieldElem(this, c,this.mapFromTest[i][j] == "#")
-				if (this.mapFromTest[i][j] == "R" || this.mapFromTest[i][j] == "U" || 
-					this.mapFromTest[i][j] == "D" ||this.mapFromTest[i][j] == "L" ){
-					obj = this.arrow = new Arrow(this, c, dirs[this.mapFromTest[i][j]]);
-				}
-				for (var k = 0; k < specSymbols.length; ++k)
-					if (specSymbols[k].symbol == this.mapFromTest[i][j]){
-						obj = specSymbols[k].action == "eat" ? 
-							new Prize(this, c, specSymbols[k]) : 
-							new Box(this, c,specSymbols[k]) ;
-						if (obj.__self == Prize)
-							++this.numOfPrizes;
-						break;
-					}
-				if (obj)
-					this.map[i][j].pushCell(obj);
-				obj = undefined;
-			}
-		}
+
+	initExecutor: function() {
+		this.executor = new Executor(this, $('#tdField' + this.tabIndex).children('div'));
 	},
-	setMonsters: function(monsters){
-		this.monsters = [];
-		var obj = undefined;
-		for (var k = 0; k < monsters.length; ++k){
-			var c = new Coord(monsters[k].path[0].x, monsters[k].path[0].y);
-			obj = new Monster(this, c, monsters[k]);
-			this.map[c.y][c.x].pushCell(obj);
-			this.monsters.push({'x': c.x, 'y': c.y});
-		}
-	},
-	setKeysAndLocks: function(keys, locks){
-		var obj = undefined;
-		for (var k = 0; k < keys.length; ++k){
-			var c = new Coord(keys[k].x, keys[k].y);
-			obj = new Key(this, c, locks[k]);
-			this.map[c.y][c.x].pushCell(obj);
-			for (var j = 0; j < locks[k].length; ++j){
-				var c1 = new Coord(locks[k][j].x, locks[k][j].y);
-				obj = new Lock(this, c1);
-				this.map[c1.y][c1.x].pushCell(obj);
-			}
-		}
-	},
-	fillLabyrinth: function(){
-		this.highlightOn();//
-		var l = this.tabIndex;
-		$('#tdField' + l).append('<table id = "table_field' + l + '" class = "field"></table>');
-		var table = $('#table_field' + l);
-		for (var i = 0; i < this.map.length; ++i){
-			table.append('<tr id = "tr_field' + (l * 1000 + i) + '"></tr>');
-			var tr = $('#tr_field' + (l * 1000 + i));
-			for (var j = 0; j < this.map[i].length; ++j){
-				tr.append('<td id = "'+ (l * 10000 + i * 100 + j)+'"></td>');
-				this.map[i][j].draw();
-			}
-		}
-	},
-	highlightOn: function(){
-		for (var i = 0; i < this.map.length; ++i)
-			this.map[i][this.arrow.coord.x].highlightOn();
-		for (var i = 0; i < this.map[0].length; ++i)
-			this.map[this.arrow.coord.y][i].highlightOn();
-	},
-	highlightOff: function(){
-		for (var i = 0; i < this.map.length; ++i)
-			this.map[i][this.arrow.coord.x].highlightOff();
-		for (var i = 0; i < this.map[0].length; ++i)
-			this.map[this.arrow.coord.y][i].highlightOff();
-	},
-	drawLabirint: function(){
-		for (var i = 0; i < this.map.length; ++i)
-			for (var j = 0; j < this.map[i].length; ++j)
-				this.map[i][j].draw();
-	},
-	setDefault: function(f){
+
+	setDefault: function(f) {
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('enable');	
 		//$('#jstree-container' + this.tabIndex).sortable('enable');
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
-		this.setLabyrinth(this.specSymbols);
-		this.setMonsters(this.movingElements);
-		this.setKeysAndLocks(this.keys, this.locks);
-		for (var i = 0; i < this.map.length; ++i){
-			for (var j = 0; j < this.map[i].length; ++j){
-				var arr = this.map[i][j].changedCells();
-				for (var k = 0; k < arr.length; ++k){
-					this.map[arr[k].coord.y][arr[k].coord.x].pushCell(arr[k]);
-					switch(arr[k].__self){
-						case Arrow: 
-							this.arrow = arr[k];
-							break;
-						case Monster:
-							this.monsters[arr[k].id] = arr[k];
-							this.monsters[arr[k].id].x = arr[k].coord.x;
-							this.monsters[arr[k].id].y = arr[k].coord.y;
-							break;
-					}
-				}
-			}
 
-		}
-		this.highlightOn();
+		/*executor.setDefault(f)*/
+
 		this.arrow.setDefault();
 		this.paused = false;
 		this.stopped = false;
 		this.playing = false;
-		this.points = 0;
 		this.cmdListEnded = false;
-		this.curNumOfPrizes = 0;
 		this.cmdIndex = 0;
 		this.divIndex = 0;
-		this.step = 0;
 		this.divName = this.cmdList.length ? this.cmdList[0].name : "";
 		this.prevCmd = undefined;
 		this.lastExecutedCmd = undefined;
@@ -1350,7 +1230,6 @@ var Problem = $.inherit({
 		this.hideFocus();
 		this.cmdHighlightOff();
 		if (!f){
-			this.drawLabirint();
 			this.changeProgressBar();
 		}
 		$("#cons" + this.tabIndex).empty();
@@ -1571,7 +1450,7 @@ var Problem = $.inherit({
 	funcCallUpdated: function() {
 		this.cmdList.funcCallUpdated();
 	},
-	loop: function(cnt, i){
+	loop: function(cnt, i) {
 		try{
 			if (!this.playing || this.paused)
 				return;// cheat
@@ -1597,7 +1476,7 @@ var Problem = $.inherit({
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
-	heroIsDead: function(){
+	heroIsDead: function() {
 		for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('disable');
 		$('#btn_stop' + this.tabIndex).button('enable');
@@ -1607,12 +1486,12 @@ var Problem = $.inherit({
 		this.playing = false;
 		this.hideFocus();
 	},
-	nextCmd: function(){
+	nextCmd: function() {
 		if (this.speed)
 			this.changeProgressBar();
 		return true;
 	},
-	notSpeed: function(){ //check! looks like outdated
+	notSpeed: function() { //check! looks like outdated
 		this.speed = 100;
 		this.setCounters(0, true);
 		var lastCmd = (this.divI() >= this.list().length) ? 
@@ -1622,7 +1501,7 @@ var Problem = $.inherit({
 		this.drawLabirint();
 		this.changeProgressBar();
 	},
-	nextStep: function(cnt, i){
+	nextStep: function(cnt, i) {
 		if (this.arrow.dead || this.stopped){
 			if (this.arrow.dead)
 				this.heroIsDead();
@@ -1653,14 +1532,12 @@ var Problem = $.inherit({
 				onFinishExecuting(getCurProblem());
 		}
 	},
-	highlightLast: function()
-	{
-		if (this.lastExecutedCmd && !isCmdHighlighted(this.lastExecutedCmd.id))
-		{
+	highlightLast: function() {
+		if (this.lastExecutedCmd && !isCmdHighlighted(this.lastExecutedCmd.id))	{
 			this.lastExecutedCmd.highlightOn()
 		}
 	},
-	play: function(cnt){
+	play: function(cnt) {
 		try{
 			if (!this.speed)
 			{
@@ -1697,24 +1574,9 @@ var Problem = $.inherit({
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
-	oneStep: function(dir, cnt)
-	{
-		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i)
-		{
-			var x = this.arrow.coord.x;
-			var y = this.arrow.coord.y;
-			this.dx = changeDir[dir][this.arrow.dir].dx;
-			this.dy = changeDir[dir][this.arrow.dir].dy;
-			this.changeLabyrinth(this.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.speed);
-			++this.step;
-			if (this.stepsFine){
-				this.points -= this.stepsFine;
-				var mes = new MessageStepFine(this.step - 1, this.points);
-			}
-			if (this.maxStep && this.step == this.maxStep)
-				break;
-		}
-		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()){
+	oneStep: function(dir, cnt) {
+
+		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()) {
 			++this.divIndex;
 			if (this.commandsFine){
 				this.points -= this.commandsFine;
@@ -1736,9 +1598,7 @@ var Problem = $.inherit({
 
 		return this.cmdList.convertToCode(0);
 	},
-	labirintOverrun: function(x, y){
-		return (x >= this.map[0].length || x < 0 || y >= this.map.length || y < 0);
-	},
+
 	die: function(){
 		var mes = new MessageDead();
 		this.arrow.dead = true;
@@ -1746,156 +1606,7 @@ var Problem = $.inherit({
 			$('#btn_' + btnsPlay[i] + this.tabIndex).button('disable');
 		$('#btn_pause' + this.tabIndex).button('disable');		
 	},
-	tryNextCoord: function(i, changedElems){
-		var p = this.tabIndex;
-		var result = true;
-		var cX = this.arrow.coord.x + this.dx;
-		var cY = this.arrow.coord.y + this.dy;
-		if (this.labirintOverrun(cX, cY)){
-			var mes = new MessageLabirinthOverrun(i);
-			result = false;
-		}
-		else {
-			var elem = this.map[cY][cX];
-			if (elem.isWall){
-				var mes = new MessageWall(i);
-				result = false;
-			}
-			var cells = elem.getCells();
-			for (var j = 0; !elem.isWall && j < cells.length; ++j){
-				if (cells[j].__self == Lock && cells[j].locked){
-					var mes = new MessageWall(i);
-					result = false;
-					break;
-				}
-				if (cells[j].__self == Monster){
-					this.die();
-					break;
-				}
-				if (cells[j].__self == Box){
-					var tX = cX + this.dx;
-					var tY = cY + this.dy;
-					var f = this.labirintOverrun(tX, tY);
-					if (!f){
-						var el1 = this.map[tY][tX];
-						f = el1.isWall;
-						var cells1 = el1.getCells();
-						for (var k = 0; k < cells1.length; ++k)
-							f = f || (cells1[k].zIndex >= cells[j].zIndex);
-					}
-					if (f){
-						var mes = new MessageCantMove(i);
-						result = false;
-					}
-					else{
-						var box = cells[j];
-						this.map[cY][cX].deleteElement(cells[j]);
-						box.coord = new Coord(tX, tY);
-						this.map[tY][tX].pushCell(box);
-						changedElems.push(new Coord(tX, tY));
-						--j;
-						continue;
-					}
-				}
-				if (cells[j].__self == Prize && !cells[j].eaten){
-					cells[j].eaten = true;
-					var mes = new MessagePrizeFound(i, cells[j].name, (this.points + cells[j].points), 
-						++this.curNumOfPrizes == this.numOfPrizes);
-					this.life += cells[j].dLife;
-					this.points += cells[j].points;
-					this.map[cY][cX].deleteElement(cells[j]);
-					--j;
-					continue;
-				}
-				if (cells[j].__self == Key && !cells[j].found){
-					for (var k = 0; k < cells[j].locks.length; ++k){
-						var x = cells[j].locks[k].x;
-						var y = cells[j].locks[k].y;
-						var mes = new MessageCellOpened(i, x, y);
-						var cells1 = this.map[y][x].getCells();
-						for(var l = 0; l < cells1.length; ++l)
-							if(cells1[l].__self == Lock)
-								cells1[l].setUnlocked();
-						changedElems.push(new Coord(x, y));
-					}
-					cells[j].found = true;
-					this.map[cY][cX].deleteElement(cells[j]);					
-					--j;
-					continue;
-				}						
-			}
-		}
-		return result;
-	},
-	changeLabyrinth: function(i, cnt, newDir, dontNeedToDraw){
-		var p = this.tabIndex;
-		this.life += this.dLife;
-		var changedElems = [];
-		var cX = this.arrow.coord.x + this.dx;
-		var cY = this.arrow.coord.y + this.dy;
-		changedElems.push(new Coord(this.arrow.coord.x, this.arrow.coord.y));
-		var changeCoord = this.tryNextCoord(i, changedElems);
-		if (changeCoord){
-			for (var i = 0; i < this.map.length; ++i){
-				this.map[i][this.arrow.coord.x].highlightOff();
-				if (i != this.arrow.coord.y)
-					changedElems.push(new Coord(this.arrow.coord.x, i));
-			}
-			for (var i = 0; i < this.map[0].length; ++i){
-				this.map[this.arrow.coord.y][i].highlightOff();
-				if (i != this.arrow.coord.x)
-					changedElems.push(new Coord(i, this.arrow.coord.y));
-			}
-			this.map[this.arrow.coord.y][this.arrow.coord.x].deleteElement(this.arrow);
-			this.arrow.coord = new Coord(cX, cY);
-			this.arrow.dir = newDir;
-			this.map[cY][cX].pushCell(this.arrow);
-		}
-		else if(this.invalidDirectionFine){
-			this.points -= this.invalidDirectionFine;
-			var mes = new MessageInvalidDirectionFine(this.step, this.points);
-		}
-		if (!this.arrow.dead){
-			for (var k = 0; k < this.monsters.length; ++k){
-				var elem = this.map[this.monsters[k].y][this.monsters[k].x];
-				var m = elem.findCell(Monster, k);
-				var c = m.tryNextStep();
-				var elem1 = this.map[c.y][c.x];
-				if (elem1.mayPush(m)){
-					elem.deleteElement(m);
-					m.nextStep();
-					m.coord = c;
-					changedElems.push(c);
-					changedElems.push(new Coord(this.monsters[k].x, this.monsters[k].y));
-					elem1.pushCell(m);
-					if (c.x == this.arrow.coord.x && c.y == this.arrow.coord.y)
-						this.die();
-					this.monsters[k].x = c.x;
-					this.monsters[k].y = c.y;
-				}
-				else{
-					++m.path[m.pathIndex].cnt;
-				}
-			}
-		}
-		if (changeCoord && 	!this.arrow.dead){
-			changedElems.push(new Coord(cX, cY));
-			for (var i = 0; i < this.map.length; ++i){
-				this.map[i][this.arrow.coord.x].highlightOn();
-				if (i != this.arrow.coord.y)
-					changedElems.push(new Coord(this.arrow.coord.x, i));
-			}
-			for (var i = 0; i < this.map[0].length; ++i){
-				this.map[this.arrow.coord.y][i].highlightOn();
-				if (i != this.arrow.coord.x)
-					changedElems.push(new Coord(i, this.arrow.coord.y));
-			}
-		}
-		if (!dontNeedToDraw){
-			for (var i = 0; i < changedElems.length; ++i)
-				this.map[changedElems[i].y][changedElems[i].x].draw();
-		}
-	},
+	
 	hideCounters: function(){
 		this.cmdList.hideCounters();
 
@@ -1903,6 +1614,7 @@ var Problem = $.inherit({
 	showCounters: function(){
 		this.cmdList.showCounters();
 	},
+	
 	submit: function(){
 		var result;
 		if ($('#codeMode' + this.tabIndex).prop('checked'))
@@ -1921,11 +1633,13 @@ var Problem = $.inherit({
 			submit(result, this.id);
 		}
 	},
+	
 	exportCommands: function(){
 		$('#export' + this.tabIndex).html(this.convertCommandsToCode());
 		$('#export' + this.tabIndex).dialog('open');
 		return false;
 	},
+	
 	callPlay: function(s){
 		if (!this.checkLimit()){
 			return;
@@ -1965,6 +1679,7 @@ var Problem = $.inherit({
 			$('#cons' + this.tabIndex).html('Некорректный код');
 		}
 	},
+	
 	prepareForExecuting: function(dontHighlight)
 	{
 		var problem = this.tabIndex;
@@ -1978,6 +1693,7 @@ var Problem = $.inherit({
 			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
 		}
 	},
+	
 	compileCode: function(){
 		try{
 			var problem = this.tabIndex;
@@ -2020,6 +1736,7 @@ var Problem = $.inherit({
 			}
 		}
 	},
+	
 	stop: function(){
 		this.stopped = true;
 		this.setDefault();
@@ -2028,14 +1745,17 @@ var Problem = $.inherit({
 		this.setCounters();
 		this.playing = false;
 	},
+	
 	pause: function(){
 		if (this.playing)			
 			this.paused = true;
 		this.enableButtons();
 	},
+	
 	codeMode: function(){
 		return $('#codeMode' + this.tabIndex).prop('checked');
 	},
+	
 	next: function(){
 		if (!this.checkLimit()){
 			return;
@@ -2107,6 +1827,7 @@ var Problem = $.inherit({
 			}
 		}
 	},
+	
 	prev: function(){
 		try {
 		var t = this.executedCommandsNum;
@@ -2141,18 +1862,7 @@ var Problem = $.inherit({
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
-	getFieldElem: function(dir)
-	{
-		var newDir = changeDir[dir][this.arrow.dir];
-		var cX = this.arrow.coord.x + newDir.dx;
-		var cY = this.arrow.coord.y + newDir.dy;
-		if (dir != 'forward' && dir != 'behind')
-		{
-			cX += changeDir['forward'][newDir.curDir].dx;
-			cY += changeDir['forward'][newDir.curDir].dy;
-		}
-		return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
-	},
+	
 	checkLimit: function(){
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
