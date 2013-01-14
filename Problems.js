@@ -1200,7 +1200,7 @@ var Problem = $.inherit({
 	},
 
 	initExecutor: function(data) {
-		this.executor = new Executor(this, data, $('#tdField' + this.tabIndex).children('div'));
+		this.executor = new ExecutorWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), data.executorName ? data.executorName : 'arrowInLabyrinth');
 	},
 
 	setDefault: function(f) {
@@ -1574,9 +1574,9 @@ var Problem = $.inherit({
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
-	oneStep: function(dir, cnt) {
+	oneStep: function(command, cnt) {
 		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
-			this.executor.oneStep(dir);
+			this.executor.executeCommand(command);
 			++this.step;
 			if (this.maxStep && this.step == this.maxStep)
 				continue;

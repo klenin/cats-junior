@@ -1,4 +1,4 @@
-var Executor = $.inherit({
+var ArrowInLabyrinth = $.inherit({
 	__constructor: function(problem, problemData, div) {
 		this.data = {};
 		$.extend(true, this.data, problemData.data);
@@ -11,7 +11,6 @@ var Executor = $.inherit({
 	},
 
 	initLabyrinth: function() {
-		this.step = 0; 
 		this.life = this.data.startLife;
 		this.points = this.data.startPoints;
 		this.mapFromTest = this.data.map.slice(); 
@@ -38,7 +37,7 @@ var Executor = $.inherit({
 		this.fillLabyrinth();
 	},
 
-	setDefault: function(f) {
+	setDefault: function(dontDraw) {
 		this.setLabyrinth(this.specSymbols);
 		this.setMonsters(this.movingElements);
 		this.setKeysAndLocks(this.keys, this.locks);
@@ -65,7 +64,7 @@ var Executor = $.inherit({
 		this.arrow.setDefault();
 		this.points = this.data.startPoints;
 		this.curNumOfPrizes = 0;
-		if (!f){
+		if (!dontDraw){
 			this.drawLabyrint();
 		}
 	},
@@ -157,7 +156,7 @@ var Executor = $.inherit({
 	},
 
 	executeCommand: function(command) {
-		if (!(command in this.data.commands)) {
+		if (this.data.commands.indexOf(command) === -1) {
 			throw 'Invalid command';
 		}
 		this.oneStep(command, 1);
