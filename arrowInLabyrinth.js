@@ -1,9 +1,10 @@
 var Executor = $.inherit({
-	__constructor: function(problemData, div) {
+	__constructor: function(problem, problemData, div) {
 		this.data = {};
-		$.extend(true, this.data, problemData);
+		$.extend(true, this.data, problemData.data);
 		this.div = div;
 		$(this.div).empty();
+		this.problem = problem;
 		this.table = $('<table style="border-spacing: 0px"></table>')
 			.appendTo(this.div);
 		this.initLabyrinth();
@@ -65,7 +66,7 @@ var Executor = $.inherit({
 		this.points = this.data.startPoints;
 		this.curNumOfPrizes = 0;
 		if (!f){
-			this.drawLabirint();
+			this.drawLabyrint();
 		}
 	},
 	
@@ -149,7 +150,7 @@ var Executor = $.inherit({
 			this.map[this.arrow.coord.y][i].highlightOff();
 	},
 	
-	drawLabirint: function() {
+	drawLabyrint: function() {
 		for (var i = 0; i < this.map.length; ++i)
 			for (var j = 0; j < this.map[i].length; ++j)
 				this.map[i][j].draw();
@@ -162,21 +163,16 @@ var Executor = $.inherit({
 		this.oneStep(command, 1);
 	},
 
-	oneStep: function(dir, cnt) {
+	oneStep: function(dir) {
 		var x = this.arrow.coord.x;
 		var y = this.arrow.coord.y;
 		this.dx = changeDir[dir][this.arrow.dir].dx;
 		this.dy = changeDir[dir][this.arrow.dir].dy;
-		this.changeLabyrinth(this.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.speed);
-		++this.step;
+		this.changeLabyrinth(this.problem.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.problem.speed);
 		if (this.stepsFine){
 			this.points -= this.stepsFine;
-			var mes = new MessageStepFine(this.step - 1, this.points);
+			var mes = new MessageStepFine(this.problem.step, this.points);
 		}
-		if (this.maxStep && this.step == this.maxStep)
-			return;
-		this.checkLimit();
-		
 	},
 
 	labirintOverrun: function(x, y){
@@ -289,7 +285,7 @@ var Executor = $.inherit({
 		}
 		else if(this.invalidDirectionFine){
 			this.points -= this.invalidDirectionFine;
-			var mes = new MessageInvalidDirectionFine(this.step, this.points);
+			var mes = new MessageInvalidDirectionFine(this.problem.step, this.points);
 		}
 		if (!this.arrow.dead){
 			for (var k = 0; k < this.monsters.length; ++k){
@@ -343,6 +339,27 @@ var Executor = $.inherit({
 			cY += changeDir['forward'][newDir.curDir].dy;
 		}
 		return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
+	},
+	
+	isDead: function() {
+		return this.arrow.dead;
+	},
+
+	die: function() {
+		this.arrow.dead = true;
+		this.problem.die();
+	},
+
+	heroIsDead: function() {
+		this.arrow.dead = true;
+	},
+	
+	draw: function() {
+		this.drawLabyrint();
+	},
+
+	getPoints: function() {
+		return this.points;
 	}
 });
 

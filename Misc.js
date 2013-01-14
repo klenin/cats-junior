@@ -183,7 +183,7 @@ function tryNextStep_(){
 				eval(finalcode[problem].code);
 			}catch(e)
 			{
-				console.log(e);
+				console.error(e);
 				$('#cons' + problem).append('\n' + e + '\n');
 				return 0;
 
@@ -256,7 +256,7 @@ function tryCode()
 		//$gbl[problem]['my_function'] = my_function;
 		//curProblem.updateWatchList();
 	} catch (e) {
-		console.log(e);
+		console.error(e);
 		alert(e);
 	}
 }

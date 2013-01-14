@@ -64,7 +64,7 @@ function changeUser(){
 	try{ //temporary wa
 		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
 	}catch(e){
-		console.log(e);
+		console.error(e);
 	}
 	sid = undefined;
 	logined = false;
@@ -294,7 +294,7 @@ function fillTabs(){
 							}
 						}
 						catch(e){
-							console.log(e);
+							console.error(e);
 							++cmdId;
 							problems[j].updated();
 							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -336,7 +336,7 @@ function fillTabs(){
 			    	}
 				}
 			}(i));
-			problems[i].initExecutor();
+			problems[i].initExecutor(data[i]);
 			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});

@@ -216,7 +216,7 @@
 			var arguments = [];
 			var l = $(this).data('myAccordion').arguments[index].length;
 			for (var k = 0; k < l && typeof $(this).data('myAccordion').arguments[index][k] === 'object'; ++k) {
-				console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
+				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
 				arguments.push($(this).data('myAccordion').arguments[index][k].html().split(' ').join(''))
 			}
 			return arguments;

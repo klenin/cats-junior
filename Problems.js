@@ -13,7 +13,7 @@ var Command = $.inherit({
 	exec: function(cnt, arguments) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead); ++i)
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()); ++i)
 		{
 			this.problem.oneStep(this.name, 1);
 			//eval(this.name + '();');
@@ -718,7 +718,7 @@ var Block = $.inherit({
 	exec: function(cnt, arguments)
 	{
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt, arguments);
@@ -1199,8 +1199,8 @@ var Problem = $.inherit({
 		this.numOfFunctions = 0;
 	},
 
-	initExecutor: function() {
-		this.executor = new Executor(this, $('#tdField' + this.tabIndex).children('div'));
+	initExecutor: function(data) {
+		this.executor = new Executor(this, data, $('#tdField' + this.tabIndex).children('div'));
 	},
 
 	setDefault: function(f) {
@@ -1210,9 +1210,9 @@ var Problem = $.inherit({
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 
-		/*executor.setDefault(f)*/
+		this.executor.setDefault(f);
 
-		this.arrow.setDefault();
+		//this.arrow.setDefault();
 		this.paused = false;
 		this.stopped = false;
 		this.playing = false;
@@ -1317,14 +1317,14 @@ var Problem = $.inherit({
 					this.updateWatchList();
 				}catch(e)
 				{
-					console.log(e);
+					console.error(e);
 					$('#cons' + problem).append('\n' + e + '\n');
 					return 0;
 
 				}
 			}
 			++this.executedCommandsNum;
-			this.drawLabirint();
+			this.executor.draw();
 			if (getCurBlock() >= 0)
 			{
 				var b = getCurBlock();
@@ -1472,7 +1472,7 @@ var Problem = $.inherit({
 			}
 			this.nextStep(cnt - 1, ++i);	
 		} catch(e) {
-			console.log(e);
+			console.error(e);
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
@@ -1498,12 +1498,12 @@ var Problem = $.inherit({
 			$('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
 		if (!isCmdHighlighted(lastCmd))
 			changeCmdHighlight(lastCmd);
-		this.drawLabirint();
+		this.executor.draw();
 		this.changeProgressBar();
 	},
 	nextStep: function(cnt, i) {
-		if (this.arrow.dead || this.stopped){
-			if (this.arrow.dead)
+		if (this.executor.isDead() || this.stopped){
+			if (this.executor.isDead()) //check it!!!
 				this.heroIsDead();
 			if (this.stopped)
 			{
@@ -1525,7 +1525,7 @@ var Problem = $.inherit({
 		}
 		else
 		{
-			this.drawLabirint();
+			this.executor.draw();
 			this.changeProgressBar();
 			this.enableButtons();
 			if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked'))
@@ -1560,7 +1560,7 @@ var Problem = $.inherit({
 						this.playing = false;
 				}
 				this.changeProgressBar();
-				this.drawLabirint();
+				this.executor.draw();
 				this.enableButtons();
 				
 				this.cmdList.highlightOff();//inefficiency!!!!!!!!
@@ -1570,11 +1570,18 @@ var Problem = $.inherit({
 			else
 				this.nextStep(cnt);
 		} catch(e) {
-			console.log(e);
+			console.error(e);
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
 	oneStep: function(dir, cnt) {
+		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
+			this.executor.oneStep(dir);
+			++this.step;
+			if (this.maxStep && this.step == this.maxStep)
+				continue;
+			this.checkLimit();
+		}
 
 		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()) {
 			++this.divIndex;
@@ -1601,7 +1608,6 @@ var Problem = $.inherit({
 
 	die: function(){
 		var mes = new MessageDead();
-		this.arrow.dead = true;
 		for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).button('disable');
 		$('#btn_pause' + this.tabIndex).button('disable');		
@@ -1644,7 +1650,7 @@ var Problem = $.inherit({
 		if (!this.checkLimit()){
 			return;
 		}
-		if (!this.playing || this.arrow.dead)
+		if (!this.playing || this.executor.isDead())
 		{
 			this.setCounters();
 			this.hideCounters();
@@ -1674,7 +1680,7 @@ var Problem = $.inherit({
 		}
 		catch(e)
 		{
-			console.log(e);
+			console.error(e);
 			this.playing = false;
 			$('#cons' + this.tabIndex).html('Некорректный код');
 		}
@@ -1723,7 +1729,7 @@ var Problem = $.inherit({
 			this.changed = false;
 		}
 		catch(e){
-			console.log(e);
+			console.error(e);
 			var problem = this.tabIndex;
 			finalcode[problem] = undefined;
 			$scope[problem] = undefined,
@@ -1776,7 +1782,7 @@ var Problem = $.inherit({
 			}
 			catch (e)
 			{
-				console.log(e);
+				console.error(e);
 				this.playing = false;
 				$('#cons' + this.tabIndex).append(e);
 			}
@@ -1817,12 +1823,12 @@ var Problem = $.inherit({
 				this.changeProgressBar();
 				++this.executedCommandsNum;
 				this.highlightLast();
-				this.drawLabirint();
+				this.executor.draw();
 				if (this.cmdList.isFinished())
 					this.playing = false;
 			}
 			catch(e){
-				console.log(e);
+				console.error(e);
 				$('#cons' + this.tabIndex).append(e);
 			}
 		}
@@ -1858,7 +1864,7 @@ var Problem = $.inherit({
 		this.play(t);
 		} 
 		catch(e) {
-			console.log(e);
+			console.error(e);
 			$('#cons' + this.tabIndex).append(e);
 		}
 	},
@@ -1867,7 +1873,7 @@ var Problem = $.inherit({
 		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
-			this.arrow.dead = true;
+			this.executor.heroIsDead();
 			//this.stopped = true;
 			this.heroIsDead();
 			return false;

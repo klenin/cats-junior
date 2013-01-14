@@ -29,7 +29,7 @@ function callScript(url, callback){
 				if(url.search('rank_table_content') == -1){
 					alert('Ошибка подключения к серверу');
 				}
-				console.log(jqXHR, textStatus, errorThrown);
+				console.error(jqXHR, textStatus, errorThrown);
 			}
 		});
 	} 
