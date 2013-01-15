@@ -1174,6 +1174,7 @@ var Problem = $.inherit({
 		$.extend(true, this, problem, problem.data);
 		this.cmdIndex = 0; 
 		this.divIndex = 0; 
+		this.step = 0;
 		this.divName = '';
 		this.speed = 1000; 
 		this.paused = false; 
@@ -1219,6 +1220,7 @@ var Problem = $.inherit({
 		this.cmdListEnded = false;
 		this.cmdIndex = 0;
 		this.divIndex = 0;
+		this.step = 0;
 		this.divName = this.cmdList.length ? this.cmdList[0].name : "";
 		this.prevCmd = undefined;
 		this.lastExecutedCmd = undefined;
@@ -1870,7 +1872,7 @@ var Problem = $.inherit({
 	},
 	
 	checkLimit: function(){
-		if (this.maxCmdNum && this.divIndex == this.maxCmdNum || 
+		if (this.maxCmdNum && this.divIndex > this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
 			this.executor.heroIsDead();
