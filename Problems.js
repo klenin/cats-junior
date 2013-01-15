@@ -56,8 +56,9 @@ var Command = $.inherit({
 	},
 	
 	showCounters: function() {
-		$('#' + this.id + ' > span > img').show();		
-		$('#' + this.id + ' > span > input').show();			
+		$('#' + this.id + ' > span > img').show();	
+		$('#' + this.id + ' > span > input').html(this.cnt);	
+		$('#' + this.id + ' > span > input').show();
 		var numId = $('#' + this.id).prop('numId');
 		$('#spinCnt' + numId).hide();
 	},
@@ -1055,6 +1056,7 @@ var FuncDef = $.inherit({
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
 			++cmdId;
+			self.problem.updated();
 		});
 		createJsTreeForFunction('#funcDef-' + c, this.problem);
 	},

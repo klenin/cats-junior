@@ -86,7 +86,7 @@ function objectPosition(object, condition, direction){
 		default:
 			return false; //should we throw exception?
 	}
-	var cell = curProblem.getFieldElem(dir);
+	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
 	switch(object){
 		case 'wall':
 			result = cell.isWall;
@@ -107,7 +107,7 @@ function objectPosition(object, condition, direction){
 			result = cell.findCell(Key) != undefined;
 			break;
 		case 'border':
-			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
+			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;
@@ -136,7 +136,7 @@ function objectPosition_handler(object, direction){
 		default:
 			return false; //should we throw exception?
 	}
-	var cell = curProblem.getFieldElem(dir);
+	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
 	switch(object.v){
 		case 'wall':
 			result = cell.isWall;
@@ -157,7 +157,7 @@ function objectPosition_handler(object, direction){
 			result = cell.findCell(Key) != undefined;
 			break;
 		case 'border':
-			result = curProblem.labirintOverrun(cell.coord.x, cell.coord.y);
+			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;

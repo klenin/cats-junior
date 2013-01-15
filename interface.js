@@ -283,7 +283,9 @@ function fillTabs(){
 							problems[j].prepareForExecuting();
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
+								//problems[j].cmdList = block;//??
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+								//problems[j].updated();
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){

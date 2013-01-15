@@ -44,5 +44,9 @@ var ExecutorWrapper = $.inherit({
 	getPoints: function() {
 		this.checkExecutor();
 		return this.executor.getPoints();
+	},
+
+	getExecutor: function() {
+		return this.executor;
 	}
 });
