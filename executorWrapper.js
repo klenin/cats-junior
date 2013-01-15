@@ -45,5 +45,4 @@ var ExecutorWrapper = $.inherit({
 		this.checkExecutor();
 		return this.executor.getPoints();
 	}
-
 });
