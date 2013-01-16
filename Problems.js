@@ -873,18 +873,18 @@ var Block = $.inherit({
 	},
 	
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != 'block')
-		{
+		if (block.getClass() != 'block') {
 			return block;
 		}
-		for (var i = 0; i < Math.min(this.commands.length, block.commands.length); ++i)
-		{
-			this.commands[i] = this.commands[i].copyDiff(block.commands[i], this.isFinished() && i == this.commands.length - 1 && compareCnt);
+		for (var i = 0; i < Math.min(this.commands.length, block.commands.length); ++i) {
+			this.commands[i] = this.commands[i].copyDiff(block.commands[i], /*this.isFinished() &&*/ i == this.commands.length - 1 && compareCnt);
 		}
-		if (this.commands.length < block.commands.length)
+		if (this.commands.length < block.commands.length) {
 			this.commands = this.commands.concat(block.commands.slice(this.commands.length))
-		else if (this.commands.length > block.commands.length)
+		}
+		else if (this.commands.length > block.commands.length) {
 			this.commands.splice(block.commands.length, this.commands.length - block.commands.length);
+		}
 		return this;
 	},
 	
