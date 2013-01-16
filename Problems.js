@@ -106,14 +106,14 @@ var Command = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			{'data': cmdClassToName[self.name]}, function(newNode){
+			{'data': self.problem.getCommandName(self.name)}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
 			}, true); 
 	},
-	
+
 	updateFunctonName: function(oldName, newName) {
 		return;
 	},
@@ -279,7 +279,7 @@ var ForStmt = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			{'data': cmdClassToName[self.getClass()]}, function(newNode){
+			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
@@ -588,7 +588,7 @@ var IfStmt = $.inherit(CondStmt, {
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			{'data': cmdClassToName[self.getClass()]}, function(newNode){
+			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
@@ -752,7 +752,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	generateCommand: function(tree, node){
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
-			{'data': cmdClassToName[self.getClass()]}, function(newNode){
+			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
@@ -1368,6 +1368,46 @@ var Problem = $.inherit({
 
 	initExecutor: function(data) {
 		this.executor = new ExecutorWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), data.executorName ? data.executorName : 'arrowInLabyrinth');
+	},
+
+	generateCommands: function() {
+		var tr = $('#ulCommands' + this.tabIndex).children('table').children('tbody').children('tr');
+		for(var i = 0; i < classes.length; ++i) {
+			if (classes[i] === 'block') {
+				continue;
+			}
+			var divclass = classes[i];
+			$(tr).append('<td>' + 
+							'<div id="' + divclass + this.tabIndex + '" class="' + divclass + '  jstree-draggable" type = "' + 
+								divclass + '" rel = "' + divclass + '" title = "' + cmdClassToName[divclass] + '">' + 
+							'</div>' + 
+						'</td>');
+
+			var self = this;
+
+			$('#' + divclass + this.tabIndex).bind('dblclick', function(dclass, dname, problem){
+				return function() {
+					if ($(this).prop('ifLi')) {
+						return;
+					}
+					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
+							{'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname}, function(newNode){
+							onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
+						}, dclass != 'funcdef'); 
+					problem.updated();
+				}
+			}(divclass, cmdClassToName[divclass], self));
+		}
+		
+		this.executor.generateCommands(tr);
+	},
+
+	getCommandName: function(command) {
+		var name = cmdClassToName[command];
+		if (!name) {
+			name  = this.executor.getCommandName(command);
+		}
+		return name;
 	},
 
 	setDefault: function(f) {

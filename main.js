@@ -30,7 +30,7 @@
 		if (problem.visited)
 			return;
 		problem.visited = 1;
-		for (var k = 0; k < classes.length; ++k){
+		/*for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
 				return function() {
 					if ($(this).prop('ifLi')) {
@@ -43,7 +43,7 @@
 					problem.updated();
 				}
 			}(k));
-		}
+		}*/
 		$('#resizable' + problem.tabIndex).resizable({
 			ghost: true,
 			minHeight: 300,
@@ -202,8 +202,10 @@
 						data.o = $(data.o).parent()[0];
 					if ( !$(data.o).hasClass('jstree-draggable') )
 						data.o = $(data.o).parent()[0];
+					
 					var type = this._get_type(data.o);
-					var name = cmdClassToName[type];
+					var name = problem.getCommandName(type);
+
 					if (type == 'funcdef') {
 						name = 'func_' + problem.numOfFunctions;
 					}

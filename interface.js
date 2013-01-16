@@ -200,26 +200,15 @@ function fillTabs(){
 				$('#tabs').tabs('remove', i + 1);
 			}
 			$('#tabs').tabs('add', '#ui-tabs-' + (i + 1), problems[i].code, i + 1);
-			var divs = [];
-			for (var j = 0; j < problems[i].commands.length; ++j)
-			{
-				divs.push({'tab': i, 'divclass': problems[i].commands[j], 'divname': cmdClassToName[problems[i].commands[j]]});
-			}
-			divs.push({'tab': i, 'divclass': 'if', 'divname': cmdClassToName['if']});
-			divs.push({'tab': i, 'divclass': 'ifelse', 'divname': cmdClassToName['ifelse']});
-			divs.push({'tab': i, 'divclass': 'while', 'divname': cmdClassToName['while']});
-			divs.push({'tab': i, 'divclass': 'for', 'divname': cmdClassToName['for']});
-			divs.push({'tab': i, 'divclass': 'funcdef', 'divname': cmdClassToName['funcdef']});
 			var buttons = [];
-			for (var j = 0; j < btns.length; ++j)
-			{
+			for (var j = 0; j < btns.length; ++j) {
 				buttons.push({'tab': i, 'btn': btns[j], 'title': btnTitles[j]});
 			}
 			$('#tabTemplate').tmpl({'tab': i, 
 				'statement': problems[i].statement, 
 				'maxCmdNum': problems[i].maxCmdNum,
 				'maxStep': problems[i].maxStep,
-				'commands': divs,
+				//'commands': divs,
 				'title': problems[i].title,
 				'btns': buttons},{}).appendTo('#ui-tabs-' + (i + 1));
 			$('#hideStatement' + i)
@@ -339,6 +328,8 @@ function fillTabs(){
 				}
 			}(i));
 			problems[i].initExecutor(data[i]);
+			problems[i].generateCommands();
+		
 			$('#forJury' + i).hide();
 			for (var j = 0; j < btns.length; ++j){
 				$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});

@@ -10,6 +10,38 @@ var ArrowInLabyrinth = $.inherit({
 		this.initLabyrinth();
 	},
 
+	generateCommands: function(tr) {
+		for (var i = 0; i < this.data.commands.length; ++i) {
+			if (!this.__self.cmdClassToName[this.data.commands[i]]) {
+				throw 'Unknown command!!!';
+			}
+			var divclass = this.data.commands[i];
+			var j = this.problem.tabIndex;
+			$(tr).append('<td>' + 
+							'<div id="' + divclass + j + '" class="' + divclass + '  jstree-draggable" type = "' + 
+								divclass + '" rel = "' + divclass + '" title = "' + this.__self.cmdClassToName[divclass] + '">' + 
+							'</div>' + 
+						'</td>');
+
+			$('#' + divclass + j).bind('dblclick', function(dclass, dname, problem){
+				return function() {
+					if ($(this).prop('ifLi')) {
+						return;
+					}
+					$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
+							{'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname}, function(newNode){
+							onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
+						}, dclass != 'funcdef'); 
+					problem.updated();
+				}
+			}(divclass, this.__self.cmdClassToName[divclass], this.problem));
+		}
+	},
+
+	getCommandName: function(command) {
+		return this.__self.cmdClassToName[command];
+	},
+	
 	initLabyrinth: function() {
 		this.life = this.data.startLife;
 		this.points = this.data.startPoints;
@@ -79,7 +111,7 @@ var ArrowInLabyrinth = $.inherit({
 				this.map[i][j] = new FieldElem(this, c,this.mapFromTest[i][j] == "#")
 				if (this.mapFromTest[i][j] == "R" || this.mapFromTest[i][j] == "U" || 
 					this.mapFromTest[i][j] == "D" ||this.mapFromTest[i][j] == "L" ){
-					obj = this.arrow = new Arrow(this, c, dirs[this.mapFromTest[i][j]]);
+					obj = this.arrow = new Arrow(this, c, this.__self.dirs[this.mapFromTest[i][j]]);
 				}
 				for (var k = 0; k < specSymbols.length; ++k)
 					if (specSymbols[k].symbol == this.mapFromTest[i][j]){
@@ -165,9 +197,9 @@ var ArrowInLabyrinth = $.inherit({
 	oneStep: function(dir) {
 		var x = this.arrow.coord.x;
 		var y = this.arrow.coord.y;
-		this.dx = changeDir[dir][this.arrow.dir].dx;
-		this.dy = changeDir[dir][this.arrow.dir].dy;
-		this.changeLabyrinth(this.problem.step, undefined, changeDir[dir][this.arrow.dir].curDir, !this.problem.speed);
+		this.dx = this.__self.changeDir[dir][this.arrow.dir].dx;
+		this.dy = this.__self.changeDir[dir][this.arrow.dir].dy;
+		this.changeLabyrinth(this.problem.step, undefined, this.__self.changeDir[dir][this.arrow.dir].curDir, !this.problem.speed);
 		if (this.stepsFine){
 			this.points -= this.stepsFine;
 			var mes = new MessageStepFine(this.problem.step, this.points);
@@ -329,13 +361,13 @@ var ArrowInLabyrinth = $.inherit({
 	},
 	
 	getFieldElem: function(dir) {
-		var newDir = changeDir[dir][this.arrow.dir];
+		var newDir = this.__self.changeDir[dir][this.arrow.dir];
 		var cX = this.arrow.coord.x + newDir.dx;
 		var cY = this.arrow.coord.y + newDir.dy;
 		if (dir != 'forward' && dir != 'behind')
 		{
-			cX += changeDir['forward'][newDir.curDir].dx;
-			cY += changeDir['forward'][newDir.curDir].dy;
+			cX += this.__self.changeDir['forward'][newDir.curDir].dx;
+			cY += this.__self.changeDir['forward'][newDir.curDir].dy;
 		}
 		return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
 	},
@@ -359,6 +391,53 @@ var ArrowInLabyrinth = $.inherit({
 
 	getPoints: function() {
 		return this.points;
+	}
+}, 
+{ //static methods and properties
+	cmdClassToName: {
+		'forward': 'Прямо',
+		'left': 'Налево',
+		'right': 'Направо',
+		'wait': 'Ждать',
+	},
+	
+	changeDir: {
+		'forward':{
+			'up': {dx: 0, dy: -1, curDir: 'up'},
+			'down': {dx: 0, dy: 1, curDir: 'down'},
+			'left':{dx: -1, dy: 0, curDir: 'left'},
+			'right': {dx: 1, dy: 0, curDir: 'right'}
+		},
+		'left':{
+			'up': {dx: 0, dy: 0, curDir: 'left'},
+			'down': {dx: 0, dy: 0, curDir: 'right'},
+			'left':{dx: 0, dy: 0, curDir: 'down'},
+			'right': {dx: 0, dy: 0, curDir: 'up'}
+		},
+		'right':{
+			'up': {dx: 0, dy: 0, curDir: 'right'},
+			'down': {dx: 0, dy: 0, curDir: 'left'},
+			'left':{dx: 0, dy: 0, curDir: 'up'},
+			'right': {dx: 0, dy: 0, curDir: 'down'}
+		}, 
+		'wait':{
+			'up': {dx: 0, dy: 0, curDir: 'up'},
+			'down': {dx: 0, dy: 0, curDir: 'down'},
+			'left':{dx: 0, dy: 0, curDir: 'left'},
+			'right': {dx: 0, dy: 0, curDir: 'right'}
+		},
+		'behind':{
+			'up': {dx: 0, dy: 1, curDir: 'up'},
+			'down': {dx: 0, dy: -1, curDir: 'down'},
+			'left':{dx: 1, dy: 0, curDir: 'left'},
+			'right': {dx: -1, dy: 0, curDir: 'right'}
+		}
+	},
+	dirs: {
+		'R': 'right', 
+		'L': 'left', 
+		'U': 'up', 
+		'D': 'down'
 	}
 });
 
@@ -529,7 +608,7 @@ var Key = $.inherit(Cell, {
 
 var Arrow = $.inherit(Cell,{
 	__constructor : function(executor, coord,  dir) {
-		this.__base(executor, coord, {style: 'hero_' + dir, symbol: dirs[dir], zIndex: 3});
+		this.__base(executor, coord, {style: 'hero_' + dir, symbol: executor.__self.dirs[dir], zIndex: 3});
 		this.dir = dir;
 		this.initCoord = coord;
 		this.initDir = dir;
@@ -551,9 +630,9 @@ var Arrow = $.inherit(Cell,{
 		return true;
 	},
 	move: function(d) {
-		var dx = changeDir[d][this.dir].dx;
-		var dy = changeDir[d][this.dir].dy;
-		this.dir = changeDir[d][this.dir].curDir;
+		var dx = this.executor.__self.changeDir[d][this.dir].dx;
+		var dy = this.executor.__self.changeDir[d][this.dir].dy;
+		this.dir = this.executor.__self.changeDir[d][this.dir].curDir;
 		this.coord = new Coord(this.coord.x + dx, this.coord.y + dy); 
 	}
 });
@@ -624,9 +703,9 @@ var Monster = $.inherit(Cell,{
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				dir = this.path[this.pathIndex + 1].dir;
 			
-		if (dir && dir.length && !this.executor.map[y + changeDir.forward[dirs[dir]].dy][x + changeDir.forward[dirs[dir]].dx].isWall){
-			x = x + changeDir.forward[dirs[dir]].dx;
-			y = y + changeDir.forward[dirs[dir]].dy;
+		if (dir && dir.length && !this.executor.map[y + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dy][x + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dx].isWall){
+			x = x + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dx;
+			y = y + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dy;
 		}
 		return new Coord(x, y);
 	},
@@ -640,9 +719,12 @@ var Monster = $.inherit(Cell,{
 		else
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				++this.pathIndex;
-		if (this.path[this.pathIndex].dir && this.path[this.pathIndex].dir.length && !this.executor.map[this.path[this.pathIndex].y + changeDir.forward[dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + changeDir.forward[dirs[this.path[this.pathIndex].dir]].dx].isWall){
-			this.path[this.pathIndex].x += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dx;
-			this.path[this.pathIndex].y += changeDir.forward[dirs[this.path[this.pathIndex].dir]].dy;
+		if (this.path[this.pathIndex].dir && this.path[this.pathIndex].dir.length && 
+			!this.executor.map[this.path[this.pathIndex].y + 
+			this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + 
+			this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dx].isWall){
+			this.path[this.pathIndex].x += this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dx;
+			this.path[this.pathIndex].y += this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dy;
 		}
 
 		++this.path[this.pathIndex].cnt;

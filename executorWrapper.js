@@ -10,6 +10,16 @@ var ExecutorWrapper = $.inherit({
 		}
 	},
 
+	generateCommands: function(tr) {
+		this.checkExecutor();
+		this.executor.generateCommands(tr);
+	},
+
+	getCommandName: function(command) {
+		this.checkExecutor();
+		return this.executor.getCommandName(command);
+	},
+
 	checkExecutor: function() {
 		if (!this.executor) {
 			throw "Executor is undefined!!!";
