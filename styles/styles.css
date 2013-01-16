@@ -123,7 +123,8 @@ div.sortable-func{
 	padding-left: 0px;
 	padding: 0px;
 	border: 2px #A9A9A9 double;
-	min-height: 400px;
+	min-height: 500px;
+	max-height: 500px;
 	height: 100%;
 	overflow: auto;
 	-moz-border-radius: 4px; 
