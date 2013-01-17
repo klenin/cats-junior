@@ -391,6 +391,14 @@ var ArrowInLabyrinth = $.inherit({
 
 	getPoints: function() {
 		return this.points;
+	},
+
+	isCommandSupported: function(command) {
+		return this.data.commands.indexOf(command) !== -1
+	},
+
+	getConditionProperties: function() {
+		return this.__self.testFunction;
 	}
 }, 
 { //static methods and properties
@@ -433,13 +441,151 @@ var ArrowInLabyrinth = $.inherit({
 			'right': {dx: -1, dy: 0, curDir: 'right'}
 		}
 	},
+	
 	dirs: {
 		'R': 'right', 
 		'L': 'left', 
 		'U': 'up', 
 		'D': 'down'
+	},
+
+	testFunction : {
+		'name': 'objectPosition',
+		'args': [[
+			['wall', 'Стена'],
+			['prize', 'Приз'],
+			['monster', 'Монстр'],
+			['box', 'Ящик'],
+			['lock', 'Замок'],
+			['key', 'Ключ'],
+			['border', 'Граница']
+
+		],
+		[
+			['atTheLeft', 'слева'],
+			['atTheRight', 'справа'],
+			['inFrontOf', 'спереди'],
+			['behind', 'сзади']
+		]],
+		'jsFunc': objectPosition,
+		'handlerFunc': objectPosition_handler
 	}
 });
+
+function objectPosition(args){
+	if (args.length != 3) {
+		throw 'Invalid arguments list!!';
+	}
+	var condition = args[0];
+	var object = args[1];
+	var direction = args[2];
+	var result = true;
+	var dir = '';
+	switch(direction){
+		case 'atTheLeft': 
+		case 'слева':
+			dir = 'left';
+			break;
+		case 'atTheRight':
+		case 'справа':
+			dir = 'right';
+			break;
+		case 'inFrontOf':
+		case 'спереди':
+			dir = 'forward';
+			break;
+		case 'behind':
+		case 'сзади':
+			dir = 'behind';
+			break;
+		default:
+			return false; //should we throw exception?
+	}
+	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
+	switch(object){
+		case 'wall':
+		case 'Стена':
+			result = cell.isWall;
+			break;
+		case 'prize':
+		case 'Приз':
+			result = cell.findCell(Prize) != undefined;
+			break;
+		case 'box':
+		case 'Ящик':
+			result = cell.findCell(Box) != undefined;
+			break;
+		case 'monster':
+		case 'Монстр':
+			result = cell.findCell(Monster) != undefined;
+			break;
+		case 'lock':
+		case 'Замок':
+			result = cell.findCell(Lock) != undefined;
+			break;
+		case 'key':
+		case 'Ключ':
+			result = cell.findCell(Key) != undefined;
+			break;
+		case 'border':
+		case 'Граница':
+			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
+			break;
+		default:
+			return false;
+	}
+	if (condition == 'not')
+		result = !result;
+	return result;
+}
+
+function objectPosition_handler(object, direction){
+	var result = true;
+	var dir = '';
+	switch(direction.v){
+		case 'atTheLeft': 
+			dir = 'left';
+			break;
+		case 'atTheRight':
+			dir = 'right';
+			break;
+		case 'inFrontOf':
+			dir = 'forward';
+			break;
+		case 'behind':
+			dir = 'behind';
+			break;
+		default:
+			return false; //should we throw exception?
+	}
+	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
+	switch(object.v){
+		case 'wall':
+			result = cell.isWall;
+			break;
+		case 'prize':
+			result = cell.findCell(Prize) != undefined;
+			break;
+		case 'box':
+			result = cell.findCell(Box) != undefined;
+			break;
+		case 'monster':
+			result = cell.findCell(Monster) != undefined;
+			break;
+		case 'lock':
+			result = cell.findCell(Lock) != undefined;
+			break;
+		case 'key':
+			result = cell.findCell(Key) != undefined;
+			break;
+		case 'border':
+			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
+			break;
+		default:
+			return false;
+	}
+	return result;
+}
 
 var Coord = $.inherit({
 	__constructor: function(x, y) {

@@ -350,49 +350,51 @@ var CondStmt = $.inherit({
 	convertToCode: function(tabsNum) {
 		//var str = generateTabs(tabsNum) + 'if ';
 		str = '';
-		switch(this.testName){
-			case 'objectPosition':
-				if (this.args[2])
-					str += 'not ';
-				var funcDef = this.getFunction();
-				var funcArguments = funcDef ? funcDef.getArguments() : [];
-				var object = selectObjects[this.args[0]];
-				if (object === undefined) { 
-					if (!funcDef || this.args[0] - selectObjects.length < 0 || this.args[0] - selectObjects.length > funcArguments.length) {
-						throw 'Invalid argument ' + this.args[0];
-					}
-					object = funcArguments[this.args[0] - selectObjects.length];
-				}
-				else {
-					object = object[0];
-				}
-				var direction = selectDirections[this.args[1]];
-				if (direction=== undefined){
-					if (!funcDef || this.args[1] - selectDirections.length < 0 || this.args[1] - selectDirections.length > funcArguments.length) {
-						throw 'Invalid argument ' + this.args[1];
-					}
-					direction = funcArguments[this.args[1] - selectDirections.length];
-				}
-				else {
-					direction = direction[0];
-				}
-				str += 'objectPosition("' + object + '", "' + direction + '"):\n';
-				break;
-			default:
-				str += 'False';
+
+		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionArguments = conditionProperties.args;
+
+		if (this.testName != conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
+			throw 'Invalid condition name or arguments list';
 		}
+		
+		if (this.args[0] == 'not')
+			str += 'not ';
+		str += this.testName + '(';
+				
+		var funcDef = this.getFunction();
+		var funcArguments = funcDef ? funcDef.getArguments() : [];
+
+		for (var i = 0; i < conditionArguments.length; ++i) {
+			if (this.args[i + 1] === undefined) {
+				throw 'Invalid arguments list'
+			}
+			for (var j = 0; j < conditionArguments[i].length; ++j) {
+				if (this.args[i + 1] == conditionArguments[i][j][0] || this.args[i + 1] == conditionArguments[i][j][1]) {
+					str += (i > 0 ? ', ' : '');
+					if (checkNumber(conditionArguments[i][j][0])) {
+						str += conditionArguments[i][j][0];
+					} 
+					else if (checkName(conditionArguments[i][j][0])) {
+						str += '"' + conditionArguments[i][j][0] + '"';
+					}
+					else {
+						str += "u'" + encodeURIComponent(conditionArguments[i][j][0]) + "'";
+					}
+				}
+			}
+		}
+
+		str += '):\n';
 		return str;
 	},
 	
 	generateSelect: function(newNode){
 		var numId = $(newNode).prop('numId');
-		switch (this.testName){
-			case 'objectPosition':
-				$('#selectObjects' + numId).val(this.args[0]);
-				$('#selectConditions' + numId).val(this.args[2]);
-				$('#selectDirections' + numId).val(this.args[1]);
-				break;
-		}
+		var selects = $(newNode).children('select');
+		for (var i = 0; i < selects.length; ++i) {
+			$(newNode).children('option:selected:eq(' + i + ')').val(this.args[i])
+		}	
 	},
 	
 	highlightWrongNames: function() {
@@ -400,41 +402,59 @@ var CondStmt = $.inherit({
 	},
 	
 	constructTestFunc: function(args) {
-		switch(this.testName){
-			case 'objectPosition':
-				this.test = function(){
-					return objectPosition(selectObjects[args[0]][0], 
-						selectConditions[args[2]][0], 
-						selectDirections[args[1]][0])};
-				break;
-			default:
-				this.test = function(){return false};
+		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionArguments = conditionProperties.args;
+
+		if (this.testName != conditionProperties.name) {
+			throw 'Invalid condition name';
 		}
+	
+		this.test = function(prop, a){
+			return function() {
+				return prop.jsFunc(a);
+			}
+		}(conditionProperties, args);
+
 	},
 	
 	convertArguments: function(arguments) {
-		var selects = [selectObjects, selectDirections, selectConditions];
+		var conditionProperties = this.problem.executor.getConditionProperties();
+		var selects = conditionProperties.args;
+
 		var funcDef = this.getFunction();
 		var funcArguments = funcDef ? funcDef.getArguments() : [];
 
 		var args = [];
+		args[0] = this.args[0];
 
 		for (var i = 0; i < selects.length; ++i) {
-			if (selects[i][this.args[i]] === undefined) {
-				var j = 0;
-				for (j = 0; j < selects[i].length; ++j) {
-					var arg = this.args[i];
-					if (selects[i][j][1] === arguments[funcArguments[this.args[i] - selects[i].length]]) {
-						args.push(j);
+			var j = 0;
+			for (j = 0; j < selects[i].length; ++j) {
+				if (selects[i][j][0] === this.args[i + 1] || selects[i][j][1] === this.args[i + 1]) {
+					args.push(selects[i][j][0]);
+					break;
+				}
+			}
+			if (j == selects[i].length) {
+				var k = 0
+				for (k = 0; k < funcArguments.length; ++k) {
+					if (this.args[i + 1] == funcArguments[k]) {
+						var l = 0
+						for (l = 0; l < selects[i].length; ++l) {
+							if (selects[i][j][0] === arguments[k] || selects[i][j][1] === arguments[k]) {
+								args.push(selects[i][j][0]);
+								break;
+							}
+						}
+						if (l == selects[i].length) {
+							throw 'Invalid argument';
+						}
 						break;
 					}
 				}
-				if (j == selects[i].length) {
-					throw 'Invalid argument ' + this.args[i] + '!!!';
+				if (k == funcArguments.length) {
+					throw 'Invalid argument';
 				}
-			}
-			else {
-				args.push(this.args[i]);
 			}
 		}
 
@@ -442,8 +462,8 @@ var CondStmt = $.inherit({
 	},
 	
 	checkArguments: function() {
-		if (this.args[2] != 0 && this.args[2] != 1)
-			throw 'Invalid argument ' + this.args[2];
+		//if (this.args[2] != 0 && this.args[2] != 1)
+		//	throw 'Invalid argument ' + this.args[2];
 	},
 	getFunction: function() { 
 		return this.parent ? this.parent.getFunction() : undefined;

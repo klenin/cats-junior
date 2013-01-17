@@ -124,10 +124,12 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 			block.pushCommand(convert(commands[i].children, block, problem));
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-		
-			var test3 = parseInt($('#' + id + ' option:selected')[0].value);
-			var test1 = parseInt($('#' + id + ' option:selected')[1].value);
-			var test2 = parseInt($('#' + id + ' option:selected')[2].value);
+			var selects = $('#' + id).children('select');
+			var args = [];
+			for (var j = 0; j < selects.length; ++j) {
+				args.push($('#' + id + ' option:selected')[j].value);
+			}	
+
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
 			if (type == 'ifelse'){
@@ -139,8 +141,8 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 				}
 			}
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt('objectPosition', [test1, test2, test3], block1, block, id, problem) : 
-				new IfStmt('objectPosition', [test1, test2, test3], block1, block2, block, id, problem));
+				new WhileStmt('objectPosition', args, block1, block, id, problem) : 
+				new IfStmt('objectPosition', args, block1, block2, block, id, problem));
 		}
 		else if (type == 'for')		{
 			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
@@ -165,35 +167,48 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 }
 
 function convertCondition(expr){
-	switch(expr._astname){
+	switch (expr._astname) {
 		case 'Call':
 			if (expr.func._astname != 'Name' || !expr.args) //
 				return undefined;
 			var testName = '';
 			var args = [];
-			switch(expr.func.id.v)
-			{
-				case 'objectPosition':
-					testName = expr.func.id.v;
-					if (expr.args.length != builtinFunctions[0]['args'].length)
-						return undefined;
-					for (var j = 0; j < expr.args.length; ++j){
-						if (expr.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
-							return undefined;
-						for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
-							for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
-								if (builtinFunctions[0]['args'][k]['dict'][l][0] == expr.args[j].s.v){
-									args.push(l);
-									break;
-								}
-							}
+			//switch(expr.func.id.v)
+			//{
+				//case 'objectPosition':
+			testName = expr.func.id.v;
+			args.push(0);
+			for (var j = 0; j < expr.args.length; ++j) {
+				switch (expr.args[j]._astname) {
+					case 'Str':
+						args.push(expr.args[j].s.v);
+						break;
+					case 'Num':
+						args.push(expr.args[j].n.v);
+						break;
+					default:
+						args.push(undefined);
+				}
+			}
+
+			/*if (expr.args.length != builtinFunctions[0]['args'].length) //reanme to testFunction!
+				return undefined;*/
+			/*for (var j = 0; j < expr.args.length; ++j) {
+				/*if (expr.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
+					return undefined;
+				for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
+					for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
+						if (builtinFunctions[0]['args'][k]['dict'][l][0] == expr.args[j].s.v){
+							args.push(l);
+							break;
 						}
 					}
-					break;
-				default:
-					return undefined;
+				}
 			}
-			args.push(0);
+					//break;
+			//	default:
+			//		return undefined;
+			//}*/
 			return {'testName': testName, 'args': args}
 		case 'UnaryOp':
 			if (expr.op.prototype._astname != 'Not')
@@ -201,7 +216,7 @@ function convertCondition(expr){
 			var dict = convertCondition(expr.operand);
 			if (!dict)
 				return undefined;
-			dict['args'][2] = 1 - dict['args'][2];
+			dict['args'][0] = 1 - dict['args'][0];
 			return dict;
 	}
 	return undefined;

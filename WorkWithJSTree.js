@@ -4,71 +4,81 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 		type = 'funccall';
 	tree.set_type(type, newNode);
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
-	switch(type){
-		case 'left':
-		case 'right':
-		case 'forward':
-		case 'wait':
-		case 'for':
-			$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-			$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
-			break;
-		case 'if':
-		case 'ifelse':
-		case 'while':
-			$(newNode).append('<select id = "selectConditions' + cmdId +'">');
-			for (var i = 0; i < selectConditions.length; ++i)
-			{
-				$('#selectConditions' + cmdId).append('<option value = ' + i + '>' + selectConditions[i][1] + '</option><br>');
-			}
-			$(newNode).append('</select> (')
-			
-			$(newNode).append('<select id = "selectObjects' + cmdId +'">');
-			for (var i = 0; i < selectObjects.length; ++i)
-			{
-				$('#selectObjects' + cmdId).append('<option value = ' + i + '>' + selectObjects[i][1] + '</option><br>');
-			}
-			$(newNode).append('</select>');
-
-			$(newNode).append('<select id = "selectDirections' + cmdId +'">');
-			for (var i = 0; i < selectDirections.length; ++i)
-			{
-				$('#selectDirections' + cmdId).append('<option value = ' + i + '>' + selectDirections[i][1] + '</option><br>');
-			}
-			$(newNode).append('</select>)');
-			
-			$('#selectObjects' + cmdId + ', #selectConditions' + cmdId + ', #selectDirections' + cmdId).change(function(p){
-				return function() {
-					p.updated();
+	if (problem.executor.isCommandSupported(type)) {
+		$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+	}
+	else {
+		switch(type){
+			case 'for':
+				$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
+				$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+				break;
+			case 'if':
+			case 'ifelse':
+			case 'while':
+				$(newNode).append('<select id = "selectCondition0_' + cmdId +'">');
+				for (var i = 0; i < selectConditions.length; ++i)
+				{
+					$('#selectCondition0_' + cmdId).append('<option value = ' + (i == 0 ? '""' : 'not') + '>' + selectConditions[i][1] + '</option><br>');
 				}
-			}(problem));
-			if (type == 'ifelse'){
-				tree.rename_node(newNode, 'Если');
-				tree.create($(newNode), "after", false, 
-					function(elseNode){
-					tree.set_type('else', elseNode);
-					tree.rename_node(elseNode, 'Иначе');
-						$(elseNode).prop('numId', cmdId);
-						$(elseNode).prop('ifLi', 1);
-						$(elseNode).prop('type', 'else');
-						$(elseNode).addClass('else');
-						$(elseNode).prop('id', 'else' + cmdId);
-				}, true); 
-			}
-			break;
-		case 'funccall':
-			var arguments = problem.functionsWithId[funcId].getArguments();
-			for (var i = 0; i < arguments.length; ++i) {
-				$(newNode)
-					.append('<input class="argCallInput"/>')
-					.bind('change', function(){
-						return function(pr) {
-							pr.updated();
-						}(problem)
-					})
-			}
-			$(newNode).attr('funcId', funcId);
-			break;
+				$(newNode).append('</select> (')
+				$('#selectCondition0_' + cmdId).change(function(p){
+					return function() {
+						p.updated();
+					}
+				}(problem));
+
+
+				var conditionProperties = problem.executor.getConditionProperties();
+				var args = conditionProperties['args'];
+				if (!args || !$.isArray(args)) {
+					throw 'Invalid arguments list in condtion properties';
+				}
+				
+				for (var i = 0; i < args.length; ++i) {
+					var objects = args[i];			
+					$(newNode).append('<select id = "selectCondition' + (i + 1) + '_' + cmdId +'">');
+					for (var j = 0; j < objects.length; ++j)
+					{
+						$('#selectCondition' + (i + 1) + '_' + cmdId).append('<option value = ' + objects[j][0] + '>' + objects[j][1] + '</option><br>');
+					}
+					$(newNode).append('</select>');
+
+					$('#selectCondition' + (i + 1) + '_' + cmdId).change(function(p){
+						return function() {
+							p.updated();
+						}
+					}(problem));
+				}
+				if (type == 'ifelse'){
+					tree.rename_node(newNode, 'Если');
+					tree.create($(newNode), "after", false, 
+						function(elseNode){
+						tree.set_type('else', elseNode);
+						tree.rename_node(elseNode, 'Иначе');
+							$(elseNode).prop('numId', cmdId);
+							$(elseNode).prop('ifLi', 1);
+							$(elseNode).prop('type', 'else');
+							$(elseNode).addClass('else');
+							$(elseNode).prop('id', 'else' + cmdId);
+					}, true); 
+				}
+				break;
+			case 'funccall':
+				var arguments = problem.functionsWithId[funcId].getArguments();
+				for (var i = 0; i < arguments.length; ++i) {
+					$(newNode)
+						.append('<input class="argCallInput"/>')
+						.bind('change', function(){
+							return function(pr) {
+								pr.updated();
+							}(problem)
+						})
+				}
+				$(newNode).attr('funcId', funcId);
+				break;
+		}
 	}
 	$(newNode).prop('id', type + cmdId);
 	$(newNode).prop('numId', cmdId);
