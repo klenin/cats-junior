@@ -68,5 +68,10 @@ var ExecutorWrapper = $.inherit({
 	getConditionProperties: function() {
 		this.checkExecutor();
 		return this.executor.getConditionProperties();
+	},
+
+	getCommands: function() {
+		this.checkExecutor();
+		return this.executor.getCommands();
 	}
 });

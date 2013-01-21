@@ -1978,11 +1978,15 @@ var Problem = $.inherit({
 			nextline[problem] = getScope().firstlineno;
 			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 			$scopestack[problem] = 0;
-			$gbl[problem]['forward'] = forward;
-			$gbl[problem]['left'] = left;
-			$gbl[problem]['right'] = right;
-			$gbl[problem]['wait'] = wait;
-			$gbl[problem]['objectPosition'] = objectPosition_handler;
+
+			var commands = problems[problem].executor.getCommands();
+			var conditionProperties = problems[problem].executor.getConditionProperties();
+
+			for (var i = 0; i < commands.length; ++i) {
+				$gbl[problem][commands[i][0]] = commands[i][1];
+			}
+			
+			$gbl[problem][conditionProperties.name] = conditionProperties.handlerFunc;
 			this.changed = false;
 		}
 		catch(e){

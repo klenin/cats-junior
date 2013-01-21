@@ -140,9 +140,10 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 					block2 = new Block([], block, problem);
 				}
 			}
+			var testName = problem.executor.getConditionProperties().name;
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt('objectPosition', args, block1, block, id, problem) : 
-				new IfStmt('objectPosition', args, block1, block2, block, id, problem));
+				new WhileStmt(testName, args, block1, block, id, problem) : 
+				new IfStmt(testName, args, block1, block2, block, id, problem));
 		}
 		else if (type == 'for')		{
 			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
@@ -325,26 +326,6 @@ function convertTreeToCommands(commands, parent, problem)
 function getCurProblem()
 {
 	return $('#tabs').tabs('option', 'selected') - 1;
-}
-
-function forward(cnt)
-{
-	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
-}
-
-function left(cnt)
-{
-	curProblem.oneStep('left', cnt != undefined ? cnt : 1);
-}
-
-function right(cnt)
-{
-	curProblem.oneStep('right', cnt != undefined ? cnt : 1);
-}
-
-function wait(cnt)
-{
-	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
 }
 
 function checkName(name) {

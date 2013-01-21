@@ -399,6 +399,10 @@ var ArrowInLabyrinth = $.inherit({
 
 	getConditionProperties: function() {
 		return this.__self.testFunction;
+	},
+
+	getCommands: function() {
+		return this.__self.commands;
 	}
 }, 
 { //static methods and properties
@@ -408,7 +412,14 @@ var ArrowInLabyrinth = $.inherit({
 		'right': 'Направо',
 		'wait': 'Ждать',
 	},
-	
+
+	commands: [
+		['forward', forward],
+		['left', left],
+		['right', right],
+		['wait', wait]
+	],
+		
 	changeDir: {
 		'forward':{
 			'up': {dx: 0, dy: -1, curDir: 'up'},
@@ -468,7 +479,7 @@ var ArrowInLabyrinth = $.inherit({
 			['behind', 'сзади']
 		]],
 		'jsFunc': objectPosition,
-		'handlerFunc': objectPosition_handler
+		'handlerFunc': objectPosition_handler,
 	}
 });
 
@@ -879,3 +890,19 @@ var Monster = $.inherit(Cell,{
 		//alert(this.coord.x + ' ' + this.coord.y);
 	}
 });
+
+function forward(cnt) {
+	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
+}
+
+function left(cnt) {
+	curProblem.oneStep('left', cnt != undefined ? cnt : 1);
+}
+
+function right(cnt) {
+	curProblem.oneStep('right', cnt != undefined ? cnt : 1);
+}
+
+function wait(cnt) {
+	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
+}
