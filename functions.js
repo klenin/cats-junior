@@ -226,6 +226,7 @@ function convertCondition(expr){
 function convertTreeToCommands(commands, parent, problem)
 {
 	var block = new Block([], parent, problem);
+	var execCommands = problem.executor.getCommands();
 	for (var i = 0; i < commands.length; ++i)
 	{
 		switch(commands[i]._astname) {
@@ -233,35 +234,39 @@ function convertTreeToCommands(commands, parent, problem)
 				if (commands[i].value._astname != 'Call' || 
 					commands[i].value.func._astname != 'Name')
 					return undefined;
-				switch(commands[i].value.func.id.v) {
-					case 'left':
-					case 'right':
-					case 'forward':
-					case 'wait':
+
+				var j = 0;
+
+				for (j = 0 ; j < execCommands.length; ++j) {
+					if (commands[i].value.func.id.v == execCommands[i][0]) {
+						//TODO: add support of different number and types of arguments!!!						
 						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
 							commands[i].value.args[0]._astname == 'Num'))
 							return undefined;
 						block.pushCommand(new Command(commands[i].value.func.id.v, 
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
-					default:
-						var arguments = [];
-						for (var j = 0; j < commands[i].value.args.length; ++j) {
-							var arg;
-							switch(commands[i].value.args[j]._astname) {
-								case 'Num':
-									arg = commands[i].value.args[j].n;
-									break;
-								case 'Str':
-									arg = commands[i].value.args[j].s.v;
-									break;
-							}
-							arguments.push(arg);
-						}
-						var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
-						break;
+					}
 				}
+
+				if (j == execCommands.length) {
+					var arguments = [];
+					for (var j = 0; j < commands[i].value.args.length; ++j) {
+						var arg;
+						switch(commands[i].value.args[j]._astname) {
+							case 'Num':
+								arg = commands[i].value.args[j].n;
+								break;
+							case 'Str':
+								arg = commands[i].value.args[j].s.v;
+								break;
+						}
+						arguments.push(arg);
+					}
+					var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
+					block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
+				}
+
 				break;
 			case 'For':
 				//__constructor : function(body, cnt, parent, id)
