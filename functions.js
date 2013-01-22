@@ -29,7 +29,7 @@ function callScript(url, callback){
 				if(url.search('rank_table_content') == -1){
 					alert('Ошибка подключения к серверу');
 				}
-				console.log(jqXHR, textStatus, errorThrown);
+				console.error(jqXHR, textStatus, errorThrown);
 			}
 		});
 	} 
@@ -103,14 +103,18 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem, funcName, id){
+function convert(commands, parent, problem, funcName, id, arguments, funcId){
 	var block = new Block([], parent, problem);
 	var func = undefined;
 	if (funcName) {
-		func = new FuncDef(funcName, [], parent, id, problem);
+		func = new FuncDef(funcName, arguments, [], parent, id, funcId, problem);
 		block = new Block([], func, problem);
 		func.body = block;
-		problem.functions[funcName] = func;
+		if (!problem.functions[funcName]) {
+			problem.functions[funcName] = [];
+		}
+		problem.functions[funcName][arguments.length] = func;
+		problem.functionsWithId[funcId] = func;
 		++problem.numOfFunctions;
 	}
 	for (var i = 0; i < commands.length; ++i){
@@ -120,10 +124,12 @@ function convert(commands, parent, problem, funcName, id){
 			block.pushCommand(convert(commands[i].children, block, problem));
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-		
-			var test3 = parseInt($('#' + id + ' option:selected')[0].value);
-			var test1 = parseInt($('#' + id + ' option:selected')[1].value);
-			var test2 = parseInt($('#' + id + ' option:selected')[2].value);
+			var selects = $('#' + id).children('select');
+			var args = [];
+			for (var j = 0; j < selects.length; ++j) {
+				args.push($('#' + id + ' option:selected')[j].value);
+			}	
+
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			var block2 = undefined;
 			if (type == 'ifelse'){
@@ -134,9 +140,10 @@ function convert(commands, parent, problem, funcName, id){
 					block2 = new Block([], block, problem);
 				}
 			}
+			var testName = problem.executor.getConditionProperties().name;
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt('objectPosition', [test1, test2, test3], block1, block, id, problem) : 
-				new IfStmt('objectPosition', [test1, test2, test3], block1, block2, block, id, problem));
+				new WhileStmt(testName, args, block1, block, id, problem) : 
+				new IfStmt(testName, args, block1, block2, block, id, problem));
 		}
 		else if (type == 'for')		{
 			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
@@ -144,7 +151,12 @@ function convert(commands, parent, problem, funcName, id){
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
 		else if (type == 'funccall'){
-			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : $('#' + id).text().split(' ').join(''), block, id, problem));
+			var arguments = [];
+			for (var j = 0; j < $('#' + id).children('input').length; ++j) {
+				arguments.push($('#' + id).children('input:eq(' + j + ')').val());
+			}
+			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : 
+				$('#' + id).text().split(' ').join(''), arguments,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
 			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
@@ -156,35 +168,48 @@ function convert(commands, parent, problem, funcName, id){
 }
 
 function convertCondition(expr){
-	switch(expr._astname){
+	switch (expr._astname) {
 		case 'Call':
 			if (expr.func._astname != 'Name' || !expr.args) //
 				return undefined;
 			var testName = '';
 			var args = [];
-			switch(expr.func.id.v)
-			{
-				case 'objectPosition':
-					testName = expr.func.id.v;
-					if (expr.args.length != builtinFunctions[0]['args'].length)
-						return undefined;
-					for (var j = 0; j < expr.args.length; ++j){
-						if (expr.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
-							return undefined;
-						for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
-							for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
-								if (builtinFunctions[0]['args'][k]['dict'][l][0] == expr.args[j].s.v){
-									args.push(l);
-									break;
-								}
-							}
+			//switch(expr.func.id.v)
+			//{
+				//case 'objectPosition':
+			testName = expr.func.id.v;
+			args.push(0);
+			for (var j = 0; j < expr.args.length; ++j) {
+				switch (expr.args[j]._astname) {
+					case 'Str':
+						args.push(expr.args[j].s.v);
+						break;
+					case 'Num':
+						args.push(expr.args[j].n.v);
+						break;
+					default:
+						args.push(undefined);
+				}
+			}
+
+			/*if (expr.args.length != builtinFunctions[0]['args'].length) //reanme to testFunction!
+				return undefined;*/
+			/*for (var j = 0; j < expr.args.length; ++j) {
+				/*if (expr.args[j]._astname != builtinFunctions[0]['args'][j]['type'])
+					return undefined;
+				for (var k = 0; k <  builtinFunctions[0]['args'].length; ++k){
+					for (var l = 0; l < builtinFunctions[0]['args'][k]['dict'].length; ++l){
+						if (builtinFunctions[0]['args'][k]['dict'][l][0] == expr.args[j].s.v){
+							args.push(l);
+							break;
 						}
 					}
-					break;
-				default:
-					return undefined;
+				}
 			}
-			args.push(0);
+					//break;
+			//	default:
+			//		return undefined;
+			//}*/
 			return {'testName': testName, 'args': args}
 		case 'UnaryOp':
 			if (expr.op.prototype._astname != 'Not')
@@ -192,7 +217,7 @@ function convertCondition(expr){
 			var dict = convertCondition(expr.operand);
 			if (!dict)
 				return undefined;
-			dict['args'][2] = 1 - dict['args'][2];
+			dict['args'][0] = 1 - dict['args'][0];
 			return dict;
 	}
 	return undefined;
@@ -201,30 +226,47 @@ function convertCondition(expr){
 function convertTreeToCommands(commands, parent, problem)
 {
 	var block = new Block([], parent, problem);
+	var execCommands = problem.executor.getCommands();
 	for (var i = 0; i < commands.length; ++i)
 	{
-		switch(commands[i]._astname)
-		{
+		switch(commands[i]._astname) {
 			case 'Expr':
 				if (commands[i].value._astname != 'Call' || 
 					commands[i].value.func._astname != 'Name')
 					return undefined;
-				switch(commands[i].value.func.id.v)
-				{
-					case 'left':
-					case 'right':
-					case 'forward':
-					case 'wait':
+
+				var j = 0;
+
+				for (j = 0 ; j < execCommands.length; ++j) {
+					if (commands[i].value.func.id.v == execCommands[i][0]) {
+						//TODO: add support of different number and types of arguments!!!						
 						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
 							commands[i].value.args[0]._astname == 'Num'))
 							return undefined;
 						block.pushCommand(new Command(commands[i].value.func.id.v, 
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
 						break;
-					default:
-						block.pushCommand(new FuncCall(commands[i].value.func.id.v, block, undefined, problem));
-						break;
+					}
 				}
+
+				if (j == execCommands.length) {
+					var arguments = [];
+					for (var j = 0; j < commands[i].value.args.length; ++j) {
+						var arg;
+						switch(commands[i].value.args[j]._astname) {
+							case 'Num':
+								arg = commands[i].value.args[j].n;
+								break;
+							case 'Str':
+								arg = commands[i].value.args[j].s.v;
+								break;
+						}
+						arguments.push(arg);
+					}
+					var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
+					block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
+				}
+
 				break;
 			case 'For':
 				//__constructor : function(body, cnt, parent, id)
@@ -267,7 +309,11 @@ function convertTreeToCommands(commands, parent, problem)
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
-				var funcDef = new FuncDef(commands[i].name.v, undefined, block, undefined, problem);
+				var arguments = [];
+				for (var j = 0; j < commands[i].args.args.length; ++j) {
+					arguments.push(commands[i].args.args[j].id.v);
+				}
+				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, cmdId, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);
@@ -287,27 +333,12 @@ function getCurProblem()
 	return $('#tabs').tabs('option', 'selected') - 1;
 }
 
-function forward(cnt)
-{
-	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
-}
-
-function left(cnt)
-{
-	curProblem.oneStep('left', cnt != undefined ? cnt : 1);
-}
-
-function right(cnt)
-{
-	curProblem.oneStep('right', cnt != undefined ? cnt : 1);
-}
-
-function wait(cnt)
-{
-	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
-}
-
 function checkName(name) {
 	var re =  /^[a-z_]+[a-z_0-9]*$/i;
 	return re.test(name);
+}
+
+function checkNumber(number) {
+	var re =  /^[0-9]+[0-9]*$/i;
+	return re.test(number);
 }

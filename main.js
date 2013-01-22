@@ -30,7 +30,7 @@
 		if (problem.visited)
 			return;
 		problem.visited = 1;
-		for (var k = 0; k < classes.length; ++k){
+		/*for (var k = 0; k < classes.length; ++k){
 			$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
 				return function() {
 					if ($(this).prop('ifLi')) {
@@ -43,7 +43,7 @@
 					problem.updated();
 				}
 			}(k));
-		}
+		}*/
 		$('#resizable' + problem.tabIndex).resizable({
 			ghost: true,
 			minHeight: 300,
@@ -202,8 +202,10 @@
 						data.o = $(data.o).parent()[0];
 					if ( !$(data.o).hasClass('jstree-draggable') )
 						data.o = $(data.o).parent()[0];
+					
 					var type = this._get_type(data.o);
-					var name = cmdClassToName[type];
+					var name = problem.getCommandName(type);
+
 					if (type == 'funcdef') {
 						name = 'func_' + problem.numOfFunctions;
 					}
@@ -221,7 +223,7 @@
 							"create", node, pos, 
 							{'data': name}, 
 							function(newNode){
-								onCreateItem(this, newNode, $(data.o).attr('rel'), problem);
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'));
 							}, type != 'funcdef'); 
 					}
 					else {
@@ -233,19 +235,20 @@
 				"drop_finish": function(data){
 					var node = data.o;
 					
-					if ($(node).hasClass('jstree-draggable') && $(node).hasClass('funccall'))
-					{
+					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
+						node = $(node).parent();
+						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
 						$(node).remove();
-						problem.removeFunctionCall($(node).children('.func-header').html());
+						problem.removeFunctionCall($(node).attr('funcId'));
 						return true;
 					}
 
-					if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
 					{
 						$(node).parent().remove();
 						problem.removeFunctionCall($(node).parent().children('.func-header').html());
 						return true;
-					}
+					}*/
 					
 					var type = this._get_type(node);
 					if (type == 'else')
@@ -290,11 +293,13 @@
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
 	}).bind("dblclick.jstree", function (e, data) {
-        var node = $(e.target).closest("li");
+        /*var node = $(e.target).closest("li");
         var type = $.jstree._reference(this)._get_type(node);
 		if (type == 'funccall') {
 			$.jstree._reference(this).rename(node);
-		}
+			problem.funcCallUpdated();
+		}*/
+		//TODO:
     });
 	$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 		/*$('#accordion' + problem.tabIndex).accordion();
