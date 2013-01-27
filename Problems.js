@@ -380,13 +380,20 @@ var CondStmt = $.inherit({
 						str += '"' + conditionArguments[i][j][0] + '"';
 					}
 					else {
-						str += "u'" + encodeURIComponent(conditionArguments[i][j][0]) + "'";
+						str += "u'" + conditionArguments[i][j][0] + "'";
 					}
 					break;
 				}
 			}
 			if (j == conditionArguments[i].length) {
-				if (this.args[i + 1] != funcArguments[i]) {
+				var k = 0;
+				for (k = 0; k < funcArguments.length; ++k) {
+					if (this.args[i + 1] == funcArguments[k]) {
+						break;
+					}
+				}
+
+				if (k == funcArguments.length) {
 					throw 'Invalid argument';
 				}
 				str += this.args[i + 1];
