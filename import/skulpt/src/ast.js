@@ -1443,7 +1443,7 @@ function parsestr(c, s)
 {
     var encodeUtf8 = function(s) { return unescape(encodeURIComponent(s)); };
     var decodeUtf8 = function(s) { 
-		return decodeURIComponent(escape(s)); 
+		return decodeURIComponent(s); 
 	};
     var decodeEscape = function(s, quote)
     {

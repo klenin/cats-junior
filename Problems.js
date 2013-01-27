@@ -1269,7 +1269,7 @@ var FuncCall = $.inherit({
 				str += this.argumentsValues[i];
 			}
 			else {
-				str += "u'" + encodeURIComponent(this.argumentsValues[i]) + "'";
+				str += "u'" + this.argumentsValues[i] + "'";
 			}
 		}
 		str += ')\n';
