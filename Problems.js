@@ -386,6 +386,7 @@ var CondStmt = $.inherit({
 				}
 			}
 			if (j == conditionArguments[i].length) {
+				str += (i > 0 ? ', ' : '');
 				var k = 0;
 				for (k = 0; k < funcArguments.length; ++k) {
 					if (this.args[i + 1] == funcArguments[k]) {
