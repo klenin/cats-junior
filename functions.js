@@ -187,6 +187,9 @@ function convertCondition(expr){
 					case 'Num':
 						args.push(expr.args[j].n.v);
 						break;
+					case 'Name':
+						args.push(expr.args[j].id.v);
+						break;
 					default:
 						args.push(undefined);
 				}

@@ -409,7 +409,7 @@ var CondStmt = $.inherit({
 		var numId = $(newNode).prop('numId');
 		var selects = $(newNode).children('select');
 		for (var i = 0; i < selects.length; ++i) {
-			$(newNode).children('option:selected:eq(' + i + ')').val(this.args[i])
+			$(newNode).children('select:eq(' + i + ')').val(this.args[i]);
 		}	
 	},
 	
@@ -630,6 +630,7 @@ var IfStmt = $.inherit(CondStmt, {
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
+				self.generateArguments();
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
