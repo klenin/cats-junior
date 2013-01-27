@@ -369,7 +369,8 @@ var CondStmt = $.inherit({
 			if (this.args[i + 1] === undefined) {
 				throw 'Invalid arguments list'
 			}
-			for (var j = 0; j < conditionArguments[i].length; ++j) {
+			var j = 0;
+			for (j = 0; j < conditionArguments[i].length; ++j) {
 				if (this.args[i + 1] == conditionArguments[i][j][0] || this.args[i + 1] == conditionArguments[i][j][1]) {
 					str += (i > 0 ? ', ' : '');
 					if (checkNumber(conditionArguments[i][j][0])) {
@@ -381,7 +382,14 @@ var CondStmt = $.inherit({
 					else {
 						str += "u'" + encodeURIComponent(conditionArguments[i][j][0]) + "'";
 					}
+					break;
 				}
+			}
+			if (j == conditionArguments[i].length) {
+				if (this.args[i + 1] != funcArguments[i]) {
+					throw 'Invalid argument';
+				}
+				str += this.args[i + 1];
 			}
 		}
 
@@ -439,15 +447,17 @@ var CondStmt = $.inherit({
 				var k = 0
 				for (k = 0; k < funcArguments.length; ++k) {
 					if (this.args[i + 1] == funcArguments[k]) {
-						var l = 0
-						for (l = 0; l < selects[i].length; ++l) {
-							if (selects[i][j][0] === arguments[k] || selects[i][j][1] === arguments[k]) {
-								args.push(selects[i][j][0]);
-								break;
+						if (arguments[funcArguments[k]] != undefined) {
+							var l = 0
+							for (l = 0; l < selects[i].length; ++l) {
+								if (selects[i][l][0] === arguments[funcArguments[k]] || selects[i][l][1] === arguments[funcArguments[k]]) {
+									args.push(selects[i][l][0]);
+									break;
+								}
 							}
-						}
-						if (l == selects[i].length) {
-							throw 'Invalid argument';
+							if (l == selects[i].length) {
+								throw 'Invalid argument';
+							}
 						}
 						break;
 					}
@@ -484,7 +494,7 @@ var CondStmt = $.inherit({
 					}
 					if (k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
 						$('#' + this.id).children('select:eq(' + i + ')').append(
-							'<option value="' + (index + j) + '">' + arguments[j] + '</option><br>');
+							'<option value="' + arguments[j] + '">' + arguments[j] + '</option><br>');
 					}
 				}
 			}

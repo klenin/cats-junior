@@ -266,7 +266,6 @@ function convertTreeToCommands(commands, parent, problem)
 					var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
 					block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
 				}
-
 				break;
 			case 'For':
 				//__constructor : function(body, cnt, parent, id)
