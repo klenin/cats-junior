@@ -73,5 +73,10 @@ var ExecutorWrapper = $.inherit({
 	getCommands: function() {
 		this.checkExecutor();
 		return this.executor.getCommands();
+	},
+
+	getCssFileName: function() {
+		this.checkExecutor();
+		return this.executor.getCssFileName();
 	}
 });

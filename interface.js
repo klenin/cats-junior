@@ -328,6 +328,7 @@ function fillTabs(){
 				}
 			}(i));
 			problems[i].initExecutor(data[i]);
+			updateStyleSheet(i, problems[i].executor.getCssFileName());
 			problems[i].generateCommands();
 		
 			$('#forJury' + i).hide();
@@ -466,3 +467,21 @@ function prevClick(){
 	curProblem.prev();
 }
 
+function updateStyleSheet(index, filename) 
+{
+    if ($("#dynamic_css_" + index).length == 0) {
+        $("head").append("<link>")
+        css = $("head").children(":last");
+        css.attr({
+          id: "dynamic_css_" + index,
+          rel:  "stylesheet",
+          type: "text/css",
+          href: filename
+        });
+    } 
+	else 
+    {
+        $("#dynamic_css_" + index).attr("href",filename);
+    }
+ 
+}
