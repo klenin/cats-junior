@@ -187,6 +187,9 @@ function convertCondition(expr){
 					case 'Num':
 						args.push(expr.args[j].n.v);
 						break;
+					case 'Name':
+						args.push(expr.args[j].id.v);
+						break;
 					default:
 						args.push(undefined);
 				}
@@ -266,7 +269,6 @@ function convertTreeToCommands(commands, parent, problem)
 					var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
 					block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
 				}
-
 				break;
 			case 'For':
 				//__constructor : function(body, cnt, parent, id)
