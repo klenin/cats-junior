@@ -1320,7 +1320,7 @@ var FuncCall = $.inherit({
 					.bind('change', function(){
 						return function(pr) {
 							pr.updated();
-						}(problem)
+						}(this.problem)
 					})
 			}
 		}
