@@ -572,24 +572,31 @@ function objectPosition_handler(object, direction){
 	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
 	switch(object.v){
 		case 'wall':
+		case 'Стена':
 			result = cell.isWall;
 			break;
 		case 'prize':
+		case 'Приз':
 			result = cell.findCell(Prize) != undefined;
 			break;
 		case 'box':
+		case 'Ящик':
 			result = cell.findCell(Box) != undefined;
 			break;
 		case 'monster':
+		case 'Монстр':
 			result = cell.findCell(Monster) != undefined;
 			break;
 		case 'lock':
+		case 'Замок':
 			result = cell.findCell(Lock) != undefined;
 			break;
 		case 'key':
+		case 'Ключ':
 			result = cell.findCell(Key) != undefined;
 			break;
 		case 'border':
+		case 'Граница':
 			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
