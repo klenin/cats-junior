@@ -49,8 +49,7 @@ li.invisible{
 	z-index: 0;
 	list-style-type: none; 
 }
-div.forward, div.forward1, div.left, div.left1, div.right, div.right1, div.wait, 
-div.wait1, div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
+div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
 	list-style-type: none; 
 	width: 32px; 
 	height: 32px;
@@ -76,14 +75,7 @@ div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
 }
-div.forward{ background: #A9A9A9 url('../images/forward_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
-div.forward1{ background: #1CB2B3 url('../images/forward_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
-div.left{ background: #A9A9A9 url('../images/left_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
-div.right{ background: #A9A9A9 url('../images/right_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
-div.left1{ 	background: #1CB2B3 url('../images/left_smallt.png') 5% 100% no-repeat !important;background-position: 50% 50%;}
-div.right1{ background: #1CB2B3 url('../images/right_small.png') 5% 100% no-repeat !important; background-position: 5%0 50%;}
-div.wait{ background: #A9A9A9 url('../images/wait_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
-div.wait1{ background: #1CB2B3 url('../images/wait_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
+
 div.if{ background: url('../images/if.png') 5% 100% no-repeat; background-position: 50% 50%;}
 div.ifelse{ background: url('../images/if_else.png') 5% 100% no-repeat; background-position: 50% 50%;}
 div.while{ background: url('../images/while.png') 5% 100% no-repeat; background-position: 50% 50%;}
@@ -131,36 +123,6 @@ div.sortable-func{
 	-webkit-border-radius: 4px; 
 	border-radius: 6px;
 }
-
-td.wall, td.floor, td.highlightFloor, td.highlightWall{
-	width: 30px;
-	height: 30px;
-	border: 0px;
-	margin: 0px; 
-	padding: 0px;
-	border-spacing: 0px;
-}
-td.wall{ background-image: url('../images/wall.jpg'); }
-td.floor{ background-image: url('../images/floor.jpg'); }
-td.highlightWall{ background-image: url('../images/wall__.jpg'); }
-td.highlightFloor{ background-image: url('../images/floor__.jpg'); }
-div.key, div.lock, div.hero_up, div.hero_down, div.highlightedLock, div.hero_left, div.hero_right, div.star, div.BigStar, div.MiddleStar, div.box, div.monster{	
-	width: 100%;
-	height: 100%;
-	z-index: 2;
-}
-div.key{ background: url('../images/key.png') 50% 50% no-repeat; }
-div.lock{ background: url('../images/lock.png') 50% 50% no-repeat; }
-div.highlightedLock{ background: url('../images/highlightedLock.png') 50% 50% no-repeat; }
-div.hero_up{ background: url('../images/hero_up.png') 50% 50% no-repeat; }
-div.hero_down{ background: url('../images/hero_down.png') 50% 50% no-repeat; }
-div.hero_left{ background: url('../images/hero_left.png') 50% 50% no-repeat; }
-div.hero_right{ background: url('../images/hero_right.png') 50% 50% no-repeat; }
-div.star{ background: url('../images/star.png') 50% 50% no-repeat; }
-div.BigStar{ background: url('../images/BigStar.png') 50% 50% no-repeat; }
-div.MiddleStar{ background: url('../images/MiddleStar.png') 50% 50% no-repeat; }
-div.box{	background: url('../images/box.png') 50% 50% no-repeat; }
-div.monster{	background: url('../images/SeaMonster.png') 50% 50% no-repeat; }
 div.cons{
 	width: 226px;
 	border: 2px #A9A9A9 double;

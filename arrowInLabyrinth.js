@@ -403,6 +403,10 @@ var ArrowInLabyrinth = $.inherit({
 
 	getCommands: function() {
 		return this.__self.commands;
+	},
+
+	getCssFileName: function() {
+		return this.__self.cssFileName;
 	}
 }, 
 { //static methods and properties
@@ -480,7 +484,9 @@ var ArrowInLabyrinth = $.inherit({
 		]],
 		'jsFunc': objectPosition,
 		'handlerFunc': objectPosition_handler,
-	}
+	},
+
+	cssFileName: "styles/arrowInLabyrinth.css"
 });
 
 function objectPosition(args){
