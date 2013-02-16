@@ -159,7 +159,7 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 				$('#' + id).text().split(' ').join(''), arguments,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
-			var cmd = new Command(type, parseInt($('#' + id + ' input').val()),
+			var cmd = new Command(type, $('#' + id).children('div').mySpin('getTotal'),
 				block, id, problem);
 			block.pushCommand(cmd);
 		}

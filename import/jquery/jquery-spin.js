@@ -91,20 +91,32 @@
 				if(opt.lock){
 					txt.focus(function(){txt.blur();});
         }
-        
+
+		txt.arguments = [];
+		
         function spin(vector){
           var val = txt.val();
           var org_val = val;
           if(opt.decimal) val=val.replace(opt.decimal, '.');
           if(!isNaN(val)){
             val = calcFloat.sum(val, vector * opt.interval);
-            if(opt.min!==null && val<opt.min) val=opt.min;
+            if(opt.min!==null && val<opt.min) 
+			{
+				if (txt.arguments.length > 0)
+				{
+					val = max(opt.min - txt.arguments.length, val);
+				}
+				else
+				{
+					val=opt.min;
+				}
+            }
             if(opt.max!==null && val>opt.max) val=opt.max;
             if(val != txt.val()){
               if(opt.decimal) val=val.toString().replace('.', opt.decimal);
               var ret = ($.isFunction(opt.beforeChange) ? opt.beforeChange.apply(txt, [val, org_val]) : true);
               if(ret!==false){
-                txt.val(val);
+                txt.val(val >= opt.min ? val: txt.arguments[opt.min - val - 1]);
                 if($.isFunction(opt.changed)) opt.changed.apply(txt, [val]);
                 txt.change();
                 src = (vector > 0 ? spinUpImage : spinDownImage);

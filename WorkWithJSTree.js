@@ -3,16 +3,27 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
 	tree.set_type(type, newNode);
+
+	$(newNode).prop('id', type + ++cmdId);
+	$(newNode).prop('numId', cmdId);
+	$(newNode).prop('ifLi', 1);
+	$(newNode).prop('type', type);
+	$(newNode).addClass(type);
+
+	newNode = '#' + type + cmdId;
+	
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
 	if (problem.executionUnit.isCommandSupported(type)) {
-		$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+		var spin = $('<spin></spin>');
+		spin.mySpin('init', $(newNode), []);
+		$(newNode).append(spin);
 	}
 	else {
 		switch(type){
 			case 'for':
-				$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-				$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+				var spin = '<div></div>';
+				spin.mySpin($(newNode), []);
+				$(newNode).spin = spin;
 				break;
 			case 'if':
 			case 'ifelse':
@@ -80,12 +91,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				break;
 		}
 	}
-	$(newNode).prop('id', type + cmdId);
-	$(newNode).prop('numId', cmdId);
-	$(newNode).prop('ifLi', 1);
-	$(newNode).prop('type', type);
-	$(newNode).addClass(type);
-	setSpin(problem);
+	//setSpin(problem);
 	problem.updated();
 }
 	

@@ -11,12 +11,17 @@ var Command = $.inherit({
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
+
+	getSpin: function() {
+		return $('#' + this.id).children('div');
+	},
 	
 	exec: function(cnt, arguments) {
+		this.getSpin().mySpin('setArgumentValues', arguments);
+	
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i)
-		{
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
 			this.problem.oneStep(this.name, 1);
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
@@ -30,11 +35,14 @@ var Command = $.inherit({
 			this.problem.checkLimit();
 			++this.curCnt;
 		}
-		if (this.problem.speed || this.cnt == this.curCnt)
-		{
-			var numId = $('#' + this.id).prop('numId');
-			$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+		if (this.problem.speed || this.cnt == this.curCnt) {
+			this.getSpin().mySpin('decreaseValue');
 		}
+
+		if ( i == t - 1 ) {
+			this.getSpin().mySpin('stopExecution');
+		}
+		
 		this.problem.lastExecutedCmd = this;
 		return cnt - i;
 	},
@@ -46,7 +54,7 @@ var Command = $.inherit({
 	setDefault: function() {
 		this.curCnt = 0;
 		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		this.getSpin().mySpin('stopExecution'); //???
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
@@ -56,19 +64,11 @@ var Command = $.inherit({
 	},
 	
 	showCounters: function() {
-		$('#' + this.id + ' > span > img').show();	
-		$('#' + this.id + ' > span > input').html(this.cnt);	
-		$('#' + this.id + ' > span > input').show();
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).hide();
+		this.getSpin().mySpin('stopExecution');
 	},
 	
 	hideCounters: function() {
-		$('#' + this.id + ' > span > img').hide();		
-		$('#' + this.id + ' > span > input').hide();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
-		$('#spinCnt' + numId).show();
+		this.getSpin().mySpin('startExecution');
 	},
 	
 	started: function() {
@@ -110,7 +110,7 @@ var Command = $.inherit({
 				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
-				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
+				self.getSpin().mySpin('setTotal', self.cnt);
 			}, true); 
 	},
 
@@ -131,6 +131,10 @@ var Command = $.inherit({
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var func = this.getFunction();
+		if (func && func.funcId == funcId) {
+			this.getSpin().mySpin('setArguments', arguments);
+		}
 		return;
 	},
 	
@@ -1135,7 +1139,10 @@ var FuncDef = $.inherit({
 	},
 	
 	updateArguments: function(funcId, arguments) {
-		this.argumentsList = arguments.clone();
+		if (this.funcId == funcId)
+		{
+			this.argumentsList = arguments.clone();
+		}
 		//this.updateJstreeObject();
 		this.body.updateArguments(funcId, arguments);
 	},
