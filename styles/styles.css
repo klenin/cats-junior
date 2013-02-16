@@ -155,10 +155,16 @@ input.spinCnt{
 	border-width: 1px; 
 	padding-bottom: 0px; 
 	top: 0px; left: 0px; 
-	display:none; 
 	position: inherit;
 	z-index: 1;
 }
+
+span.spinImg {
+	background: url('../images/spin-button.png') no-repeat;
+	width: 16px;
+	height: 21px;
+}
+
 .tabs:after { 
    display: block; 
    clear: both; 

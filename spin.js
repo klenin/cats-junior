@@ -9,7 +9,7 @@
 			return this.each(function(){
 				var $this = $(this);
 				$this.data('command', command);
-				$this.data('arguments', arguments);
+				$this.data('arguments', arguments.clone());
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
@@ -18,13 +18,15 @@
 				$this.data('isBeingExecuted', false);
 
 				$this.append(
-					'<input value="1"></input>' + 
-					'<div class="spinImg"></div>'
+					'<input class="spinCnt" value="1" editable="false"></input>' + 
+					'<img src="images/spin-button.png">'
 					);
 
-				$this.children('.spinImg').bind('click', function(e){
+				$this.children('img').bind('click', function(e){
 					var pos = e.pageY - $(this).offset().top;
           			var vector = ($(this).height()/2 > pos ? 1 : -1);
+
+					$this.mySpin('onSpinImgClick', vector);
 				});
 			});
 		},
@@ -43,7 +45,7 @@
 
 		onSpinImgClick: function(delta) {
 			var total = $(this).mySpin('getTotal');
-			var newTotal = total + delta;
+			var newTotal = parseInt(total) + parseInt(delta);
 
 			if (newTotal < $(this).data('minimum')) {
 				if ($(this).data('arguments') && $(this).data('arguments').length) {
