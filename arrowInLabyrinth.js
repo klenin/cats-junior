@@ -10,14 +10,14 @@ var ArrowInLabyrinth = $.inherit({
 		this.initLabyrinth();
 	},
 
-	generateCommands: function(tr) {
+	generateCommands: function(div) {
 		for (var i = 0; i < this.data.commands.length; ++i) {
 			if (!this.__self.cmdClassToName[this.data.commands[i]]) {
 				throw 'Unknown command!!!';
 			}
 			var divclass = this.data.commands[i];
 			var j = this.problem.tabIndex;
-			$(tr).append('<td>' + 
+			$(div).append('<td>' + 
 							'<div id="' + divclass + j + '" class="' + divclass + '  jstree-draggable" type = "' + 
 								divclass + '" rel = "' + divclass + '" title = "' + this.__self.cmdClassToName[divclass] + '">' + 
 							'</div>' + 
@@ -381,7 +381,7 @@ var ArrowInLabyrinth = $.inherit({
 		this.problem.die();
 	},
 
-	heroIsDead: function() {
+	gameOver: function() {
 		this.arrow.dead = true;
 	},
 	

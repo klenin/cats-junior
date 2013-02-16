@@ -328,7 +328,7 @@ function fillTabs(){
 				}
 			}(i));
 			problems[i].initExecutor(data[i]);
-			updateStyleSheet(i, problems[i].executor.getCssFileName());
+			updateStyleSheet(i, problems[i].executionUnit.getCssFileName());
 			problems[i].generateCommands();
 		
 			$('#forJury' + i).hide();

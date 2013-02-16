@@ -1,82 +1,80 @@
-var ExecutorWrapper = $.inherit({
-	__constructor: function(problem, problemData, div, executorName) {
-		this.executor = undefined;
-		switch(executorName) {
-			case 'arrowInLabyrinth':
-				this.executor = new ArrowInLabyrinth(problem, problemData, div);
-				break;
-			default: 
-				console.error('Unknown executor name!!!')
-		}
+var executionUnits = {
+	'arrowInLabyrinth': ArrowInLabyrinth
+};
+
+var ExecutionUnitWrapper = $.inherit({
+	__constructor: function(problem, problemData, div, executionUnitName) {
+		this.executionUnit = new executionUnits[executionUnitName](problem, problemData, div);
+		this.checkExecutionUnit();
 	},
 
-	generateCommands: function(tr) {
-		this.checkExecutor();
-		this.executor.generateCommands(tr);
+	generateCommands: function(div) {
+		this.checkExecutionUnit();
+		this.executionUnit.generateCommands(div);
 	},
 
 	getCommandName: function(command) {
-		this.checkExecutor();
-		return this.executor.getCommandName(command);
+		this.checkExecutionUnit();
+		return this.executionUnit.getCommandName(command);
 	},
 
-	checkExecutor: function() {
-		if (!this.executor) {
+	checkExecutionUnit: function() {
+		if (!this.executionUnit) {
 			throw "Executor is undefined!!!";
 		}
 	},
 
 	setDefault: function(dontDraw) {
-		this.checkExecutor();
-		this.executor.setDefault(dontDraw);
+		this.checkExecutionUnit();
+		this.executionUnit.setDefault(dontDraw);
 	},
 
 	draw: function() {
-		this.checkExecutor();
-		this.executor.draw();	
+		this.checkExecutionUnit();
+		this.executionUnit.draw();	
 	},
 
 	isDead: function() {
-		this.checkExecutor();
-		return this.executor.isDead();	
+		this.checkExecutionUnit();
+		return this.executionUnit.isDead();	
 	},
 
 	executeCommand: function(command) {
-		this.checkExecutor();
-		this.executor.executeCommand(command);	
+		this.checkExecutionUnit();
+		this.executionUnit.executeCommand(command);	
 	},
 
-	heroIsDead: function() {
-		this.checkExecutor();
-		this.executor.heroIsDead();
+	gameOver: function() {
+		this.checkExecutionUnit();
+		this.executionUnit.gameOver();
 	},
 
 	getPoints: function() {
-		this.checkExecutor();
-		return this.executor.getPoints();
+		this.checkExecutionUnit();
+		return this.exexecutionUnitecutor.getPoints();
 	},
 
 	getExecutor: function() {
-		return this.executor;
+		return this.executionUnit;
 	},
 
 	isCommandSupported: function(command) {
-		this.checkExecutor();
-		return this.executor.isCommandSupported(command);
+		this.checkExecutionUnit();
+		return this.executionUnit.isCommandSupported(command);
 	},
 
 	getConditionProperties: function() {
-		this.checkExecutor();
-		return this.executor.getConditionProperties();
+		this.checkExecutionUnit();
+		return this.executionUnit.getConditionProperties();
 	},
 
 	getCommands: function() {
-		this.checkExecutor();
-		return this.executor.getCommands();
+		this.checkExecutionUnit();
+		return this.executionUnit.getCommands();
 	},
 
 	getCssFileName: function() {
-		this.checkExecutor();
-		return this.executor.getCssFileName();
+		this.checkExecutionUnit();
+		return this.executionUnit.getCssFileName();
 	}
 });

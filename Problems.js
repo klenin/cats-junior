@@ -15,7 +15,7 @@ var Command = $.inherit({
 	exec: function(cnt, arguments) {
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()); ++i)
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i)
 		{
 			this.problem.oneStep(this.name, 1);
 			//eval(this.name + '();');
@@ -351,7 +351,7 @@ var CondStmt = $.inherit({
 		//var str = generateTabs(tabsNum) + 'if ';
 		str = '';
 
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var conditionArguments = conditionProperties.args;
 
 		if (this.testName != conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
@@ -418,7 +418,7 @@ var CondStmt = $.inherit({
 	},
 	
 	constructTestFunc: function(args) {
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var conditionArguments = conditionProperties.args;
 
 		if (this.testName != conditionProperties.name) {
@@ -434,7 +434,7 @@ var CondStmt = $.inherit({
 	},
 	
 	convertArguments: function(arguments) {
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var selects = conditionProperties.args;
 
 		var funcDef = this.getFunction();
@@ -859,7 +859,7 @@ var Block = $.inherit({
 	
 	exec: function(cnt, arguments) {
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()))
+		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt, arguments);
@@ -1406,7 +1406,8 @@ var Problem = $.inherit({
 	},
 
 	initExecutor: function(data) {
-		this.executor = new ExecutorWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), data.executorName ? data.executorName : 'arrowInLabyrinth');
+		this.executionUnit = new ExecutionUnitWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), 
+			data.executionUnitName ? data.executionUnitName : 'arrowInLabyrinth');
 	},
 
 	generateCommands: function() {
@@ -1438,13 +1439,13 @@ var Problem = $.inherit({
 			}(divclass, cmdClassToName[divclass], self));
 		}
 		
-		this.executor.generateCommands(tr);
+		this.executionUnit.generateCommands(tr);
 	},
 
 	getCommandName: function(command) {
 		var name = cmdClassToName[command];
 		if (!name) {
-			name  = this.executor.getCommandName(command);
+			name  = this.executionUnit.getCommandName(command);
 		}
 		return name;
 	},
@@ -1456,7 +1457,7 @@ var Problem = $.inherit({
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 
-		this.executor.setDefault(f);
+		this.executionUnit.setDefault(f);
 
 		//this.arrow.setDefault();
 		this.paused = false;
@@ -1576,7 +1577,7 @@ var Problem = $.inherit({
 				}
 			}
 			++this.executedCommandsNum;
-			this.executor.draw();
+			this.executionUnit.draw();
 			if (getCurBlock() >= 0)
 			{
 				var b = getCurBlock();
@@ -1771,13 +1772,13 @@ var Problem = $.inherit({
 			$('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
 		if (!isCmdHighlighted(lastCmd))
 			changeCmdHighlight(lastCmd);
-		this.executor.draw();
+		this.executionUnit.draw();
 		this.changeProgressBar();
 	},
 	
 	nextStep: function(cnt, i) {
-		if (this.executor.isDead() || this.stopped){
-			if (this.executor.isDead()) //check it!!!
+		if (this.executionUnit.isDead() || this.stopped){
+			if (this.executionUnit.isDead()) //check it!!!
 				this.heroIsDead();
 			if (this.stopped)
 			{
@@ -1797,7 +1798,7 @@ var Problem = $.inherit({
 			setTimeout(function(problem) { return function() {problem.loop(cnt, i);} }(this), this.speed);
 		}
 		else {
-			this.executor.draw();
+			this.executionUnit.draw();
 			this.changeProgressBar();
 			this.enableButtons();
 			if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked'))
@@ -1834,7 +1835,7 @@ var Problem = $.inherit({
 						this.playing = false;
 				}
 				this.changeProgressBar();
-				this.executor.draw();
+				this.executionUnit.draw();
 				this.enableButtons();
 				
 				this.cmdList.highlightOff();//inefficiency!!!!!!!!
@@ -1851,7 +1852,7 @@ var Problem = $.inherit({
 	
 	oneStep: function(command, cnt) {
 		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
-			this.executor.executeCommand(command);
+			this.executionUnit.executeCommand(command);
 			++this.step;
 			if (this.maxStep && this.step == this.maxStep)
 				continue;
@@ -1927,7 +1928,7 @@ var Problem = $.inherit({
 		if (!this.checkLimit()){
 			return;
 		}
-		if (!this.playing || this.executor.isDead())
+		if (!this.playing || this.executionUnit.isDead())
 		{
 			this.setCounters();
 			this.hideCounters();
@@ -1998,8 +1999,8 @@ var Problem = $.inherit({
 			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 			$scopestack[problem] = 0;
 
-			var commands = problems[problem].executor.getCommands();
-			var conditionProperties = problems[problem].executor.getConditionProperties();
+			var commands = problems[problem].executionUnit.getCommands();
+			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
 
 			for (var i = 0; i < commands.length; ++i) {
 				$gbl[problem][commands[i][0]] = commands[i][1];
@@ -2103,7 +2104,7 @@ var Problem = $.inherit({
 				this.changeProgressBar();
 				++this.executedCommandsNum;
 				this.highlightLast();
-				this.executor.draw();
+				this.executionUnit.draw();
 				if (this.cmdList.isFinished())
 					this.playing = false;
 			}
@@ -2153,7 +2154,7 @@ var Problem = $.inherit({
 		if (this.maxCmdNum && this.divIndex > this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
-			this.executor.heroIsDead();
+			this.executionUnit.gameOver();
 			//this.stopped = true;
 			this.heroIsDead();
 			return false;
