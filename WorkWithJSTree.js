@@ -4,7 +4,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 		type = 'funccall';
 	tree.set_type(type, newNode);
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
-	if (problem.executor.isCommandSupported(type)) {
+	if (problem.executionUnit.isCommandSupported(type)) {
 		$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
 		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
 	}
@@ -30,7 +30,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				}(problem));
 
 
-				var conditionProperties = problem.executor.getConditionProperties();
+				var conditionProperties = problem.executionUnit.getConditionProperties();
 				var args = conditionProperties['args'];
 				if (!args || !$.isArray(args)) {
 					throw 'Invalid arguments list in condtion properties';

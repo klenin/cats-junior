@@ -140,7 +140,7 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 					block2 = new Block([], block, problem);
 				}
 			}
-			var testName = problem.executor.getConditionProperties().name;
+			var testName = problem.executionUnit.getConditionProperties().name;
 			block.pushCommand(type == 'while' ? 
 				new WhileStmt(testName, args, block1, block, id, problem) : 
 				new IfStmt(testName, args, block1, block2, block, id, problem));
@@ -229,7 +229,7 @@ function convertCondition(expr){
 function convertTreeToCommands(commands, parent, problem)
 {
 	var block = new Block([], parent, problem);
-	var execCommands = problem.executor.getCommands();
+	var execCommands = problem.executionUnit.getCommands();
 	for (var i = 0; i < commands.length; ++i)
 	{
 		switch(commands[i]._astname) {

@@ -54,7 +54,7 @@ var ExecutionUnitWrapper = $.inherit({
 		return this.exexecutionUnitecutor.getPoints();
 	},
 
-	getExecutor: function() {
+	getExecutionUnit: function() {
 		return this.executionUnit;
 	},
 

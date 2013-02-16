@@ -518,7 +518,7 @@ function objectPosition(args){
 		default:
 			return false; //should we throw exception?
 	}
-	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
+	var cell = curProblem.executionUnit.getExecutionUnit().getFieldElem(dir);
 	switch(object){
 		case 'wall':
 		case 'Стена':
@@ -546,7 +546,7 @@ function objectPosition(args){
 			break;
 		case 'border':
 		case 'Граница':
-			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
+			result = curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;
@@ -575,7 +575,7 @@ function objectPosition_handler(object, direction){
 		default:
 			return false; //should we throw exception?
 	}
-	var cell = curProblem.executor.getExecutor().getFieldElem(dir);
+	var cell = curProblem.executionUnit.getExecutionUnit().getFieldElem(dir);
 	switch(object.v){
 		case 'wall':
 		case 'Стена':
@@ -603,7 +603,7 @@ function objectPosition_handler(object, direction){
 			break;
 		case 'border':
 		case 'Граница':
-			result = curProblem.executor.getExecutor().labirintOverrun(cell.coord.x, cell.coord.y);
+			result = curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y);
 			break;
 		default:
 			return false;
@@ -619,8 +619,8 @@ var Coord = $.inherit({
 });
 
 var FieldElem = $.inherit({
-	__constructor: function(executor, coord, isWall) {
-		this.executor = executor;
+	__constructor: function(executionUnit, coord, isWall) {
+		this.executionUnit = executionUnit;
 		this.coord = coord;
 		this.isWall = isWall;
 		this.highlighted = false;
@@ -697,13 +697,13 @@ var FieldElem = $.inherit({
 		return true;
 	},
 	getElement: function() {
-		return $(this.executor.table).children('tbody').children('tr:eq(' + this.coord.y + ')').children('td:eq(' + this.coord.x + ')');
+		return $(this.executionUnit.table).children('tbody').children('tr:eq(' + this.coord.y + ')').children('td:eq(' + this.coord.x + ')');
 	}
 });
 
 var Cell = $.inherit({
-	__constructor: function(executor, coord, obj) {
-		this.executor = executor;
+	__constructor: function(executionUnit, coord, obj) {
+		this.executionUnit = executionUnit;
 		this.coord = coord;
 		$.extend(true, this, obj);
 		this.zIndex = this.zIndex ? this.zIndex : 0;
@@ -722,13 +722,13 @@ var Cell = $.inherit({
 	highlightOn: function(){},
 	highlightOff: function(){},
 	getElement: function() {
-		return $(this.executor.table).children('tbody').children('tr:eq(' + this.coord.y + ')').children('td:eq(' + this.coord.x + ')');
+		return $(this.executionUnit.table).children('tbody').children('tr:eq(' + this.coord.y + ')').children('td:eq(' + this.coord.x + ')');
 	}
 });
 
 var Lock = $.inherit(Cell, {
-	__constructor: function(executor, coord) {
-		this.__base(executor, coord, {style: 'lock', symbol: '#_', zIndex: 11});
+	__constructor: function(executionUnit, coord) {
+		this.__base(executionUnit, coord, {style: 'lock', symbol: '#_', zIndex: 11});
 		this.locked = true;
 	},
 	setDefault: function() {
@@ -760,8 +760,8 @@ var Lock = $.inherit(Cell, {
 });
 
 var Key = $.inherit(Cell, {
-	__constructor: function(executor, coord, locks) {
-		this.__base(executor, coord, {style: 'key', symbol: '._', zIndex: 1});
+	__constructor: function(executionUnit, coord, locks) {
+		this.__base(executionUnit, coord, {style: 'key', symbol: '._', zIndex: 1});
 		this.found = false;
 		this.locks = locks;
 	},
@@ -777,8 +777,8 @@ var Key = $.inherit(Cell, {
 });
 
 var Arrow = $.inherit(Cell,{
-	__constructor : function(executor, coord,  dir) {
-		this.__base(executor, coord, {style: 'hero_' + dir, symbol: executor.__self.dirs[dir], zIndex: 3});
+	__constructor : function(executionUnit, coord,  dir) {
+		this.__base(executionUnit, coord, {style: 'hero_' + dir, symbol: executionUnit.__self.dirs[dir], zIndex: 3});
 		this.dir = dir;
 		this.initCoord = coord;
 		this.initDir = dir;
@@ -800,17 +800,17 @@ var Arrow = $.inherit(Cell,{
 		return true;
 	},
 	move: function(d) {
-		var dx = this.executor.__self.changeDir[d][this.dir].dx;
-		var dy = this.executor.__self.changeDir[d][this.dir].dy;
-		this.dir = this.executor.__self.changeDir[d][this.dir].curDir;
+		var dx = this.executionUnit.__self.changeDir[d][this.dir].dx;
+		var dy = this.executionUnit.__self.changeDir[d][this.dir].dy;
+		this.dir = this.executionUnit.__self.changeDir[d][this.dir].curDir;
 		this.coord = new Coord(this.coord.x + dx, this.coord.y + dy); 
 	}
 });
 
 var Prize = $.inherit(Cell,{
-	__constructor : function(executor, coord, prize) {
-		this.__base(executor, coord, $.extend(prize, 
-			{id: executor.maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
+	__constructor : function(executionUnit, coord, prize) {
+		this.__base(executionUnit, coord, $.extend(prize, 
+			{id: executionUnit.maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
 		this.eaten = false;
 	},
 	setDefault: function(){
@@ -827,9 +827,9 @@ var Prize = $.inherit(Cell,{
 });
 
 var Box = $.inherit(Cell,{
-	__constructor : function(executor, coord, box) {
-		this.__base(executor, coord, $.extend(box, 
-			{id: executor.maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
+	__constructor : function(executionUnit, coord, box) {
+		this.__base(executionUnit, coord, $.extend(box, 
+			{id: executionUnit.maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
 		this.initCoord = coord;
 	},
 	move: function(dx, dy) {
@@ -842,9 +842,9 @@ var Box = $.inherit(Cell,{
 });
 
 var Monster = $.inherit(Cell,{
-	__constructor : function(executor, coord, monster) {
-		this.__base(executor, coord, $.extend(true, monster, 
-			{id: executor.maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
+	__constructor : function(executionUnit, coord, monster) {
+		this.__base(executionUnit, coord, $.extend(true, monster, 
+			{id: executionUnit.maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
 		for (var i = 0; i < this.path.length; ++i)
 			this.path[i] = $.extend(this.path[i], {startX: this.path[i].x, startY: this.path[i].y, cnt: 0});
 		this.pathIndex = 0;
@@ -873,9 +873,9 @@ var Monster = $.inherit(Cell,{
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				dir = this.path[this.pathIndex + 1].dir;
 			
-		if (dir && dir.length && !this.executor.map[y + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dy][x + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dx].isWall){
-			x = x + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dx;
-			y = y + this.executor.__self.changeDir.forward[this.executor.__self.dirs[dir]].dy;
+		if (dir && dir.length && !this.executionUnit.map[y + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dy][x + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dx].isWall){
+			x = x + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dx;
+			y = y + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dy;
 		}
 		return new Coord(x, y);
 	},
@@ -890,11 +890,11 @@ var Monster = $.inherit(Cell,{
 			if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 				++this.pathIndex;
 		if (this.path[this.pathIndex].dir && this.path[this.pathIndex].dir.length && 
-			!this.executor.map[this.path[this.pathIndex].y + 
-			this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + 
-			this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dx].isWall){
-			this.path[this.pathIndex].x += this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dx;
-			this.path[this.pathIndex].y += this.executor.__self.changeDir.forward[this.executor.__self.dirs[this.path[this.pathIndex].dir]].dy;
+			!this.executionUnit.map[this.path[this.pathIndex].y + 
+			this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + 
+			this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dx].isWall){
+			this.path[this.pathIndex].x += this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dx;
+			this.path[this.pathIndex].y += this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dy;
 		}
 
 		++this.path[this.pathIndex].cnt;
