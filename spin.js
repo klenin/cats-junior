@@ -16,6 +16,7 @@
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
+				$this.data('totalVal', 1);
 				$this.data('minimum', 1);
 
 				$this.data('isBeingExecuted', false);
@@ -39,11 +40,13 @@
 		},
 
 		getTotal: function() {
-			return $(this).children('input').val();
+			return $(this).data('total');
 		},
 
-		setTotal: function(total) {
-			$(this).children('input').val(total);
+		setTotal: function(total, v) {
+			$(this).data('total', total);
+			$(this).data('totalVal', v ? v : total);
+			$(this).children('input').val($(this).data('totalVal'));
 		},
 
 		onSpinImgClick: function(delta) {
@@ -52,8 +55,13 @@
 
 			if (newTotal < $(this).data('minimum')) {
 				if ($(this).data('arguments') && $(this).data('arguments').length) {
-					newTotal = $(this).data('arguments')[Math.max($(this).data('minimum') - newTotal - 1, 
-						$(this).data('minimum') - $(this).data('arguments').length + 1)];
+					if ($(this).data('minimum') - newTotal - 1 > $(this).data('arguments').length - 1) {
+						newTotal -= parseInt(delta);
+					}
+					$(this).mySpin('setTotal', newTotal, 
+						$(this).data('arguments')[Math.min($(this).data('minimum') - newTotal - 1, 
+						$(this).data('arguments').length - 1)]);
+					return;
 				}
 				else
 				{
@@ -62,6 +70,7 @@
 			}
 
 			$(this).mySpin('setTotal', newTotal);
+			return false;
 		},
 
 		startExecution: function(current) {
@@ -78,7 +87,7 @@
 		stopExecution: function() {
 			$(this).mySpin('getSpinImg').show();
 			$(this).data('isBeingExecuted', false);
-			$(this).mySpin('setTotal', $(this).data('total'));
+			$(this).mySpin('setTotal', $(this).data('total'), $(this).data('totalVal'));
 		},
 
 		decreaseValue: function() {
@@ -87,7 +96,8 @@
 		},
 
 		setArguments: function(arguments) {
-			$(this).data('arguments', arguments.clone());
+			var args = arguments.clone()
+			$(this).data('arguments', args);
 		},
 
 		setArgumentValues: function(argumentValues) {

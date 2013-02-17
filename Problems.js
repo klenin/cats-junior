@@ -6,6 +6,11 @@ var Command = $.inherit({
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
+
+		var func = this.getFunction();
+		if (func) {
+			this.getSpin().mySpin('setArguments', func.getArguments());
+		}
 	},
 	
 	eq: function(cmd, compareCnt){
@@ -13,7 +18,7 @@ var Command = $.inherit({
 	},
 
 	getSpin: function() {
-		return $('#' + this.id).children('div');
+		return $('#' + this.id).children('spin');
 	},
 	
 	exec: function(cnt, arguments) {
