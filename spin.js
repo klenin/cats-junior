@@ -5,11 +5,14 @@
 		//counter -- total 
 		//value -- current
 		//during execution we will see value/counter
-		init: function(command, arguments) {
+		init: function(a, b) {
 			return this.each(function(){
 				var $this = $(this);
+
+				var command = a;
+				
 				$this.data('command', command);
-				$this.data('arguments', arguments.clone());
+				$this.data('arguments', b.clone());
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
@@ -24,7 +27,7 @@
 
 				$this.children('img').bind('click', function(e){
 					var pos = e.pageY - $(this).offset().top;
-          			var vector = ($(this).height()/2 > pos ? 1 : -1);
+					var vector = ($(this).height()/2 > pos ? 1 : -1);
 
 					$this.mySpin('onSpinImgClick', vector);
 				});
@@ -51,6 +54,10 @@
 				if ($(this).data('arguments') && $(this).data('arguments').length) {
 					newTotal = $(this).data('arguments')[Math.max($(this).data('minimum') - newTotal - 1, 
 						$(this).data('minimum') - $(this).data('arguments').length + 1)];
+				}
+				else
+				{
+					newTotal = $(this).data('minimum');
 				}
 			}
 
