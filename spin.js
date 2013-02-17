@@ -17,6 +17,7 @@
 
 				$this.data('total', 1);
 				$this.data('totalVal', 1);
+				$this.data('currentTotal', 1);
 				$this.data('minimum', 1);
 
 				$this.data('isBeingExecuted', false);
@@ -49,6 +50,10 @@
 			$(this).children('input').val($(this).data('totalVal'));
 		},
 
+		getTotalValue: function() {
+			return $(this).data('totalVal');
+		},
+
 		onSpinImgClick: function(delta) {
 			var total = $(this).mySpin('getTotal');
 			var newTotal = parseInt(total) + parseInt(delta);
@@ -73,26 +78,47 @@
 			return false;
 		},
 
-		startExecution: function(current) {
+		hideBtn: function() {
 			$(this).mySpin('getSpinImg').hide();
-			$(this).data('total', $(this).mySpin('getTotal'));
-			$(this).data('value') = current != undefined ? current : (isInt(total) ? total : $(this).data('argumentValues')[total]);
+			if (isInt($(this).data('totalVal')))  {
+				$(this).children('input').val($(this).data('totalVal') + '\\' + $(this).data('totalVal'));
+			}
+		},
+
+		showBtn: function() {
+			$(this).mySpin('getSpinImg').show();
+			$(this).children('input').val($(this).data('totalVal'));
+		},
+
+		startExecution: function(current) {
+			$(this).data('currentTotal', $(this).data('total'));
+			if (current != undefined) {
+				$(this).data('value') = current;
+			}
+			else {
+				if (isInt($(this).data('totalVal'))) {
+					$(this).data('value', $(this).data('totalVal'));
+				}
+				else {
+					$(this).data('value', parseInt($(this).data('argumentValues')[$(this).data('totalVal')]));
+					$(this).data('currentTotal', $(this).data('value'));
+				}
+			}
 			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 				throw 'Invalid counter!!!';
 			}
-			$(this).children('input').value( $(this).data('value') + '\\' + total );
+			$(this).children('input').val($(this).data('value') + '\\' + $(this).data('currentTotal'));
 			$(this).data('isBeingExecuted', true);
 		},
 
 		stopExecution: function() {
-			$(this).mySpin('getSpinImg').show();
 			$(this).data('isBeingExecuted', false);
 			$(this).mySpin('setTotal', $(this).data('total'), $(this).data('totalVal'));
 		},
 
 		decreaseValue: function() {
-			$(this).data('value') = Math.max($(this).data('value') - 1, $(this).data('minimum'));
-			$(this).children('input').value( $(this).value + '\\' + total );
+			$(this).data('value', Math.max($(this).data('value') - 1, 0));
+			$(this).children('input').val( $(this).data('value') + '\\' + $(this).data('currentTotal') );
 		},
 
 		setArguments: function(arguments) {
@@ -101,7 +127,8 @@
 		},
 
 		setArgumentValues: function(argumentValues) {
-			$(this).data('argumentValues', argumentValues.clone());
+			var args = $.extend(true, {}, argumentValues);
+			$(this).data('argumentValues', args);
 		},
 	}
 

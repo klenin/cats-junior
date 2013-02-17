@@ -22,8 +22,20 @@ var Command = $.inherit({
 	},
 	
 	exec: function(cnt, arguments) {
-		this.getSpin().mySpin('setArgumentValues', arguments);
-	
+		if (this.curCnt == 0) {
+			this.getSpin().mySpin('setArgumentValues', arguments);
+			this.getSpin().mySpin('startExecution');
+
+			var val = this.getSpin().mySpin('getTotalValue');
+			if (!isInt(val)) {
+				this.cnt = parseInt(arguments[val]);
+			}
+
+			if (!isInt(this.cnt) || this.cnt < 1) {
+				throw 'Invalid counter!!';
+			}
+		}
+
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
@@ -39,11 +51,11 @@ var Command = $.inherit({
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
+			if (this.problem.speed || this.cnt == this.curCnt) {
+				this.getSpin().mySpin('decreaseValue');
+			}
 		}
-		if (this.problem.speed || this.cnt == this.curCnt) {
-			this.getSpin().mySpin('decreaseValue');
-		}
-
+		
 		if ( i == t - 1 ) {
 			this.getSpin().mySpin('stopExecution');
 		}
@@ -69,11 +81,11 @@ var Command = $.inherit({
 	},
 	
 	showCounters: function() {
-		this.getSpin().mySpin('stopExecution');
+		this.getSpin().mySpin('showBtn');
 	},
 	
 	hideCounters: function() {
-		this.getSpin().mySpin('startExecution');
+		this.getSpin().mySpin('hideBtn');
 	},
 	
 	started: function() {
