@@ -74,7 +74,7 @@ var Command = $.inherit({
 	setDefault: function() {
 		this.curCnt = 0;
 		var numId = $('#' + this.id).prop('numId');
-		this.getSpin().mySpin('stopExecution'); //???
+		//this.getSpin().mySpin('stopExecution'); //???
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
@@ -212,16 +212,14 @@ var ForStmt = $.inherit({
 			}
 		}
 		
-		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			this.isStarted = true;
 			if (!this.executing)
 			{
 				cnt -= 1;
 				var numId = $('#' + this.id).prop('numId');
-				if (this.problem.speed || this.cnt == this.curCnt) {
-					this.getSpin().mySpin('decreaseValue');
-				}				
+			
 				if (!cnt || this.problem.speed)
 				{
 					if (this.problem.speed)
@@ -230,7 +228,9 @@ var ForStmt = $.inherit({
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+					$('#' + this.id + '>spin').css('background-color', '#1CB2B3');
+					$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+
 				}
 				this.problem.lastExecutedCmd = this;
 				if (this.curCnt + 1 > this.cnt)
@@ -246,6 +246,9 @@ var ForStmt = $.inherit({
 			{
 				this.executing = false;
 				++this.curCnt;
+				if (this.problem.speed || this.cnt == this.curCnt) {
+					this.getSpin().mySpin('decreaseValue');
+				}	
 			}
 		}
 		return cnt;
@@ -270,7 +273,7 @@ var ForStmt = $.inherit({
 	},
 	
 	hideCounters: function() {
-		this.getSpin().mySpin('hideBtn');
+		this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
 		this.body.hideCounters();
 	},
 	
@@ -742,7 +745,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	
 	exec: function(cnt, arguments) {
-		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -1504,8 +1507,6 @@ var Problem = $.inherit({
 		*/
 
 		this.executionUnit.setDefault(f);
-
-		//this.arrow.setDefault();
 		this.paused = false;
 		this.stopped = false;
 		this.playing = false;

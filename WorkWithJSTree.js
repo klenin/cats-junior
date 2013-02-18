@@ -21,9 +21,9 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 	else {
 		switch(type){
 			case 'for':
-				var spin = '<div></div>';
-				spin.mySpin($(newNode), []);
-				$(newNode).spin = spin;
+				var spin = $('<spin></spin>');
+				spin.mySpin('init', $(newNode), []);
+				$(newNode).append(spin);
 				break;
 			case 'if':
 			case 'ifelse':
