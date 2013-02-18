@@ -30,7 +30,10 @@ var Command = $.inherit({
 			if (!isInt(val)) {
 				this.cnt = parseInt(arguments[val]);
 			}
-
+			else {
+				this.cnt = parseInt(val);
+			}
+			
 			if (!isInt(this.cnt) || this.cnt < 1) {
 				throw 'Invalid counter!!';
 			}
@@ -85,7 +88,7 @@ var Command = $.inherit({
 	},
 	
 	hideCounters: function() {
-		this.getSpin().mySpin('hideBtn');
+		this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
 	},
 	
 	started: function() {
@@ -170,6 +173,15 @@ var ForStmt = $.inherit({
 		this.id = id;
 		this.curCnt = 0;
 		this.problem = problem;
+
+		var func = this.getFunction();
+		if (func) {
+			this.getSpin().mySpin('setArguments', func.getArguments());
+		}
+	},
+
+	getSpin: function() {
+		return $('#' + this.id).children('spin');
 	},
 	
 	isFinished: function(){
@@ -182,6 +194,24 @@ var ForStmt = $.inherit({
 	
 	exec: function(cnt, arguments)
 	{
+
+		if (this.curCnt == 0) {
+			this.getSpin().mySpin('setArgumentValues', arguments);
+			this.getSpin().mySpin('startExecution');
+
+			var val = this.getSpin().mySpin('getTotalValue');
+			if (!isInt(val)) {
+				this.cnt = parseInt(arguments[val]);
+			}
+			else {
+				this.cnt = parseInt(val);
+			}
+
+			if (!isInt(this.cnt) || this.cnt < 1) {
+				throw 'Invalid counter!!';
+			}
+		}
+		
 		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
 		{
 			this.isStarted = true;
@@ -189,7 +219,9 @@ var ForStmt = $.inherit({
 			{
 				cnt -= 1;
 				var numId = $('#' + this.id).prop('numId');
-				$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+				if (this.problem.speed || this.cnt == this.curCnt) {
+					this.getSpin().mySpin('decreaseValue');
+				}				
 				if (!cnt || this.problem.speed)
 				{
 					if (this.problem.speed)
@@ -227,26 +259,18 @@ var ForStmt = $.inherit({
 		this.executing = false;
 		this.isStarted = false;
 		this.curCnt = 0;
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		this.getSpin().mySpin('hideBtn');
 		this.body.setDefault();
 		this.highlightOff();
 	},
 	
 	showCounters: function() {
-		$('#' + this.id + ' > span > img').show();		
-		$('#' + this.id + ' > span > input').show();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).hide();
+		this.getSpin().mySpin('showBtn');
 		this.body.showCounters();
 	},
 	
 	hideCounters: function() {
-		$('#' + this.id + ' > span > img').hide();		
-		$('#' + this.id + ' > span > input').hide();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
-		$('#spinCnt' + numId).show();
+		this.getSpin().mySpin('hideBtn');
 		this.body.hideCounters();
 	},
 	
@@ -255,8 +279,7 @@ var ForStmt = $.inherit({
 	},
 	
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != 'for')
-		{
+		if (block.getClass() != 'for') {
 			return block;
 		}
 		this.cnt = block.cnt; //?
@@ -265,22 +288,21 @@ var ForStmt = $.inherit({
 		return this;
 	},
 	
-	makeUnfinished: function(){
-		if (this.isFinished())
-		{
+	makeUnfinished: function() {
+		if (this.isFinished()) {
 			this.curCnt = Math.max(this.cnt - 1, 0);
 			this.executing = true;
 			this.body.makeUnfinished();
 		}
 	},
 	
-	highlightOff: function(){
+	highlightOff: function() {
 		$('#' + this.id + '> span').css('background-color', '');
 		$('#' + this.id + '> a').css('background-color', '');
 		this.body.highlightOff();
 	},
 	
-	highlightOn: function(){
+	highlightOn: function() {
 		$('#' + this.id + '> span').css('background-color', '#1CB2B3');
 		$('#' + this.id + '> a').css('background-color', '#1CB2B3');
 	},

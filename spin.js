@@ -78,10 +78,10 @@
 			return false;
 		},
 
-		hideBtn: function() {
+		hideBtn: function(cnt) {
 			$(this).mySpin('getSpinImg').hide();
 			if (isInt($(this).data('totalVal')))  {
-				$(this).children('input').val($(this).data('totalVal') + '\\' + $(this).data('totalVal'));
+				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
 			}
 		},
 
@@ -107,7 +107,7 @@
 			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 				throw 'Invalid counter!!!';
 			}
-			$(this).children('input').val($(this).data('value') + '\\' + $(this).data('currentTotal'));
+			$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
 			$(this).data('isBeingExecuted', true);
 		},
 
@@ -118,7 +118,7 @@
 
 		decreaseValue: function() {
 			$(this).data('value', Math.max($(this).data('value') - 1, 0));
-			$(this).children('input').val( $(this).data('value') + '\\' + $(this).data('currentTotal') );
+			$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );
 		},
 
 		setArguments: function(arguments) {
