@@ -146,7 +146,7 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 				new IfStmt(testName, args, block1, block2, block, id, problem));
 		}
 		else if (type == 'for')		{
-			var cnt = parseInt($('#' + id + ' .cnt .cnt').val());
+			var cnt = parseInt($('#' + id).children('spin').mySpin('getTotal'));
 			var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
@@ -159,7 +159,7 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 				$('#' + id).text().split(' ').join(''), arguments,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
-			var cmd = new Command(type, $('#' + id).children('div').mySpin('getTotal'),
+			var cmd = new Command(type, $('#' + id).children('spin').mySpin('getTotal'),
 				block, id, problem);
 			block.pushCommand(cmd);
 		}
@@ -241,7 +241,7 @@ function convertTreeToCommands(commands, parent, problem)
 				var j = 0;
 
 				for (j = 0 ; j < execCommands.length; ++j) {
-					if (commands[i].value.func.id.v == execCommands[i][0]) {
+					if (commands[i].value.func.id.v == execCommands[j][0]) {
 						//TODO: add support of different number and types of arguments!!!						
 						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
 							commands[i].value.args[0]._astname == 'Num'))

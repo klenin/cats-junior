@@ -128,8 +128,8 @@ var Command = $.inherit({
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
-				var numId = $(newNode).prop('numId');
-				self.id = numId;
+				
+				self.id = $(newNode).attr('id');
 				self.getSpin().mySpin('setTotal', self.cnt);
 			}, true); 
 	},
