@@ -246,8 +246,17 @@ function convertTreeToCommands(commands, parent, problem)
 						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
 							(commands[i].value.args[0]._astname == 'Num' || commands[i].value.args[0]._astname == 'Name')))
 							return undefined;
+						var arg = undefined;
+						if (commands[i].value.args.length) {
+							if (commands[i].value.args[0]._astname == 'Num') {
+								arg = commands[i].value.args[0].n;
+							}
+							else if (commands[i].value.args[0]._astname == 'Name') {
+								arg = commands[i].value.args[0].id.v;
+							}
+						}
 						block.pushCommand(new Command(commands[i].value.func.id.v, 
-							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
+							arg ? arg : 1, block, undefined, problem));
 						break;
 					}
 				}
