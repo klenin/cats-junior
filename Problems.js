@@ -34,7 +34,7 @@ var Command = $.inherit({
 				this.cnt = parseInt(val);
 			}
 			
-			if (!isInt(this.cnt) || this.cnt < 1) {
+			if (!isInt(this.cnt) || this.cnt < 0) {
 				throw 'Invalid counter!!';
 			}
 		}
@@ -59,7 +59,7 @@ var Command = $.inherit({
 			}
 		}
 		
-		if ( i == t - 1 ) {
+		if ( i == t - 1 || t == 0 ) {
 			this.getSpin().mySpin('stopExecution');
 		}
 		

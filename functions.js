@@ -244,7 +244,7 @@ function convertTreeToCommands(commands, parent, problem)
 					if (commands[i].value.func.id.v == execCommands[j][0]) {
 						//TODO: add support of different number and types of arguments!!!						
 						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
-							commands[i].value.args[0]._astname == 'Num'))
+							(commands[i].value.args[0]._astname == 'Num' || commands[i].value.args[0]._astname == 'Name')))
 							return undefined;
 						block.pushCommand(new Command(commands[i].value.func.id.v, 
 							commands[i].value.args.length ? commands[i].value.args[0].n : 1, block, undefined, problem));
