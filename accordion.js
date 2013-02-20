@@ -5,16 +5,10 @@
 		init: function(options) {
 			return this.each(function(){
 				var $this = $(this);
-				data = $this.data('myAccordion');
-
-				if ( ! data ) {
-					$(this).data('myAccordion', {
-						target : $this,
-						'problem' : options.problem,
-						'editing': false,
-						'arguments': []
-					});
-				}
+				$this.data('target', $this);
+				$this.data('problem', options.problem);
+				$this.data('editing', false);
+				$this.data('arguments', []);
 			});
 		},
 		
@@ -32,13 +26,13 @@
 				'</div>');
 			$('#funcDiv' + cmdId).attr('funcId', funcId === undefined ? cmdId : funcId);
 			//$this.children('div').children('input').hide();
-			$this.data('myAccordion').arguments.push([]);
+			$this.data('arguments').push([]);
 			if (!arguments) {
 				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			}
 			else {
 				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next();
-				var index = $this.data('myAccordion').arguments.length - 1;
+				var index = $this.data('arguments').length - 1;
 				for (var i = 0; i < arguments.length; ++i) {
 					if (i != 0) {
 						var comma = $('<span>, </span>')
@@ -56,7 +50,7 @@
 						.bind('mouseout', function(eventObject){
 							$(this).css('border', 'none');
 						});
-					$this.data('myAccordion').arguments[index].push(argSpan);
+					$this.data('arguments')[index].push(argSpan);
 				}
 			}
 			$this.myAccordion('updateEvents');			
@@ -64,7 +58,7 @@
 		
 		updateEvents: function() {
 			var $this = $(this);
-			$this.children('div').children('.func-icon:eq(0)').unbind('click').bind('click', function(eventObject) {
+			$this.children('div').children('.func-icon:even').unbind('click').bind('click', function(eventObject) {
 				$(this).parent().children('.func-body').toggle('fold', 1000);
 				$(this).toggleClass('ui-icon-plus');
 				$(this).toggleClass('ui-icon-minus');
@@ -74,8 +68,8 @@
 				$this.myAccordion('showFunctionNameInput', this);
 				return false;
 			});
-			$this.children('div').children('.func-icon:eq(1)').unbind('click').bind('click', function(eventObject) {
-				var index = $this.data('myAccordion').arguments[$this.index()].length; 
+			$this.children('div').children('.func-icon:odd').unbind('click').bind('click', function(eventObject) {
+				var index = $this.data('arguments')[$(this).parent().index()].length; 
 				var argSpan = $('<span class="argInput">arg' + index + '</span>')
 					.insertBefore($(this).prev('span'))
 					.bind('dblclick', function(eventObject) {
@@ -89,24 +83,24 @@
 						$(this).css('border', 'none');
 					});
 
-				$this.data('myAccordion').arguments[$this.index()].push(argSpan);
+				$this.data('arguments')[$(this).parent().index()].push(argSpan);
 				if (index != 0) {
 					var comma = $('<span>, </span>')
 						.insertBefore(argSpan);
 				}
-				$this.data('myAccordion').problem.updateArguments($(this).parent().attr('funcId'), 
+				$this.data('problem').updateArguments($(this).parent().attr('funcId'), 
 					$this.myAccordion('getArguments', $(this).parent()));
-				$this.data('myAccordion').problem.updated();				
+				$this.data('problem').updated();				
 			});
 		},
 
 		clear: function() {
 			$(this).children().detach();
-			$(this).data('myAccordion').arguments = [];
+			$(this).data('arguments', []);
 		},
 
 		clearDiv: function(div) {
-			$(this).data('myAccordion').arguments[$(div).index()] = [];
+			$(this).data('arguments')[$(div).index()] = [];
 		},
 
 		showFunctionNameInput: function(div) {
@@ -116,11 +110,11 @@
 			var value = $(div).html();	
 			var $this = $(this);
 			$(this).myAccordion('showInput', top, left, span, value, 'funcInput', function(oldName, newName, input) {
-				var span = $this.data('myAccordion').span;
+				var span = $this.data('span');
 				var index = $(span).parent().index();
-				var argumentsNum = $this.data('myAccordion').arguments[index].length;
-				if (oldName != newName && $this.data('myAccordion').problem.functions[newName] && 
-					$this.data('myAccordion').problem.functions[newName][argumentsNum]) {
+				var argumentsNum = $this.data('arguments')[index].length;
+				if (oldName != newName && $this.data('problem').functions[newName] && 
+					$this.data('problem').functions[newName][argumentsNum]) {
 					if (!confirm('The function with the same name already exists, continue anyway?')) {
 						$(input).focus();
 						return false;
@@ -131,8 +125,8 @@
 					$(input).focus();
 					return false;
 				}
-				$($this.data('myAccordion').span).html($(input).val());
-				$this.data('myAccordion').problem.updateFunctonName( $(div).parent().attr('funcId'), newName );
+				$($this.data('span')).html($(input).val());
+				$this.data('problem').updateFunctonName( $(div).parent().attr('funcId'), newName );
 			});
 		},
 
@@ -154,14 +148,14 @@
 					$(input).focus();
 					return false;
 				}*/
-				$($this.data('myAccordion').span).html($(input).val());
+				$($this.data('span')).html($(input).val());
 				//$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
 			});
 		},
 
 		showInput: function(top, left, span, value, className, onBlur) {
 			var $this = $(this);
-			$this.data('myAccordion').editing = true;
+			$this.data('editing', true);
 			var input = $('<input class="' + className + '"\>')
 				.val(value)
 				.css({'top': top, 'left': left, 'width': $(span).css('width')})
@@ -169,24 +163,24 @@
 				.appendTo('body')
 				.focus();
 
-			$this.data('myAccordion').input = input;
-			$this.data('myAccordion').span = span;
+			$this.data('input', input);
+			$this.data('span', span);
 
 			
 			input.bind('blur', function(eventObject) {
-				if ( $this.data('myAccordion').editing ) {
+				if ( $this.data('editing') ) {
 					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
 					var newName = $(this).val();
 					onBlur(oldName, newName, this);
 					$(this).toggle();
-					$this.data('myAccordion').editing = false;
-					$this.data('myAccordion').problem.updated();
-					$this.data('myAccordion').problem.highlightWrongNames();
+					$this.data('editing', false);
+					$this.data('problem').updated();
+					$this.data('problem').highlightWrongNames();
 					$this.myAccordion( 'sort' );
 					//$(this).unbind('blur');
 					$(this).remove();
-					$this.data('myAccordion').input = false;
-					$this.data('myAccordion').span = false;
+					$this.data('input', false);
+					$this.data('span', false);
 				}
 				return false;
 			});
@@ -198,9 +192,9 @@
 						var first = $(this).children('.funccall:eq(' + j +')');
 						var second = $(this).children('.funccall:eq(' + (j + 1) +')');
 						if (first.children('.func-header').text() > second.children('.func-header').text())	{
-							var tmp = $(this).data('myAccordion').arguments[i];
-							$(this).data('myAccordion').arguments[i] = $(this).data('myAccordion').arguments[j];
-							$(this).data('myAccordion').arguments[j] = tmp;
+							var tmp = $(this).data('arguments')[i];
+							$(this).data('arguments')[i] = $(this).data('arguments')[j];
+							$(this).data('arguments')[j] = tmp;
 							first.insertAfter(second);
 						}
 				} 
@@ -214,10 +208,10 @@
 		getArguments: function(div) {
 			var index = $(div).index();
 			var arguments = [];
-			var l = $(this).data('myAccordion').arguments[index].length;
-			for (var k = 0; k < l && typeof $(this).data('myAccordion').arguments[index][k] === 'object'; ++k) {
+			var l = $(this).data('arguments')[index].length;
+			for (var k = 0; k < l && typeof $(this).data('arguments')[index][k] === 'object'; ++k) {
 				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
-				arguments.push($(this).data('myAccordion').arguments[index][k].html().split(' ').join(''))
+				arguments.push($(this).data('arguments')[index][k].html().split(' ').join(''))
 			}
 			return arguments;
 		}
