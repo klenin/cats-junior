@@ -103,17 +103,17 @@ function isCmdHighlighted(elem){
 	return $('#' + elem).hasClass('highlighted')
 }
 
-function convert(commands, parent, problem, funcName, id, arguments, funcId){
+function convert(commands, parent, problem, funcName, id, argumentsList, funcId){
 	var block = new Block([], parent, problem);
 	var func = undefined;
 	if (funcName) {
-		func = new FuncDef(funcName, arguments, [], parent, id, funcId, problem);
+		func = new FuncDef(funcName, argumentsList, [], parent, id, funcId, problem);
 		block = new Block([], func, problem);
 		func.body = block;
 		if (!problem.functions[funcName]) {
 			problem.functions[funcName] = [];
 		}
-		problem.functions[funcName][arguments.length] = func;
+		problem.functions[funcName][argumentsList.length] = func;
 		problem.functionsWithId[funcId] = func;
 		++problem.numOfFunctions;
 	}
@@ -151,12 +151,12 @@ function convert(commands, parent, problem, funcName, id, arguments, funcId){
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
 		else if (type == 'funccall'){
-			var arguments = [];
+			var args = [];
 			for (var j = 0; j < $('#' + id).children('input').length; ++j) {
-				arguments.push($('#' + id).children('input:eq(' + j + ')').val());
+				args.push($('#' + id).children('input:eq(' + j + ')').val());
 			}
 			block.pushCommand(new FuncCall(commands[i].data ? commands[i].data : 
-				$('#' + id).text().split(' ').join(''), arguments,  block, id, $('#' + id).attr('funcId'), problem));
+				$('#' + id).text().split(' ').join(''), args,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
 			var cmd = new Command(type, $('#' + id).children('spin').mySpin('getTotal'),
@@ -324,7 +324,7 @@ function convertTreeToCommands(commands, parent, problem)
 				for (var j = 0; j < commands[i].args.args.length; ++j) {
 					arguments.push(commands[i].args.args[j].id.v);
 				}
-				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, cmdId, problem);
+				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, ++cmdId, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);

@@ -12,7 +12,7 @@
 			});
 		},
 		
-		push: function(name, arguments, funcId) {
+		push: function(name, args, funcId) {
 			var $this = $(this);
 			$this.append(
 				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
@@ -27,18 +27,18 @@
 			$('#funcDiv' + cmdId).attr('funcId', funcId === undefined ? cmdId : funcId);
 			//$this.children('div').children('input').hide();
 			$this.data('arguments').push([]);
-			if (!arguments) {
+			if (!args) {
 				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			}
 			else {
 				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next();
 				var index = $this.data('arguments').length - 1;
-				for (var i = 0; i < arguments.length; ++i) {
+				for (var i = 0; i < args.length; ++i) {
 					if (i != 0) {
 						var comma = $('<span>, </span>')
 								.insertBefore(bracket);	
 					}
-					var argSpan = $('<span class="argInput">' + arguments[i] + '</span>')
+					var argSpan = $('<span class="argInput">' + args[i] + '</span>')
 						.insertBefore(bracket)
 						.bind('dblclick', function(eventObject) {
 							$this.myAccordion('showFunctionArgumentInput', this);

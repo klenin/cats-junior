@@ -2,11 +2,13 @@ var Command = $.inherit({
 	__constructor : function(name, cnt, parent, id, problem) {
         this.name = name;
 		this.cnt = cnt;
+		this.initCnt = cnt;
 		this.curCnt = 0;
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
 
+		this.finished = false;
 		var func = this.getFunction();
 		if (func) {
 			this.getSpin().mySpin('setArguments', func.getArguments());
@@ -58,10 +60,18 @@ var Command = $.inherit({
 				this.getSpin().mySpin('decreaseValue');
 			}
 		}
-		
+
+		this.finished = this.curCnt >= this.cnt;
+		if (this.curCnt == this.cnt) {
+			this.curCnt = 0;
+			this.cnt = this.initCnt;
+		}
 		if ( i == t - 1 || t == 0 ) {
 			this.getSpin().mySpin('stopExecution');
-		}
+			this.cnt = this.initCnt;
+		}		
+
+
 		
 		this.problem.lastExecutedCmd = this;
 		return cnt - i;
@@ -80,7 +90,7 @@ var Command = $.inherit({
 	},
 	
 	isFinished: function() {
-		return this.curCnt >= this.cnt;
+		return this.finished;
 	},
 	
 	showCounters: function() {
@@ -99,6 +109,7 @@ var Command = $.inherit({
 		if (this.eq(cmd, compareCnt))
 		{
 			this.cnt = cmd.cnt;
+			this.initCnt = cmd.initCnt;
 			this.id = cmd.id;
 			return this;
 		}
@@ -120,7 +131,7 @@ var Command = $.inherit({
 	},
 	
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
+		return generateTabs(tabsNum) + this.name + '(' + this.initCnt + ')\n';
 	},
 	
 	generateCommand: function(tree, node){
@@ -1136,7 +1147,7 @@ var FuncDef = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
-		var c = cmdId;
+		var c = ++cmdId;
 		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, this.funcId);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
