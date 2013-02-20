@@ -71,8 +71,6 @@ var Command = $.inherit({
 			this.cnt = this.initCnt;
 		}		
 
-
-		
 		this.problem.lastExecutedCmd = this;
 		return cnt - i;
 	},
@@ -98,7 +96,13 @@ var Command = $.inherit({
 	},
 	
 	hideCounters: function() {
-		this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		if (!this.finished) {
+			this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		} 
+		else {
+			this.getSpin().mySpin('hideBtn', 0);
+		}
+		
 	},
 	
 	started: function() {
