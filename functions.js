@@ -272,6 +272,9 @@ function convertTreeToCommands(commands, parent, problem)
 							case 'Str':
 								arg = commands[i].value.args[j].s.v;
 								break;
+							case 'Name':
+								arg = commands[i].value.args[j].id.v;
+								break;
 						}
 						arguments.push(arg);
 					}
