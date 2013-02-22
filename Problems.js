@@ -345,7 +345,7 @@ var ForStmt = $.inherit({
 	convertToCode: function(tabsNum) {
 		var curCnt = this.problem.curCounter;
 		var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] + 
-			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.cnt + '):\n';
+			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.initCnt + '):\n';
 		++this.problem.counters[curCnt]['cnt'];
 		this.problem.curCounter = (this.problem.curCounter + 1) % 3;
 		str += this.body.convertToCode(tabsNum + 1);
@@ -360,8 +360,8 @@ var ForStmt = $.inherit({
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
-				$('#for' + numId + ' > span > input').prop('value', self.cnt);
+				self.id = $(newNode).attr('id');
+				self.getSpin().mySpin('setTotal', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	},

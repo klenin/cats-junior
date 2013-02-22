@@ -146,7 +146,7 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 				new IfStmt(testName, args, block1, block2, block, id, problem));
 		}
 		else if (type == 'for')		{
-			var cnt = parseInt($('#' + id).children('spin').mySpin('getTotal'));
+			var cnt = $('#' + id).children('spin').mySpin('getTotal');
 			var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);
 			block.pushCommand(new ForStmt(block1, cnt, block,  id, problem));
 		}
@@ -283,9 +283,19 @@ function convertTreeToCommands(commands, parent, problem)
 				//__constructor : function(body, cnt, parent, id)
 				if (!commands[i].iter || commands[i].iter._astname != 'Call' ||  
 					commands[i].iter.func._astname != 'Name' || commands[i].iter.func.id.v != 'range' ||
-					commands[i].iter.args.length != 1 || commands[i].iter.args[0]._astname != 'Num') //
+					commands[i].iter.args.length != 1 || (commands[i].iter.args[0]._astname != 'Num' && commands[i].iter.args[0]._astname != 'Name')) //
 					return undefined;
-				var cnt = commands[i].iter.args[0].n;
+				var cnt = undefined;
+
+				switch (commands[i].iter.args[0]._astname) {
+					case 'Num':
+						cnt = commands[i].iter.args[0].n;
+						break;
+					case 'Name':
+						cnt = commands[i].iter.args[0].id.v;
+						break;
+				}
+				
 				var forStmt = new ForStmt(undefined, cnt, block, undefined, problem);
 				var body = convertTreeToCommands(commands[i].body, forStmt, problem);
 				if (!body)
