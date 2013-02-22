@@ -561,7 +561,7 @@ var CondStmt = $.inherit({
 							break;
 						}
 					}
-					if (k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
+					if (i != 0 && k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
 						$('#' + this.id).children('select:eq(' + i + ')').append(
 							'<option value="' + arguments[j] + '">' + arguments[j] + '</option><br>');
 					}
@@ -690,7 +690,7 @@ var IfStmt = $.inherit(CondStmt, {
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
+				self.id = $(newNode).attr('id');
 				self.generateArguments();
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
@@ -855,7 +855,7 @@ var WhileStmt = $.inherit(CondStmt, {
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
+				self.id = $(newNode).attr('id');
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
