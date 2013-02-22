@@ -220,7 +220,7 @@ function convertCondition(expr){
 			var dict = convertCondition(expr.operand);
 			if (!dict)
 				return undefined;
-			dict['args'][0] = 1 - dict['args'][0];
+			dict['args'][0] = dict['args'][0] == 'not' ? '' : 'not';
 			return dict;
 	}
 	return undefined;
