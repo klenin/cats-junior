@@ -15,14 +15,14 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
 	if (problem.executionUnit.isCommandSupported(type)) {
 		var spin = $('<spin></spin>');
-		spin.mySpin('init', $(newNode), []);
+		spin.mySpin('init', $(newNode), [], problem);
 		$(newNode).append(spin);
 	}
 	else {
 		switch(type){
 			case 'for':
 				var spin = $('<spin></spin>');
-				spin.mySpin('init', $(newNode), []);
+				spin.mySpin('init', $(newNode), [], problem);
 				$(newNode).append(spin);
 				break;
 			case 'if':

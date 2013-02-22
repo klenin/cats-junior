@@ -5,13 +5,14 @@
 		//counter -- total 
 		//value -- current
 		//during execution we will see value/counter
-		init: function(a, b) {
+		init: function(a, b, c) {
 			return this.each(function(){
 				var $this = $(this);
 
 				var command = a;
 				
 				$this.data('command', command);
+				$this.data('problem', c);
 				$this.data('arguments', b.clone());
 				$this.data('argumentValues', {});
 
@@ -75,6 +76,7 @@
 			}
 
 			$(this).mySpin('setTotal', newTotal);
+			$(this).data('problem').updated();
 			return false;
 		},
 

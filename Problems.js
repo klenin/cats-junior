@@ -82,7 +82,9 @@ var Command = $.inherit({
 	setDefault: function() {
 		this.curCnt = 0;
 		var numId = $('#' + this.id).prop('numId');
+		//this.hideCounters();
 		//this.getSpin().mySpin('stopExecution'); //???
+		this.getSpin().mySpin('hideBtn');
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
@@ -289,6 +291,7 @@ var ForStmt = $.inherit({
 		this.curCnt = 0;
 		this.getSpin().mySpin('hideBtn');
 		this.cnt = this.initCnt;
+		//this.hideCounters();
 		this.body.setDefault();
 		this.highlightOff();
 	},
@@ -2150,7 +2153,7 @@ var Problem = $.inherit({
 		else
 		{
 			try{
-				this.speed = 0;
+				//this.speed = 1000;
 				this.paused = false;
 				this.hideCounters();
 				if (!this.playing || this.changed)
