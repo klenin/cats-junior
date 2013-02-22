@@ -183,12 +183,13 @@ var ForStmt = $.inherit({
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
 		this.body = body;
-		this.cnt = cnt;
 		this.parent = parent;	
 		this.id = id;
+		this.cnt = cnt;
+		this.initCnt = cnt;
 		this.curCnt = 0;
 		this.problem = problem;
-
+		this.finished = false;
 		var func = this.getFunction();
 		if (func) {
 			this.getSpin().mySpin('setArguments', func.getArguments());
@@ -200,7 +201,7 @@ var ForStmt = $.inherit({
 	},
 	
 	isFinished: function(){
-		return this.curCnt > this.cnt;
+		return this.finished;
 	},
 	
 	eq: function(block){
@@ -209,7 +210,6 @@ var ForStmt = $.inherit({
 	
 	exec: function(cnt, arguments)
 	{
-
 		if (this.curCnt == 0) {
 			this.getSpin().mySpin('setArgumentValues', arguments);
 			this.getSpin().mySpin('startExecution');
@@ -221,8 +221,8 @@ var ForStmt = $.inherit({
 			else {
 				this.cnt = parseInt(val);
 			}
-
-			if (!isInt(this.cnt) || this.cnt < 1) {
+			
+			if (!isInt(this.cnt) || this.cnt < 0) {
 				throw 'Invalid counter!!';
 			}
 		}
@@ -266,6 +266,16 @@ var ForStmt = $.inherit({
 				}	
 			}
 		}
+
+		this.finished = this.curCnt >= this.cnt;
+		if (this.curCnt == this.cnt) {
+			this.curCnt = 0;
+			this.cnt = this.initCnt;
+		}
+		if ( this.finished ) {
+			this.getSpin().mySpin('stopExecution');
+			this.cnt = this.initCnt;
+		}		
 		return cnt;
 	},
 	
@@ -278,6 +288,7 @@ var ForStmt = $.inherit({
 		this.isStarted = false;
 		this.curCnt = 0;
 		this.getSpin().mySpin('hideBtn');
+		this.cnt = this.initCnt;
 		this.body.setDefault();
 		this.highlightOff();
 	},
@@ -288,7 +299,12 @@ var ForStmt = $.inherit({
 	},
 	
 	hideCounters: function() {
-		this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		if (!this.finished) {
+			this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		} 
+		else {
+			this.getSpin().mySpin('hideBtn', 0);
+		}
 		this.body.hideCounters();
 	},
 	
@@ -301,6 +317,7 @@ var ForStmt = $.inherit({
 			return block;
 		}
 		this.cnt = block.cnt; //?
+		this.initCnt = block.initCnt;
 		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
