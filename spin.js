@@ -38,7 +38,7 @@
 		},
 
 		getSpinImg: function() {
-			return $(this).children('.spinImg');
+			return $(this).children('img');
 		},
 
 		getTotal: function() {
