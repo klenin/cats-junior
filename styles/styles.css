@@ -217,16 +217,17 @@ div.MySplitter1 {
 input.funcInput {
 	position: absolute; 
 	height: 25px;
+	width: 70px;
 }
 
 input.argInput {
-	width: 25px;
+	width: 50px;
 	position: absolute; 
 	height: 25px;
 }
 
 input.argCallInput {
-	width: 25px;
+	width: 70px;
 	height: 25px;
 }
 

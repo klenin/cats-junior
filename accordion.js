@@ -1,4 +1,4 @@
-(function($)
+﻿(function($)
 {
 	var methods = 
 	{
@@ -124,13 +124,13 @@
 				var argumentsNum = $this.data('arguments')[index].length;
 				if (oldName != newName && $this.data('problem').functions[newName] && 
 					$this.data('problem').functions[newName][argumentsNum]) {
-					if (!confirm('The function with the same name already exists, continue anyway?')) {
+					if (!confirm('Функция с таким же именем уже существует, продолжить?')) {
 						$(input).focus();
 						return false;
 					}
 				}
 				if (!checkName(newName)) {
-					alert('Invalid function name!');
+					alert('Некорректное имя функции!');
 					$(input).focus();
 					return false;
 				}
@@ -165,7 +165,7 @@
 				}
 				
 				if (!checkName(newName)) {
-					alert('Invalid argument name!');
+					alert('Некорректное имя аргумента!');
 					$(input).focus();
 					return false;
 				}
@@ -190,7 +190,7 @@
 			$this.data('editing', true);
 			var input = $('<input class="' + className + '"\>')
 				.val(value)
-				.css({'top': top, 'left': left, 'width': $(span).css('width')})
+				.css({'top': top, 'left': left, 'min-width': $(span).css('width')})
 				.attr('funcId', $(span).parent().attr('funcId'))
 				.appendTo('body')
 				.focus();
@@ -248,7 +248,7 @@
 			$(this).data('arguments')[index] = [];
 			for (var k = 0; k < $(div).children('span.argInput').length; ++k) {
 				if ($(div).children('span.argInput:eq(' + k + ')').html() != ', ') {
-					$(this).data('arguments')[index].push( $(div).children('span.argInput:eq(' + k + ')').html().split(' ').join(''));
+					$(this).data('arguments')[index].push( $(div).children('span.argInput:eq(' + k + ')'));
 				}
 			}
 
@@ -308,13 +308,13 @@
 		
 		getArguments: function(div) {
 			var index = $(div).index();
-			/*var arguments = [];
+			var arguments = [];
 			var l = $(this).data('arguments')[index].length;
-			for (var k = 0; k < l && typeof $(this).data('arguments')[index][k] === 'object'; ++k) {
+			for (var k = 0; k <  $(this).data('arguments')[index].length; ++k) {
 				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
 				arguments.push($(this).data('arguments')[index][k].html().split(' ').join(''))
-			}*/
-			return $(this).data('arguments')[index].clone();
+			}
+			return arguments;
 		}
 	}
 
