@@ -26,11 +26,6 @@ function generateTabs(tabsNum)
 	return str;
 }
 
-var selectConditions = [
-	['is', ''],
-	['isNot', 'не']
-];
-
 function tryNextStep_(){
 	var problem = problems.length + 1;
 	if(!finalcode[problem]){

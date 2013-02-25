@@ -127,6 +127,7 @@
 				}
 				$($this.data('span')).html($(input).val());
 				$this.data('problem').updateFunctonName( $(div).parent().attr('funcId'), newName );
+				return true;
 			});
 		},
 
@@ -142,13 +143,34 @@
 						$(input).focus();
 						return false;
 					}
-				}
+				}*/
 				if (!checkName(newName)) {
-					alert('Invalid function name!');
+					alert('Invalid argument name!');
 					$(input).focus();
 					return false;
-				}*/
-				$($this.data('span')).html($(input).val());
+				}
+				var span = $this.data('span');
+				$(span).html($(input).val());
+				
+				var args = $this.myAccordion('getArguments', $(span).parent());
+				var cnt = 0;
+				for (var i = 0; i < args.length; ++i) {
+					if (args[i] == newName) {
+						++cnt;
+					}
+				}
+
+				if (cnt > 1) {
+					$(span).html(oldName);
+					alert('The argument with the same name already exists!');
+					$(input).focus();
+					return false;
+				}
+				
+				$this.data('problem').updateArguments($(span).parent().attr('funcId'), 
+					$this.myAccordion('getArguments', $(span).parent()));
+				
+				return true;
 				//$this.data('myAccordion').problem.updateFunctonName( oldName, newName );
 			});
 		},
@@ -169,18 +191,24 @@
 			
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('editing') ) {
-					var oldName = $('#' + $(this).attr('funcId')).children('.func-header').html();
+					var span = $this.data('span')
+					var oldName = $(span).parent().children('.func-header').html();
 					var newName = $(this).val();
-					onBlur(oldName, newName, this);
-					$(this).toggle();
-					$this.data('editing', false);
-					$this.data('problem').updated();
-					$this.data('problem').highlightWrongNames();
-					$this.myAccordion( 'sort' );
-					//$(this).unbind('blur');
-					$(this).remove();
-					$this.data('input', false);
-					$this.data('span', false);
+					if (onBlur(oldName, newName, this)) {
+						$(this).toggle();
+						$this.data('editing', false);
+						$this.data('problem').updated();
+						$this.data('problem').highlightWrongNames();
+						$this.myAccordion( 'sort' );
+						//$(this).unbind('blur');
+						$(this).remove();
+						$this.data('input', false);
+						$this.data('span', false);
+					}
+					else {
+						$(this).focus();
+					}
+					
 				}
 				return false;
 			});

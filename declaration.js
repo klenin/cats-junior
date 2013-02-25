@@ -25,9 +25,11 @@ var btnsPlay = ['play', 'next', 'prev'];
 var btns = ['play', 'pause', 'stop', 'prev', 'next'];
 var btnTitles = ['Проиграть', 'Пауза', 'Стоп', 'Предыдущий шаг', 'Следующий шаг', 'В конец'];
 var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
+var selectConditions = [
+	['is', ''],
+	['isNot', 'не']
+];
 var c = 0;
-var curDebugState;
-var worker;
 var lastWatchedIndex = [];
 var watchList = [];
 var codeareas = [];
@@ -107,12 +109,7 @@ var problemsData = [
 	"maxCmdNum": 40
 }
 }];
-var cmdAdded = false;
-var addedCmds = [];
-var prevCmd = undefined;
-var stoppedLvl = 0;
-var MAX_VALUE = 999999999999999;
-var receiveStarted = false;
 var elseStmt = undefined;
 var maxStep = 100;
 var undo = false;
+var MAX_VALUE = 999999999999999;
