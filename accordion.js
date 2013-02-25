@@ -85,9 +85,18 @@
 
 				$this.data('arguments')[$(this).parent().index()].push(argSpan);
 				if (index != 0) {
-					var comma = $('<span>, </span>')
+					var comma = $('<span class="comma">, </span>')
 						.insertBefore(argSpan);
 				}
+
+				$this.myAccordion('updateArguments', $(argSpan).parent());
+
+				while (!$this.myAccordion('checkArgumentExistence', argSpan, 'arg' + index, undefined)) {
+					++index;
+					$(argSpan).html('arg' + index);
+					$this.myAccordion('updateArguments', $(argSpan).parent());
+				}
+		
 				$this.data('problem').updateArguments($(this).parent().attr('funcId'), 
 					$this.myAccordion('getArguments', $(this).parent()));
 				$this.data('problem').updated();				
@@ -144,29 +153,30 @@
 						return false;
 					}
 				}*/
+				var span = $this.data('span');
+				var div = $(span).parent();
+				
+				if (newName == '') { //remove argument
+					$(span).remove();
+					$this.myAccordion('updateArguments', $(div));
+					$this.data('problem').updateArguments($(div).attr('funcId'), 
+						$this.myAccordion('getArguments', $(div)));
+					return true;
+				}
+				
 				if (!checkName(newName)) {
 					alert('Invalid argument name!');
 					$(input).focus();
 					return false;
 				}
-				var span = $this.data('span');
-				$(span).html($(input).val());
 				
-				var args = $this.myAccordion('getArguments', $(span).parent());
-				var cnt = 0;
-				for (var i = 0; i < args.length; ++i) {
-					if (args[i] == newName) {
-						++cnt;
-					}
-				}
-
-				if (cnt > 1) {
-					$(span).html(oldName);
-					alert('The argument with the same name already exists!');
-					$(input).focus();
+				$(span).html($(input).val());
+				$this.myAccordion('updateArguments', $(div));
+				if (!$this.myAccordion('checkArgumentExistence', span, newName, input, oldName)) {
 					return false;
 				}
 				
+				$this.myAccordion('updateArguments', $(span).parent());
 				$this.data('problem').updateArguments($(span).parent().attr('funcId'), 
 					$this.myAccordion('getArguments', $(span).parent()));
 				
@@ -232,16 +242,79 @@
 		getFunctionName: function(div) {
 			return $(div).children('.func-header').text().split(' ').join('');
 		},
+
+		updateArguments: function(div) {
+			var index = $(div).index();
+			$(this).data('arguments')[index] = [];
+			for (var k = 0; k < $(div).children('span.argInput').length; ++k) {
+				if ($(div).children('span.argInput:eq(' + k + ')').html() != ', ') {
+					$(this).data('arguments')[index].push( $(div).children('span.argInput:eq(' + k + ')').html().split(' ').join(''));
+				}
+			}
+
+			$(this).myAccordion('fixComma', div);
+			return arguments;
+		},
+
+		findNextComma: function(comma) {
+			var span = $(comma).next()
+			while ($(span).length) {
+				if ($(span).hasClass('comma')) {
+					return span;
+				}
+				span = $(span).next();
+			}
+		},
+
+		fixComma: function(div) {
+			var index = $(div).index();
+			var comma = $(div).children('span.comma:eq(0)');
+			var k = 0;
+			while ($(comma).length) {
+				var nextComma = $(this).myAccordion('findNextComma', comma);
+				if (k == 0 && !$(comma).prev().hasClass('argInput')) {
+					$(comma).remove()
+				}
+				else if (!$(nextComma).length && !$(comma).next().hasClass('argInput')) {
+					$(comma).remove();
+				}
+				else if ($(comma).next().hasClass('comma')){
+					$(comma).remove();
+				}
+				comma = nextComma;
+				++k;
+			}
+		},
+
+		checkArgumentExistence: function(span, newName, input, oldName) {
+			var args = $(this).myAccordion('getArguments', $(span).parent());
+			var cnt = 0;
+			for (var i = 0; i < args.length; ++i) {
+				if (args[i] == newName) {
+					++cnt;
+				}
+			}
+
+			if (cnt > 1) {
+				if (input) {
+					$(span).html(oldName);
+					alert('The argument with the same name already exists!');
+					$(input).focus();
+				}
+				return false;
+			}
+			return true;
+		},
 		
 		getArguments: function(div) {
 			var index = $(div).index();
-			var arguments = [];
+			/*var arguments = [];
 			var l = $(this).data('arguments')[index].length;
 			for (var k = 0; k < l && typeof $(this).data('arguments')[index][k] === 'object'; ++k) {
 				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
 				arguments.push($(this).data('arguments')[index][k].html().split(' ').join(''))
-			}
-			return arguments;
+			}*/
+			return $(this).data('arguments')[index].clone();
 		}
 	}
 
