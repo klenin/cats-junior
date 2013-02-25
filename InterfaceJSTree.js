@@ -184,6 +184,18 @@ function createJsTreeForFunction(funcId, problem) {
 					"icon" : { 
 						"image" : "images/block_small.png" 
 					}
+				},
+				"func-header" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"func-body" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
 				}
 			}
 		},
@@ -250,8 +262,10 @@ function createJsTreeForFunction(funcId, problem) {
 					data.o = $(data.o).parent()[0];
 				if ( !$(data.o).hasClass('jstree-draggable') )
 					data.o = $(data.o).parent()[0];
+
 				var type = this._get_type(data.o);
 				var name = problem.getCommandName(type);
+
 				if (type == 'funcdef') {
 					name = 'func_' + problem.numOfFunctions;
 				}
@@ -265,17 +279,29 @@ function createJsTreeForFunction(funcId, problem) {
 					name = $(data.o).prev().prev().text();
 				}
 				if (type != 'funcdef') {
-					$(funcId).jstree(
-						"create", node, pos, 
-						{'data': name}, 
-						function(newNode){
-							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, problem.functions[name] ? problem.functions[name].getArguments() : []);
-						}, type != 'funcdef'); 
+					$(funcId).jstree("create", node, pos, {'data': name}, function(newNode){
+							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'));
+					}, type != 'funcdef'); 
 				}
-
 			},
 			"drop_finish": function(data){
 				var node = data.o;
+
+					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
+						node = $(node).parent();
+						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
+						$(node).remove();
+						problem.removeFunctionCall($(node).attr('funcId'));
+						return true;
+					}
+
+					/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					{
+						$(node).parent().remove();
+						problem.removeFunctionCall($(node).parent().children('.func-header').html());
+						return true;
+					}*/
+
 				if (node) {
 					var type = this._get_type(node);
 					if (type == 'else')
@@ -308,8 +334,25 @@ function createJsTreeForFunction(funcId, problem) {
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
 	}).bind("rename.jstree", function(event, data) {
+		if (!checkName(data.rslt.new_name)) {
+			alert('Invalid function name!!!');
+			setTimeout(function(tree, node, name) { 
+				return function() {
+					$(tree).jstree('rename', node, name);
+				} }(this, data.rslt.obj, data.rslt.old_name), 500);
+			
+			return false;
+		}
 		problem.updated();
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
+	}).bind("dblclick.jstree", function (e, data) {
+        /*var node = $(e.target).closest("li");
+        var type = $.jstree._reference(this)._get_type(node);
+		if (type == 'funccall') {
+			$.jstree._reference(this).rename(node);
+			problem.funcCallUpdated();
+		}*/
+		//TODO:
 	});
 }

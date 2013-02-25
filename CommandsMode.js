@@ -541,6 +541,7 @@ var CondStmt = $.inherit({
 							for (l = 0; l < selects[i].length; ++l) {
 								if (selects[i][l][0] === arguments[funcArguments[k]] || selects[i][l][1] === arguments[funcArguments[k]]) {
 									args.push(selects[i][l][0]);
+									$('#' + this.id).children('select:eq('+ (i + 1)+')').val(selects[i][l][0]);
 									break;
 								}
 							}
@@ -643,6 +644,11 @@ var IfStmt = $.inherit(CondStmt, {
 			this.blocks[1].setDefault();
 		this.curBlock = undefined;
 		this.highlightOff();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		for (var i = 0; i < selects.length; ++i) {
+			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		}	
 	},
 	
 	showCounters: function() {
@@ -825,6 +831,11 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false;
 		this.body.setDefault();
 		this.highlightOff();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		for (var i = 0; i < selects.length; ++i) {
+			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		}	
 	},
 	
 	showCounters: function() {
@@ -1114,7 +1125,7 @@ var FuncDef = $.inherit({
 	
 	setDefault: function(){
 		this.finished = false;
-		//this.body.setDefault();
+		this.body.setDefault();
 	},
 	
 	showCounters: function() {
