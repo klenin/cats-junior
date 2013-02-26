@@ -1412,11 +1412,11 @@ var FuncCall = $.inherit({
 			for (var i = inputs.length; i < arguments.length; ++i) {
 				$('#' + this.id)
 					.append('<input class="argCallInput"/>')
-					.bind('change', function(){
-						return function(pr) {
-							pr.updated();
-						}(this.problem)
-					})
+					.bind('change', function(problem){
+						return function() {
+							problem.updated();
+						}
+					}(this.problem));
 			}
 		}
 		

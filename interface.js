@@ -448,7 +448,9 @@ function clearClick(){
 		return;
 	problem.cmdList = new Block([], undefined, problem);
 	$('#jstree-container' + problem.tabIndex).children().remove();
+	$('#accordion' + problem.tabIndex).myAccordion('clear');
 	$('#accordion' + problem.tabIndex).children().remove();
+	
 	problem.setDefault();
 	problem.updated();
 }
