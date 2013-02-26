@@ -54,7 +54,7 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 				$('#' + id).text().split(' ').join(''), args,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
-			var cmd = new Command(type, $('#' + id).children('spin').mySpin('getTotal'),
+			var cmd = new Command(type, $('#' + id).children('spin').mySpin('getTotalValue'),
 				block, id, problem);
 			block.pushCommand(cmd);
 		}

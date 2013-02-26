@@ -51,6 +51,22 @@
 			$(this).children('input').val($(this).data('totalVal'));
 		},
 
+		setTotalWithArgument: function(total) {
+			var args = $(this).data('arguments');
+			var i = 0;
+			for (i = 0; i < args.length; ++i) {
+				if (args[i] == total) {
+					break;
+				}
+			}
+
+			if (i == args.length) {
+				throw 'Unknown argument!'
+			}
+			
+			$(this).mySpin('setTotal', $(this).data('minimum') - i - 1, total);
+		},
+
 		getTotalValue: function() {
 			return $(this).data('totalVal');
 		},
@@ -67,6 +83,7 @@
 					$(this).mySpin('setTotal', newTotal, 
 						$(this).data('arguments')[Math.min($(this).data('minimum') - newTotal - 1, 
 						$(this).data('arguments').length - 1)]);
+					$(this).data('problem').updated();
 					return;
 				}
 				else
