@@ -10,6 +10,16 @@ var ArrowInLabyrinth = $.inherit({
 		this.initLabyrinth();
 	},
 
+	constructCommands: function() {
+		this.commands = {};
+		var args = [
+			new ExecutionUnitCommandArgument('counter', int, true, 1, undefined)];
+		this.commands['forward'] = new ExecutionUnitCommand('forward', forward, args);
+		this.commands['left'] = new ExecutionUnitCommand('left', left, args);
+		this.commands['right'] = new ExecutionUnitCommand('right', right, args);
+		this.commands['wait'] = new ExecutionUnitCommand('wait', wait, args);
+	},
+
 	generateCommands: function(div) {
 		for (var i = 0; i < this.data.commands.length; ++i) {
 			if (!this.__self.cmdClassToName[this.data.commands[i]]) {
@@ -402,7 +412,7 @@ var ArrowInLabyrinth = $.inherit({
 	},
 
 	getCommands: function() {
-		return this.__self.commands;
+		return this.commands;
 	},
 
 	getCssFileName: function() {
@@ -416,14 +426,7 @@ var ArrowInLabyrinth = $.inherit({
 		'right': 'Направо',
 		'wait': 'Ждать',
 	},
-
-	commands: [
-		['forward', forward],
-		['left', left],
-		['right', right],
-		['wait', wait]
-	],
-		
+	
 	changeDir: {
 		'forward':{
 			'up': {dx: 0, dy: -1, curDir: 'up'},

@@ -5,7 +5,7 @@
 		//counter -- total 
 		//value -- current
 		//during execution we will see value/counter
-		init: function(a, b, c) {
+		init: function(a, b, c, d) {
 			return this.each(function(){
 				var $this = $(this);
 
@@ -14,6 +14,7 @@
 				$this.data('command', command);
 				$this.data('problem', c);
 				$this.data('arguments', b.clone());
+				$this.data('type', d);
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
@@ -24,9 +25,12 @@
 				$this.data('isBeingExecuted', false);
 
 				$this.append(
-					'<input class="spinCnt" value="1" editable="false"></input>' + 
-					'<img src="images/spin-button.png">'
+					'<input class="spinCnt" value="1" editable="false"></input>'
 					);
+
+				if ($this.data('type') == int) {
+					$this.append('<img src="images/spin-button.png">');
+				}
 
 				$this.children('img').bind('click', function(e){
 					var pos = e.pageY - $(this).offset().top;
@@ -99,8 +103,11 @@
 
 		hideBtn: function(cnt) {
 			$(this).mySpin('getSpinImg').hide();
-			if (isInt($(this).data('totalVal')))  {
+			if (isInt($(this).data('totalVal')) && $(this).data('type') == int)  {
 				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
+			}
+			else {
+				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))))
 			}
 		},
 
@@ -126,7 +133,12 @@
 			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 				throw 'Invalid counter!!!';
 			}
-			$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
+			if ($(this).data('type') == int) {
+				$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
+			}
+			else {
+				$(this).children('input').val($(this).data('value'));
+			}
 			$(this).data('isBeingExecuted', true);
 		},
 
@@ -136,6 +148,9 @@
 		},
 
 		decreaseValue: function() {
+			if ($(this).data('type') == int) {
+				throw 'Can\'t decrease not int!!!';
+			}
 			$(this).data('value', Math.max($(this).data('value') - 1, 0));
 			$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );
 		},
