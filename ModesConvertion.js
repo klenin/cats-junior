@@ -55,11 +55,11 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 		}
 		else{
 			var argValues = [];
-			for (var i = 0; i < $('#' + id).children('spin').length; ++i) {
-				argValues.push($('#' + id).children('spin:eq(' + i + ')').mySpin('getTotalValue'));			
+			for (var j = 0; j < $('#' + id).children('spin').length; ++j) {
+				argValues.push($('#' + id).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
 			}
 			var cmd = new Command(type, 
-				problem.executionUnit.getCommands()[type].arguments, 
+				problem.executionUnit.getCommands()[type].getArguments(), 
 				argValues,
 				block, 
 				id,
@@ -130,8 +130,8 @@ function convertCondition(expr){
 }
 
 function getArgumentValues(command) {
-	var argValues = undefined;
-	for (var i = 0; i < commands.value.args.length; ++i) {
+	var argValues = [];
+	for (var i = 0; i < command.value.args.length; ++i) {
 		switch(command.value.args[i]._astname) {
 			case 'Num':
 				argValues.push(command.value.args[i].n);
@@ -140,7 +140,7 @@ function getArgumentValues(command) {
 				argValues.push(command.value.args[i].id.v);
 				break;
 			case 'Str':
-				argValues.push(command].value.args[i].s.v);
+				argValues.push(command.value.args[i].s.v);
 				break;
 			default:
 				throw 'Unsupported argument type!!!'
@@ -167,12 +167,12 @@ function convertTreeToCommands(commands, parent, problem) {
 					if (execCommand.name != commands[i].value.func.id.v) {
 						throw 'Invalid input data!!';
 					}
-					if (!(commands[i].value.args.length == execCommand.arguments.length)) {
+					if (!(commands[i].value.args.length == execCommand.getArguments().length)) {
 						throw 'Invalid arguments number!!!';
 					}
 
 					block.pushCommand(new Command(commands[i].value.func.id.v, 
-						execCommand.arguments,
+						execCommand.getArguments(),
 						getArgumentValues(commands[i]),
 						block, undefined, problem));
 				}

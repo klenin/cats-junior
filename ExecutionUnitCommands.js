@@ -4,7 +4,7 @@ var ExecutionUnitCommandArgument = $.inherit({
 		this.type = type;
 		this.isCounter = isCounter;
 		this.minValue = minValue;
-		this.maxvalue = maxValue;
+		this.maxValue = maxValue;
 	},
 	
 	setValue: function(value) {
@@ -18,15 +18,23 @@ var ExecutionUnitCommandArgument = $.inherit({
 
 	setDefault: function() {
 		this.currentValue = this.value;
+	},
+
+	copy: function() {
+		return new ExecutionUnitCommandArgument(this.name, this.type, this.isCounter, this.minValue, this.maxValue);
 	}
+	
 });
 
 
 var ExecutionUnitCommand = $.inherit({
 	__constructor : function(name, handler, args) {
 		this.name = name;
-		this.translation = translation;
 		this.handler = handler;
 		this.arguments = args.clone();
+	},
+	
+	getArguments: function() {
+		return this.arguments;
 	}
 });

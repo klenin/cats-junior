@@ -1,7 +1,11 @@
 var Command = $.inherit({
 	__constructor : function(name, arguments, argumentsValues, parent, id, problem) {
         this.name = name;
-		this.arguments = arguments.clone();
+		this.arguments = [];
+
+		for (var i = 0; i < arguments.length; ++i) {
+			this.arguments.push(arguments[i].copy());
+		}
 		//this.argumentsValues = argumentsValues.clone();
 		//var cnt = undefined;
 		this.counterIndex = undefined;
@@ -48,8 +52,11 @@ var Command = $.inherit({
 
 	setArguments: function(arguments) {
 		for (var i = 0; i < this.arguments.length; ++i) {
-			this.arguments.setCurrentValue(arguments[this.arguments.name]);
-			this.getSpinAt(i).('setArgumentValues', arguments);
+			/*if (arguments) {
+				//if (arguments[i] == undefined)
+				this.arguments.setCurrentValue(arguments[i]);
+			}*/
+			this.getSpinAt(i).mySpin('setArgumentValues', arguments);
 		}
 	},
 	
@@ -58,26 +65,25 @@ var Command = $.inherit({
 		if (this.curCnt == 0) {
 			this.setArguments(arguments);
 			this.spinAccess('startExecution');
-
-			if (this.hasCounter) {
-				var val = this.arguments[this.counterIndex].value;
-				if (!isInt(val)) {
-					commandCounter = parseInt(arguments[val]);
-				}
-				else {
-					commandCounter = parseInt(val);
-				}
-				
-				if (!isInt(commandCounter) || commandCounter < 0) {
-					throw 'Invalid counter!!';
-				}
-			}
 		}
 
 		if (!this.hasCounter) {
 			commandCounter = 1;
 		}
-
+		else if (this.hasCounter) {
+			var val = this.arguments[this.counterIndex].value;
+			if (!isInt(val)) {
+				commandCounter = parseInt(arguments[val]);
+			}
+			else {
+				commandCounter = parseInt(val);
+			}
+			
+			if (!isInt(commandCounter) || commandCounter < 0) {
+				throw 'Invalid counter!!';
+			}
+		}
+		
 		var t = Math.min(cnt, Math.abs(this.curCnt - commandCounter));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
@@ -136,7 +142,7 @@ var Command = $.inherit({
 	
 	hideCounters: function() { //
 		for (var i = 0; i < this.arguments.length; ++i) {
-			if (this.arguments.type == int) {
+			if (this.arguments.type == 'int') {
 				if (i == this.counterIndex) {
 					if (!this.finished) {
 						this.getSpinAt(i).mySpin('hideBtn', this.arguments[i].currentValue - this.curCnt);
@@ -181,7 +187,15 @@ var Command = $.inherit({
 	},
 	
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '(' + this.initCnt + ')\n';
+		var str = generateTabs(tabsNum) + this.name + '(';
+		for (var i = 0; i < this.arguments.length; ++i) {
+			if (i > 0) {
+				str += ', ';
+			}
+			str += this.arguments[i].value;
+		}
+		str += ')\n';
+		return str;
 	},
 	
 	generateCommand: function(tree, node) {
@@ -190,19 +204,19 @@ var Command = $.inherit({
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
 				self.id = $(newNode).attr('id');
-				for (var i = 0; i < this.arguments.length; ++i) {
-						if (isInt(this.arguments[i].value)) {
-							self.getSpinAt(i).mySpin('setTotal', this.arguments[i].value);
+				for (var i = 0; i < self.arguments.length; ++i) {
+						if (isInt(self.arguments[i].value)) {
+							self.getSpinAt(i).mySpin('setTotal', self.arguments[i].value);
 						}
 						else {
-							if (!checkName(this.arguments[i].value)) {
+							if (!checkName(self.arguments[i].value)) {
 								throw 'Invalid argument!!!';
 							}
 							var func = self.getFunction();
 							if (!func) {
 								throw 'Unknown argument!'
 							}
-							self.getSpinAt(i).mySpin('setTotalWithArgument', this.arguments[i].value);
+							self.getSpinAt(i).mySpin('setTotalWithArgument', self.arguments[i].value);
 						}
 				}
 
@@ -2153,7 +2167,7 @@ var Problem = $.inherit({
 			var commands = problems[problem].executionUnit.getCommands();
 			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
 
-			for (var i = 0; i < commands.length; ++i) {
+			for (var i in commands) {
 				$gbl[problem][commands[i].name] = commands[i].handler;
 			}
 			

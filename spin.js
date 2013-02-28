@@ -28,7 +28,7 @@
 					'<input class="spinCnt" value="1" editable="false"></input>'
 					);
 
-				if ($this.data('type') == int) {
+				if ($this.data('type') == 'int') {
 					$this.append('<img src="images/spin-button.png">');
 				}
 
@@ -103,7 +103,7 @@
 
 		hideBtn: function(cnt) {
 			$(this).mySpin('getSpinImg').hide();
-			if (isInt($(this).data('totalVal')) && $(this).data('type') == int)  {
+			if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int')  {
 				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
 			}
 			else {
@@ -133,7 +133,7 @@
 			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 				throw 'Invalid counter!!!';
 			}
-			if ($(this).data('type') == int) {
+			if ($(this).data('type') == 'int') {
 				$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
 			}
 			else {
@@ -148,7 +148,7 @@
 		},
 
 		decreaseValue: function() {
-			if ($(this).data('type') == int) {
+			if ($(this).data('type') != 'int') {
 				throw 'Can\'t decrease not int!!!';
 			}
 			$(this).data('value', Math.max($(this).data('value') - 1, 0));

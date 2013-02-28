@@ -8,12 +8,13 @@ var ArrowInLabyrinth = $.inherit({
 		this.table = $('<table style="border-spacing: 0px"></table>')
 			.appendTo(this.div);
 		this.initLabyrinth();
+		this.constructCommands();
 	},
 
 	constructCommands: function() {
 		this.commands = {};
 		var args = [
-			new ExecutionUnitCommandArgument('counter', int, true, 1, undefined)];
+			new ExecutionUnitCommandArgument('counter', 'int', true, 1, undefined)];
 		this.commands['forward'] = new ExecutionUnitCommand('forward', forward, args);
 		this.commands['left'] = new ExecutionUnitCommand('left', left, args);
 		this.commands['right'] = new ExecutionUnitCommand('right', right, args);

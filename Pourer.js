@@ -18,8 +18,8 @@ var Pourer = $.inherit({
 	constructCommands: function() {
 		this.commands = [];
 		var args = [
-			new ExecutionUnitCommandArgument('src', int, false, 1, this.data.vessels.length - 1),
-			new ExecutionUnitCommandArgument('dst', int, false, 1, this.data.vessels.length - 1)];
+			new ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length - 1),
+			new ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length - 1)];
 		var pourCmd = new ExecutionUnitCommand('pour', pour, args);
 		this.commands.push(pourCmd);
 	},
@@ -109,7 +109,7 @@ var Pourer = $.inherit({
 
 	getCommands: function() {
 		this.checkExecutionUnit();
-		return this.executionUnit.getCommands();
+		return this.commands;
 	},
 
 	getCssFileName: function() {
@@ -121,11 +121,6 @@ var Pourer = $.inherit({
 	cmdClassToName: {
 		'pour': 'Перелить'
 	},
-
-	commands: [
-		['pour', pour]
-	],
-
 	testFunction : {
 		'name': 'compare',
 		'args': [
