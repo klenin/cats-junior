@@ -83,11 +83,16 @@ var Command = $.inherit({
 				throw 'Invalid counter!!';
 			}
 		}
+
+		var args = [];
+		for (var i = 0; i < this.arguments.length; ++i) {
+			args.push(this.arguments.currentValue);
+		}
 		
 		var t = Math.min(cnt, Math.abs(this.curCnt - commandCounter));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
-			this.problem.oneStep(this.name, 1);
+			this.problem.oneStep(this.name, args);
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
@@ -2015,9 +2020,12 @@ var Problem = $.inherit({
 		}
 	},
 	
-	oneStep: function(command, cnt) {
+	oneStep: function(command, cnt, args) {
+		if (cnt == undefined) {
+			cnt = 1;
+		}
 		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
-			this.executionUnit.executeCommand(command);
+			this.executionUnit.executeCommand(command, args);
 			++this.step;
 			if (this.maxStep && this.step == this.maxStep)
 				continue;

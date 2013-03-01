@@ -56,6 +56,22 @@ var Pourer = $.inherit({
 			new ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length - 1)];
 		var pourCmd = new ExecutionUnitCommand('pour', pour, args);
 		this.commands.push(pourCmd);
+
+		var vesselsList = [];
+		for (var i = 0; i < this.data.vessels.length; ++i) {
+			vesselsList.push([i, i + 1]);
+		}
+
+		this.testFunction = {
+			'name': 'compare',
+			'args': [
+				vesselsList,
+				[['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']],
+				vesselsList
+			],
+			'jsFunc': compare,
+			'handlerFunc': compare_handler,
+		},
 	},
 
 	init: function() {
@@ -125,65 +141,129 @@ var Pourer = $.inherit({
 		return false; // can user loose?
 	},
 
-	executeCommand: function(command, arguments) {
+	executeCommand: function(command, args) {
 		if (this.data.commands.indexOf(command) === -1) {
 			throw 'Invalid command';
 		}
-		this.oneStep(command, arguments);
+
+		switch (command) {
+			case 'pour':
+				this.pour(args);
+				break;
+			default:
+				throw 'Invalid command!!!';
+		}
 	},
 
-	oneStep: function() {
+	pour: function(args) {
+		var src = args[0];
+		var dest = args[1];
+		
+		if (src == dest) { //is it an error?
+			return;
+		}
+		
+		if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
+			return;
+		}
+
+		var delta = Math.min(this.vessels[dest].capacity - this.vessels[dest].filled, this.vessels[src].filled);
+		this.vessels[src].filled -= delta;
+		this.vessels[dest].filled += delta;
+		if (this.problem.speed) {
+			this.vessels[src].draw();
+			this.vessels[dest].draw();
+		}
 	},
 
 	gameOver: function() {
-		this.checkExecutionUnit();
-		this.executionUnit.gameOver();
+		//
 	},
 
 	getPoints: function() {
-		this.checkExecutionUnit();
-		return this.exexecutionUnitecutor.getPoints();
-	},
-
-	getExecutionUnit: function() {
-		return this.executionUnit;
+		//
 	},
 
 	isCommandSupported: function(command) {
-		this.checkExecutionUnit();
-		return this.executionUnit.isCommandSupported(command);
+		return this.data.commands.indexOf(command) !== -1
 	},
 
 	getConditionProperties: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.getConditionProperties();
+		return this.testFunction;
 	},
 
 	getCommands: function() {
-		this.checkExecutionUnit();
 		return this.commands;
 	},
 
 	getCssFileName: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.getCssFileName();
+		return this.__self.cssFileName;
+	},
+
+	isLess: function(first, second) {
+		return this.vessels[first] < this.vessels[second];
+	},
+
+	isEqual: function(first, second) {
+		return this.vessels[first] == this.vessels[second];
 	}
 },
 {
 	cmdClassToName: {
 		'pour': 'Перелить'
 	},
-	testFunction : {
-		'name': 'compare',
-		'args': [
-			[],
-			[['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']],
-			[]
-		],
-		'jsFunc': compare,
-		'handlerFunc': compare_handler,
-	},
 
 	cssFileName: "styles/pourer.css"
 });
+
+
+function pour(src, dst) {
+	curProblem.oneStep('pour', undefined, [src, dst]);
+}
+
+function compare(args){
+	if (args.length != 3) {
+		throw 'Invalid arguments list!!';
+	}
+
+	var first = args[0];
+	var comparator = args[1];
+	var second = args[2];
+
+	switch(comparator) {
+		case '<':
+			return curProblem.getExecutionUnit().isLess(first, second);
+		case '>':
+			return curProblem.getExecutionUnit().isLess(second, first);
+		case '<=':
+			return curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
+		case '>=':
+			return curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
+		case '==':
+			return curProblem.getExecutionUnit().isEqual(first, second);
+		case '!=':
+			return !curProblem.getExecutionUnit().isEqual(first, second);			
+	}
+
+	return false;
+}
+
+function compare_handler(first, comparator, second){
+	switch(comparator) {
+		case '<':
+			return curProblem.getExecutionUnit().isLess(first, second);
+		case '>':
+			return curProblem.getExecutionUnit().isLess(second, first);
+		case '<=':
+			return curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
+		case '>=':
+			return curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
+		case '==':
+			return curProblem.getExecutionUnit().isEqual(first, second);
+		case '!=':
+			return !curProblem.getExecutionUnit().isEqual(first, second);			
+	}
+
+	return false;
+}
 

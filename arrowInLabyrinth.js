@@ -198,7 +198,7 @@ var ArrowInLabyrinth = $.inherit({
 				this.map[i][j].draw();
 	},
 
-	executeCommand: function(command) {
+	executeCommand: function(command, args) {
 		if (this.data.commands.indexOf(command) === -1) {
 			throw 'Invalid command';
 		}
@@ -909,17 +909,17 @@ var Monster = $.inherit(Cell,{
 });
 
 function forward(cnt) {
-	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('forward', cnt != undefined ? cnt : 1, []);
 }
 
 function left(cnt) {
-	curProblem.oneStep('left', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('left', cnt != undefined ? cnt : 1, []);
 }
 
 function right(cnt) {
-	curProblem.oneStep('right', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('right', cnt != undefined ? cnt : 1, []);
 }
 
 function wait(cnt) {
-	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('wait', cnt != undefined ? cnt : 1, []);
 }
