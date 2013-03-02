@@ -1267,7 +1267,12 @@ var FuncCall = $.inherit({
 	},
 	
 	getFuncDef: function() {
-		return this.problem.functions[this.name][this.argumentsValues.length];
+		try {
+			return this.problem.functions[this.name][this.argumentsValues.length];
+		}
+		catch(err) {
+			return undefined;
+		}
 	},
 	
 	operateFuncDef: function(func) {
@@ -1417,7 +1422,7 @@ var FuncCall = $.inherit({
 	updateJstreeObject: function(arguments, funcDef){
 		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 		var inputs = $('#' + this.id).children('.argCallInput');
-		arguments = arguments ? arguments : (funcDef ? funcDef : this.getFuncDef().getArguments());
+		arguments = arguments ? arguments : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
 		if (inputs.length > arguments.length) {
 			inputs.children(':gt(' + (arguments.length - 1) + ')').remove();
 		}
@@ -1436,7 +1441,8 @@ var FuncCall = $.inherit({
 	},
 	
 	removeFunctionCall: function (funcId){
-		if (this.funcId == funcId) {
+		var funcDef = this.getFuncDef();
+		if (funcDef == undefined || funcDef.funcId == funcId) {
 			$('#' + this.id).remove();
 		}
 	},
@@ -1471,7 +1477,8 @@ var FuncCall = $.inherit({
 	},
 	
 	updateArguments: function(funcId, arguments) {
-		if (this.funcId == funcId) {
+		var funcDef = this.getFuncDef();
+		if (funcDef.funcId == funcId) {
 			this.updateJstreeObject(arguments);
 		}
 		//this.body.updateArguments(funcId, arguments);
@@ -2266,5 +2273,13 @@ var Problem = $.inherit({
 			return false;
 		}
 		return true;
+	},
+
+	getAvaliableFunctionName: function() {
+		var index = 0;
+		while (this.functions['func' + index] != undefined) {
+			++index;
+		}
+		return 'func' + index;
 	}
 });

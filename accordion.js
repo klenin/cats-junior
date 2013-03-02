@@ -69,7 +69,12 @@
 				return false;
 			});
 			$this.children('div').children('.func-icon:odd').unbind('click').bind('click', function(eventObject) {
+				var name = $this.myAccordion('getFunctionName', $(this).parent());
 				var index = $this.data('arguments')[$(this).parent().index()].length; 
+				if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index + 1]) {
+					alert('Функция с таким же именем уже существует');
+					return false;
+				}
 				var argSpan = $('<span class="argInput"><a href="#">arg' + index + '</a></span>')
 					.insertBefore($(this))
 					.bind('click', function(eventObject) {
@@ -124,10 +129,9 @@
 				var argumentsNum = $this.data('arguments')[index].length;
 				if (oldName != newName && $this.data('problem').functions[newName] && 
 					$this.data('problem').functions[newName][argumentsNum]) {
-					if (!confirm('Функция с таким же именем уже существует, продолжить?')) {
-						$(input).focus();
-						return false;
-					}
+					alert('Функция с таким же именем уже существует');
+					$(input).focus();
+					return false;
 				}
 				if (!checkName(newName)) {
 					alert('Некорректное имя функции!');
@@ -159,6 +163,14 @@
 				var div = $(span).parent();
 				
 				if (newName == '') { //remove argument
+					var name = $this.myAccordion('getFunctionName', div);
+					var index = $this.data('arguments')[$(div).index()].length; 
+					if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index - 1]) {
+						alert('Функция с таким же именем уже существует');
+						$(input).val(oldName).focus();
+						return false;
+					}
+					
 					$(span).remove();
 					$this.myAccordion('updateArguments', $(div));
 					$this.data('problem').updateArguments($(div).attr('funcId'), 
@@ -205,7 +217,7 @@
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('editing') ) {
 					var span = $this.data('span')
-					var oldName = $(span).parent().children('.func-header').html();
+					var oldName = className ?$(span).parent().children('.func-header').html();
 					var newName = $(this).val();
 					if (onBlur(oldName, newName, this)) {
 						$(this).toggle();

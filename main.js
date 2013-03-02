@@ -227,7 +227,7 @@
 							}, type != 'funcdef'); 
 					}
 					else {
-						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
+						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', problem.getAvaliableFunctionName() );
 						createJsTreeForFunction( '#funcDef-' + cmdId++, problem );
 						//problem.updated();
 					}
