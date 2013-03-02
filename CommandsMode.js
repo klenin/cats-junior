@@ -1406,17 +1406,18 @@ var FuncCall = $.inherit({
 	},
 	
 	updateFunctonNames: function(funcId, funcName, newName) {
-		if (this.getFuncDef().funcId == funcId) {
+		var funcDef = this.getFuncDef();
+		if (funcDef.funcId == funcId) {
 			this.name = newName;
 			//this.funcName = newName;
-			this.updateJstreeObject();
+			this.updateJstreeObject(undefined, funcDef);
 		}
 	},
 	
-	updateJstreeObject: function(arguments){
+	updateJstreeObject: function(arguments, funcDef){
 		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 		var inputs = $('#' + this.id).children('.argCallInput');
-		arguments = arguments ? arguments : this.getFuncDef().getArguments();
+		arguments = arguments ? arguments : (funcDef ? funcDef : this.getFuncDef().getArguments());
 		if (inputs.length > arguments.length) {
 			inputs.children(':gt(' + (arguments.length - 1) + ')').remove();
 		}
