@@ -19,8 +19,8 @@
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
 					'<span class="func-header jstree-draggable" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
 					'<span> (</span>' + 
-					'<span>)</span>' + 
 					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+
+					'<span>)</span>' + 
 					//'<input id = "input' + cmdId + '"/>'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
@@ -31,7 +31,7 @@
 				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			}
 			else {
-				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next();
+				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next().next();
 				var index = $this.data('arguments').length - 1;
 				for (var i = 0; i < args.length; ++i) {
 					if (i != 0) {
@@ -70,17 +70,17 @@
 			});
 			$this.children('div').children('.func-icon:odd').unbind('click').bind('click', function(eventObject) {
 				var index = $this.data('arguments')[$(this).parent().index()].length; 
-				var argSpan = $('<span class="argInput">arg' + index + '</span>')
-					.insertBefore($(this).prev('span'))
-					.bind('dblclick', function(eventObject) {
+				var argSpan = $('<span class="argInput"><a href="#">arg' + index + '</a></span>')
+					.insertBefore($(this))
+					.bind('click', function(eventObject) {
 						$this.myAccordion('showFunctionArgumentInput', this);
 						return false;
 					})
 					.bind('mouseover', function(eventObject){
-						$(this).css('border', 'dotted');
+						//$(this).css('border', 'dotted');
 					})
 					.bind('mouseout', function(eventObject){
-						$(this).css('border', 'none');
+						//$(this).css('border', 'none');
 					});
 
 				$this.data('arguments')[$(this).parent().index()].push(argSpan);
@@ -135,7 +135,9 @@
 					return false;
 				}
 				$($this.data('span')).html($(input).val());
-				$this.data('problem').updateFunctonName( $(div).parent().attr('funcId'), newName );
+
+				//$this.data('problem').updated();
+				$this.data('problem').updateFunctonNames( $(div).parent().attr('funcId'), oldName, newName );
 				return true;
 			});
 		},
@@ -144,7 +146,7 @@
 			var div = $(span).parent('.funccall');
 			var top = $(span).offset().top;
 			var left = $(span).offset().left;
-			var value = $(span).html();
+			var value = $(span).children('a').html();
 			var $this = $(this);
 			$(this).myAccordion('showInput', top, left, span, value, 'argInput', function(oldName, newName, input) {
 				/*if (oldName != newName && $this.data('myAccordion').problem.functions[newName]) {
@@ -170,12 +172,13 @@
 					return false;
 				}
 				
-				$(span).html($(input).val());
+				$(span).children('a').html($(input).val());
 				$this.myAccordion('updateArguments', $(div));
 				if (!$this.myAccordion('checkArgumentExistence', span, newName, input, oldName)) {
 					return false;
 				}
-				
+
+		
 				$this.myAccordion('updateArguments', $(span).parent());
 				$this.data('problem').updateArguments($(span).parent().attr('funcId'), 
 					$this.myAccordion('getArguments', $(span).parent()));

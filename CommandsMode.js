@@ -162,7 +162,7 @@ var Command = $.inherit({
 			}, true); 
 	},
 
-	updateFunctonName: function(oldName, newName) {
+	updateFunctonNames: function(funcId, oldName, newName) {
 		return;
 	},
 	
@@ -380,8 +380,8 @@ var ForStmt = $.inherit({
 			}, true); 
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.body.updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.body.updateFunctonNames(funcId, oldName, newName);
 	},
 	
 	removeFunctionCall: function(funcId) {
@@ -760,10 +760,10 @@ var IfStmt = $.inherit(CondStmt, {
 		}
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.blocks[0].updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.blocks[0].updateFunctonNames(funcId, oldName, newName);
 		if (this.blocks[1]) {
-			this.blocks[1].updateFunctonName(oldName, newName);
+			this.blocks[1].updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -915,8 +915,8 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.body.funcCallUpdated();
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.body.updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.body.updateFunctonNames(funcId, oldName, newName);
 	},
 	
 	removeFunctionCall: function(funcId) {
@@ -1063,9 +1063,9 @@ var Block = $.inherit({
 		}
 	},
 	
-	updateFunctonName: function(oldName, newName){
+	updateFunctonNames: function(funcId, oldName, newName){
 		for (var i = 0; i < this.commands.length; ++i) {
-			this.commands[i].updateFunctonName(oldName, newName);
+			this.commands[i].updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -1203,12 +1203,11 @@ var FuncDef = $.inherit({
 		createJsTreeForFunction('#funcDef-' + c, this.problem);
 	},
 	
-	updateFunctonName: function (funcId, newName){
-		if (this.funcId == funcId)
-		{
+	updateFunctonNames: function(funcId, oldName, newName){
+		if (this.funcId == funcId) {
 			this.name = newName;
 			this.updateJstreeObject();
-			this.body.updateFunctonName(funcId, newName);
+			this.body.updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -1252,14 +1251,14 @@ var FuncDef = $.inherit({
 });
 
 var FuncCall = $.inherit({
-	__constructor : function(name, argumentsValues, parent, id, funcId, problem) {
+	__constructor : function(name, argumentsValues, parent, id, funcName, problem) {
 		this.name = name;
 		this.parent = parent;
 		this.problem = problem;
 		this.executing = false;
 		this.id = id;
 		this.argumentsValues = argumentsValues.clone();
-		this.funcId = funcId;
+		//this.funcName = name;
 	},
 	
 	isFinished: function(){
@@ -1268,7 +1267,7 @@ var FuncCall = $.inherit({
 	},
 	
 	getFuncDef: function() {
-		return this.problem.functionsWithId[this.funcId];
+		return this.problem.functions[this.name][this.argumentsValues.length];
 	},
 	
 	operateFuncDef: function(func) {
@@ -1355,6 +1354,7 @@ var FuncCall = $.inherit({
 			return func;
 		}
 		this.name = func.name;
+		//this.funcName = func
 		this.argumentsValues = func.argumentsValues.clone();
 		return this;
 	},
@@ -1405,9 +1405,10 @@ var FuncCall = $.inherit({
 			}, true); 	
 	},
 	
-	updateFunctonName: function(funcId, newName) {
-		if (this.funcId == funcId) {
+	updateFunctonNames: function(funcId, funcName, newName) {
+		if (this.getFuncDef().funcId == funcId) {
 			this.name = newName;
+			//this.funcName = newName;
 			this.updateJstreeObject();
 		}
 	},
@@ -1799,9 +1800,9 @@ var Problem = $.inherit({
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
 	
-	updateFunctonName: function(funcId, newName) {
+	updateFunctonNames: function(funcId, oldName, newName) {
 		//if (!this.functions[oldName]) {
-			this.cmdList.updateFunctonName(funcId, newName);
+			this.cmdList.updateFunctonNames(funcId, oldName, newName);
 		//}
 	},
 	
