@@ -19,8 +19,8 @@
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
 					'<span class="func-header jstree-draggable" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
 					'<span> (</span>' + 
-					'<span>)</span>' + 
 					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+
+					'<span>)</span>' + 
 					//'<input id = "input' + cmdId + '"/>'  +
 					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
@@ -31,15 +31,15 @@
 				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			}
 			else {
-				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next();
+				var plus =  $('#funcDiv' + cmdId).children('.func-header').next().next();
 				var index = $this.data('arguments').length - 1;
 				for (var i = 0; i < args.length; ++i) {
 					if (i != 0) {
 						var comma = $('<span>, </span>')
-								.insertBefore(bracket);	
+								.insertBefore(plus);	
 					}
-					var argSpan = $('<span class="argInput">' + args[i] + '</span>')
-						.insertBefore(bracket)
+					var argSpan = $('<span class="argInput"><a href="#">' + args[i] + '</a></span>')
+						.insertBefore(plus)
 						.bind('dblclick', function(eventObject) {
 							$this.myAccordion('showFunctionArgumentInput', this);
 							return false;
@@ -69,18 +69,23 @@
 				return false;
 			});
 			$this.children('div').children('.func-icon:odd').unbind('click').bind('click', function(eventObject) {
+				var name = $this.myAccordion('getFunctionName', $(this).parent());
 				var index = $this.data('arguments')[$(this).parent().index()].length; 
-				var argSpan = $('<span class="argInput">arg' + index + '</span>')
-					.insertBefore($(this).prev('span'))
-					.bind('dblclick', function(eventObject) {
+				if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index + 1]) {
+					alert('Функция с таким же именем уже существует');
+					return false;
+				}
+				var argSpan = $('<span class="argInput"><a href="#">arg' + index + '</a></span>')
+					.insertBefore($(this))
+					.bind('click', function(eventObject) {
 						$this.myAccordion('showFunctionArgumentInput', this);
 						return false;
 					})
 					.bind('mouseover', function(eventObject){
-						$(this).css('border', 'dotted');
+						//$(this).css('border', 'dotted');
 					})
 					.bind('mouseout', function(eventObject){
-						$(this).css('border', 'none');
+						//$(this).css('border', 'none');
 					});
 
 				$this.data('arguments')[$(this).parent().index()].push(argSpan);
@@ -124,10 +129,9 @@
 				var argumentsNum = $this.data('arguments')[index].length;
 				if (oldName != newName && $this.data('problem').functions[newName] && 
 					$this.data('problem').functions[newName][argumentsNum]) {
-					if (!confirm('Функция с таким же именем уже существует, продолжить?')) {
-						$(input).focus();
-						return false;
-					}
+					alert('Функция с таким же именем уже существует');
+					$(input).focus();
+					return false;
 				}
 				if (!checkName(newName)) {
 					alert('Некорректное имя функции!');
@@ -135,7 +139,9 @@
 					return false;
 				}
 				$($this.data('span')).html($(input).val());
-				$this.data('problem').updateFunctonName( $(div).parent().attr('funcId'), newName );
+
+				//$this.data('problem').updated();
+				$this.data('problem').updateFunctonNames( $(div).parent().attr('funcId'), oldName, newName );
 				return true;
 			});
 		},
@@ -144,7 +150,7 @@
 			var div = $(span).parent('.funccall');
 			var top = $(span).offset().top;
 			var left = $(span).offset().left;
-			var value = $(span).html();
+			var value = $(span).children('a').html();
 			var $this = $(this);
 			$(this).myAccordion('showInput', top, left, span, value, 'argInput', function(oldName, newName, input) {
 				/*if (oldName != newName && $this.data('myAccordion').problem.functions[newName]) {
@@ -157,6 +163,14 @@
 				var div = $(span).parent();
 				
 				if (newName == '') { //remove argument
+					var name = $this.myAccordion('getFunctionName', div);
+					var index = $this.data('arguments')[$(div).index()].length; 
+					if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index - 1]) {
+						alert('Функция с таким же именем уже существует');
+						$(input).val(oldName).focus();
+						return false;
+					}
+					
 					$(span).remove();
 					$this.myAccordion('updateArguments', $(div));
 					$this.data('problem').updateArguments($(div).attr('funcId'), 
@@ -170,12 +184,13 @@
 					return false;
 				}
 				
-				$(span).html($(input).val());
+				$(span).children('a').html($(input).val());
 				$this.myAccordion('updateArguments', $(div));
 				if (!$this.myAccordion('checkArgumentExistence', span, newName, input, oldName)) {
 					return false;
 				}
-				
+
+		
 				$this.myAccordion('updateArguments', $(span).parent());
 				$this.data('problem').updateArguments($(span).parent().attr('funcId'), 
 					$this.myAccordion('getArguments', $(span).parent()));
@@ -202,7 +217,7 @@
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('editing') ) {
 					var span = $this.data('span')
-					var oldName = $(span).parent().children('.func-header').html();
+					var oldName = className == 'funcInput' ? $(span).parent().children('.func-header').html() : $(span).children('a').html();
 					var newName = $(this).val();
 					if (onBlur(oldName, newName, this)) {
 						$(this).toggle();
@@ -312,7 +327,7 @@
 			var l = $(this).data('arguments')[index].length;
 			for (var k = 0; k <  $(this).data('arguments')[index].length; ++k) {
 				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
-				arguments.push($(this).data('arguments')[index][k].html().split(' ').join(''))
+				arguments.push($(this).data('arguments')[index][k].children('a').html().split(' ').join(''))
 			}
 			return arguments;
 		}

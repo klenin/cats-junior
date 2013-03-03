@@ -1,4 +1,4 @@
-function onCreateItem(tree, newNode, type, problem, funcId){
+function onCreateItem(tree, newNode, type, problem, funcId, args){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
@@ -81,7 +81,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				}
 				break;
 			case 'funccall':
-				var arguments = problem.functionsWithId[funcId].getArguments();
+				var arguments = args;
 				for (var i = 0; i < arguments.length; ++i) {
 					$(newNode)
 						.append('<input class="argCallInput"/>')
@@ -283,9 +283,16 @@ function createJsTreeForFunction(funcId, problem) {
 					name = $(data.o).prev().prev().text();
 				}
 				if (type != 'funcdef') {
-					$(funcId).jstree("create", node, pos, {'data': name}, function(newNode){
-							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'));
-					}, type != 'funcdef'); 
+					$(funcId).jstree(
+						"create", node, pos, 
+						{'data': name}, 
+						function(newNode){
+							var args = [];
+							if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
+								args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
+							}
+							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
+						}, type != 'funcdef'); 
 				}
 			},
 			"drop_finish": function(data){

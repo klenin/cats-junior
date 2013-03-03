@@ -223,11 +223,15 @@
 							"create", node, pos, 
 							{'data': name}, 
 							function(newNode){
-								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'));
+								var args = [];
+								if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
+									args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
+								}
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
 							}, type != 'funcdef'); 
 					}
 					else {
-						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', 'func' + problem.numOfFunctions );
+						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', problem.getAvaliableFunctionName() );
 						createJsTreeForFunction( '#funcDef-' + cmdId++, problem );
 						//problem.updated();
 					}
