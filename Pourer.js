@@ -1,9 +1,10 @@
 var Vessel = $.inherit({
-	__constructor: function(color, capacity, initFilled, div) {
+	__constructor: function(color, capacity, initFilled, isEndless, div) {
 		this.color = color;
 		this.capacity = this.capacity;
 		this.initFilled = initFilled;
 		this.filled = this.initFilled;
+		this.isEndless = isEndless;
 		this.div = div;
 		this.init();
 	},
@@ -32,6 +33,27 @@ var Vessel = $.inherit({
 			var color = i < this.capacity - this.filled ? '#FFFFFF' : this.color;
 			this.getCell(i).css({'background-color': color});
 		}
+	},
+
+	pourTo: function(delta) { //we pour from this vessel to another
+		if (!this.isEndless) {
+			this.filled -= delta;
+		}
+	},
+
+	pourFrom: function(delta) {//we fill current vessel
+		this.vessels[dest].filled += delta;
+	},
+
+	pourOut: function() {
+		if (this.isEndless) {
+			throw 'Can\'t pour out endless vessel!!!';
+		}
+		this.filled = 0;
+	},
+
+	fill: function() {
+		this.filled = this.capacity;
 	}
 });
 
@@ -54,9 +76,12 @@ var Pourer = $.inherit({
 		var args = [
 			new ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length - 1),
 			new ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length - 1)];
-		var pourCmd = new ExecutionUnitCommand('pour', pour, args);
-		this.commands.push(pourCmd);
-
+		this.commands.push(new ExecutionUnitCommand('pour', pour, args));
+		this.commands.push(new ExecutionUnitCommand('pourOut', pourOut, 
+			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length - 1)]));
+		this.commands.push(new ExecutionUnitCommand('fill', fill, 
+			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length - 1)]));
+		
 		var vesselsList = [];
 		for (var i = 0; i < this.data.vessels.length; ++i) {
 			vesselsList.push([i, i + 1]);
@@ -84,6 +109,7 @@ var Pourer = $.inherit({
 			this.vessels.push(new Vessel(this.data.vessels[i].color, 
 				this.data.vessels[i].capacity, 
 				this.data.vessels[i].initFilled, 
+				this.data.vessels[i].isEndless,
 				cell)
 			);			
 		}
@@ -158,21 +184,48 @@ var Pourer = $.inherit({
 	pour: function(args) {
 		var src = args[0];
 		var dest = args[1];
-		
-		if (src == dest) { //is it an error?
-			return;
-		}
-		
-		if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
-			return;
-		}
 
-		var delta = Math.min(this.vessels[dest].capacity - this.vessels[dest].filled, this.vessels[src].filled);
-		this.vessels[src].filled -= delta;
-		this.vessels[dest].filled += delta;
-		if (this.problem.speed) {
-			this.vessels[src].draw();
-			this.vessels[dest].draw();
+		try {
+			if (src == dest) { //is it an error?
+				return;
+			}
+			
+			if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
+				return;
+			}
+
+			var delta = Math.min(this.vessels[dest].capacity - this.vessels[dest].filled, this.vessels[src].filled);
+			this.vessels[src].pourTo(delta);
+			this.vessels[dest].pourFrom(delta);
+
+			if (this.problem.speed) {
+				this.vessels[src].draw();
+				this.vessels[dest].draw();
+			}
+		}
+		catch (err) {
+			throw 'Invalid command!';
+		}
+	},
+
+	pourOut: function(args) {
+		var vessel = args[0];
+		try {
+			this.vessels[vessel].pourOut();
+		}
+		catch (err) {
+			throw 'Invalid command!';
+		}
+		
+	},
+
+	fill: function(args) {
+		var vessel = args[0];
+		try {
+			this.vessels[vessel].fill();
+		}
+		catch (err) {
+			throw 'Invalid command!';
 		}
 	},
 
@@ -210,7 +263,9 @@ var Pourer = $.inherit({
 },
 {
 	cmdClassToName: {
-		'pour': 'Перелить'
+		'pour': 'Перелить',
+		'pourOut': 'Вылить',
+		'fill': 'Заполнить'
 	},
 
 	cssFileName: "styles/pourer.css"
@@ -219,6 +274,14 @@ var Pourer = $.inherit({
 
 function pour(src, dst) {
 	curProblem.oneStep('pour', undefined, [src, dst]);
+}
+
+function pourOut(vessel) {
+	curProblem.oneStep('pourOut', undefined, [vessel]);
+}
+
+function fill(vessel) {
+	curProblem.oneStep('fill', undefined, [vessel]);
 }
 
 function compare(args){
