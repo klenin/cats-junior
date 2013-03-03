@@ -217,7 +217,7 @@
 			input.bind('blur', function(eventObject) {
 				if ( $this.data('editing') ) {
 					var span = $this.data('span')
-					var oldName = className ?$(span).parent().children('.func-header').html();
+					var oldName = className == 'funcInput' ? $(span).parent().children('.func-header').html() : $(span).children('a').html();
 					var newName = $(this).val();
 					if (onBlur(oldName, newName, this)) {
 						$(this).toggle();
@@ -327,7 +327,7 @@
 			var l = $(this).data('arguments')[index].length;
 			for (var k = 0; k <  $(this).data('arguments')[index].length; ++k) {
 				//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
-				arguments.push($(this).data('arguments')[index][k].html().split(' ').join(''))
+				arguments.push($(this).data('arguments')[index][k].children('a').html().split(' ').join(''))
 			}
 			return arguments;
 		}

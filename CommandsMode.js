@@ -396,8 +396,12 @@ var ForStmt = $.inherit({
 		return this.parent ? this.parent.getFunction() : undefined;
 	},
 	
-	updateArguments: function(funcId, arguments) {
-		this.body.updateArguments(funcId, arguments);
+	updateArguments: function(funcId, args) {
+		var func = this.getFunction();
+		if (func && func.funcId == funcId) {
+			this.getSpin().mySpin('setArguments', args);
+		}
+		this.body.updateArguments(funcId, args);
 	},
 	
 	funcCallUpdated: function() {
@@ -580,12 +584,28 @@ var CondStmt = $.inherit({
 		return this.parent ? this.parent.getFunction() : undefined;
 	},
 	
-	generateArguments: function() {
-		var funcDef = this.getFunction();
-		if (funcDef) {
-			var arguments = funcDef.getArguments();
+	generateArguments: function(args) {
+		var arguments = undefined;
+		var clear = false;
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		if (args) {
+			arguments = args;
+			clear = true;
+		}
+		else {
+			var funcDef = this.getFunction();
+			if (funcDef) {
+				var arguments = funcDef.getArguments();
+			}
+		}
+		if (arguments) {
 			for (var i = 0; i < $('#' + this.id).children('select').length; ++i) {
 				var index = $('#' + this.id).children('select:eq(' + i + ')').children('option').length;
+				if (clear && i > 0) {
+					$('#' + this.id).children('select:eq(' + i + ')').children(':gt(' + (selects[i - 1].length - 1) + ')').remove();
+						
+				}
 				for (var j = 0; j < arguments.length; ++j) {
 					var k = 0;
 					for (k = 0; k < $('#' + this.id).children('select:eq(' + i + ')').children('option').length; ++k) {
@@ -747,6 +767,10 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var funcDef = this.getFunction();
+		if (funcDef && funcDef.funcId == funcId) {
+			this.generateArguments(arguments); 
+		}
 		this.blocks[0].updateArguments(funcId, arguments);
 		if (this.blocks[1]) {
 			this.blocks[1].updateArguments(funcId, arguments);
@@ -908,6 +932,10 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var funcDef = this.getFunction();
+		if (funcDef && funcDef.funcId == funcId) {
+			this.generateArguments(arguments); 
+		}
 		this.body.updateArguments(funcId, arguments);
 	},
 	
@@ -1236,13 +1264,12 @@ var FuncDef = $.inherit({
 		return this;
 	},
 	
-	updateArguments: function(funcId, arguments) {
-		if (this.funcId == funcId)
-		{
-			this.argumentsList = arguments.clone();
+	updateArguments: function(funcId, args) {
+		if (this.funcId == funcId) {
+			this.argumentsList = args.clone();
 		}
 		//this.updateJstreeObject();
-		this.body.updateArguments(funcId, arguments);
+		this.body.updateArguments(funcId, args);
 	},
 	
 	funcCallUpdated: function() {
@@ -1419,15 +1446,15 @@ var FuncCall = $.inherit({
 		}
 	},
 	
-	updateJstreeObject: function(arguments, funcDef){
+	updateJstreeObject: function(args, funcDef){
 		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 		var inputs = $('#' + this.id).children('.argCallInput');
-		arguments = arguments ? arguments : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
-		if (inputs.length > arguments.length) {
-			inputs.children(':gt(' + (arguments.length - 1) + ')').remove();
+		args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
+		if (inputs.length > args.length) {
+			$(inputs).filter(':gt(' + (args.length - 1) + ')').remove();
 		}
 		else {
-			for (var i = inputs.length; i < arguments.length; ++i) {
+			for (var i = inputs.length; i < args.length; ++i) {
 				$('#' + this.id)
 					.append('<input class="argCallInput"/>')
 					.bind('change', function(problem){
@@ -1478,7 +1505,7 @@ var FuncCall = $.inherit({
 	
 	updateArguments: function(funcId, arguments) {
 		var funcDef = this.getFuncDef();
-		if (funcDef.funcId == funcId) {
+		if (funcDef && funcDef.funcId == funcId) {
 			this.updateJstreeObject(arguments);
 		}
 		//this.body.updateArguments(funcId, arguments);
