@@ -31,15 +31,15 @@
 				$this.myAccordion('showFunctionNameInput', $('#funcDiv' + cmdId).children('.func-header'));
 			}
 			else {
-				var bracket =  $('#funcDiv' + cmdId).children('.func-header').next().next().next();
+				var plus =  $('#funcDiv' + cmdId).children('.func-header').next().next();
 				var index = $this.data('arguments').length - 1;
 				for (var i = 0; i < args.length; ++i) {
 					if (i != 0) {
 						var comma = $('<span>, </span>')
-								.insertBefore(bracket);	
+								.insertBefore(plus);	
 					}
-					var argSpan = $('<span class="argInput">' + args[i] + '</span>')
-						.insertBefore(bracket)
+					var argSpan = $('<span class="argInput"><a href="#">' + args[i] + '</a></span>')
+						.insertBefore(plus)
 						.bind('dblclick', function(eventObject) {
 							$this.myAccordion('showFunctionArgumentInput', this);
 							return false;

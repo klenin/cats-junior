@@ -1427,7 +1427,7 @@ var FuncCall = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId);  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, self.argumentsValues);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				for (var i = 0; i < self.argumentsValues.length; ++i) {
