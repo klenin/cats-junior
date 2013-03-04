@@ -5,7 +5,7 @@
 		//counter -- total 
 		//value -- current
 		//during execution we will see value/counter
-		init: function(a, b, c, d) {
+		init: function(a, b, c, d, e) {
 			return this.each(function(){
 				var $this = $(this);
 
@@ -15,6 +15,7 @@
 				$this.data('problem', c);
 				$this.data('arguments', b.clone());
 				$this.data('type', d);
+				$this.data('isCounter', e);
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
@@ -103,7 +104,7 @@
 
 		hideBtn: function(cnt) {
 			$(this).mySpin('getSpinImg').hide();
-			if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int')  {
+			if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
 				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
 			}
 			else {
@@ -133,7 +134,7 @@
 			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 				throw 'Invalid counter!!!';
 			}
-			if ($(this).data('type') == 'int') {
+			if ($(this).data('type') == 'int' && $(this).data('isCounter') == true) {
 				$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
 			}
 			else {
