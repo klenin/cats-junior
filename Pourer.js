@@ -184,6 +184,9 @@ var Pourer = $.inherit({
 		}
 
 		this.draw();
+		if (this.isFinished()) {
+			alert('Goal has been reached!');
+		}
 	},
 
 	pour: function(args) {

@@ -207,7 +207,7 @@ var Command = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
+				onCreateItem(tree, newNode, $('#' + self.name + self.problem.tabIndex).attr('rel'), self.problem);
 				self.id = $(newNode).attr('id');
 				for (var i = 0; i < self.arguments.length; ++i) {
 						if (isInt(self.arguments[i].value)) {
