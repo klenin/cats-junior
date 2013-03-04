@@ -1,5 +1,6 @@
 var executionUnits = {
-	'arrowInLabyrinth': ArrowInLabyrinth
+	'ArrowInLabyrinth': ArrowInLabyrinth,
+	'Pourer': Pourer
 };
 
 var ExecutionUnitWrapper = $.inherit({
@@ -39,9 +40,9 @@ var ExecutionUnitWrapper = $.inherit({
 		return this.executionUnit.isDead();	
 	},
 
-	executeCommand: function(command) {
+	executeCommand: function(command, args) {
 		this.checkExecutionUnit();
-		this.executionUnit.executeCommand(command);	
+		this.executionUnit.executeCommand(command, args);	
 	},
 
 	gameOver: function() {

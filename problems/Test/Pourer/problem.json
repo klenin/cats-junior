@@ -1,0 +1,27 @@
+{	
+	"executionUnitName": "Pourer",
+	"commands": ["pour", "pourOut", "fill"],
+	"maxCmdNum": 100,
+	"commandsFine": 1,
+	"vessels": [
+		{
+			"color": "#FF0000",
+			"capacity": 3,
+			"initFilled": 0, 
+			"isEndless": false
+		},
+		
+		{
+			"color": "#00FF00",
+			"capacity": 5,
+			"initFilled": 0, 
+			"isEndless": false
+		}
+	],
+	"finishState": [
+		{
+			"vessel": 1,
+			"filled": 4
+		}
+	]
+}

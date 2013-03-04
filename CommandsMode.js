@@ -86,13 +86,13 @@ var Command = $.inherit({
 
 		var args = [];
 		for (var i = 0; i < this.arguments.length; ++i) {
-			args.push(this.arguments.currentValue);
+			args.push(this.arguments[i].currentValue);
 		}
 		
 		var t = Math.min(cnt, Math.abs(this.curCnt - commandCounter));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
-			this.problem.oneStep(this.name, args);
+			this.problem.oneStep(this.name, this.counterIndex != undefined ? args[this.counterIndex] : undefined, args);
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
@@ -1615,7 +1615,7 @@ var Problem = $.inherit({
 
 	initExecutor: function(data) {
 		this.executionUnit = new ExecutionUnitWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), 
-			data.executionUnitName ? data.executionUnitName : 'arrowInLabyrinth');
+			data.data.executionUnitName ? data.data.executionUnitName : 'ArrowInLabyrinth');
 	},
 
 	generateCommands: function() {
