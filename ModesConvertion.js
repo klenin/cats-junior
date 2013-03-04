@@ -8,6 +8,7 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 		if (!problem.functions[funcName]) {
 			problem.functions[funcName] = [];
 		}
+
 		problem.functions[funcName][argumentsList.length] = func;
 		problem.functionsWithId[funcId] = func;
 		++problem.numOfFunctions;
@@ -232,10 +233,21 @@ function convertTreeToCommands(commands, parent, problem)
 				for (var j = 0; j < commands[i].args.args.length; ++j) {
 					arguments.push(commands[i].args.args[j].id.v);
 				}
+				if (problem.functions[commands[i].name.v] == undefined) {
+					problem.functions[commands[i].name.v] = [];
+				}
+
+				if (problem.functions[commands[i].name.v][arguments.length] != undefined) {
+					throw 'Several functionas with the same name aren\'t supported in visual mode!!!'
+				}
+				
 				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, ++cmdId, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 				funcDef.body = body;
 				block.pushCommand(funcDef);
+
+				problem.functions[commands[i].name.v][arguments.length] = funcDef;
+
 				break;	
 			case 'Pass':
 				break;

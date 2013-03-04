@@ -270,6 +270,7 @@ function fillTabs(){
 							$('#jstree-container' + j).empty();	
 							$('#accordion' + j).myAccordion( 'clear' );
 							problems[j].prepareForExecuting();
+							problems[j].functions = {};
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
 								//problems[j].cmdList = block;//??
