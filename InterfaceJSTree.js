@@ -18,7 +18,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 		var args = command.getArguments();
 		for (var i = 0; i < args.length; ++i) {
 			var spin = $('<spin></spin>');
-			spin.mySpin('init', $(newNode), [], problem, args[i].type, args[i].isCounter);
+			spin.mySpin('init', $(newNode), [], problem, args[i].type, args[i].isCounter, args[i].minValue, args[i].maxValue);
 			$(newNode).append(spin);
 		}
 	}

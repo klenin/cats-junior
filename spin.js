@@ -5,23 +5,24 @@
 		//counter -- total 
 		//value -- current
 		//during execution we will see value/counter
-		init: function(a, b, c, d, e) {
+		init: function(cmd, args, problem, type, isCounter, min, max) {
 			return this.each(function(){
 				var $this = $(this);
 
-				var command = a;
+				var command = cmd;
 				
 				$this.data('command', command);
-				$this.data('problem', c);
-				$this.data('arguments', b.clone());
-				$this.data('type', d);
-				$this.data('isCounter', e);
+				$this.data('problem', problem);
+				$this.data('arguments', args.clone());
+				$this.data('type', type);
+				$this.data('isCounter', isCounter);
 				$this.data('argumentValues', {});
 
 				$this.data('total', 1);
 				$this.data('totalVal', 1);
 				$this.data('currentTotal', 1);
-				$this.data('minimum', 1);
+				$this.data('minimum', min ? min : 1);
+				$this.data('maximum', max ? max : MAX_VALUE);
 
 				$this.data('isBeingExecuted', false);
 
@@ -95,6 +96,10 @@
 				{
 					newTotal = $(this).data('minimum');
 				}
+			}
+
+			else if (newTotal > $(this).data('maximum')) {
+				newTotal = $(this).data('maximum');
 			}
 
 			$(this).mySpin('setTotal', newTotal);

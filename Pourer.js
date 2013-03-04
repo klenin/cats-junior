@@ -73,13 +73,13 @@ var Pourer = $.inherit({
 	constructCommands: function() {
 		this.commands = {};
 		var args = [
-			new ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length - 1),
-			new ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length - 1)];
+			new ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length),
+			new ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length)];
 		this.commands['pour'] = new ExecutionUnitCommand('pour', pour, args);
 		this.commands['pourOut'] = new ExecutionUnitCommand('pourOut', pourOut, 
-			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length - 1)]);
+			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
 		this.commands['fill'] = new ExecutionUnitCommand('fill', fill, 
-			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length - 1)]);
+			[new ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
 
 		var vesselsList = [];
 		for (var i = 0; i < this.data.vessels.length; ++i) {
