@@ -136,6 +136,24 @@
 						"icon" : { 
 							"image" : "images/block_small.png" 
 						}
+					},
+					"pour" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/pour_small.png" 
+						}
+					},
+					"pourOut" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/pourOut_small.png" 
+						}
+					},
+					"fill" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/fill_small.png" 
+						}
 					}
 				}
 			},
