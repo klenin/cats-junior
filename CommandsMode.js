@@ -1294,7 +1294,7 @@ var FuncDef = $.inherit({
 			++cmdId;
 			self.problem.updated();
 		});
-		createJsTreeForFunction('#funcDef-' + c, this.problem);
+		createJsTreeForFunction('#funcDef-' + c, this.problem, true);
 	},
 	
 	updateFunctonNames: function(funcId, oldName, newName){
@@ -1619,6 +1619,8 @@ var Problem = $.inherit({
 	},
 
 	generateCommands: function() {
+		//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
+		
 		var tr = $('#ulCommands' + this.tabIndex).children('table').children('tbody').children('tr');
 		for(var i = 0; i < classes.length; ++i) {
 			if (classes[i] === 'block') {

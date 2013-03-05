@@ -285,7 +285,13 @@ var Pourer = $.inherit({
 		'fill': 'Заполнить'
 	},
 
-	cssFileName: "styles/pourer.css"
+	cssFileName: "styles/pourer.css",
+
+	jsTreeTypes: [
+		['pour', 'images/pour_small.png'],
+		['pourOut', 'images/pourOut_small.png'],
+		['fill', 'images/fill_small.png']
+	]
 });
 
 

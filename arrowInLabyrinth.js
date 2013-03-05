@@ -490,7 +490,14 @@ var ArrowInLabyrinth = $.inherit({
 		'handlerFunc': objectPosition_handler,
 	},
 
-	cssFileName: "styles/arrowInLabyrinth.css"
+	cssFileName: "styles/arrowInLabyrinth.css",
+
+	jsTreeTypes: [
+		['left', 'images/left_small.png'],
+		['right', 'images/right_small.png'],
+		['forward', 'images/forward_small.png'],
+		['wait', 'images/wait_small.png']
+	]
 });
 
 function objectPosition(args){

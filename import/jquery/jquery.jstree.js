@@ -4035,6 +4035,23 @@
 					if(s.max_depth !== -2 && md !== -1 && (md - 1) < 0) { return false; }
 				}
 				return this.__call_old(true, obj, position, js, callback, is_loaded, skip_check);
+			},
+
+			add_type: function(name, image) {
+				this._get_settings().types.types[name] = {
+					'valid_children': 'none',
+					'icon': {
+						'image': image
+					}
+				};
+
+				var icons_css = "";
+				icons_css += '.jstree-' + this.get_index() + ' li[rel="' + name + '"] > a > .jstree-icon { ';
+				icons_css += ' background-image:url(' + image + '); '; 
+				icons_css += ' background-image:url(' + image + '); '; 
+				icons_css += ' background-position:0 0; ';
+				icons_css += '}'; 
+				$.vakata.css.add_sheet({ 'str' : icons_css, title : "jstree-types" });
 			}
 		}
 	});
