@@ -155,10 +155,16 @@ input.spinCnt{
 	border-width: 1px; 
 	padding-bottom: 0px; 
 	top: 0px; left: 0px; 
-	display:none; 
 	position: inherit;
 	z-index: 1;
 }
+
+span.spinImg {
+	background: url('../images/spin-button.png') no-repeat;
+	width: 16px;
+	height: 21px;
+}
+
 .tabs:after { 
    display: block; 
    clear: both; 
@@ -211,16 +217,17 @@ div.MySplitter1 {
 input.funcInput {
 	position: absolute; 
 	height: 25px;
+	width: 70px;
 }
 
 input.argInput {
-	width: 25px;
+	width: 50px;
 	position: absolute; 
 	height: 25px;
 }
 
 input.argCallInput {
-	width: 25px;
+	width: 70px;
 	height: 25px;
 }
 

@@ -270,11 +270,14 @@ function fillTabs(){
 							$('#jstree-container' + j).empty();	
 							$('#accordion' + j).myAccordion( 'clear' );
 							problems[j].prepareForExecuting();
+							problems[j].functions = {};
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
 								//problems[j].cmdList = block;//??
+								
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
-								//problems[j].updated();
+								
+								//setTimeout(function() {problems[j].updated()}, 20000);
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
 							}
 							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -328,7 +331,7 @@ function fillTabs(){
 				}
 			}(i));
 			problems[i].initExecutor(data[i]);
-			updateStyleSheet(i, problems[i].executor.getCssFileName());
+			updateStyleSheet(i, problems[i].executionUnit.getCssFileName());
 			problems[i].generateCommands();
 		
 			$('#forJury' + i).hide();
@@ -446,7 +449,9 @@ function clearClick(){
 		return;
 	problem.cmdList = new Block([], undefined, problem);
 	$('#jstree-container' + problem.tabIndex).children().remove();
+	$('#accordion' + problem.tabIndex).myAccordion('clear');
 	$('#accordion' + problem.tabIndex).children().remove();
+	
 	problem.setDefault();
 	problem.updated();
 }

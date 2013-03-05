@@ -2,21 +2,48 @@ var Command = $.inherit({
 	__constructor : function(name, cnt, parent, id, problem) {
         this.name = name;
 		this.cnt = cnt;
+		this.initCnt = cnt;
 		this.curCnt = 0;
 		this.parent = parent;
 		this.id = id;
 		this.problem = problem;
+
+		this.finished = false;
+		var func = this.getFunction();
+		if (func) {
+			this.getSpin().mySpin('setArguments', func.getArguments());
+		}
 	},
 	
 	eq: function(cmd, compareCnt){
 		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
+
+	getSpin: function() {
+		return $('#' + this.id).children('spin');
+	},
 	
 	exec: function(cnt, arguments) {
+		if (this.curCnt == 0) {
+			this.getSpin().mySpin('setArgumentValues', arguments);
+			this.getSpin().mySpin('startExecution');
+
+			var val = this.getSpin().mySpin('getTotalValue');
+			if (!isInt(val)) {
+				this.cnt = parseInt(arguments[val]);
+			}
+			else {
+				this.cnt = parseInt(val);
+			}
+			
+			if (!isInt(this.cnt) || this.cnt < 0) {
+				throw 'Invalid counter!!';
+			}
+		}
+
 		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
 		var i;
-		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()); ++i)
-		{
+		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
 			this.problem.oneStep(this.name, 1);
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
@@ -29,12 +56,21 @@ var Command = $.inherit({
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
+			if (this.problem.speed || this.cnt == this.curCnt) {
+				this.getSpin().mySpin('decreaseValue');
+			}
 		}
-		if (this.problem.speed || this.cnt == this.curCnt)
-		{
-			var numId = $('#' + this.id).prop('numId');
-			$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+
+		this.finished = this.curCnt >= this.cnt;
+		if (this.curCnt == this.cnt) {
+			this.curCnt = 0;
+			this.cnt = this.initCnt;
 		}
+		if ( i == t - 1 || t == 0 ) {
+			this.getSpin().mySpin('stopExecution');
+			this.cnt = this.initCnt;
+		}		
+
 		this.problem.lastExecutedCmd = this;
 		return cnt - i;
 	},
@@ -46,29 +82,29 @@ var Command = $.inherit({
 	setDefault: function() {
 		this.curCnt = 0;
 		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		//this.hideCounters();
+		//this.getSpin().mySpin('stopExecution'); //???
+		this.getSpin().mySpin('hideBtn');
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
 	
 	isFinished: function() {
-		return this.curCnt >= this.cnt;
+		return this.finished;
 	},
 	
 	showCounters: function() {
-		$('#' + this.id + ' > span > img').show();	
-		$('#' + this.id + ' > span > input').html(this.cnt);	
-		$('#' + this.id + ' > span > input').show();
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).hide();
+		this.getSpin().mySpin('showBtn');
 	},
 	
 	hideCounters: function() {
-		$('#' + this.id + ' > span > img').hide();		
-		$('#' + this.id + ' > span > input').hide();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
-		$('#spinCnt' + numId).show();
+		if (!this.finished) {
+			this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		} 
+		else {
+			this.getSpin().mySpin('hideBtn', 0);
+		}
+		
 	},
 	
 	started: function() {
@@ -79,6 +115,7 @@ var Command = $.inherit({
 		if (this.eq(cmd, compareCnt))
 		{
 			this.cnt = cmd.cnt;
+			this.initCnt = cmd.initCnt;
 			this.id = cmd.id;
 			return this;
 		}
@@ -100,7 +137,7 @@ var Command = $.inherit({
 	},
 	
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '(' + this.cnt + ')\n';
+		return generateTabs(tabsNum) + this.name + '(' + this.initCnt + ')\n';
 	},
 	
 	generateCommand: function(tree, node){
@@ -108,13 +145,24 @@ var Command = $.inherit({
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
-				var numId = $(newNode).prop('numId');
-				self.id = numId;
-				$('#' + self.name + numId + ' > span > input').prop('value', self.cnt);
+				self.id = $(newNode).attr('id');
+				if (isInt(self.cnt)) {
+					self.getSpin().mySpin('setTotal', self.cnt);
+				}
+				else {
+					if (!checkName(self.cnt)) {
+						throw 'Invalid argument!!!';
+					}
+					var func = self.getFunction();
+					if (!func) {
+						throw 'Unknown argument!'
+					}
+					self.getSpin().mySpin('setTotalWithArgument', self.cnt);
+				}
 			}, true); 
 	},
 
-	updateFunctonName: function(oldName, newName) {
+	updateFunctonNames: function(funcId, oldName, newName) {
 		return;
 	},
 	
@@ -131,6 +179,10 @@ var Command = $.inherit({
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var func = this.getFunction();
+		if (func && func.funcId == funcId) {
+			this.getSpin().mySpin('setArguments', arguments);
+		}
 		return;
 	},
 	
@@ -144,15 +196,25 @@ var ForStmt = $.inherit({
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
 		this.body = body;
-		this.cnt = cnt;
 		this.parent = parent;	
 		this.id = id;
+		this.cnt = cnt;
+		this.initCnt = cnt;
 		this.curCnt = 0;
 		this.problem = problem;
+		this.finished = false;
+		var func = this.getFunction();
+		if (func) {
+			this.getSpin().mySpin('setArguments', func.getArguments());
+		}
+	},
+
+	getSpin: function() {
+		return $('#' + this.id).children('spin');
 	},
 	
 	isFinished: function(){
-		return this.curCnt > this.cnt;
+		return this.finished;
 	},
 	
 	eq: function(block){
@@ -161,14 +223,31 @@ var ForStmt = $.inherit({
 	
 	exec: function(cnt, arguments)
 	{
-		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		if (this.curCnt == 0) {
+			this.getSpin().mySpin('setArgumentValues', arguments);
+			this.getSpin().mySpin('startExecution');
+
+			var val = this.getSpin().mySpin('getTotalValue');
+			if (!isInt(val)) {
+				this.cnt = parseInt(arguments[val]);
+			}
+			else {
+				this.cnt = parseInt(val);
+			}
+			
+			if (!isInt(this.cnt) || this.cnt < 0) {
+				throw 'Invalid counter!!';
+			}
+		}
+		
+		while (cnt && !this.isFinished() && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			this.isStarted = true;
 			if (!this.executing)
 			{
 				cnt -= 1;
 				var numId = $('#' + this.id).prop('numId');
-				$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
+			
 				if (!cnt || this.problem.speed)
 				{
 					if (this.problem.speed)
@@ -177,7 +256,9 @@ var ForStmt = $.inherit({
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>span').css('background-color', '#1CB2B3');
+					$('#' + this.id + '>spin').css('background-color', '#1CB2B3');
+					$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+
 				}
 				this.problem.lastExecutedCmd = this;
 				if (this.curCnt + 1 > this.cnt)
@@ -193,8 +274,21 @@ var ForStmt = $.inherit({
 			{
 				this.executing = false;
 				++this.curCnt;
+				if (this.problem.speed || this.cnt == this.curCnt) {
+					this.getSpin().mySpin('decreaseValue');
+				}	
 			}
 		}
+
+		this.finished = this.curCnt >= this.cnt;
+		if (this.curCnt == this.cnt) {
+			this.curCnt = 0;
+			this.cnt = this.initCnt;
+		}
+		if ( this.finished ) {
+			this.getSpin().mySpin('stopExecution');
+			this.cnt = this.initCnt;
+		}		
 		return cnt;
 	},
 	
@@ -206,26 +300,25 @@ var ForStmt = $.inherit({
 		this.executing = false;
 		this.isStarted = false;
 		this.curCnt = 0;
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', this.cnt + '/' + this.cnt);
+		this.getSpin().mySpin('hideBtn');
+		this.cnt = this.initCnt;
+		//this.hideCounters();
 		this.body.setDefault();
 		this.highlightOff();
 	},
 	
 	showCounters: function() {
-		$('#' + this.id + ' > span > img').show();		
-		$('#' + this.id + ' > span > input').show();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).hide();
+		this.getSpin().mySpin('showBtn');
 		this.body.showCounters();
 	},
 	
 	hideCounters: function() {
-		$('#' + this.id + ' > span > img').hide();		
-		$('#' + this.id + ' > span > input').hide();			
-		var numId = $('#' + this.id).prop('numId');
-		$('#spinCnt' + numId).prop('value', (this.cnt - this.curCnt) + '/' + this.cnt);
-		$('#spinCnt' + numId).show();
+		if (!this.finished) {
+			this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
+		} 
+		else {
+			this.getSpin().mySpin('hideBtn', 0);
+		}
 		this.body.hideCounters();
 	},
 	
@@ -234,32 +327,31 @@ var ForStmt = $.inherit({
 	},
 	
 	copyDiff: function(block, compareCnt){
-		if (block.getClass() != 'for')
-		{
+		if (block.getClass() != 'for') {
 			return block;
 		}
 		this.cnt = block.cnt; //?
+		this.initCnt = block.initCnt;
 		this.id = block.id;
 		this.body.copyDiff(block.body);
 		return this;
 	},
 	
-	makeUnfinished: function(){
-		if (this.isFinished())
-		{
+	makeUnfinished: function() {
+		if (this.isFinished()) {
 			this.curCnt = Math.max(this.cnt - 1, 0);
 			this.executing = true;
 			this.body.makeUnfinished();
 		}
 	},
 	
-	highlightOff: function(){
+	highlightOff: function() {
 		$('#' + this.id + '> span').css('background-color', '');
 		$('#' + this.id + '> a').css('background-color', '');
 		this.body.highlightOff();
 	},
 	
-	highlightOn: function(){
+	highlightOn: function() {
 		$('#' + this.id + '> span').css('background-color', '#1CB2B3');
 		$('#' + this.id + '> a').css('background-color', '#1CB2B3');
 	},
@@ -267,7 +359,7 @@ var ForStmt = $.inherit({
 	convertToCode: function(tabsNum) {
 		var curCnt = this.problem.curCounter;
 		var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] + 
-			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.cnt + '):\n';
+			(this.problem.counters[curCnt]['cnt'] ? this.problem.counters[curCnt]['cnt'] : '') + ' in range(' + this.initCnt + '):\n';
 		++this.problem.counters[curCnt]['cnt'];
 		this.problem.curCounter = (this.problem.curCounter + 1) % 3;
 		str += this.body.convertToCode(tabsNum + 1);
@@ -282,14 +374,14 @@ var ForStmt = $.inherit({
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
-				$('#for' + numId + ' > span > input').prop('value', self.cnt);
+				self.id = $(newNode).attr('id');
+				self.getSpin().mySpin('setTotal', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.body.updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.body.updateFunctonNames(funcId, oldName, newName);
 	},
 	
 	removeFunctionCall: function(funcId) {
@@ -304,8 +396,12 @@ var ForStmt = $.inherit({
 		return this.parent ? this.parent.getFunction() : undefined;
 	},
 	
-	updateArguments: function(funcId, arguments) {
-		this.body.updateArguments(funcId, arguments);
+	updateArguments: function(funcId, args) {
+		var func = this.getFunction();
+		if (func && func.funcId == funcId) {
+			this.getSpin().mySpin('setArguments', args);
+		}
+		this.body.updateArguments(funcId, args);
 	},
 	
 	funcCallUpdated: function() {
@@ -351,7 +447,7 @@ var CondStmt = $.inherit({
 		//var str = generateTabs(tabsNum) + 'if ';
 		str = '';
 
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var conditionArguments = conditionProperties.args;
 
 		if (this.testName != conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
@@ -418,7 +514,7 @@ var CondStmt = $.inherit({
 	},
 	
 	constructTestFunc: function(args) {
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var conditionArguments = conditionProperties.args;
 
 		if (this.testName != conditionProperties.name) {
@@ -434,7 +530,7 @@ var CondStmt = $.inherit({
 	},
 	
 	convertArguments: function(arguments) {
-		var conditionProperties = this.problem.executor.getConditionProperties();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
 		var selects = conditionProperties.args;
 
 		var funcDef = this.getFunction();
@@ -460,6 +556,7 @@ var CondStmt = $.inherit({
 							for (l = 0; l < selects[i].length; ++l) {
 								if (selects[i][l][0] === arguments[funcArguments[k]] || selects[i][l][1] === arguments[funcArguments[k]]) {
 									args.push(selects[i][l][0]);
+									$('#' + this.id).children('select:eq('+ (i + 1)+')').val(selects[i][l][0]);
 									break;
 								}
 							}
@@ -487,12 +584,28 @@ var CondStmt = $.inherit({
 		return this.parent ? this.parent.getFunction() : undefined;
 	},
 	
-	generateArguments: function() {
-		var funcDef = this.getFunction();
-		if (funcDef) {
-			var arguments = funcDef.getArguments();
+	generateArguments: function(args) {
+		var arguments = undefined;
+		var clear = false;
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		if (args) {
+			arguments = args;
+			clear = true;
+		}
+		else {
+			var funcDef = this.getFunction();
+			if (funcDef) {
+				var arguments = funcDef.getArguments();
+			}
+		}
+		if (arguments) {
 			for (var i = 0; i < $('#' + this.id).children('select').length; ++i) {
 				var index = $('#' + this.id).children('select:eq(' + i + ')').children('option').length;
+				if (clear && i > 0) {
+					$('#' + this.id).children('select:eq(' + i + ')').children(':gt(' + (selects[i - 1].length - 1) + ')').remove();
+						
+				}
 				for (var j = 0; j < arguments.length; ++j) {
 					var k = 0;
 					for (k = 0; k < $('#' + this.id).children('select:eq(' + i + ')').children('option').length; ++k) {
@@ -500,7 +613,7 @@ var CondStmt = $.inherit({
 							break;
 						}
 					}
-					if (k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
+					if (i != 0 && k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
 						$('#' + this.id).children('select:eq(' + i + ')').append(
 							'<option value="' + arguments[j] + '">' + arguments[j] + '</option><br>');
 					}
@@ -562,6 +675,11 @@ var IfStmt = $.inherit(CondStmt, {
 			this.blocks[1].setDefault();
 		this.curBlock = undefined;
 		this.highlightOff();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		for (var i = 0; i < selects.length; ++i) {
+			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		}	
 	},
 	
 	showCounters: function() {
@@ -629,7 +747,7 @@ var IfStmt = $.inherit(CondStmt, {
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
+				self.id = $(newNode).attr('id');
 				self.generateArguments();
 				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
@@ -649,6 +767,10 @@ var IfStmt = $.inherit(CondStmt, {
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var funcDef = this.getFunction();
+		if (funcDef && funcDef.funcId == funcId) {
+			this.generateArguments(arguments); 
+		}
 		this.blocks[0].updateArguments(funcId, arguments);
 		if (this.blocks[1]) {
 			this.blocks[1].updateArguments(funcId, arguments);
@@ -662,10 +784,10 @@ var IfStmt = $.inherit(CondStmt, {
 		}
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.blocks[0].updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.blocks[0].updateFunctonNames(funcId, oldName, newName);
 		if (this.blocks[1]) {
-			this.blocks[1].updateFunctonName(oldName, newName);
+			this.blocks[1].updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -699,7 +821,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	
 	exec: function(cnt, arguments) {
-		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.arrow.dead))
+		while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			this.isStarted = true;
 			if (!this.executing)
@@ -744,6 +866,11 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false;
 		this.body.setDefault();
 		this.highlightOff();
+		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var selects = conditionProperties.args;
+		for (var i = 0; i < selects.length; ++i) {
+			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		}	
 	},
 	
 	showCounters: function() {
@@ -794,7 +921,7 @@ var WhileStmt = $.inherit(CondStmt, {
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
 				var numId = $(newNode).prop('numId');
-				self.id = numId;
+				self.id = $(newNode).attr('id');
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 			}, true); 
@@ -805,6 +932,10 @@ var WhileStmt = $.inherit(CondStmt, {
 	},
 	
 	updateArguments: function(funcId, arguments) {
+		var funcDef = this.getFunction();
+		if (funcDef && funcDef.funcId == funcId) {
+			this.generateArguments(arguments); 
+		}
 		this.body.updateArguments(funcId, arguments);
 	},
 	
@@ -812,8 +943,8 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.body.funcCallUpdated();
 	},
 	
-	updateFunctonName: function(oldName, newName) {
-		this.body.updateFunctonName(oldName, newName);
+	updateFunctonNames: function(funcId, oldName, newName) {
+		this.body.updateFunctonNames(funcId, oldName, newName);
 	},
 	
 	removeFunctionCall: function(funcId) {
@@ -859,7 +990,7 @@ var Block = $.inherit({
 	
 	exec: function(cnt, arguments) {
 		var cmd = undefined;
-		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executor.isDead()))
+		while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 		{
 			cmd = this.commands[this.curCmd];
 			cnt = cmd.exec(cnt, arguments);
@@ -960,9 +1091,9 @@ var Block = $.inherit({
 		}
 	},
 	
-	updateFunctonName: function(oldName, newName){
+	updateFunctonNames: function(funcId, oldName, newName){
 		for (var i = 0; i < this.commands.length; ++i) {
-			this.commands[i].updateFunctonName(oldName, newName);
+			this.commands[i].updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -1033,7 +1164,7 @@ var FuncDef = $.inherit({
 	
 	setDefault: function(){
 		this.finished = false;
-		//this.body.setDefault();
+		this.body.setDefault();
 	},
 	
 	showCounters: function() {
@@ -1090,7 +1221,7 @@ var FuncDef = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
-		var c = cmdId;
+		var c = ++cmdId;
 		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, this.funcId);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
@@ -1100,12 +1231,11 @@ var FuncDef = $.inherit({
 		createJsTreeForFunction('#funcDef-' + c, this.problem);
 	},
 	
-	updateFunctonName: function (funcId, newName){
-		if (this.funcId == funcId)
-		{
+	updateFunctonNames: function(funcId, oldName, newName){
+		if (this.funcId == funcId) {
 			this.name = newName;
 			this.updateJstreeObject();
-			this.body.updateFunctonName(funcId, newName);
+			this.body.updateFunctonNames(funcId, oldName, newName);
 		}
 	},
 	
@@ -1134,10 +1264,12 @@ var FuncDef = $.inherit({
 		return this;
 	},
 	
-	updateArguments: function(funcId, arguments) {
-		this.argumentsList = arguments.clone();
+	updateArguments: function(funcId, args) {
+		if (this.funcId == funcId) {
+			this.argumentsList = args.clone();
+		}
 		//this.updateJstreeObject();
-		this.body.updateArguments(funcId, arguments);
+		this.body.updateArguments(funcId, args);
 	},
 	
 	funcCallUpdated: function() {
@@ -1146,14 +1278,14 @@ var FuncDef = $.inherit({
 });
 
 var FuncCall = $.inherit({
-	__constructor : function(name, argumentsValues, parent, id, funcId, problem) {
+	__constructor : function(name, argumentsValues, parent, id, funcName, problem) {
 		this.name = name;
 		this.parent = parent;
 		this.problem = problem;
 		this.executing = false;
 		this.id = id;
 		this.argumentsValues = argumentsValues.clone();
-		this.funcId = funcId;
+		//this.funcName = name;
 	},
 	
 	isFinished: function(){
@@ -1162,7 +1294,12 @@ var FuncCall = $.inherit({
 	},
 	
 	getFuncDef: function() {
-		return this.problem.functionsWithId[this.funcId];
+		try {
+			return this.problem.functions[this.name][this.argumentsValues.length];
+		}
+		catch(err) {
+			return undefined;
+		}
 	},
 	
 	operateFuncDef: function(func) {
@@ -1249,6 +1386,7 @@ var FuncCall = $.inherit({
 			return func;
 		}
 		this.name = func.name;
+		//this.funcName = func
 		this.argumentsValues = func.argumentsValues.clone();
 		return this;
 	},
@@ -1289,7 +1427,7 @@ var FuncCall = $.inherit({
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId);  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, self.argumentsValues);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				for (var i = 0; i < self.argumentsValues.length; ++i) {
@@ -1299,36 +1437,39 @@ var FuncCall = $.inherit({
 			}, true); 	
 	},
 	
-	updateFunctonName: function(funcId, newName) {
-		if (this.funcId == funcId) {
+	updateFunctonNames: function(funcId, funcName, newName) {
+		var funcDef = this.getFuncDef();
+		if (funcDef.funcId == funcId) {
 			this.name = newName;
-			this.updateJstreeObject();
+			//this.funcName = newName;
+			this.updateJstreeObject(undefined, funcDef);
 		}
 	},
 	
-	updateJstreeObject: function(arguments){
+	updateJstreeObject: function(args, funcDef){
 		$('#' + this.id).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 		var inputs = $('#' + this.id).children('.argCallInput');
-		arguments = arguments ? arguments : this.getFuncDef().getArguments();
-		if (inputs.length > arguments.length) {
-			inputs.children(':gt(' + (arguments.length - 1) + ')').remove();
+		args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
+		if (inputs.length > args.length) {
+			$(inputs).filter(':gt(' + (args.length - 1) + ')').remove();
 		}
 		else {
-			for (var i = inputs.length; i < arguments.length; ++i) {
+			for (var i = inputs.length; i < args.length; ++i) {
 				$('#' + this.id)
 					.append('<input class="argCallInput"/>')
-					.bind('change', function(){
-						return function(pr) {
-							pr.updated();
-						}(this.problem)
-					})
+					.bind('change', function(problem){
+						return function() {
+							problem.updated();
+						}
+					}(this.problem));
 			}
 		}
 		
 	},
 	
 	removeFunctionCall: function (funcId){
-		if (this.funcId == funcId) {
+		var funcDef = this.getFuncDef();
+		if (funcDef == undefined || funcDef.funcId == funcId) {
 			$('#' + this.id).remove();
 		}
 	},
@@ -1363,7 +1504,8 @@ var FuncCall = $.inherit({
 	},
 	
 	updateArguments: function(funcId, arguments) {
-		if (this.funcId == funcId) {
+		var funcDef = this.getFuncDef();
+		if (funcDef && funcDef.funcId == funcId) {
 			this.updateJstreeObject(arguments);
 		}
 		//this.body.updateArguments(funcId, arguments);
@@ -1406,7 +1548,8 @@ var Problem = $.inherit({
 	},
 
 	initExecutor: function(data) {
-		this.executor = new ExecutorWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), data.executorName ? data.executorName : 'arrowInLabyrinth');
+		this.executionUnit = new ExecutionUnitWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), 
+			data.executionUnitName ? data.executionUnitName : 'arrowInLabyrinth');
 	},
 
 	generateCommands: function() {
@@ -1438,13 +1581,13 @@ var Problem = $.inherit({
 			}(divclass, cmdClassToName[divclass], self));
 		}
 		
-		this.executor.generateCommands(tr);
+		this.executionUnit.generateCommands(tr);
 	},
 
 	getCommandName: function(command) {
 		var name = cmdClassToName[command];
 		if (!name) {
-			name  = this.executor.getCommandName(command);
+			name  = this.executionUnit.getCommandName(command);
 		}
 		return name;
 	},
@@ -1456,9 +1599,7 @@ var Problem = $.inherit({
 		/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 		*/
 
-		this.executor.setDefault(f);
-
-		//this.arrow.setDefault();
+		this.executionUnit.setDefault(f);
 		this.paused = false;
 		this.stopped = false;
 		this.playing = false;
@@ -1576,7 +1717,7 @@ var Problem = $.inherit({
 				}
 			}
 			++this.executedCommandsNum;
-			this.executor.draw();
+			this.executionUnit.draw();
 			if (getCurBlock() >= 0)
 			{
 				var b = getCurBlock();
@@ -1694,9 +1835,9 @@ var Problem = $.inherit({
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
 	
-	updateFunctonName: function(funcId, newName) {
+	updateFunctonNames: function(funcId, oldName, newName) {
 		//if (!this.functions[oldName]) {
-			this.cmdList.updateFunctonName(funcId, newName);
+			this.cmdList.updateFunctonNames(funcId, oldName, newName);
 		//}
 	},
 	
@@ -1771,13 +1912,13 @@ var Problem = $.inherit({
 			$('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
 		if (!isCmdHighlighted(lastCmd))
 			changeCmdHighlight(lastCmd);
-		this.executor.draw();
+		this.executionUnit.draw();
 		this.changeProgressBar();
 	},
 	
 	nextStep: function(cnt, i) {
-		if (this.executor.isDead() || this.stopped){
-			if (this.executor.isDead()) //check it!!!
+		if (this.executionUnit.isDead() || this.stopped){
+			if (this.executionUnit.isDead()) //check it!!!
 				this.heroIsDead();
 			if (this.stopped)
 			{
@@ -1797,7 +1938,7 @@ var Problem = $.inherit({
 			setTimeout(function(problem) { return function() {problem.loop(cnt, i);} }(this), this.speed);
 		}
 		else {
-			this.executor.draw();
+			this.executionUnit.draw();
 			this.changeProgressBar();
 			this.enableButtons();
 			if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked'))
@@ -1834,7 +1975,7 @@ var Problem = $.inherit({
 						this.playing = false;
 				}
 				this.changeProgressBar();
-				this.executor.draw();
+				this.executionUnit.draw();
 				this.enableButtons();
 				
 				this.cmdList.highlightOff();//inefficiency!!!!!!!!
@@ -1851,7 +1992,7 @@ var Problem = $.inherit({
 	
 	oneStep: function(command, cnt) {
 		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
-			this.executor.executeCommand(command);
+			this.executionUnit.executeCommand(command);
 			++this.step;
 			if (this.maxStep && this.step == this.maxStep)
 				continue;
@@ -1927,7 +2068,7 @@ var Problem = $.inherit({
 		if (!this.checkLimit()){
 			return;
 		}
-		if (!this.playing || this.executor.isDead())
+		if (!this.playing || this.executionUnit.isDead())
 		{
 			this.setCounters();
 			this.hideCounters();
@@ -1998,8 +2139,8 @@ var Problem = $.inherit({
 			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
 			$scopestack[problem] = 0;
 
-			var commands = problems[problem].executor.getCommands();
-			var conditionProperties = problems[problem].executor.getConditionProperties();
+			var commands = problems[problem].executionUnit.getCommands();
+			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
 
 			for (var i = 0; i < commands.length; ++i) {
 				$gbl[problem][commands[i][0]] = commands[i][1];
@@ -2070,7 +2211,7 @@ var Problem = $.inherit({
 		else
 		{
 			try{
-				this.speed = 0;
+				//this.speed = 1000;
 				this.paused = false;
 				this.hideCounters();
 				if (!this.playing || this.changed)
@@ -2103,7 +2244,7 @@ var Problem = $.inherit({
 				this.changeProgressBar();
 				++this.executedCommandsNum;
 				this.highlightLast();
-				this.executor.draw();
+				this.executionUnit.draw();
 				if (this.cmdList.isFinished())
 					this.playing = false;
 			}
@@ -2153,11 +2294,19 @@ var Problem = $.inherit({
 		if (this.maxCmdNum && this.divIndex > this.maxCmdNum || 
 			this.maxStep && this.step == this.maxStep){
 			var mes = this.maxCmdNum ? new MessageCmdLimit() : new MessageStepsLimit();
-			this.executor.heroIsDead();
+			this.executionUnit.gameOver();
 			//this.stopped = true;
 			this.heroIsDead();
 			return false;
 		}
 		return true;
+	},
+
+	getAvaliableFunctionName: function() {
+		var index = 0;
+		while (this.functions['func' + index] != undefined) {
+			++index;
+		}
+		return 'func' + index;
 	}
 });

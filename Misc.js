@@ -26,11 +26,6 @@ function generateTabs(tabsNum)
 	return str;
 }
 
-var selectConditions = [
-	['is', ''],
-	['isNot', 'не']
-];
-
 function tryNextStep_(){
 	var problem = problems.length + 1;
 	if(!finalcode[problem]){
@@ -125,4 +120,52 @@ function tryCode()
 		console.error(e);
 		alert(e);
 	}
+}
+
+function isInt(n) {
+   return typeof n === 'number' && parseFloat(n) == parseInt(n, 10) && !isNaN(n);
+} // 6 characters
+
+function showHideCode()
+{
+	if ($('#showHide').prop('checked'))
+		$('#codeRes1').hide();
+	else
+		$('#codeRes1').show();
+}
+
+function testChanged()
+{
+	codeareas[getCurProblem()].setValue(tests[$('#selectTest :selected').val()]);
+}
+
+function getCurProblem()
+{
+	return $('#tabs').tabs('option', 'selected') - 1;
+}
+
+function checkName(name) {
+	var re = /^[a-z_]+[a-z_0-9]*$/i;
+	return re.test(name);
+}
+
+function checkNumber(number) {
+	var re = /^[0-9]+[0-9]*$/i;
+	return re.test(number);
+}
+
+function changeCmdHighlight(elem){
+	if (!elem)
+		return false;
+	var elem = $('#' + elem);
+	if (elem.hasClass('highlighted'))
+		elem.removeClass('highlighted');
+	else
+		elem.addClass('highlighted');
+}
+
+function isCmdHighlighted(elem){
+	if (!elem)
+		return false;
+	return $('#' + elem).hasClass('highlighted')
 }

@@ -1,18 +1,29 @@
-function onCreateItem(tree, newNode, type, problem, funcId){
+function onCreateItem(tree, newNode, type, problem, funcId, args){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
 	tree.set_type(type, newNode);
+
+	$(newNode).prop('id', type + ++cmdId);
+	$(newNode).prop('numId', cmdId);
+	$(newNode).prop('ifLi', 1);
+	$(newNode).prop('type', type);
+	$(newNode).addClass(type);
+
+	newNode = '#' + type + cmdId;
+	
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
-	if (problem.executor.isCommandSupported(type)) {
-		$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-		$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+	if (problem.executionUnit.isCommandSupported(type)) {
+		var spin = $('<spin></spin>');
+		spin.mySpin('init', $(newNode), [], problem);
+		$(newNode).append(spin);
 	}
 	else {
 		switch(type){
 			case 'for':
-				$(newNode).append('<span align = "right" id = "spinDiv' + cmdId + '" class = "cnt"></span>');
-				$('#spinDiv' + cmdId).append('<input class = "cnt"  id="spin' + cmdId + '" value="1" type="text"/>');
+				var spin = $('<spin></spin>');
+				spin.mySpin('init', $(newNode), [], problem);
+				$(newNode).append(spin);
 				break;
 			case 'if':
 			case 'ifelse':
@@ -30,7 +41,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				}(problem));
 
 
-				var conditionProperties = problem.executor.getConditionProperties();
+				var conditionProperties = problem.executionUnit.getConditionProperties();
 				var args = conditionProperties['args'];
 				if (!args || !$.isArray(args)) {
 					throw 'Invalid arguments list in condtion properties';
@@ -66,7 +77,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				}
 				break;
 			case 'funccall':
-				var arguments = problem.functionsWithId[funcId].getArguments();
+				var arguments = args;
 				for (var i = 0; i < arguments.length; ++i) {
 					$(newNode)
 						.append('<input class="argCallInput"/>')
@@ -80,12 +91,7 @@ function onCreateItem(tree, newNode, type, problem, funcId){
 				break;
 		}
 	}
-	$(newNode).prop('id', type + cmdId);
-	$(newNode).prop('numId', cmdId);
-	$(newNode).prop('ifLi', 1);
-	$(newNode).prop('type', type);
-	$(newNode).addClass(type);
-	setSpin(problem);
+	//setSpin(problem);
 	problem.updated();
 }
 	
@@ -178,6 +184,18 @@ function createJsTreeForFunction(funcId, problem) {
 					"icon" : { 
 						"image" : "images/block_small.png" 
 					}
+				},
+				"func-header" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
+				},
+				"func-body" : {
+					"valid_children" : "none",
+					"icon" : { 
+						"image" : "images/block_small.png" 
+					}
 				}
 			}
 		},
@@ -244,8 +262,10 @@ function createJsTreeForFunction(funcId, problem) {
 					data.o = $(data.o).parent()[0];
 				if ( !$(data.o).hasClass('jstree-draggable') )
 					data.o = $(data.o).parent()[0];
+
 				var type = this._get_type(data.o);
 				var name = problem.getCommandName(type);
+
 				if (type == 'funcdef') {
 					name = 'func_' + problem.numOfFunctions;
 				}
@@ -263,13 +283,32 @@ function createJsTreeForFunction(funcId, problem) {
 						"create", node, pos, 
 						{'data': name}, 
 						function(newNode){
-							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, problem.functions[name] ? problem.functions[name].getArguments() : []);
+							var args = [];
+							if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
+								args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
+							}
+							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
 						}, type != 'funcdef'); 
 				}
-
 			},
 			"drop_finish": function(data){
 				var node = data.o;
+
+					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
+						node = $(node).parent();
+						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
+						$(node).remove();
+						problem.removeFunctionCall($(node).attr('funcId'));
+						return true;
+					}
+
+					/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+					{
+						$(node).parent().remove();
+						problem.removeFunctionCall($(node).parent().children('.func-header').html());
+						return true;
+					}*/
+
 				if (node) {
 					var type = this._get_type(node);
 					if (type == 'else')
@@ -302,8 +341,25 @@ function createJsTreeForFunction(funcId, problem) {
 	}).bind('click', function(event, ui) {
 		problem.showCounters();
 	}).bind("rename.jstree", function(event, data) {
+		if (!checkName(data.rslt.new_name)) {
+			alert('Invalid function name!!!');
+			setTimeout(function(tree, node, name) { 
+				return function() {
+					$(tree).jstree('rename', node, name);
+				} }(this, data.rslt.obj, data.rslt.old_name), 500);
+			
+			return false;
+		}
 		problem.updated();
 	}).bind('refresh.jstree', function(event, data) {
 		problem.updated();
+	}).bind("dblclick.jstree", function (e, data) {
+        /*var node = $(e.target).closest("li");
+        var type = $.jstree._reference(this)._get_type(node);
+		if (type == 'funccall') {
+			$.jstree._reference(this).rename(node);
+			problem.funcCallUpdated();
+		}*/
+		//TODO:
 	});
 }
