@@ -1,8 +1,24 @@
 var Command = $.inherit({
-	__constructor : function(name, cnt, parent, id, problem) {
+	__constructor : function(name, arguments, argumentsValues, parent, id, problem) {
         this.name = name;
-		this.cnt = cnt;
-		this.initCnt = cnt;
+		this.arguments = [];
+
+		for (var i = 0; i < arguments.length; ++i) {
+			this.arguments.push(arguments[i].copy());
+		}
+		//this.argumentsValues = argumentsValues.clone();
+		//var cnt = undefined;
+		this.counterIndex = undefined;
+		for (var i = 0 ; i < arguments.length; ++i) {
+			if (arguments[i].isCounter) {
+				if (this.counterIndex != undefined) {
+					throw 'Command can\'t have several counters!!!';
+				}
+				this.counterIndex = i;
+			}
+			this.arguments[i].setValue(argumentsValues[i]);
+		}
+		this.hasCounter = this.counterIndex != undefined;		
 		this.curCnt = 0;
 		this.parent = parent;
 		this.id = id;
@@ -10,41 +26,73 @@ var Command = $.inherit({
 
 		this.finished = false;
 		var func = this.getFunction();
-		if (func) {
-			this.getSpin().mySpin('setArguments', func.getArguments());
+		if (func && this.hasCounter) {
+			this.spinAccess('setArguments', func.getArguments());
 		}
 	},
 	
-	eq: function(cmd, compareCnt){
-		return (cmd.getClass() == 'command' && cmd.id == this.id && (compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
+	eq: function(cmd, compareCnt){ // fix
+		return (cmd.getClass() == 'command' && cmd.id == this.id && 
+			(compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
 	},
 
 	getSpin: function() {
 		return $('#' + this.id).children('spin');
 	},
+
+	getSpinAt: function(index) {
+		return $('#' + this.id).children('spin:eq(' + index + ')');
+	},
+
+	spinAccess: function(method, arg) {
+		for (var i = 0; i < this.arguments.length; ++i) {
+			this.getSpinAt(i).mySpin(method, arg);
+		}
+	},
+
+	setArguments: function(arguments) {
+		for (var i = 0; i < this.arguments.length; ++i) {
+			/*if (arguments) {
+				//if (arguments[i] == undefined)
+				this.arguments.setCurrentValue(arguments[i]);
+			}*/
+			this.getSpinAt(i).mySpin('setArgumentValues', arguments);
+		}
+	},
 	
 	exec: function(cnt, arguments) {
+		var commandCounter = undefined;
 		if (this.curCnt == 0) {
-			this.getSpin().mySpin('setArgumentValues', arguments);
-			this.getSpin().mySpin('startExecution');
+			this.setArguments(arguments);
+			this.spinAccess('startExecution');
+		}
 
-			var val = this.getSpin().mySpin('getTotalValue');
+		if (!this.hasCounter) {
+			commandCounter = 1;
+		}
+		else if (this.hasCounter) {
+			var val = this.arguments[this.counterIndex].value;
 			if (!isInt(val)) {
-				this.cnt = parseInt(arguments[val]);
+				commandCounter = parseInt(arguments[val]);
 			}
 			else {
-				this.cnt = parseInt(val);
+				commandCounter = parseInt(val);
 			}
 			
-			if (!isInt(this.cnt) || this.cnt < 0) {
+			if (!isInt(commandCounter) || commandCounter < 0) {
 				throw 'Invalid counter!!';
 			}
 		}
 
-		var t = Math.min(cnt, Math.abs(this.curCnt - this.cnt));
+		var args = [];
+		for (var i = 0; i < this.arguments.length; ++i) {
+			args.push(this.arguments[i].currentValue);
+		}
+		
+		var t = Math.min(cnt, Math.abs(this.curCnt - commandCounter));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
-			this.problem.oneStep(this.name, 1);
+			this.problem.oneStep(this.name, this.counterIndex != undefined ? args[this.counterIndex] : undefined, args);
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
@@ -56,19 +104,19 @@ var Command = $.inherit({
 			}
 			this.problem.checkLimit();
 			++this.curCnt;
-			if (this.problem.speed || this.cnt == this.curCnt) {
-				this.getSpin().mySpin('decreaseValue');
+			if ((this.problem.speed || commandCounter == this.curCnt) && this.hasCounter) {
+				this.getSpinAt(this.counterIndex).mySpin('decreaseValue');
 			}
 		}
 
-		this.finished = this.curCnt >= this.cnt;
-		if (this.curCnt == this.cnt) {
+		this.finished = this.curCnt >= commandCounter;
+		if (this.curCnt == commandCounter) {
 			this.curCnt = 0;
-			this.cnt = this.initCnt;
+			commandCounter = this.initCnt;
 		}
 		if ( i == t - 1 || t == 0 ) {
-			this.getSpin().mySpin('stopExecution');
-			this.cnt = this.initCnt;
+			this.spinAccess('stopExecution');
+			commandCounter = this.initCnt;
 		}		
 
 		this.problem.lastExecutedCmd = this;
@@ -84,7 +132,7 @@ var Command = $.inherit({
 		var numId = $('#' + this.id).prop('numId');
 		//this.hideCounters();
 		//this.getSpin().mySpin('stopExecution'); //???
-		this.getSpin().mySpin('hideBtn');
+		this.spinAccess('hideBtn');
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
@@ -94,26 +142,33 @@ var Command = $.inherit({
 	},
 	
 	showCounters: function() {
-		this.getSpin().mySpin('showBtn');
+		this.spinAccess('showBtn');
 	},
 	
-	hideCounters: function() {
-		if (!this.finished) {
-			this.getSpin().mySpin('hideBtn', this.cnt - this.curCnt);
-		} 
-		else {
-			this.getSpin().mySpin('hideBtn', 0);
+	hideCounters: function() { //
+		for (var i = 0; i < this.arguments.length; ++i) {
+			if (this.arguments.type == 'int') {
+				if (i == this.counterIndex) {
+					if (!this.finished) {
+						this.getSpinAt(i).mySpin('hideBtn', this.arguments[i].currentValue - this.curCnt);
+					} 
+					else {
+						this.getSpin(i).mySpin('hideBtn', 0);
+					}
+				}
+				else {
+					this.getSpin(i).mySpin('hideBtn', this.arguments[i].currentValue);
+				}
+			}
 		}
-		
 	},
 	
 	started: function() {
 		return this.curCnt > 0;
 	},
 	
-	copyDiff: function(cmd, compareCnt){
-		if (this.eq(cmd, compareCnt))
-		{
+	copyDiff: function(cmd, compareCnt){ //
+		if (this.eq(cmd, compareCnt)) {
 			this.cnt = cmd.cnt;
 			this.initCnt = cmd.initCnt;
 			this.id = cmd.id;
@@ -137,28 +192,39 @@ var Command = $.inherit({
 	},
 	
 	convertToCode: function(tabsNum) {
-		return generateTabs(tabsNum) + this.name + '(' + this.initCnt + ')\n';
+		var str = generateTabs(tabsNum) + this.name + '(';
+		for (var i = 0; i < this.arguments.length; ++i) {
+			if (i > 0) {
+				str += ', ';
+			}
+			str += this.arguments[i].value;
+		}
+		str += ')\n';
+		return str;
 	},
 	
-	generateCommand: function(tree, node){
+	generateCommand: function(tree, node) {
 		var self = this;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + '0').attr('rel'), self.problem);
+				onCreateItem(tree, newNode, $('#' + self.name + self.problem.tabIndex).attr('rel'), self.problem);
 				self.id = $(newNode).attr('id');
-				if (isInt(self.cnt)) {
-					self.getSpin().mySpin('setTotal', self.cnt);
+				for (var i = 0; i < self.arguments.length; ++i) {
+						if (isInt(self.arguments[i].value)) {
+							self.getSpinAt(i).mySpin('setTotal', self.arguments[i].value);
+						}
+						else {
+							if (!checkName(self.arguments[i].value)) {
+								throw 'Invalid argument!!!';
+							}
+							var func = self.getFunction();
+							if (!func) {
+								throw 'Unknown argument!'
+							}
+							self.getSpinAt(i).mySpin('setTotalWithArgument', self.arguments[i].value);
+						}
 				}
-				else {
-					if (!checkName(self.cnt)) {
-						throw 'Invalid argument!!!';
-					}
-					var func = self.getFunction();
-					if (!func) {
-						throw 'Unknown argument!'
-					}
-					self.getSpin().mySpin('setTotalWithArgument', self.cnt);
-				}
+
 			}, true); 
 	},
 
@@ -181,7 +247,7 @@ var Command = $.inherit({
 	updateArguments: function(funcId, arguments) {
 		var func = this.getFunction();
 		if (func && func.funcId == funcId) {
-			this.getSpin().mySpin('setArguments', arguments);
+			this.spinAccess('setArguments', arguments);
 		}
 		return;
 	},
@@ -1228,7 +1294,7 @@ var FuncDef = $.inherit({
 			++cmdId;
 			self.problem.updated();
 		});
-		createJsTreeForFunction('#funcDef-' + c, this.problem);
+		createJsTreeForFunction('#funcDef-' + c, this.problem, true);
 	},
 	
 	updateFunctonNames: function(funcId, oldName, newName){
@@ -1549,10 +1615,12 @@ var Problem = $.inherit({
 
 	initExecutor: function(data) {
 		this.executionUnit = new ExecutionUnitWrapper(this, data, $('#tdField' + this.tabIndex).children('div'), 
-			data.executionUnitName ? data.executionUnitName : 'arrowInLabyrinth');
+			data.data.executionUnitName ? data.data.executionUnitName : 'ArrowInLabyrinth');
 	},
 
 	generateCommands: function() {
+		//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
+		
 		var tr = $('#ulCommands' + this.tabIndex).children('table').children('tbody').children('tr');
 		for(var i = 0; i < classes.length; ++i) {
 			if (classes[i] === 'block') {
@@ -1990,9 +2058,12 @@ var Problem = $.inherit({
 		}
 	},
 	
-	oneStep: function(command, cnt) {
+	oneStep: function(command, cnt, args) {
+		if (cnt == undefined) {
+			cnt = 1;
+		}
 		for (var i = 0; i < cnt && !this.stoped && !this.paused; ++i) {
-			this.executionUnit.executeCommand(command);
+			this.executionUnit.executeCommand(command, args);
 			++this.step;
 			if (this.maxStep && this.step == this.maxStep)
 				continue;
@@ -2142,8 +2213,8 @@ var Problem = $.inherit({
 			var commands = problems[problem].executionUnit.getCommands();
 			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
 
-			for (var i = 0; i < commands.length; ++i) {
-				$gbl[problem][commands[i][0]] = commands[i][1];
+			for (var i in commands) {
+				$gbl[problem][commands[i].name] = commands[i].handler;
 			}
 			
 			$gbl[problem][conditionProperties.name] = conditionProperties.handlerFunc;

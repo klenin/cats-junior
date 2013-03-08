@@ -1,5 +1,6 @@
 var executionUnits = {
-	'arrowInLabyrinth': ArrowInLabyrinth
+	'ArrowInLabyrinth': ArrowInLabyrinth,
+	'Pourer': Pourer
 };
 
 var ExecutionUnitWrapper = $.inherit({
@@ -39,9 +40,9 @@ var ExecutionUnitWrapper = $.inherit({
 		return this.executionUnit.isDead();	
 	},
 
-	executeCommand: function(command) {
+	executeCommand: function(command, args) {
 		this.checkExecutionUnit();
-		this.executionUnit.executeCommand(command);	
+		this.executionUnit.executeCommand(command, args);	
 	},
 
 	gameOver: function() {
@@ -76,5 +77,13 @@ var ExecutionUnitWrapper = $.inherit({
 	getCssFileName: function() {
 		this.checkExecutionUnit();
 		return this.executionUnit.getCssFileName();
+	},
+
+	addTypesInTree: function(tree) {
+		this.checkExecutionUnit();
+		
+		for (var i = 0; i < this.executionUnit.__self.jsTreeTypes.length; ++i) {
+			tree.add_type(this.executionUnit.__self.jsTreeTypes[i][0], this.executionUnit.__self.jsTreeTypes[i][1]);
+		}
 	}
 });

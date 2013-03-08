@@ -3,6 +3,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
 	tree.set_type(type, newNode);
+	$(newNode).addClass(type);
 
 	$(newNode).prop('id', type + ++cmdId);
 	$(newNode).prop('numId', cmdId);
@@ -14,15 +15,19 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 	
 	//tree.rename_node(newNode, type == 'func' ? (name ? name : 'func_' + (problem.numOfFunctions - 1)) : cmdClassToName[type]);
 	if (problem.executionUnit.isCommandSupported(type)) {
-		var spin = $('<spin></spin>');
-		spin.mySpin('init', $(newNode), [], problem);
-		$(newNode).append(spin);
+		var command = problem.executionUnit.getCommands()[type];
+		var args = command.getArguments();
+		for (var i = 0; i < args.length; ++i) {
+			var spin = $('<spin></spin>');
+			spin.mySpin('init', $(newNode), [], problem, args[i].type, args[i].isCounter, args[i].minValue, args[i].maxValue);
+			$(newNode).append(spin);
+		}
 	}
 	else {
 		switch(type){
 			case 'for':
 				var spin = $('<spin></spin>');
-				spin.mySpin('init', $(newNode), [], problem);
+				spin.mySpin('init', $(newNode), [], problem, 'int');
 				$(newNode).append(spin);
 				break;
 			case 'if':
@@ -119,247 +124,232 @@ function getTreeIdByObject(tree) {
 	return tree.data.html_data.original_container_html.context;
 }
 
-function createJsTreeForFunction(funcId, problem) {
-	return $(funcId).jstree({ 
-		"types" : {
-			"max_depth" : -2,
-	        "max_children" : -2,
+function createJsTreeForFunction(id, problem, isFunction) {
+	//return function() {
+		return $(id).jstree({ 
 			"types" : {
-				"block" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"if" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"ifelse" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"else" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"while" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"for" : {
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"left" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/left_small.png" 
-					}
-				},
-				"right" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/right_small.png" 
-					}
-				},
-				"forward" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/forward_small.png" 
-					}
-				},
-				"wait" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/wait_small.png" 
-					}
-				},
-				"funccall" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"func-header" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/block_small.png" 
-					}
-				},
-				"func-body" : {
-					"valid_children" : "none",
-					"icon" : { 
-						"image" : "images/block_small.png" 
+				"max_depth" : -2,
+		        "max_children" : -2,
+				"types" : {
+					"block" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"if" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"ifelse" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"else" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"while" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"for" : {
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"funccall" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"func-header" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
+					},
+					"func-body" : {
+						"valid_children" : "none",
+						"icon" : { 
+							"image" : "images/block_small.png" 
+						}
 					}
 				}
-			}
-		},
-		"crrm":{
-			"move" : {
-				"default_position" : "inside", 
-				"check_move" : function (data) {
+			},
+			"crrm":{
+				"move" : {
+					"default_position" : "inside", 
+					"check_move" : function (data) {
+						var node = data.o;
+						var type = this._get_type(node);
+						if (type == 'else') {
+							return false;
+						}
+						elseStmt = undefined;
+						if (type == 'ifelse'){
+							elseStmt = getNextNode(this, node);
+						}
+						node = data.r;
+						type = this._get_type(node);
+						if (type == 'ifelse' && data.p == 'after'){
+							return false;
+						}
+						if (type == 'else' && data.p == 'before'){
+							return false;
+						}
+						if (type == 'funcdef' && this._get_type(data.o) == 'funcdef' && data.p == 'inside' ){
+							return false;
+						}
+						if (type == 'funccall' && data.p == 'inside' ){
+							return false;
+						}
+						return true;
+					}
+				}
+				},
+			"dnd" : {
+				"drag_check" : function (data) {
+					result = { 
+						after : true, 
+						before : true, 
+						inside : true 
+					};
+					if (this._get_type(data.r) == 'ifelse'){
+						result['after'] = false;
+					}
+					if (this._get_type(data.r) == 'else'){
+						result['before'] = false;
+					}
+					if (this._get_type(data.r) == 'funcdef' && this._get_type(data.o) == 'funccall'){
+						result['inside'] = false;
+					}
+					if (this._get_type(data.r) == 'funccall'){
+						result['inside'] = false;
+					}
+					return result;
+				},
+				"drag_finish" : function (data) { 
+					var node = data.r;
+					//; //=(
+					var pos = data.p;
+					if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
+						pos = 'after';
+					}
+					if ( !$(data.o).hasClass('jstree-draggable') )
+						data.o = $(data.o).parent()[0];
+					if ( !$(data.o).hasClass('jstree-draggable') )
+						data.o = $(data.o).parent()[0];
+
+					var type = this._get_type(data.o);
+					var name = problem.getCommandName(type);
+
+					if (type == 'funcdef') {
+						name = 'func_' + problem.numOfFunctions;
+					}
+					else if (type == 'funccall') {
+						name = $(data.o).children('.func-header').text();
+					}
+					else if (type == 'func-header') {
+						name = $(data.o).text()
+					}
+					else if(type == 'func-body') {
+						name = $(data.o).prev().prev().text();
+					}
+					if (type != 'funcdef') {
+						$(id).jstree(
+							"create", node, pos, 
+							{'data': name}, 
+							function(newNode){
+								var args = [];
+								if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
+									args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
+								}
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
+							}, type != 'funcdef'); 
+					}
+					else if (!isFunction){
+						$( '#accordion' + problem.tabIndex ).myAccordion( 'push', problem.getAvaliableFunctionName() );
+						createJsTreeForFunction( '#funcDef-' + cmdId++, problem, true );
+						//problem.updated();
+					}
+				},
+				"drop_finish": function(data){
 					var node = data.o;
-					var type = this._get_type(node);
-					if (type == 'else') {
-						return false;
-					}
-					elseStmt = undefined;
-					if (type == 'ifelse'){
-						elseStmt = getNextNode(this, node);
-					}
-					node = data.r;
-					type = this._get_type(node);
-					if (type == 'ifelse' && data.p == 'after'){
-						return false;
-					}
-					if (type == 'else' && data.p == 'before'){
-						return false;
-					}
-					if (type == 'funcdef' && this._get_type(data.o) == 'funcdef' && data.p == 'inside' ){
-						return false;
-					}
-					if (type == 'funccall' && data.p == 'inside' ){
-						return false;
-					}
-					return true;
-				}
-			}
-			},
-		"dnd" : {
-			"drag_check" : function (data) {
-				result = { 
-					after : true, 
-					before : true, 
-					inside : true 
-				};
-				if (this._get_type(data.r) == 'ifelse'){
-					result['after'] = false;
-				}
-				if (this._get_type(data.r) == 'else'){
-					result['before'] = false;
-				}
-				if (this._get_type(data.r) == 'funcdef' && this._get_type(data.o) == 'funccall'){
-					result['inside'] = false;
-				}
-				if (this._get_type(data.r) == 'funccall'){
-					result['inside'] = false;
-				}
-				return result;
-			},
-			"drag_finish" : function (data) { 
-				var node = data.r;
-				//; //=(
-				var pos = data.p;
-				if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
-					pos = 'after';
-				}
-				if ( !$(data.o).hasClass('jstree-draggable') )
-					data.o = $(data.o).parent()[0];
-				if ( !$(data.o).hasClass('jstree-draggable') )
-					data.o = $(data.o).parent()[0];
 
-				var type = this._get_type(data.o);
-				var name = problem.getCommandName(type);
+						if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
+							node = $(node).parent();
+							$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
+							$(node).remove();
+							problem.removeFunctionCall($(node).attr('funcId'));
+							return true;
+						}
 
-				if (type == 'funcdef') {
-					name = 'func_' + problem.numOfFunctions;
-				}
-				else if (type == 'funccall') {
-					name = $(data.o).children('.func-header').text();
-				}
-				else if (type == 'func-header') {
-					name = $(data.o).text()
-				}
-				else if(type == 'func-body') {
-					name = $(data.o).prev().prev().text();
-				}
-				if (type != 'funcdef') {
-					$(funcId).jstree(
-						"create", node, pos, 
-						{'data': name}, 
-						function(newNode){
-							var args = [];
-							if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
-								args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
-							}
-							onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
-						}, type != 'funcdef'); 
+						/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+						{
+							$(node).parent().remove();
+							problem.removeFunctionCall($(node).parent().children('.func-header').html());
+							return true;
+						}*/
+
+					if (node) {
+						var type = this._get_type(node);
+						if (type == 'else')
+							return false;
+						var next = undefined;
+						if (type == 'ifelse'){
+							next = getNextNode(this, node);
+						}
+						this.remove(data.o);
+						if (next)
+							this.remove(next);
+						problem.updated();				
+					}
 				}
 			},
-			"drop_finish": function(data){
-				var node = data.o;
-
-					if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
-						node = $(node).parent();
-						$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
-						$(node).remove();
-						problem.removeFunctionCall($(node).attr('funcId'));
-						return true;
-					}
-
-					/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
-					{
-						$(node).parent().remove();
-						problem.removeFunctionCall($(node).parent().children('.func-header').html());
-						return true;
-					}*/
-
-				if (node) {
-					var type = this._get_type(node);
-					if (type == 'else')
-						return false;
-					var next = undefined;
-					if (type == 'ifelse'){
-						next = getNextNode(this, node);
-					}
-					this.remove(data.o);
-					if (next)
-						this.remove(next);
-					problem.updated();				
-				}
-			}
-		},
-		"ui" : {
-			"initially_select" : [ "phtml_2" ],
-			"select_limit" : 1
-		},
-		"core" : { "initially_open" : [ "phtml_1" ] },
-		"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
-	})
-	.bind("move_node.jstree", function(event, data){
-		var node = data.args[0].o;
-		if (data.inst._get_type(node) == 'ifelse' && elseStmt){
-			data.inst.move_node(elseStmt, node, 'after', false, false, true);
-			elseStmt = undefined;
-	}
-		problem.updated();
-	}).bind('click', function(event, ui) {
-		problem.showCounters();
-	}).bind("rename.jstree", function(event, data) {
-		if (!checkName(data.rslt.new_name)) {
-			alert('Invalid function name!!!');
-			setTimeout(function(tree, node, name) { 
-				return function() {
-					$(tree).jstree('rename', node, name);
-				} }(this, data.rslt.obj, data.rslt.old_name), 500);
-			
-			return false;
+			"ui" : {
+				"initially_select" : [ "phtml_2" ],
+				"select_limit" : 1
+			},
+			"core" : { "initially_open" : [ "phtml_1" ] },
+			"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+		})
+		.bind("move_node.jstree", function(event, data){
+			var node = data.args[0].o;
+			if (data.inst._get_type(node) == 'ifelse' && elseStmt){
+				data.inst.move_node(elseStmt, node, 'after', false, false, true);
+				elseStmt = undefined;
 		}
-		problem.updated();
-	}).bind('refresh.jstree', function(event, data) {
-		problem.updated();
-	}).bind("dblclick.jstree", function (e, data) {
-        /*var node = $(e.target).closest("li");
-        var type = $.jstree._reference(this)._get_type(node);
-		if (type == 'funccall') {
-			$.jstree._reference(this).rename(node);
-			problem.funcCallUpdated();
-		}*/
-		//TODO:
-	});
+			problem.updated();
+		}).bind('click', function(event, ui) {
+			problem.showCounters();
+		}).bind("rename.jstree", function(event, data) {
+			if (!checkName(data.rslt.new_name)) {
+				alert('Invalid function name!!!');
+				setTimeout(function(tree, node, name) { 
+					return function() {
+						$(tree).jstree('rename', node, name);
+					} }(this, data.rslt.obj, data.rslt.old_name), 500);
+				
+				return false;
+			}
+			problem.updated();
+		}).bind('refresh.jstree', function(event, data) {
+			problem.updated();
+		}).bind("dblclick.jstree", function (e, data) {
+	        /*var node = $(e.target).closest("li");
+	        var type = $.jstree._reference(this)._get_type(node);
+			if (type == 'funccall') {
+				$.jstree._reference(this).rename(node);
+				problem.funcCallUpdated();
+			}*/
+			//TODO:
+		}).bind("loaded.jstree", function (e, data) {
+	    	problem.executionUnit.addTypesInTree(jQuery.jstree._reference(id));
+		});
+//	}
 }
