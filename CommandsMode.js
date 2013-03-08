@@ -26,7 +26,7 @@ var Command = $.inherit({
 
 		this.finished = false;
 		var func = this.getFunction();
-		if (func && this.hasCounter) {
+		if (func) {
 			this.spinAccess('setArguments', func.getArguments());
 		}
 	},
@@ -533,7 +533,7 @@ var CondStmt = $.inherit({
 			}
 			var j = 0;
 			for (j = 0; j < conditionArguments[i].length; ++j) {
-				if (this.args[i + 1] == conditionArguments[i][j][0] || this.args[i + 1] == conditionArguments[i][j][1]) {
+				if (this.args[i + 1] == conditionArguments[i][j][0] /*|| this.args[i + 1] == conditionArguments[i][j][1]*/) {
 					str += (i > 0 ? ', ' : '');
 					if (checkNumber(conditionArguments[i][j][0])) {
 						str += conditionArguments[i][j][0];
@@ -608,7 +608,7 @@ var CondStmt = $.inherit({
 		for (var i = 0; i < selects.length; ++i) {
 			var j = 0;
 			for (j = 0; j < selects[i].length; ++j) {
-				if (selects[i][j][0] === this.args[i + 1] || selects[i][j][1] === this.args[i + 1]) {
+				if (selects[i][j][0] === this.args[i + 1] /*|| selects[i][j][1] === this.args[i + 1]*/) {
 					args.push(selects[i][j][0]);
 					break;
 				}
@@ -620,7 +620,7 @@ var CondStmt = $.inherit({
 						if (arguments[funcArguments[k]] != undefined) {
 							var l = 0
 							for (l = 0; l < selects[i].length; ++l) {
-								if (selects[i][l][0] === arguments[funcArguments[k]] || selects[i][l][1] === arguments[funcArguments[k]]) {
+								if (selects[i][l][0] === arguments[funcArguments[k]] /*|| selects[i][l][1] === arguments[funcArguments[k]]*/) {
 									args.push(selects[i][l][0]);
 									$('#' + this.id).children('select:eq('+ (i + 1)+')').val(selects[i][l][0]);
 									break;

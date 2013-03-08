@@ -89,7 +89,7 @@ function convertCondition(expr){
 						args.push(expr.args[j].s.v);
 						break;
 					case 'Num':
-						args.push(expr.args[j].n.v);
+						args.push(expr.args[j].n);
 						break;
 					case 'Name':
 						args.push(expr.args[j].id.v);

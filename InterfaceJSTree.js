@@ -36,7 +36,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 				$(newNode).append('<select id = "selectCondition0_' + cmdId +'">');
 				for (var i = 0; i < selectConditions.length; ++i)
 				{
-					$('#selectCondition0_' + cmdId).append('<option value = ' + (i == 0 ? '""' : 'not') + '>' + selectConditions[i][1] + '</option><br>');
+					$('#selectCondition0_' + cmdId).append('<option value = "' + (i == 0 ? '""' : 'not') + '">' + selectConditions[i][1] + '</option><br>');
 				}
 				$(newNode).append('</select> (')
 				$('#selectCondition0_' + cmdId).change(function(p){
@@ -57,7 +57,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 					$(newNode).append('<select id = "selectCondition' + (i + 1) + '_' + cmdId +'">');
 					for (var j = 0; j < objects.length; ++j)
 					{
-						$('#selectCondition' + (i + 1) + '_' + cmdId).append('<option value = ' + objects[j][0] + '>' + objects[j][1] + '</option><br>');
+						$('#selectCondition' + (i + 1) + '_' + cmdId).append('<option value = "' + objects[j][0] + '">' + objects[j][1] + '</option><br>');
 					}
 					$(newNode).append('</select>');
 

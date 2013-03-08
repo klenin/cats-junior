@@ -83,7 +83,7 @@ var Pourer = $.inherit({
 
 		var vesselsList = [];
 		for (var i = 0; i < this.data.vessels.length; ++i) {
-			vesselsList.push([i, i + 1]);
+			vesselsList.push([i + 1, i + 1]);
 		}
 
 		this.testFunction = {
@@ -312,9 +312,9 @@ function compare(args){
 		throw 'Invalid arguments list!!';
 	}
 
-	var first = args[0];
-	var comparator = args[1];
-	var second = args[2];
+	var first = args[0] - 1;
+	var comparator = args[1] - 1;
+	var second = args[2] - 1;
 
 	switch(comparator) {
 		case '<':
@@ -335,6 +335,8 @@ function compare(args){
 }
 
 function compare_handler(first, comparator, second){
+	first -= 1;
+	second -= 1;
 	switch(comparator) {
 		case '<':
 			return curProblem.getExecutionUnit().isLess(first, second);
