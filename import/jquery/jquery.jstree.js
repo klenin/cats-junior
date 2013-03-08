@@ -277,9 +277,9 @@
 				'.jstree > ul > li { margin-left:0px; } ' + 
 				'.jstree-rtl > ul > li { margin-right:0px; } ' + 
 				'.jstree ins { display:inline-block; text-decoration:none; width:18px; height:18px; margin:0 0 0 0; padding:0; } ' + 
-				'.jstree a { display:inline-block; line-height:25px; height:25px; color:black; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
+				'.jstree a { display:inline-block; line-height:32px; height:32px; color:black; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
 				'.jstree a:focus { outline: none; } ' + 
-				'.jstree a > ins { height:25px; width:25px; } ' + 
+				'.jstree a > ins { height:32px; width:32px; } ' + 
 				'.jstree a > .jstree-icon { margin-right:3px; } ' + 
 				'.jstree-rtl a > .jstree-icon { margin-left:3px; margin-right:0; } ' + 
 				'li.jstree-open > ul { display:block; } ' + 
