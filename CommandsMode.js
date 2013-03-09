@@ -17,6 +17,7 @@ var Command = $.inherit({
 				this.counterIndex = i;
 			}
 			this.arguments[i].setValue(argumentsValues[i]);
+			this.getSpinAt(i).mySpin('setTotal', argumentsValues[i]);
 		}
 		this.hasCounter = this.counterIndex != undefined;		
 		this.curCnt = 0;
@@ -32,8 +33,21 @@ var Command = $.inherit({
 	},
 	
 	eq: function(cmd, compareCnt){ // fix
-		return (cmd.getClass() == 'command' && cmd.id == this.id && 
-			(compareCnt ? cmd.cnt >= this.curCnt : cmd.cnt == this.cnt));
+		var result = cmd.getClass() == 'command' && cmd.id == this.id && cmd.name == this.name;
+		result = result && (cmd.arguments.length == this.arguments.length);
+		for (var i = 0; i < this.arguments.length; ++i) {
+			result = result && (this.arguments[i].isCounter == cmd.arguments[i].isCounter);
+			if (this.arguments[i].isCounter && cmd.arguments[i].isCounter && compareCnt) { //check it!!!
+				result = result && (this.arguments[i].value >= cmd.arguments[i].value && 
+					this.arguments[i].currentValue >= cmd.arguments[i].currentValue);
+			}
+			else {
+				result = result && (this.arguments[i].value == cmd.arguments[i].value && 
+					this.arguments[i].currentValue == cmd.arguments[i].currentValue);
+			}
+		}
+
+		return result;
 	},
 
 	getSpin: function() {
@@ -169,8 +183,12 @@ var Command = $.inherit({
 	
 	copyDiff: function(cmd, compareCnt){ //
 		if (this.eq(cmd, compareCnt)) {
-			this.cnt = cmd.cnt;
-			this.initCnt = cmd.initCnt;
+			if (this.hasCounter && cmd.hasCounter && this.counterIndex == cmd.counterIndex) {
+				if (this.counterIndex != undefined) {
+					this.arguments[this.counterIndex].value = cmd.arguments[cmd.counterIndex].value;
+					this.arguments[this.counterIndex].currentValue = cmd.arguments[cmd.counterIndex].currentValue;
+				}
+			}
 			this.id = cmd.id;
 			return this;
 		}
@@ -254,6 +272,10 @@ var Command = $.inherit({
 	
 	funcCallUpdated: function() {
 		return;
+	},
+
+	getArguments: function() {
+		return this.arguments;
 	}
 });
 
@@ -282,9 +304,10 @@ var ForStmt = $.inherit({
 	isFinished: function(){
 		return this.finished;
 	},
-	
-	eq: function(block){
-		return block.getClass() == 'for' && this.body.eq(block.body);
+
+	eq: function(block, compareCnt){
+		return (block.getClass() == 'for' && block.id == this.id && 
+			(compareCnt ? block.cnt >= this.curCnt : block.cnt == this.cnt));
 	},
 	
 	exec: function(cnt, arguments)
@@ -486,7 +509,8 @@ var CondStmt = $.inherit({
 	},
 	
 	eq: function(block){
-		return block.getClass() == this.getClass() && this.testName == block.testName && this.args.compare(block.args);
+		return block.getClass() == this.getClass() && 
+			this.testName == block.testName && this.args.compare(block.args);
 	},
 	
 	copyDiff: function(block, compareCnt){
@@ -1376,7 +1400,8 @@ var FuncCall = $.inherit({
 	},
 	
 	eq: function(func) {
-		return (func.getClass() == 'functionCall') && this.name == func.name;
+		return (func.getClass() == 'functionCall') && this.name == func.name && 
+			this.argumentsValues.length == func.argumentsValues.length;
 	},
 	
 	exec: function(cnt) {
@@ -1882,7 +1907,8 @@ var Problem = $.inherit({
 		//$('#accordion' + this.tabIndex).accordion('resize');
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
-		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
+		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) 
+		{
 			this.cmdList = newCmdList;
 			this.setDefault();
 			this.showCounters();
