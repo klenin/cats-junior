@@ -2,7 +2,7 @@
 
 function login(callback, firstTrying){
 	logined = false;
-	callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
+	currentServer.login(curUser.login, curUser.passwd, function(data) {
 		if (data.status == 'ok')
 			sid = data.sid;
 		else if(firstTrying){
@@ -62,7 +62,8 @@ function changeUser(){
 	for (var i = 0; i < problems.length; ++i)
 		$('#forJury' + i).hide();
 	try{ //temporary wa
-		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
+		currentServer.logout(function(data){
+		});
 	}catch(e){
 		console.error(e);
 	}
@@ -71,10 +72,7 @@ function changeUser(){
 	$.cookie('userId', undefined);
 	$.cookie('passwd', undefined);
 
-
-
-	callScript(pathPref +'f=users;cid=' + cid + ';rows=300;json=1;sort=1;sort_dir=0;', function(data){
-
+	currentServer.getUsersList(function(data) {
 		if (!data)
 			return;
 		curUser = new Object();
@@ -102,22 +100,9 @@ function changeUser(){
 	});
 }
 
-function submit(submitStr, problem_id){
-	callScript(pathPref + 'f=contests;filter=json;sid=' + sid + ';json=1;', function(data){
-		if (data.error == 'bad sid'){
-			login(function() {submit(submitStr, problem_id)}, true);
-		} 
-		else{
-			if (atHome){
-				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
-					alert(data.message ? data.message : 'Решение отослано на проверку');
-				});  
-			}
-			else
-			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', submitStr, problem_id, function(data){
-				alert(data.message ? data.message :'Решение отослано на проверку');
-			});
-		}
+function submit(){
+	currentServer.submit(submitStr, problem_id, function(){
+		login(function() {submit(submitStr, problem_id)}, true);
 	})
 }
 
@@ -132,7 +117,7 @@ submitClick = function(){
 }
 
 function getContests(){
-	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', function(data){ ////
+	currentServer.getContestsList(function(data) { ////
 		if (!data)
 			return;
 		contests = data.contests;
@@ -192,7 +177,7 @@ function fillTabs(){
 	}); 
 	changeUser();
 	problems = [];
-	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
+	currentServer.getProblems(function(data){
 		for (var i = 0; i < data.length; ++i){
 			problems[i] = new Problem(data[i], i);
 			if ($('#ui-tabs-' + (i + 1)).length){

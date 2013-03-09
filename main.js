@@ -3,6 +3,9 @@
 		$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 		return;
 	}
+
+	currentServer = new CATS();
+	
 	$('#funcName').hide();
 	$('#tabs').tabs({
 		select: function(event, ui) {
