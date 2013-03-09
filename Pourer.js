@@ -308,30 +308,34 @@ function fill(vessel) {
 }
 
 function compare(args){
-	if (args.length != 3) {
+	if (args.length != 4) {
 		throw 'Invalid arguments list!!';
 	}
 
-	var first = args[0] - 1;
-	var comparator = args[1] - 1;
-	var second = args[2] - 1;
+	var first = args[1] - 1;
+	var comparator = args[2] - 1;
+	var second = args[3] - 1;
+	var result = false;
 
 	switch(comparator) {
 		case '<':
-			return curProblem.getExecutionUnit().isLess(first, second);
+			result = curProblem.getExecutionUnit().isLess(first, second);
 		case '>':
-			return curProblem.getExecutionUnit().isLess(second, first);
+			result = curProblem.getExecutionUnit().isLess(second, first);
 		case '<=':
-			return curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
 		case '>=':
-			return curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
 		case '==':
-			return curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.getExecutionUnit().isEqual(first, second);
 		case '!=':
-			return !curProblem.getExecutionUnit().isEqual(first, second);			
+			result = !curProblem.getExecutionUnit().isEqual(first, second);			
 	}
 
-	return false;
+	if (args[0] == 'not')
+		result = !result;
+
+	return result;
 }
 
 function compare_handler(first, comparator, second){
