@@ -5,7 +5,8 @@
 	}
 
 	currentServer = new CATS();
-	
+	currentServer.setSession(new Session(undefined, currentServer.defaultCid));
+
 	$('#funcName').hide();
 	$('#tabs').tabs({
 		select: function(event, ui) {
@@ -81,7 +82,7 @@
 		modal: true,
 		buttons: {
 			Ok: function() {
-				curUser.passwd = $('#password').prop('value');
+				currentServer.user.setPasswd($('#password').prop('value')) ;
 				login();
 				$('#enterPassword').dialog('close');					
 			},

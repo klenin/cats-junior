@@ -1,13 +1,7 @@
 var curProblem;
 var problems = [];
 var users = [];
-var curUser;
-var logined = false;
-var defaultPass = 12345;
-var cid = 791634; // contest id
-var sid; // session id
 var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
-var pathPref = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?' : '/cats/main.pl?';
 var resultsUrl = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/cats/main.pl?f=rank_table_content;cid=';
 var	currentServer = undefined;
 var visited = []; // if tab have already been visited -- for proper tabs displaying

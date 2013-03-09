@@ -1,13 +1,14 @@
 ﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 function login(callback, firstTrying){
-	logined = false;
-	currentServer.login(curUser.login, curUser.passwd, function(data) {
-		if (data.status == 'ok')
-			sid = data.sid;
+	currentServer.setSid(undefined);
+	currentServer.login(currentServer.user.login, currentServer.user.passwd, function(data) {
+		if (data.status == 'ok') {
+			currentServer.setSid(data.sid);
+		}
 		else if(firstTrying){
 			$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
-				if (logined)
+				if (currentServer.getSid())
 					showNewUser();
 				$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
 			});
@@ -18,14 +19,14 @@ function login(callback, firstTrying){
 			alert(data.message);
 			return false;
 		}
-		$.cookie('passwd', curUser.passwd);
-		if(curUser.jury){
-			curUser.passwd = '';
+		$.cookie('passwd', currentServer.user.passwd);
+		if(currentServer.user.jury){
+			currentServer.user.passwd = '';
 			$('#password').prop('value', '');
 			for (var i = 0; i < problems.length; ++i)
 				$('#forJury' + i).show();
 		}
-		logined = true;
+		//logined = true;
 		if (callback)
 			callback();
 		return true;
@@ -35,21 +36,24 @@ function login(callback, firstTrying){
 function showNewUser(){
 	$('#userListDiv').empty();
 	$('#userListDiv').append('<p>Текущий пользователь:</p>');
-	$('#userListDiv').append('<p>' + curUser.name +'</p>');
+	$('#userListDiv').append('<p>' + currentServer.user.name +'</p>');
 	$('#userListDiv').append('<button name="changeUser" id = "changeUser">Сменить пользователя</button>');
 	$('#changeUser').button();
 	$('#changeUser').click(changeUser);
 }
 
 function chooseUser(){
-	logined = false;
+	currentServer.setSid(undefined);
+	//logined = false;
 	var user = $('#userListDiv > input:checked');
 	name = user[0].defaultValue;
 	for (var i = 0; i < users.length; ++i){
 		if (name == users[i].name){
-			curUser = users[i];
-			if ($.cookie('passwd'))
+			var curUser = new User(users[i].login, '', users[i].jury, users[i].name);
+			if ($.cookie('passwd')) {
 				curUser.passwd = $.cookie('passwd');
+			}
+			currentServer.setUser(curUser);
 			login(showNewUser, true);
 			break;
 		}
@@ -67,20 +71,19 @@ function changeUser(){
 	}catch(e){
 		console.error(e);
 	}
-	sid = undefined;
-	logined = false;
+	currentServer.setSid(undefined);
 	$.cookie('userId', undefined);
 	$.cookie('passwd', undefined);
 
 	currentServer.getUsersList(function(data) {
 		if (!data)
 			return;
-		curUser = new Object();
+		currentServer.setUser(undefined);
 		users = [];
 		for (var i = 0; i < data.length; ++i){
 			if (data[i].ooc == 1)
 				continue;
-			users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': defaultPass}); 
+			users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': currentServer.defaultPass}); 
 		}
 		$('#userListDiv').empty();
 		if (users.length > 0){
@@ -100,19 +103,19 @@ function changeUser(){
 	});
 }
 
-function submit(){
+function submit(submitStr, problem_id){
 	currentServer.submit(submitStr, problem_id, function(){
 		login(function() {submit(submitStr, problem_id)}, true);
 	})
 }
 
 submitClick = function(){
-	if (!logined) {
+	if (!currentServer.getSid()) {
 		alert('Невозможно отослать решение, так как не выбран пользователь');
 		return false;
 	}		
-	if (!sid)
-		(curUser.jury) ? $('#enterPassword').dialog('open') : login();
+	if (!currentServer.getSid())
+		(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 	curProblem.submit();
 }
 
@@ -127,7 +130,7 @@ function getContests(){
 				(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="contest_name_' + i + '">' 
 				+ contests[i].name + '</label><br>');
 		}
-		cid = contests[0].id;
+		currentServer.setCid(contests[0].id);
 		document.title = contests[0].name;
 	});
 }
@@ -146,7 +149,7 @@ function changeContest(){
 	for (var i = 0; i < contests.length; ++i){
 		if (name == contests[i].name){
 			//if (cid != contests[i].id){
-				cid = contests[i].id;
+				currentServer.setCid(contests[i].id);
 				fillTabs();
 			//}
 			break;
@@ -348,8 +351,8 @@ function fillTabs(){
 	$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
 	$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-		'<iframe id = "results" src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');
-	$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + cid)});
+		'<iframe id = "results" src = "' + resultsUrl + currentServer.getCid() + ';" class = "results"></iframe></td></tr></table>');
+	$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + currentServer.getCid())});
 		$('#tabs').tabs('select', 0);
 	for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
 	  while($('#ui-tabs-' + i).length){
