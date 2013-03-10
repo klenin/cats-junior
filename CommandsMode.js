@@ -223,6 +223,7 @@ var Command = $.inherit({
 	
 	generateCommand: function(tree, node) {
 		var self = this;
+		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
 				onCreateItem(tree, newNode, $('#' + self.name + self.problem.tabIndex).attr('rel'), self.problem);
@@ -242,7 +243,7 @@ var Command = $.inherit({
 							self.getSpinAt(i).mySpin('setTotalWithArgument', self.arguments[i].value);
 						}
 				}
-
+				--self.problem.loadedCnt;
 			}, true); 
 	},
 
@@ -459,6 +460,7 @@ var ForStmt = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
@@ -466,6 +468,7 @@ var ForStmt = $.inherit({
 				self.id = $(newNode).attr('id');
 				self.getSpin().mySpin('setTotal', self.cnt);
 				self.body.generateCommand(tree, $(newNode));
+				--self.problem.loadedCnt;
 			}, true); 
 	},
 	
@@ -833,6 +836,8 @@ var IfStmt = $.inherit(CondStmt, {
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		self.loaded = false;
+		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
@@ -849,6 +854,7 @@ var IfStmt = $.inherit(CondStmt, {
 						self.blocks[1].generateCommand(tree, next);
 					}
 				}
+				--self.problem.loadedCnt;
 			}, true); 
 	},
 	
@@ -1007,6 +1013,7 @@ var WhileStmt = $.inherit(CondStmt, {
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
 				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
@@ -1014,6 +1021,7 @@ var WhileStmt = $.inherit(CondStmt, {
 				self.id = $(newNode).attr('id');
 				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
+				--self.problem.loadedCnt;
 			}, true); 
 	},
 	
@@ -1311,10 +1319,12 @@ var FuncDef = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		++self.problem.loadedCnt;
 		var c = ++cmdId;
 		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, this.funcId);
 		$('#funcDef-' + c).bind('loaded.jstree', function(){		
 			self.body.generateCommand(jQuery.jstree._reference('funcDef-' +  c));
+			--self.problem.loadedCnt;
 			++cmdId;
 			self.problem.updated();
 		});
@@ -1516,6 +1526,7 @@ var FuncCall = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
 				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, self.argumentsValues);  //$('#func0')?!
@@ -1525,6 +1536,7 @@ var FuncCall = $.inherit({
 					$(newNode).children('input:eq(' + i + ')').val(self.argumentsValues[i]);
 				}
 				$(newNode).attr('funcId', this.funcId);
+				--self.problem.loadedCnt;
 			}, true); 	
 	},
 	

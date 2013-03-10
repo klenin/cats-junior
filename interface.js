@@ -163,6 +163,29 @@ function onAddWatchClick()
 	$('#addWatchDialog').dialog('open');
 }
 
+function startWaitForCommandsGeneration(problem) {
+	if (problem.loadedCnt > 0) {
+		$.blockUI({ 
+			message: '<img src="images/busy.gif" />', 
+			fadeIn: 0,
+			css: {
+				width: '20px', 
+		        top: '20px', 
+		        left: '20px'
+			}});
+		waitForCommandsGeneration(problem);
+	}
+}
+
+function waitForCommandsGeneration(problem) {
+	if (problem.loadedCnt > 0) {
+		setTimeout(function(){waitForCommandsGeneration(problem)}, 200);
+	}
+	else {
+		$.unblockUI();
+	}
+}
+
 function fillTabs(){
 	if ($('#ui-tabs-0').length){
 		$('#ui-tabs-0').empty();
@@ -262,8 +285,11 @@ function fillTabs(){
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
 								//problems[j].cmdList = block;//??
-								
+
+								problems[j].loadedCnt = 1;
+								startWaitForCommandsGeneration(problems[j]);
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+								--problems[j].loadedCnt;
 								
 								//setTimeout(function() {problems[j].updated()}, 20000);
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
@@ -277,6 +303,7 @@ function fillTabs(){
 						}
 						catch(e){
 							console.error(e);
+							$.unblockUI();
 							++cmdId;
 							problems[j].updated();
 							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
