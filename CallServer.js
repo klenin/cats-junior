@@ -36,7 +36,7 @@ function callScript(url, callback, dtype){
 function callSubmit_(serv, path, submitData, callback){
 	$.ajax({  
 		async: false,
-		url: 'submit.pl',
+		url: 'submit.php',
 		type: 'POST',
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 		success: function(data){
