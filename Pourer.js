@@ -110,6 +110,10 @@ var Pourer = $.inherit({
 				cell)
 			);			
 		}
+
+		this.life = this.data.startLife;
+		this.points = this.data.startPoints;
+		this.dead = false;
 	},
 
 	generateCommands: function(div) {
@@ -149,6 +153,10 @@ var Pourer = $.inherit({
 			this.vessels[i].setDefault();
 		}
 
+		this.life = this.data.startLife;
+		this.points = this.data.startPoints;
+		this.dead = false;
+
 		if (!dontDraw) {
 			this.draw();
 		}
@@ -161,7 +169,7 @@ var Pourer = $.inherit({
 	},
 
 	isDead: function() {
-		return false; // can user loose?
+		return this.dead; // can user loose?
 	},
 
 	executeCommand: function(command, args) {
@@ -183,9 +191,15 @@ var Pourer = $.inherit({
 				throw 'Invalid command!!!';
 		}
 
+		if (this.data.stepsFine){
+			this.points -= this.data.stepsFine;
+			var mes = new MessageStepFine(this.problem.step, this.points);
+		}
+
 		this.draw();
 		if (this.isFinished()) {
-			alert('Goal has been reached!');
+			this.points += this.data.pointsWon;
+			var mes = new MessageWon(this.problem.step, this.points);
 		}
 	},
 
@@ -238,11 +252,11 @@ var Pourer = $.inherit({
 	},
 
 	gameOver: function() {
-		//
+		this.dead = true;
 	},
 
 	getPoints: function() {
-		//
+		return this.points;
 	},
 
 	isCommandSupported: function(command) {
@@ -359,3 +373,9 @@ function compare_handler(first, comparator, second){
 	return false;
 }
 
+
+var MessageWon = $.inherit(Message, {
+	__constructor: function(step, points) {
+		this.__base(['Шаг ', step + 1, ': Вы выполнили задание! Количество очков: ', points, '\n' ]);
+	}
+});
