@@ -106,7 +106,7 @@ var Command = $.inherit({
 		var t = Math.min(cnt, Math.abs(this.curCnt - commandCounter));
 		var i;
 		for (i = 0; i < t && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()); ++i) {
-			this.problem.oneStep(this.name, this.counterIndex != undefined ? args[this.counterIndex] : undefined, args);
+			this.problem.oneStep(this.name, /*this.counterIndex != undefined ? args[this.counterIndex] : undefined*/1, args); //check it!!!
 			//eval(this.name + '();');
 			if ($.inArray(this.id, this.problem.usedCommands) == -1){
 				++this.problem.divIndex;
