@@ -1663,6 +1663,13 @@ var Problem = $.inherit({
 			if (classes[i] === 'block') {
 				continue;
 			}
+
+			if (this.controlCommands) {
+				if (this.controlCommands.indexOf(classes[i]) === -1) { //this control command isn't accepted in this problem
+					continue; 
+				}
+			}
+			
 			var divclass = classes[i];
 			$(tr).append('<td>' + 
 							'<div id="' + divclass + this.tabIndex + '" class="' + divclass + '  jstree-draggable" type = "' + 
