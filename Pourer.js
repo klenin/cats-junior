@@ -10,18 +10,25 @@ var Vessel = $.inherit({
 	},
 
 	getCell: function(row) {
-		return $(this.div).children('table').children('tbody').children('tr').children('td:eq(' + row + ')');
+		return $(this.div).children('div').children('div');
 	},
 
 	init: function() {
-		$(this.div).append('<table style="border-color: ' + this.color + '; border-style: solid"></table>');
-		for (var i = 0; i < this.capacity; ++i) {
+		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; width: 88px; height: 241px; -moz-transform: scaleY(' 
+			+ (this.capacity / 5.0) + ')"></div>').appendTo($(this.div));
+		$(this.div).append('<div style="background: url(\'images/vessel_bg_1.png\') no-repeat; width: 88px; height: 241px; -moz-transform: scaleY(' 
+			+ (this.capacity / 5.0) + ');z-index: 5;top: -241px; position: relative;"></div>');
+		this.vesselDiv.append('<div style = "background: ' + this.color +'; width: 95%; position: absolute; bottom: 0; opacity: 0.5"></div>');
+
+		this.vesselDiv.children('div').css({'height': ((this.initFilled / 5) * 100) + '%'});
+		
+		/*for (var i = 0; i < ; ++i) {
 			$(this.div).children('table').append('<tr><td></td></tr>');
 			this.getCell(i).css({'width': '50px', 'height': '10px'});
 			if (i >= this.capacity - this.initFilled) {
 				this.getCell(i).css({'background-color': this.color});
 			}
-		}
+		}*/
 	},
 
 	setDefault: function(dontDraw) {
@@ -29,10 +36,7 @@ var Vessel = $.inherit({
 	},
 
 	draw: function() {
-		for (var i = 0; i < $(this.div).children('table').children('tbody').children('tr').length; ++i) {
-			var color = i < this.capacity - this.filled ? '#FFFFFF' : this.color;
-			this.getCell(i).css({'background-color': color});
-		}
+		this.vesselDiv.children('div').css({'height': ((this.filled / 5) * 100) + '%'});
 	},
 
 	pourTo: function(delta) { //we pour from this vessel to another
