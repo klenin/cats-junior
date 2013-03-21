@@ -1,0 +1,18 @@
+div.pour, div.pour1, div.pourOut, div.pourOut1, div.fill, div.fill1{
+	list-style-type: none; 
+	width: 32px; 
+	height: 32px;
+	border: 1px solid #ffffff;
+	color: #363636; 
+	z-index: 1;
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
+	border-radius: 6px;
+}
+
+div.pour{ background: #FFFFFF url('../images/pour_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.pour1{ background: #1CB2B3 url('../images/pour_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
+div.pourOut{ background: #FFFFFF url('../images/pourOut_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.fill{ background: #FFFFFF url('../images/fill_small.png') 5% 100% no-repeat; background-position: 50% 50%;}
+div.pourOut1{ 	background: #1CB2B3 url('../images/pourOut_small.png') 5% 100% no-repeat !important;background-position: 50% 50%;}
+div.fill1{ background: #1CB2B3 url('../images/fill_small.png') 5% 100% no-repeat !important; background-position: 5%0 50%;}
