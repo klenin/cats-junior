@@ -277,9 +277,9 @@
 				'.jstree > ul > li { margin-left:0px; } ' + 
 				'.jstree-rtl > ul > li { margin-right:0px; } ' + 
 				'.jstree ins { display:inline-block; text-decoration:none; width:18px; height:18px; margin:0 0 0 0; padding:0; } ' + 
-				'.jstree a { display:inline-block; line-height:25px; height:25px; color:black; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
+				'.jstree a { display:inline-block; line-height:32px; height:32px; color:black; white-space:nowrap; text-decoration:none; padding:1px 2px; margin:0; } ' + 
 				'.jstree a:focus { outline: none; } ' + 
-				'.jstree a > ins { height:25px; width:25px; } ' + 
+				'.jstree a > ins { height:32px; width:32px; } ' + 
 				'.jstree a > .jstree-icon { margin-right:3px; } ' + 
 				'.jstree-rtl a > .jstree-icon { margin-left:3px; margin-right:0; } ' + 
 				'li.jstree-open > ul { display:block; } ' + 
@@ -4035,6 +4035,23 @@
 					if(s.max_depth !== -2 && md !== -1 && (md - 1) < 0) { return false; }
 				}
 				return this.__call_old(true, obj, position, js, callback, is_loaded, skip_check);
+			},
+
+			add_type: function(name, image) {
+				this._get_settings().types.types[name] = {
+					'valid_children': 'none',
+					'icon': {
+						'image': image
+					}
+				};
+
+				var icons_css = "";
+				icons_css += '.jstree-' + this.get_index() + ' li[rel="' + name + '"] > a > .jstree-icon { ';
+				icons_css += ' background-image:url(' + image + '); '; 
+				icons_css += ' background-image:url(' + image + '); '; 
+				icons_css += ' background-position:0 0; ';
+				icons_css += '}'; 
+				$.vakata.css.add_sheet({ 'str' : icons_css, title : "jstree-types" });
 			}
 		}
 	});

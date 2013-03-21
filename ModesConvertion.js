@@ -55,8 +55,16 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 				$('#' + id).text().split(' ').join(''), args,  block, id, $('#' + id).attr('funcId'), problem));
 		}
 		else{
-			var cmd = new Command(type, $('#' + id).children('spin').mySpin('getTotalValue'),
-				block, id, problem);
+			var argValues = [];
+			for (var j = 0; j < $('#' + id).children('spin').length; ++j) {
+				argValues.push($('#' + id).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
+			}
+			var cmd = new Command(type, 
+				problem.executionUnit.getCommands()[type].getArguments(), 
+				argValues,
+				block, 
+				id,
+				problem);
 			block.pushCommand(cmd);
 		}
 	}
@@ -81,7 +89,7 @@ function convertCondition(expr){
 						args.push(expr.args[j].s.v);
 						break;
 					case 'Num':
-						args.push(expr.args[j].n.v);
+						args.push(expr.args[j].n);
 						break;
 					case 'Name':
 						args.push(expr.args[j].id.v);
@@ -122,8 +130,27 @@ function convertCondition(expr){
 	return undefined;
 }
 
-function convertTreeToCommands(commands, parent, problem)
-{
+function getArgumentValues(command) {
+	var argValues = [];
+	for (var i = 0; i < command.value.args.length; ++i) {
+		switch(command.value.args[i]._astname) {
+			case 'Num':
+				argValues.push(command.value.args[i].n);
+				break;
+			case 'Name':
+				argValues.push(command.value.args[i].id.v);
+				break;
+			case 'Str':
+				argValues.push(command.value.args[i].s.v);
+				break;
+			default:
+				throw 'Unsupported argument type!!!'
+		}
+	}	
+	return argValues;
+}
+
+function convertTreeToCommands(commands, parent, problem) {
 	var block = new Block([], parent, problem);
 	var execCommands = problem.executionUnit.getCommands();
 	for (var i = 0; i < commands.length; ++i)
@@ -136,46 +163,23 @@ function convertTreeToCommands(commands, parent, problem)
 
 				var j = 0;
 
-				for (j = 0 ; j < execCommands.length; ++j) {
-					if (commands[i].value.func.id.v == execCommands[j][0]) {
-						//TODO: add support of different number and types of arguments!!!						
-						if (!(!commands[i].value.args.length || commands[i].value.args.length == 1 && 
-							(commands[i].value.args[0]._astname == 'Num' || commands[i].value.args[0]._astname == 'Name')))
-							return undefined;
-						var arg = undefined;
-						if (commands[i].value.args.length) {
-							if (commands[i].value.args[0]._astname == 'Num') {
-								arg = commands[i].value.args[0].n;
-							}
-							else if (commands[i].value.args[0]._astname == 'Name') {
-								arg = commands[i].value.args[0].id.v;
-							}
-						}
-						block.pushCommand(new Command(commands[i].value.func.id.v, 
-							arg ? arg : 1, block, undefined, problem));
-						break;
+				var execCommand = execCommands[commands[i].value.func.id.v];
+				if (execCommand) {
+					if (execCommand.name != commands[i].value.func.id.v) {
+						throw 'Invalid input data!!';
 					}
-				}
+					if (!(commands[i].value.args.length == execCommand.getArguments().length)) {
+						throw 'Invalid arguments number!!!';
+					}
 
-				if (j == execCommands.length) {
-					var arguments = [];
-					for (var j = 0; j < commands[i].value.args.length; ++j) {
-						var arg;
-						switch(commands[i].value.args[j]._astname) {
-							case 'Num':
-								arg = commands[i].value.args[j].n;
-								break;
-							case 'Str':
-								arg = commands[i].value.args[j].s.v;
-								break;
-							case 'Name':
-								arg = commands[i].value.args[j].id.v;
-								break;
-						}
-						arguments.push(arg);
-					}
-					var funcId = problem.functions[commands[i].value.func.id.v][arguments.length].funcId;
-					block.pushCommand(new FuncCall(commands[i].value.func.id.v, arguments, block, undefined, funcId, problem));
+					block.pushCommand(new Command(commands[i].value.func.id.v, 
+						execCommand.getArguments(),
+						getArgumentValues(commands[i]),
+						block, undefined, problem));
+				}
+				else {
+					var funcId = problem.functions[commands[i].value.func.id.v][getArgumentValues(commands[i]).length].funcId;
+					block.pushCommand(new FuncCall(commands[i].value.func.id.v, getArgumentValues(commands[i]), block, undefined, funcId, problem));
 				}
 				break;
 			case 'For':

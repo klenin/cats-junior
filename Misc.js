@@ -164,8 +164,9 @@ function changeCmdHighlight(elem){
 		elem.addClass('highlighted');
 }
 
-function isCmdHighlighted(elem){
+function isCmdHighlighted(elem) {
 	if (!elem)
 		return false;
 	return $('#' + elem).hasClass('highlighted')
 }
+

@@ -1,13 +1,14 @@
 ﻿var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 function login(callback, firstTrying){
-	logined = false;
-	callScript(pathPref + 'f=login;login=' + curUser.login + ';passwd=' + curUser.passwd +';json=1;', function(data){
-		if (data.status == 'ok')
-			sid = data.sid;
+	currentServer.setSid(undefined);
+	currentServer.login(currentServer.user.login, currentServer.user.passwd, function(data) {
+		if (data.status == 'ok') {
+			currentServer.setSid(data.sid);
+		}
 		else if(firstTrying){
 			$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
-				if (logined)
+				if (currentServer.getSid())
 					showNewUser();
 				$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
 			});
@@ -18,14 +19,14 @@ function login(callback, firstTrying){
 			alert(data.message);
 			return false;
 		}
-		$.cookie('passwd', curUser.passwd);
-		if(curUser.jury){
-			curUser.passwd = '';
+		$.cookie('passwd', currentServer.user.passwd);
+		if(currentServer.user.jury){
+			currentServer.user.passwd = '';
 			$('#password').prop('value', '');
 			for (var i = 0; i < problems.length; ++i)
 				$('#forJury' + i).show();
 		}
-		logined = true;
+		//logined = true;
 		if (callback)
 			callback();
 		return true;
@@ -35,21 +36,24 @@ function login(callback, firstTrying){
 function showNewUser(){
 	$('#userListDiv').empty();
 	$('#userListDiv').append('<p>Текущий пользователь:</p>');
-	$('#userListDiv').append('<p>' + curUser.name +'</p>');
+	$('#userListDiv').append('<p>' + currentServer.user.name +'</p>');
 	$('#userListDiv').append('<button name="changeUser" id = "changeUser">Сменить пользователя</button>');
 	$('#changeUser').button();
 	$('#changeUser').click(changeUser);
 }
 
 function chooseUser(){
-	logined = false;
+	currentServer.setSid(undefined);
+	//logined = false;
 	var user = $('#userListDiv > input:checked');
 	name = user[0].defaultValue;
 	for (var i = 0; i < users.length; ++i){
 		if (name == users[i].name){
-			curUser = users[i];
-			if ($.cookie('passwd'))
+			var curUser = new User(users[i].login, '', users[i].jury, users[i].name);
+			if ($.cookie('passwd')) {
 				curUser.passwd = $.cookie('passwd');
+			}
+			currentServer.setUser(curUser);
 			login(showNewUser, true);
 			break;
 		}
@@ -62,27 +66,24 @@ function changeUser(){
 	for (var i = 0; i < problems.length; ++i)
 		$('#forJury' + i).hide();
 	try{ //temporary wa
-		callScript(pathPref +'f=logout;sid=' + sid + ';json=1;', function(){});
+		currentServer.logout(function(data){
+		});
 	}catch(e){
 		console.error(e);
 	}
-	sid = undefined;
-	logined = false;
+	currentServer.setSid(undefined);
 	$.cookie('userId', undefined);
 	$.cookie('passwd', undefined);
 
-
-
-	callScript(pathPref +'f=users;cid=' + cid + ';rows=300;json=1;sort=1;sort_dir=0;', function(data){
-
+	currentServer.getUsersList(function(data) {
 		if (!data)
 			return;
-		curUser = new Object();
+		currentServer.setUser(undefined);
 		users = [];
 		for (var i = 0; i < data.length; ++i){
 			if (data[i].ooc == 1)
 				continue;
-			users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': defaultPass}); 
+			users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': currentServer.defaultPass}); 
 		}
 		$('#userListDiv').empty();
 		if (users.length > 0){
@@ -103,36 +104,23 @@ function changeUser(){
 }
 
 function submit(submitStr, problem_id){
-	callScript(pathPref + 'f=contests;filter=json;sid=' + sid + ';json=1;', function(data){
-		if (data.error == 'bad sid'){
-			login(function() {submit(submitStr, problem_id)}, true);
-		} 
-		else{
-			if (atHome){
-				callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + sid + ';cid=' + cid +';', submitStr, function(data){
-					alert(data.message ? data.message : 'Решение отослано на проверку');
-				});  
-			}
-			else
-			callSubmit(pathPref + 'f=problems;sid=' + sid + ';cid=' + cid+ ';json=1;', submitStr, problem_id, function(data){
-				alert(data.message ? data.message :'Решение отослано на проверку');
-			});
-		}
+	currentServer.submit(submitStr, problem_id, function(){
+		login(function() {submit(submitStr, problem_id)}, true);
 	})
 }
 
 submitClick = function(){
-	if (!logined) {
+	if (!currentServer.getSid()) {
 		alert('Невозможно отослать решение, так как не выбран пользователь');
 		return false;
 	}		
-	if (!sid)
-		(curUser.jury) ? $('#enterPassword').dialog('open') : login();
+	if (!currentServer.getSid())
+		(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 	curProblem.submit();
 }
 
 function getContests(){
-	callScript(pathPref + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', function(data){ ////
+	currentServer.getContestsList(function(data) { ////
 		if (!data)
 			return;
 		contests = data.contests;
@@ -142,7 +130,7 @@ function getContests(){
 				(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="contest_name_' + i + '">' 
 				+ contests[i].name + '</label><br>');
 		}
-		cid = contests[0].id;
+		currentServer.setCid(contests[0].id);
 		document.title = contests[0].name;
 	});
 }
@@ -161,7 +149,7 @@ function changeContest(){
 	for (var i = 0; i < contests.length; ++i){
 		if (name == contests[i].name){
 			//if (cid != contests[i].id){
-				cid = contests[i].id;
+				currentServer.setCid(contests[i].id);
 				fillTabs();
 			//}
 			break;
@@ -173,6 +161,29 @@ function changeContest(){
 function onAddWatchClick()
 {
 	$('#addWatchDialog').dialog('open');
+}
+
+function startWaitForCommandsGeneration(problem) {
+	if (problem.loadedCnt > 0) {
+		$.blockUI({ 
+			message: '<img src="images/busy.gif" />', 
+			fadeIn: 0,
+			css: {
+				width: '20px', 
+		        top: '20px', 
+		        left: '20px'
+			}});
+		waitForCommandsGeneration(problem);
+	}
+}
+
+function waitForCommandsGeneration(problem) {
+	if (problem.loadedCnt > 0) {
+		setTimeout(function(){waitForCommandsGeneration(problem)}, 200);
+	}
+	else {
+		$.unblockUI();
+	}
 }
 
 function fillTabs(){
@@ -192,7 +203,7 @@ function fillTabs(){
 	}); 
 	changeUser();
 	problems = [];
-	callScript(pathPref + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + cid + ';nokw=1;json=1', function(data){
+	currentServer.getProblems(function(data){
 		for (var i = 0; i < data.length; ++i){
 			problems[i] = new Problem(data[i], i);
 			if ($('#ui-tabs-' + (i + 1)).length){
@@ -274,8 +285,11 @@ function fillTabs(){
 							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 							if (block) {
 								//problems[j].cmdList = block;//??
-								
+
+								problems[j].loadedCnt = 1;
+								startWaitForCommandsGeneration(problems[j]);
 								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+								--problems[j].loadedCnt;
 								
 								//setTimeout(function() {problems[j].updated()}, 20000);
 								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
@@ -289,6 +303,7 @@ function fillTabs(){
 						}
 						catch(e){
 							console.error(e);
+							$.unblockUI();
 							++cmdId;
 							problems[j].updated();
 							if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -363,8 +378,8 @@ function fillTabs(){
 	$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
 	$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
 	$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-		'<iframe id = "results" src = "' + resultsUrl + cid + ';" class = "results"></iframe></td></tr></table>');
-	$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + cid)});
+		'<iframe id = "results" src = "' + resultsUrl + currentServer.getCid() + ';" class = "results"></iframe></td></tr></table>');
+	$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + currentServer.getCid())});
 		$('#tabs').tabs('select', 0);
 	for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
 	  while($('#ui-tabs-' + i).length){

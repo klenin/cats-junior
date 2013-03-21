@@ -8,6 +8,17 @@ var ArrowInLabyrinth = $.inherit({
 		this.table = $('<table style="border-spacing: 0px"></table>')
 			.appendTo(this.div);
 		this.initLabyrinth();
+		this.constructCommands();
+	},
+
+	constructCommands: function() {
+		this.commands = {};
+		var args = [
+			new ExecutionUnitCommandArgument('counter', 'int', true, 1, undefined)];
+		this.commands['forward'] = new ExecutionUnitCommand('forward', forward, args);
+		this.commands['left'] = new ExecutionUnitCommand('left', left, args);
+		this.commands['right'] = new ExecutionUnitCommand('right', right, args);
+		this.commands['wait'] = new ExecutionUnitCommand('wait', wait, args);
 	},
 
 	generateCommands: function(div) {
@@ -187,7 +198,7 @@ var ArrowInLabyrinth = $.inherit({
 				this.map[i][j].draw();
 	},
 
-	executeCommand: function(command) {
+	executeCommand: function(command, args) {
 		if (this.data.commands.indexOf(command) === -1) {
 			throw 'Invalid command';
 		}
@@ -402,7 +413,7 @@ var ArrowInLabyrinth = $.inherit({
 	},
 
 	getCommands: function() {
-		return this.__self.commands;
+		return this.commands;
 	},
 
 	getCssFileName: function() {
@@ -416,14 +427,7 @@ var ArrowInLabyrinth = $.inherit({
 		'right': 'Направо',
 		'wait': 'Ждать',
 	},
-
-	commands: [
-		['forward', forward],
-		['left', left],
-		['right', right],
-		['wait', wait]
-	],
-		
+	
 	changeDir: {
 		'forward':{
 			'up': {dx: 0, dy: -1, curDir: 'up'},
@@ -486,7 +490,14 @@ var ArrowInLabyrinth = $.inherit({
 		'handlerFunc': objectPosition_handler,
 	},
 
-	cssFileName: "styles/arrowInLabyrinth.css"
+	cssFileName: "styles/arrowInLabyrinth.css",
+
+	jsTreeTypes: [
+		['left', 'images/left_small.png'],
+		['right', 'images/right_small.png'],
+		['forward', 'images/forward_small.png'],
+		['wait', 'images/wait_small.png']
+	]
 });
 
 function objectPosition(args){
@@ -905,17 +916,55 @@ var Monster = $.inherit(Cell,{
 });
 
 function forward(cnt) {
-	curProblem.oneStep('forward', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('forward', cnt != undefined ? cnt : 1, []);
 }
 
 function left(cnt) {
-	curProblem.oneStep('left', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('left', cnt != undefined ? cnt : 1, []);
 }
 
 function right(cnt) {
-	curProblem.oneStep('right', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('right', cnt != undefined ? cnt : 1, []);
 }
 
 function wait(cnt) {
-	curProblem.oneStep('wait', cnt != undefined ? cnt : 1);
+	curProblem.oneStep('wait', cnt != undefined ? cnt : 1, []);
 }
+
+var MessageLabirinthOverrun = $.inherit(Message, {
+	__constructor: function(step) {
+		this.__base(['Шаг ', step + 1, ': Выход за границу лабиринта \n']);
+	}
+});
+
+var MessageWall = $.inherit(Message, {
+	__constructor: function(step) {
+		this.__base(['Шаг ', step + 1, ': Уткнулись в стену \n']);
+	}
+});
+
+var MessageCantMove = $.inherit(Message, {
+	__constructor: function(step) {
+		this.__base(['Шаг ', step + 1, ': Не можем пододвинуть \n']);
+	}
+});
+
+var MessagePrizeFound = $.inherit(Message, {
+	__constructor: function(step, name, pnts, all) {
+		this.__base(['Шаг ', step + 1, ': Нашли бонус ', name, ' \n', 'Текущее количество очков: ', 
+					pnts, '\n', all? 'Вы собрали все бонусы! \n' : '']);
+	}
+});
+
+var MessageInvalidDirectionFine = $.inherit(Message, {
+	__constructor: function(step, pnts) {
+		this.__base(['Шаг ', step + 1, ': Штраф за неправильное направление \n', 'Текущее количество очков: ', 
+					pnts, '\n']);
+	}
+});
+
+var MessageCellOpened = $.inherit(Message, {
+	__constructor: function(step, x, y) {
+		this.__base(['Шаг ', step + 1, ': Открыли ячейку с координатами ', x, ', ', y, '\n']);
+	}
+});

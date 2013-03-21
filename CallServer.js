@@ -1,10 +1,10 @@
-function callScript(url, callback){
+function callScript(url, callback, dtype){
 	if (atHome){
 		$.ajax({
 			async: false,
 			url: 'script.php',
 			data: 'url='+ url,
-			dataType: 'json',
+			dataType: dtype,
 			success: function(data){
 				//data = data.replace(new RegExp( "\t", "g" ), ' ');
 				//var d = $.evalJSON(data);
@@ -21,7 +21,7 @@ function callScript(url, callback){
 	else{
 		$.ajax({
 			async: false,
-			dataType : 'json',
+			dataType : dtype,
 			url: url,
 			success: callback,
 			error: function(jqXHR, textStatus, errorThrown) {
@@ -36,7 +36,7 @@ function callScript(url, callback){
 function callSubmit_(serv, path, submitData, callback){
 	$.ajax({  
 		async: false,
-		url: 'submit.pl',
+		url: 'submit.php',
 		type: 'POST',
 		data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 		success: function(data){
@@ -48,14 +48,7 @@ function callSubmit_(serv, path, submitData, callback){
 	});  
 }
 
-function callSubmit(url, submitData, problem_id, callback){
-        var formData = new FormData();
-        formData.append('search', '');
-        formData.append('rows', 20);
-        formData.append('problem_id', problem_id);//
-        formData.append('de_id',772264);
-        formData.append('source_text', submitData);
-        formData.append('submit', 'Send');
+function callSubmit(url, formData, callback){
         if (atHome)
                 return;
         $.ajax({
