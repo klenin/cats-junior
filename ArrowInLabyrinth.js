@@ -21,6 +21,10 @@ var ArrowInLabyrinth = $.inherit({
 		this.commands['wait'] = new ExecutionUnitCommand('wait', wait, args);
 	},
 
+	onTabSelect: function() {
+		
+	},
+
 	generateCommands: function(div) {
 		for (var i = 0; i < this.data.commands.length; ++i) {
 			if (!this.__self.cmdClassToName[this.data.commands[i]]) {

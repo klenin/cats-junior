@@ -26,7 +26,8 @@ var Vessel = $.inherit({
 		this.vesselDiv.append('<div style = "background: ' + this.color +'; width: 95%; position: relative; opacity: 0.5; z-index: 2"></div>');
 
 		this.vesselDiv.children('div').css({'height': ((this.initFilled / 5.0) * 100) + '%'});
-		
+
+	
 		/*for (var i = 0; i < ; ++i) {
 			$(this.div).children('table').append('<tr><td></td></tr>');
 			this.getCell(i).css({'width': '50px', 'height': '10px'});
@@ -52,7 +53,11 @@ var Vessel = $.inherit({
 			$(this.circle).show();
 			this.vesselDiv.children('div').css({'height': ($(this.vesselDiv).height())+ 'px', 'top': '0px'});	
 			$(this.circle).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+		}
 
+		if (this.filled == 0) {
+			$(this.circle).hide();
+			$(this.circleBg).hide();
 		}
 		$(this.vesselBg).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
 
@@ -189,6 +194,10 @@ var Pourer = $.inherit({
 				}
 			}(divclass, this.__self.cmdClassToName[divclass], this.problem));
 		}
+	},
+
+	onTabSelect: function() {
+		this.draw();
 	},
 
 	getCommandName: function(command) {

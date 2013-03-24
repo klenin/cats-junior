@@ -1655,6 +1655,10 @@ var Problem = $.inherit({
 			data.data.executionUnitName ? data.data.executionUnitName : 'ArrowInLabyrinth');
 	},
 
+	onTabSelect: function(data) {
+		this.executionUnit.onTabSelect();
+	},
+
 	generateCommands: function() {
 		//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
 		

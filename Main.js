@@ -19,6 +19,13 @@
 				setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
 			}
 			$.cookie('tabIndex', ui.index);
+		
+		},
+
+		show: function(event, ui) {
+			if (ui.index > 0 && ui.index - 1 < problems.length) {
+				curProblem.onTabSelect();
+			}
 		}
 	});
 	$('#changeContest').hide();
