@@ -14,13 +14,18 @@ var Vessel = $.inherit({
 	},
 
 	init: function() {
-		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; width: 88px; height: 241px; -moz-transform: scaleY(' 
-			+ (this.capacity / 5.0) + ')"></div>').appendTo($(this.div));
-		$(this.div).append('<div style="background: url(\'images/vessel_bg_1.png\') no-repeat; width: 88px; height: 241px; -moz-transform: scaleY(' 
-			+ (this.capacity / 5.0) + ');z-index: 5;top: -241px; position: relative;"></div>');
-		this.vesselDiv.append('<div style = "background: ' + this.color +'; width: 95%; position: absolute; bottom: 0; opacity: 0.5"></div>');
+		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; background-size: 84px ' + (241 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (241 * (this.capacity / 5.0)) + 'px; position: absolute;"></div>').appendTo($(this.div));
 
-		this.vesselDiv.children('div').css({'height': ((this.initFilled / 5) * 100) + '%'});
+		this.circle = $('<div style="background: url(\'images/345.png\') no-repeat; background-size: 84px ' + (34 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (34 * (this.capacity / 5.0)) + 'px; z-index: 1; position: absolute;"></div>').appendTo($(this.div));
+		this.circleBg = $('<div style="background: url(\'images/123.png\') no-repeat; background-size: 84x ' + (34 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (34 * (this.capacity / 5.0)) + 'px; z-index: 7; position: absolute;"></div>').appendTo($(this.div));
+		this.vesselBg = $('<div style="background: url(\'images/vessel_bg_1.png\') no-repeat; background-size: 84px ' + (241 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (241 * (this.capacity / 5.0)) + 'px;z-index: 6; position: absolute;"></div>').appendTo($(this.div));
+
+		$(this.circleBg).hide();
+		$(this.circle).hide();
+
+		this.vesselDiv.append('<div style = "background: ' + this.color +'; width: 95%; position: relative; opacity: 0.5; z-index: 2"></div>');
+
+		this.vesselDiv.children('div').css({'height': ((this.initFilled / 5.0) * 100) + '%'});
 		
 		/*for (var i = 0; i < ; ++i) {
 			$(this.div).children('table').append('<tr><td></td></tr>');
@@ -36,7 +41,21 @@ var Vessel = $.inherit({
 	},
 
 	draw: function() {
-		this.vesselDiv.children('div').css({'height': ((this.filled / 5) * 100) + '%'});
+		if (this.filled < this.capacity) {
+			this.vesselDiv.children('div').css({'height': (this.filled / this.capacity) * $(this.vesselDiv).height() + 'px', 'top': $(this.vesselDiv).height() * (1 - (this.filled / this.capacity)) - 1});		
+			$(this.circle).show();
+			$(this.circleBg).show();
+			$(this.circle).css({'top': $(this.vesselDiv).children('div').position().top + $(this.vesselDiv).position().top + 8, 'left': $(this.vesselDiv).position().left});
+			$(this.circleBg).css({'top': $(this.vesselDiv).children('div').position().top + $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+		}
+		else {
+			$(this.circle).show();
+			this.vesselDiv.children('div').css({'height': ($(this.vesselDiv).height())+ 'px', 'top': '0px'});	
+			$(this.circle).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+
+		}
+		$(this.vesselBg).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+
 	},
 
 	pourTo: function(delta) { //we pour from this vessel to another
@@ -58,6 +77,30 @@ var Vessel = $.inherit({
 
 	fill: function() {
 		this.filled = this.capacity;
+	},
+
+	getBottom: function() {
+		return this.getTop() + $(this.vesselDiv).height();
+	},
+
+	getTop: function() {
+		return $(this.vesselDiv).position().top;
+	},
+
+	setBottom: function(bottom) {
+		$(this.vesselDiv).css('top', bottom - $(this.vesselDiv).height());
+	},
+	
+	setLeft: function(left) {
+		$(this.vesselDiv).css('left', left);
+	},
+
+	getDivLeft: function() {
+		return $(this.div).position().left;
+	},
+
+	getWidth: function() {
+		return $(this.vesselDiv).width(); 
 	}
 });
 
@@ -167,7 +210,14 @@ var Pourer = $.inherit({
 	},
 
 	draw: function() {
+		var maxBottom = 0;
+		for (var i = 0; i < this.vessels.length; ++i){
+			maxBottom = Math.max(maxBottom, this.vessels[i].getBottom());
+		}
+		
 		for (var i = 0; i < this.vessels.length; ++i) {
+			this.vessels[i].setLeft(this.vessels[i].getDivLeft() + i * this.vessels[i].getWidth());
+			this.vessels[i].setBottom(maxBottom);
 			this.vessels[i].draw();
 		}
 	},
