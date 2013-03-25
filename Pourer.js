@@ -10,22 +10,19 @@ var Vessel = $.inherit({
 	},
 
 	getCell: function(row) {
-		return $(this.div).children('div').children('div');
+		return $(this.vesselBg);
 	},
 
 	init: function() {
 		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; background-size: 84px ' + (241 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (241 * (this.capacity / 5.0)) + 'px; position: absolute;"></div>').appendTo($(this.div));
 
-		this.circle = $('<div style="background: url(\'images/345.png\') no-repeat; background-size: 84px ' + (34 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (34 * (this.capacity / 5.0)) + 'px; z-index: 1; position: absolute;"></div>').appendTo($(this.div));
-		this.circleBg = $('<div style="background: url(\'images/123.png\') no-repeat; background-size: 84x ' + (34 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (34 * (this.capacity / 5.0)) + 'px; z-index: 7; position: absolute;"></div>').appendTo($(this.div));
-		this.vesselBg = $('<div style="background: url(\'images/vessel_bg_1.png\') no-repeat; background-size: 84px ' + (241 * (this.capacity / 5.0)) + 'px; width: 84px; height: ' + (241 * (this.capacity / 5.0)) + 'px;z-index: 6; position: absolute;"></div>').appendTo($(this.div));
+		this.vesselBg = $('<div style = "background: url(\'images/water_bg.png\'); width: 95%; position: relative; z-index: 2"></div>').appendTo($(this.vesselDiv));
+		this.circle = $('<div style = "background: url(\'images/circle.png\') no-repeat; background-size: 84px ' + 
+			(34 * (this.capacity / 5.0)) + 'px; width: 95%; height: ' + (34 * (this.capacity / 5.0)) + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
+		this.bottom = $('<div style = "background: url(\'images/bottom.png\') no-repeat; background-size: 84px ' + 
+			(14 * (this.capacity / 5.0)) + 'px; width: 95%; height: ' + (14 * (this.capacity / 5.0)) + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
 
-		$(this.circleBg).hide();
-		$(this.circle).hide();
-
-		this.vesselDiv.append('<div style = "background: ' + this.color +'; width: 95%; position: relative; opacity: 0.5; z-index: 2"></div>');
-
-		this.vesselDiv.children('div').css({'height': ((this.initFilled / 5.0) * 100) + '%'});
+		$(this.vesselBg).css({'height': ((this.initFilled / 5.0) * 100) + '%'});
 
 	
 		/*for (var i = 0; i < ; ++i) {
@@ -43,23 +40,26 @@ var Vessel = $.inherit({
 
 	draw: function() {
 		if (this.filled < this.capacity) {
-			this.vesselDiv.children('div').css({'height': (this.filled / this.capacity) * $(this.vesselDiv).height() + 'px', 'top': $(this.vesselDiv).height() * (1 - (this.filled / this.capacity)) - 1});		
+			$(this.vesselBg).css({'height': (this.filled / this.capacity) * $(this.vesselDiv).height() - $(this.bottom).height() + 'px', 'top': $(this.vesselDiv).height() * (1 - (this.filled / this.capacity))});		
 			$(this.circle).show();
-			$(this.circleBg).show();
-			$(this.circle).css({'top': $(this.vesselDiv).children('div').position().top + $(this.vesselDiv).position().top + 8, 'left': $(this.vesselDiv).position().left});
-			$(this.circleBg).css({'top': $(this.vesselDiv).children('div').position().top + $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+			$(this.circle).css({'top': $(this.vesselBg).position().top + $(this.vesselDiv).position().top - $(this.circle).height() / 2, 'left': $(this.vesselDiv).position().left});
 		}
 		else {
 			$(this.circle).show();
-			this.vesselDiv.children('div').css({'height': ($(this.vesselDiv).height())+ 'px', 'top': '0px'});	
+			$(this.bottom).show();
+			$(this.vesselBg).css({'height': $(this.vesselDiv).height() - $(this.bottom).height() - $(this.circle).height() / 2 + 'px', 'top': $(this.circle).height() / 2 + 'px'});	
 			$(this.circle).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
 		}
 
 		if (this.filled == 0) {
+			$(this.bottom).hide();
 			$(this.circle).hide();
-			$(this.circleBg).hide();
 		}
-		$(this.vesselBg).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
+		else {
+			$(this.bottom).show();
+			$(this.bottom).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() - $(this.bottom).height(),
+				'left': $(this.vesselDiv).position().left})
+		}
 
 	},
 
