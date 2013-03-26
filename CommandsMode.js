@@ -1743,7 +1743,7 @@ var Problem = $.inherit({
 		if (!name) {
 			return this.executionUnit.isCommandSupported(command);
 		}
-		return this.controlCommands.indexOf(command) !== -1;
+		return this.controlCommands && this.controlCommands.indexOf(command) !== -1;
 	},
 
 	setDefault: function(f) {
