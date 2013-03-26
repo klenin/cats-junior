@@ -223,6 +223,11 @@ var Command = $.inherit({
 	
 	generateCommand: function(tree, node) {
 		var self = this;
+		
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+		
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
@@ -460,6 +465,11 @@ var ForStmt = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+		
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
@@ -836,6 +846,11 @@ var IfStmt = $.inherit(CondStmt, {
 	
 	generateCommand: function(tree, node){
 		var self = this;
+
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+		
 		self.loaded = false;
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
@@ -1013,6 +1028,11 @@ var WhileStmt = $.inherit(CondStmt, {
 	
 	generateCommand: function(tree, node){
 		var self = this;
+
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+		
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
@@ -1319,6 +1339,11 @@ var FuncDef = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+		
 		++self.problem.loadedCnt;
 		var c = ++cmdId;
 		$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, this.funcId);
@@ -1526,6 +1551,11 @@ var FuncCall = $.inherit({
 	
 	generateCommand: function(tree, node){
 		var self = this;
+
+		if (!self.problem.isCommandSupported(self.name)) {
+			throw 'Unsupported command!';
+		}
+		
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
@@ -1706,6 +1736,14 @@ var Problem = $.inherit({
 			name  = this.executionUnit.getCommandName(command);
 		}
 		return name;
+	},
+
+	isCommandSupported: function(command) {
+		var name = cmdClassToName[command];
+		if (!name) {
+			return this.executionUnit.isCommandSupported(command);
+		}
+		return this.controlCommands.indexOf(command) !== -1;
 	},
 
 	setDefault: function(f) {

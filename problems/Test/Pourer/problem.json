@@ -1,6 +1,7 @@
 {	
 	"executionUnitName": "Pourer",
 	"commands": ["pour", "pourOut", "fill"],
+	"controlCommands": [],
 	"maxCmdNum": 100,
 	"commandsFine": 1,
 	"vessels": [
