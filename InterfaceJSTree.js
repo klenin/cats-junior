@@ -1,4 +1,4 @@
-function onCreateItem(tree, newNode, type, problem, funcId, args){
+function onCreateItem(tree, newNode, type, problem, funcId, inputArgs){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
@@ -45,6 +45,9 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 					}
 				}(problem));
 
+				if (inputArgs) {
+					$('#selectCondition0_' + cmdId).val(inputArgs[0]);
+				}
 
 				var conditionProperties = problem.executionUnit.getConditionProperties();
 				var args = conditionProperties['args'];
@@ -53,19 +56,13 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 				}
 				
 				for (var i = 0; i < args.length; ++i) {
-					var objects = args[i];			
-					$(newNode).append('<select id = "selectCondition' + (i + 1) + '_' + cmdId +'">');
-					for (var j = 0; j < objects.length; ++j)
-					{
-						$('#selectCondition' + (i + 1) + '_' + cmdId).append('<option value = "' + objects[j][0] + '">' + objects[j][1] + '</option><br>');
-					}
-					$(newNode).append('</select>');
-
-					$('#selectCondition' + (i + 1) + '_' + cmdId).change(function(p){
-						return function() {
-							p.updated();
-						}
-					}(problem));
+					args[i].generateDomObject($(newNode), 
+						function(p) {
+							return function() {
+								p.updated();
+							}
+						}(problem), 
+						inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined);
 				}
 				if (type == 'ifelse'){
 					tree.rename_node(newNode, 'Если');
@@ -82,7 +79,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, args){
 				}
 				break;
 			case 'funccall':
-				var arguments = args;
+				var arguments = inputArgs;
 				for (var i = 0; i < arguments.length; ++i) {
 					$(newNode)
 						.append('<input class="argCallInput"/>')

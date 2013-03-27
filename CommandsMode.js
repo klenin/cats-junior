@@ -301,6 +301,7 @@ var ForStmt = $.inherit({
 		if (func) {
 			this.getSpin().mySpin('setArguments', func.getArguments());
 		}
+		this.name = 'for';
 	},
 
 	getSpin: function() {
@@ -535,13 +536,13 @@ var CondStmt = $.inherit({
 	},
 	
 	highlightOff: function(){
-		$('#' + this.id + '>select').css('background-color', '');
+		//$('#' + this.id + '>select').css('background-color', '');
 		$('#' + this.id + '>a').css('background-color', '');
 		//$('#' + this.id + '>ins').css('background-color', '#eeeeee');
 	},
 	
 	highlightOn: function(){
-		$('#' + this.id + '>select').css('background-color', '#1CB2B3');
+		//$('#' + this.id + '>select').css('background-color', '#1CB2B3');
 		$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 		//$('#' + this.id + '>ins').css('background-color', '#1CB2B3');
 	},
@@ -568,23 +569,21 @@ var CondStmt = $.inherit({
 			if (this.args[i + 1] === undefined) {
 				throw 'Invalid arguments list'
 			}
-			var j = 0;
-			for (j = 0; j < conditionArguments[i].length; ++j) {
-				if (this.args[i + 1] == conditionArguments[i][j][0] || this.args[i + 1] == conditionArguments[i][j][1]) {
-					str += (i > 0 ? ', ' : '');
-					if (checkNumber(conditionArguments[i][j][0])) {
-						str += conditionArguments[i][j][0];
-					} 
-					else if (checkName(conditionArguments[i][j][0])) {
-						str += '"' + conditionArguments[i][j][0] + '"';
-					}
-					else {
-						str += "u'" + conditionArguments[i][j][0] + "'";
-					}
-					break;
+			var value = conditionArguments[i].findValue(this.args[i + 1]);
+
+			if (value != undefined) {
+				str += (i > 0 ? ', ' : '');
+				if (checkNumber(value)) {
+					str += value;
+				} 
+				else if (checkName(value)) {
+					str += '"' + value + '"';
+				}
+				else {
+					str += "u'" + value + "'";
 				}
 			}
-			if (j == conditionArguments[i].length) {
+			else {
 				str += (i > 0 ? ', ' : '');
 				var k = 0;
 				for (k = 0; k < funcArguments.length; ++k) {
@@ -599,17 +598,9 @@ var CondStmt = $.inherit({
 				str += this.args[i + 1];
 			}
 		}
-
+ 
 		str += '):\n';
 		return str;
-	},
-	
-	generateSelect: function(newNode){
-		var numId = $(newNode).prop('numId');
-		var selects = $(newNode).children('select');
-		for (var i = 0; i < selects.length; ++i) {
-			$(newNode).children('select:eq(' + i + ')').val(this.args[i]);
-		}	
 	},
 	
 	highlightWrongNames: function() {
@@ -634,7 +625,7 @@ var CondStmt = $.inherit({
 	
 	convertArguments: function(arguments) {
 		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var selects = conditionProperties.args;
+		var conditionArguments = conditionProperties.args;
 
 		var funcDef = this.getFunction();
 		var funcArguments = funcDef ? funcDef.getArguments() : [];
@@ -642,37 +633,26 @@ var CondStmt = $.inherit({
 		var args = [];
 		args[0] = this.args[0];
 
-		for (var i = 0; i < selects.length; ++i) {
-			var j = 0;
-			for (j = 0; j < selects[i].length; ++j) {
-				if (selects[i][j][0] == this.args[i + 1] || selects[i][j][1] == this.args[i + 1]) {
-					args.push(selects[i][j][0]);
-					break;
-				}
+		for (var i = 0; i < conditionArguments.length; ++i) {
+			var value = conditionArguments[i].findValue(this.args[i + 1]);
+			if (value != undefined) {
+				args.push(value);
+				continue;
 			}
-			if (j == selects[i].length) {
-				var k = 0
-				for (k = 0; k < funcArguments.length; ++k) {
-					if (this.args[i + 1] == funcArguments[k]) {
-						if (arguments[funcArguments[k]] != undefined) {
-							var l = 0
-							for (l = 0; l < selects[i].length; ++l) {
-								if (selects[i][l][0] == arguments[funcArguments[k]] || selects[i][l][1] == arguments[funcArguments[k]]) {
-									args.push(selects[i][l][0]);
-									$('#' + this.id).children('select:eq('+ (i + 1)+')').val(selects[i][l][0]);
-									break;
-								}
-							}
-							if (l == selects[i].length) {
-								throw 'Invalid argument';
-							}
+			var k = 0
+			for (k = 0; k < funcArguments.length; ++k) {
+				if (this.args[i + 1] == funcArguments[k]) {
+					if (arguments[funcArguments[k]] != undefined) {
+						var valueForArgument = conditionArguments[i].findValue(arguments[funcArguments[k]]);
+						if (valueForArgument != undefined) {
+							args.push(valueForArgument)
+							break;
 						}
-						break;
 					}
 				}
-				if (k == funcArguments.length) {
-					throw 'Invalid argument';
-				}
+			}
+			if (k == funcArguments.length) {
+				throw 'Invalid argument';
 			}
 		}
 
@@ -691,7 +671,7 @@ var CondStmt = $.inherit({
 		var arguments = undefined;
 		var clear = false;
 		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var selects = conditionProperties.args;
+		var conditionArguments = conditionProperties.args;
 		if (args) {
 			arguments = args;
 			clear = true;
@@ -703,24 +683,8 @@ var CondStmt = $.inherit({
 			}
 		}
 		if (arguments) {
-			for (var i = 0; i < $('#' + this.id).children('select').length; ++i) {
-				var index = $('#' + this.id).children('select:eq(' + i + ')').children('option').length;
-				if (clear && i > 0) {
-					$('#' + this.id).children('select:eq(' + i + ')').children(':gt(' + (selects[i - 1].length - 1) + ')').remove();
-						
-				}
-				for (var j = 0; j < arguments.length; ++j) {
-					var k = 0;
-					for (k = 0; k < $('#' + this.id).children('select:eq(' + i + ')').children('option').length; ++k) {
-						if ($('#' + this.id).children('select:eq(' + i + ')').children('option:eq(' + k +')').html() == arguments[j]) {
-							break;
-						}
-					}
-					if (i != 0 && k == $('#' + this.id).children('select:eq(' + i + ')').children('option').length) {
-						$('#' + this.id).children('select:eq(' + i + ')').append(
-							'<option value="' + arguments[j] + '">' + arguments[j] + '</option><br>');
-					}
-				}
+			for (var i = 0; i < conditionArguments.length; ++i) {
+				conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), arguments, clear);
 			}
 		}
 	}
@@ -731,6 +695,7 @@ var IfStmt = $.inherit(CondStmt, {
 		this.__base(testName, args, parent, id, problem);
         this.curBlock = undefined;
 		this.blocks = [firstBlock, secondBlock];
+		this.name = secondBlock ? 'ifelse' : 'if';
 	},
 	
 	isFinished: function(){
@@ -779,9 +744,10 @@ var IfStmt = $.inherit(CondStmt, {
 		this.curBlock = undefined;
 		this.highlightOff();
 		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var selects = conditionProperties.args;
-		for (var i = 0; i < selects.length; ++i) {
-			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		var conditionArguments = conditionProperties.args;
+		$('#' + this.id).children('select:eq(0)').val(this.args[0]);
+		for (var i = 0; i < conditionArguments.length; ++i) {
+			conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
 		}	
 	},
 	
@@ -855,11 +821,10 @@ var IfStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem);
+				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem, undefined, self.args);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.generateArguments();
-				self.generateSelect(newNode);
 				self.blocks[0].generateCommand(tree, $(newNode));
 				if (self.blocks[1])
 				{
@@ -921,6 +886,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
+		this.name = 'while';
 	},
 	
 	isFinished: function(){
@@ -978,9 +944,9 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.body.setDefault();
 		this.highlightOff();
 		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var selects = conditionProperties.args;
-		for (var i = 0; i < selects.length; ++i) {
-			$('#' + this.id).children('select:eq(' + i + ')').val(this.args[i]);
+		$('#' + this.id).children('select:eq(0)').val(this.args[0]);
+		for (var i = 0; i < conditionArguments.length; ++i) {
+			conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
 		}	
 	},
 	
@@ -1036,10 +1002,9 @@ var WhileStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem);
+				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem, undefined, self.args);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
-				self.generateSelect(newNode);
 				self.body.generateCommand(tree, $(newNode));
 				--self.problem.loadedCnt;
 			}, true); 
@@ -1340,7 +1305,7 @@ var FuncDef = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 
-		if (!self.problem.isCommandSupported(self.name)) {
+		if (!self.problem.isCommandSupported('funcdef')) {
 			throw 'Unsupported command!';
 		}
 		
@@ -1743,7 +1708,7 @@ var Problem = $.inherit({
 		if (!name) {
 			return this.executionUnit.isCommandSupported(command);
 		}
-		return this.controlCommands && this.controlCommands.indexOf(command) !== -1;
+		return !this.controlCommands || this.controlCommands.indexOf(command) !== -1;
 	},
 
 	setDefault: function(f) {

@@ -20,10 +20,11 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 			block.pushCommand(convert(commands[i].children, block, problem));
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-			var selects = $('#' + id).children('select');
-			var args = [];
-			for (var j = 0; j < selects.length; ++j) {
-				args.push($('#' + id + ' option:selected')[j].value);
+			var conditionArguments = problem.executionUnit.getConditionProperties().args;
+			var args = [$('#' + id).children('select:eq(0)').children('option:selected').val()];
+			for (var j = 0; j < conditionArguments.length; ++j) {
+				args.push(
+					conditionArguments[j].getDomObjectValue($('#' + id).children('.testFunctionArgument:eq(' + j + ')')));
 			}	
 
 			var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new Block([], block, problem);

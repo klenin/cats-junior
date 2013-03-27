@@ -151,16 +151,25 @@ var Pourer = $.inherit({
 			vesselsList.push([i + 1, i + 1]);
 		}
 
-		this.testFunction = {
-			'name': 'compare',
+		this.testFunction = //[
+		{
+			'name': 'compareVessels',
 			'args': [
-				vesselsList,
-				[['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']],
-				vesselsList
+				new TestFunctionArgumentConst(vesselsList),
+				new TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
+				new TestFunctionArgumentConst(vesselsList)
 			],
 			'jsFunc': compare,
 			'handlerFunc': compare_handler,
-		}
+		}/*,
+		{
+			'name': 'checkFilled',
+			'args': [
+				vesselsList,
+				[['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']],
+
+			]
+		}]*/
 	},
 
 	init: function() {

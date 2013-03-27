@@ -474,22 +474,23 @@ var ArrowInLabyrinth = $.inherit({
 
 	testFunction : {
 		'name': 'objectPosition',
-		'args': [[
-			['wall', 'Стена'],
-			['prize', 'Приз'],
-			['monster', 'Монстр'],
-			['box', 'Ящик'],
-			['lock', 'Замок'],
-			['key', 'Ключ'],
-			['border', 'Граница']
+		'args': [
+		new TestFunctionArgumentConst([
+				['wall', 'Стена'],
+				['prize', 'Приз'],
+				['monster', 'Монстр'],
+				['box', 'Ящик'],
+				['lock', 'Замок'],
+				['key', 'Ключ'],
+				['border', 'Граница']
 
-		],
-		[
+			]),
+		new TestFunctionArgumentConst([
 			['atTheLeft', 'слева'],
 			['atTheRight', 'справа'],
 			['inFrontOf', 'спереди'],
 			['behind', 'сзади']
-		]],
+		])],
 		'jsFunc': objectPosition,
 		'handlerFunc': objectPosition_handler,
 	},
