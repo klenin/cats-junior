@@ -40,6 +40,10 @@
 
 					$this.mySpin('onSpinImgClick', vector);
 				});
+
+				$this.children('input').change(function() {
+					$this.mySpin('onUpdateTotal', $this.children('input').val())
+				});
 			});
 		},
 
@@ -92,8 +96,7 @@
 					$(this).data('problem').updated();
 					return;
 				}
-				else
-				{
+				else {
 					newTotal = $(this).data('minimum');
 				}
 			}
@@ -105,6 +108,43 @@
 			$(this).mySpin('setTotal', newTotal);
 			$(this).data('problem').updated();
 			return false;
+		},
+
+		onUpdateTotal: function(newTotal) {
+			//TODO: create one function for  onUpdateTotal, onSpinImgClick if it's possible
+
+			if (checkNumber(newTotal)) {
+				if (newTotal < $(this).data('minimum')) {
+					newTotal = $(this).data('minimum');
+				}
+				else if (newTotal > $(this).data('maximum')) {
+						newTotal = $(this).data('maximum');
+				}
+				$(this).mySpin('setTotal', parseInt(newTotal));
+			}
+			else {
+				if (!checkName(newTotal)) {
+					throw 'Invalid argument!!!'
+				}
+
+				var i = 0;
+				for (i = 0; i < $(this).data('arguments').length; ++i) {
+					if (newTotal ==  $(this).data('arguments')) {
+						break;
+					}
+				}
+
+				if (i == $(this).data('arguments').length) {
+					throw 'Invalid argument'; //highlight?
+				}
+
+				$(this).mySpin('setTotal', $(this).data('maximum') - 1 - i, 
+					$(this).data('arguments')[i]);
+			}
+				
+			$(this).data('problem').updated();
+			return false;
+			
 		},
 
 		hideBtn: function(cnt) {
