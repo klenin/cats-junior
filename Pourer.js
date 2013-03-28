@@ -153,11 +153,11 @@ var Pourer = $.inherit({
 
 		this.testFunction = //[
 		{
-			'name': 'compareVessels',
+			'name': 'compare',
 			'args': [
 				new TestFunctionArgumentConst(vesselsList),
 				new TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
-				new TestFunctionArgumentConst(vesselsList)
+				new TestFunctionArgumentInt(0, undefined)
 			],
 			'jsFunc': compare,
 			'handlerFunc': compare_handler,
@@ -368,14 +368,18 @@ var Pourer = $.inherit({
 		return this.__self.cssFileName;
 	},
 
-	isLess: function(first, second) {
-		return this.vessels[first] < this.vessels[second];
+	isLess: function(vessel, value) {
+		return this.vessels[vessel].filled < value;
 	},
 
-	isEqual: function(first, second) {
-		return this.vessels[first] == this.vessels[second];
+	isEqual: function(vessel, value) {
+		return this.vessels[vessel].filled == value;
 	},
 
+	isGreater: function(vessel, value) {
+		return this.vessels[vessel].filled > value;
+	},
+	
 	isFinished: function() {
 		var finished = true;
 		for (var i = 0; i < this.data.finishState.length; ++i) {
@@ -419,24 +423,30 @@ function compare(args){
 		throw 'Invalid arguments list!!';
 	}
 
-	var first = args[1] - 1;
-	var comparator = args[2] - 1;
-	var second = args[3] - 1;
+	var vessel = args[1] - 1;
+	var comparator = args[2];
+	var value = args[3];
 	var result = false;
 
 	switch(comparator) {
 		case '<':
-			result = curProblem.getExecutionUnit().isLess(first, second);
+			result = curProblem.executionUnit.getExecutionUnit().isLess(vessel, value);
+			break;
 		case '>':
-			result = curProblem.getExecutionUnit().isLess(second, first);
+			result = curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
+			break;
 		case '<=':
-			result = curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+			break;
 		case '>=':
-			result = curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+			break;
 		case '==':
-			result = curProblem.getExecutionUnit().isEqual(first, second);
+			result = curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
+			break;
 		case '!=':
-			result = !curProblem.getExecutionUnit().isEqual(first, second);			
+			result = !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);			
+			break;
 	}
 
 	if (args[0] == 'not')
@@ -445,22 +455,23 @@ function compare(args){
 	return result;
 }
 
-function compare_handler(first, comparator, second){
-	first -= 1;
-	second -= 1;
+function compare_handler(vessel, comparator, value){
+	vessel -= 1;
+	comparator = comparator.v;
+
 	switch(comparator) {
 		case '<':
-			return curProblem.getExecutionUnit().isLess(first, second);
+			return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value);
 		case '>':
-			return curProblem.getExecutionUnit().isLess(second, first);
+			return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
 		case '<=':
-			return curProblem.getExecutionUnit().isLess(first, second) || curProblem.getExecutionUnit().isEqual(first, second);
+			return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
 		case '>=':
-			return curProblem.getExecutionUnit().isLess(second, first) || curProblem.getExecutionUnit().isEqual(first, second);
+			return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
 		case '==':
-			return curProblem.getExecutionUnit().isEqual(first, second);
+			return curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 		case '!=':
-			return !curProblem.getExecutionUnit().isEqual(first, second);			
+			return !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);			
 	}
 
 	return false;

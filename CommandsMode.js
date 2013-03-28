@@ -943,7 +943,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false;
 		this.body.setDefault();
 		this.highlightOff();
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
+		var conditionArguments = this.problem.executionUnit.getConditionProperties().args;
 		$('#' + this.id).children('select:eq(0)').val(this.args[0]);
 		for (var i = 0; i < conditionArguments.length; ++i) {
 			conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);

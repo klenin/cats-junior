@@ -59,31 +59,62 @@ var TestFunctionArgumentConst = $.inherit(TestFunctionArgument, {
 		return undefined;
 	},
 
-	addArguments: function(select, arguments, clear) {
+	addArguments: function(object, arguments, clear) {
 		if (clear) {
-			$(select).children(':gt(' + (this.values.length - 1) + ')').remove();
+			$(object).children(':gt(' + (this.values.length - 1) + ')').remove();
 		}
 
 		for (var i = 0; arguments && i < arguments.length; ++i) {
-			$(select).append('<option value="' + arguments[i] + '">' + arguments[i] + '</option><br>');
+			$(object).append('<option value="' + arguments[i] + '">' + arguments[i] + '</option><br>');
 		}
 	},
 
-	setValue: function(select, value) {
-		$(select).val(value);
+	setValue: function(object, value) {
+		$(object).val(value);
 	},
 
-	getDomObjectValue: function(select) {
-		return $(select).children('option:selected').val();
+	getDomObjectValue: function(object) {
+		return $(object).children('option:selected').val();
 	}
 });
 
 var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
-		__constructor : function(container, minValue, maxValue) {
-		this.__base(container);
-
+		__constructor : function(minValue, maxValue) {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
+	},
+
+	generateDomObject: function(container, callback, value, problem) {
+		var spin = $('<spin class="testFunctionArgument"></spin>');
+		spin.mySpin('init', $(container), [], problem, 'int', false, this.minValue, this.maxValue);
+		$(container).append(spin);
+	},
+
+	findValue: function(value) {
+		if(!isInt(value) || value < this.minValue || value > this.maxValue)
+			return undefined;
+		return value;
+	},
+
+	addArguments: function(object, arguments, clear) {
+		$(object).mySpin('setArguments', arguments);
+	},
+
+	setValue: function(object, value) {
+		if (isInt(value)) {
+			$(object).mySpin('setTotal');
+		}
+		else {
+			if (!checkName(value)) {
+				throw 'Invalid argument!!!';
+			}
+			$(object).mySpin('setTotalWithArgument', value);
+		}
+		
+	},
+
+	getDomObjectValue: function(object) {
+		return $(object).mySpin('getTotalValue');
 	}
 });
 

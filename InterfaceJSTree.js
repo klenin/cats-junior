@@ -62,7 +62,8 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputArgs){
 								p.updated();
 							}
 						}(problem), 
-						inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined);
+						inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined,
+						problem);
 				}
 				if (type == 'ifelse'){
 					tree.rename_node(newNode, 'Если');
