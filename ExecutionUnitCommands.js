@@ -88,6 +88,9 @@ var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
 		var spin = $('<spin class="testFunctionArgument"></spin>');
 		spin.mySpin('init', $(container), [], problem, 'int', false, this.minValue, this.maxValue);
 		$(container).append(spin);
+		if (value != undefined) {
+			this.setValue($(spin), value);
+		}
 	},
 
 	findValue: function(value) {
@@ -102,7 +105,7 @@ var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
 
 	setValue: function(object, value) {
 		if (isInt(value)) {
-			$(object).mySpin('setTotal');
+			$(object).mySpin('setTotal', value);
 		}
 		else {
 			if (!checkName(value)) {
