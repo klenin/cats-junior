@@ -112,8 +112,8 @@ var Command = $.inherit({
 				++this.problem.divIndex;
 				this.problem.usedCommands.push(this.id);
 				if (this.problem.commandsFine){
-					this.problem.points -= this.problem.commandsFine;
-					var mes = new MessageCommandFine(this.problem.step, this.problem.points);
+					this.problem.executionUnit.changePoints(-this.problem.commandsFine);
+					var mes = new MessageCommandFine(this.problem.step, this.problem.executionUnit.getPoints());
 				}
 			}
 			this.problem.checkLimit();
@@ -2120,8 +2120,8 @@ var Problem = $.inherit({
 		if (nextline[this.tabIndex] != undefined && !this.playedLines[nextline[this.tabIndex]] && this.codeMode()) {
 			++this.divIndex;
 			if (this.commandsFine){
-				this.points -= this.commandsFine;
-				var mes = new MessageCommandFine(this.step, this.points);
+				this.executionUnit.changePoints(-this.commandsFine);
+				var mes = new MessageCommandFine(this.step, this.executionUnit.getPoints());
 			}
 			this.playedLines[nextline[this.tabIndex]] = true;
 		}

@@ -52,7 +52,7 @@ var ExecutionUnitWrapper = $.inherit({
 
 	getPoints: function() {
 		this.checkExecutionUnit();
-		return this.exexecutionUnitecutor.getPoints();
+		return this.executionUnit.getPoints();
 	},
 
 	getExecutionUnit: function() {
@@ -91,4 +91,9 @@ var ExecutionUnitWrapper = $.inherit({
 		this.checkExecutionUnit();
 		return this.executionUnit.onTabSelect();
 	},
+
+	changePoints: function(delta) {
+		this.checkExecutionUnit();
+		this.executionUnit.points += delta;
+	}
 });

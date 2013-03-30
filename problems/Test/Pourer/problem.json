@@ -1,8 +1,8 @@
 {	
 	"executionUnitName": "Pourer",
 	"commands": ["pour", "pourOut", "fill"],
-	"maxCmdNum": 100,
-	"commandsFine": 1,
+	"maxCmdNum": 10,
+	"commandsFine": 10,
 	"vessels": [
 		{
 			"color": "#FF0000",
@@ -23,5 +23,10 @@
 			"vessel": 1,
 			"filled": 45
 		}
-	]
+	],
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0,
+	"controlCommands": ["if", "funcdef"],
+	"pointsWon": 100
 }
