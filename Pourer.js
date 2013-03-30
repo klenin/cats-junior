@@ -27,6 +27,12 @@ var Vessel = $.inherit({
 		$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});
 
 		this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
+
+		var self = this;
+
+		$(this.div).resize(function(){
+			self.draw();
+		});
 	
 
 	

@@ -225,7 +225,7 @@ var Command = $.inherit({
 		var self = this;
 		
 		if (!self.problem.isCommandSupported(self.name)) {
-			throw 'Unsupported command!';
+			throw 'Unsupported command!1';
 		}
 		
 		++self.problem.loadedCnt;
@@ -468,7 +468,7 @@ var ForStmt = $.inherit({
 		var self = this;
 		
 		if (!self.problem.isCommandSupported(self.name)) {
-			throw 'Unsupported command!';
+			throw 'Unsupported command!2';
 		}
 
 		++self.problem.loadedCnt;
@@ -814,7 +814,7 @@ var IfStmt = $.inherit(CondStmt, {
 		var self = this;
 
 		if (!self.problem.isCommandSupported(self.name)) {
-			throw 'Unsupported command!';
+			throw 'Unsupported command!3';
 		}
 		
 		self.loaded = false;
@@ -996,7 +996,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		var self = this;
 
 		if (!self.problem.isCommandSupported(self.name)) {
-			throw 'Unsupported command!';
+			throw 'Unsupported command!4';
 		}
 		
 		++self.problem.loadedCnt;
@@ -1306,7 +1306,7 @@ var FuncDef = $.inherit({
 		var self = this;
 
 		if (!self.problem.isCommandSupported('funcdef')) {
-			throw 'Unsupported command!';
+			throw 'Unsupported command!5';
 		}
 		
 		++self.problem.loadedCnt;
@@ -1517,10 +1517,6 @@ var FuncCall = $.inherit({
 	generateCommand: function(tree, node){
 		var self = this;
 
-		if (!self.problem.isCommandSupported(self.name)) {
-			throw 'Unsupported command!';
-		}
-		
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
