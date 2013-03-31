@@ -43,7 +43,7 @@ var Command = $.inherit({
 			}
 			else {
 				result = result && (this.arguments[i].value == cmd.arguments[i].value && 
-					this.arguments[i].currentValue == cmd.arguments[i].currentValue);
+					this.arguments[i].currentValue == cmd.arguments[i].currentValue || !this.finished);
 			}
 		}
 
@@ -1053,7 +1053,7 @@ var Block = $.inherit({
 	},
 	
 	isFinished: function(){
-		return this.commands.length <= this.curCmd;
+		return this.commands.length == this.curCmd;
 	},
 	
 	eq: function(block){
