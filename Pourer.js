@@ -15,34 +15,22 @@ var Vessel = $.inherit({
 	},
 
 	init: function() {
-		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; background-size: 84px ' + 
-			(241 * (this.capacity / this.maxCapacity)) + 'px; width: 84px; height: ' + (241 * (this.capacity / this.maxCapacity)) + 'px; position: absolute;"></div>').appendTo($(this.div));
+		var vesselHeight = (241 * (this.capacity / this.maxCapacity));
+		var circleHeight = (34 * (this.capacity / this.maxCapacity));
+		var bottomHeight = (14 * (this.capacity / this.maxCapacity));
+		
+		this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; background-size: 84px ' + vesselHeight
+			 + 'px; width: 84px; height: ' + vesselHeight + 'px; position: absolute;"></div>').appendTo($(this.div));
 
 		this.vesselBg = $('<div style = "background: url(\'images/water_bg.png\'); width: 95%; position: relative; z-index: 2"></div>').appendTo($(this.vesselDiv));
-		this.circle = $('<div style = "background: url(\'images/circle.png\') no-repeat; background-size: 84px ' + 
-			(34 * (this.capacity / this.maxCapacity)) + 'px; width: 95%; height: ' + (34 * (this.capacity / this.maxCapacity)) + 'px; position: absolute; z-index: 4"></div>').appendTo($(this.div));
-		this.bottom = $('<div style = "background: url(\'images/bottom.png\') no-repeat; background-size: 84px ' + 
-			(14 * (this.capacity / this.maxCapacity)) + 'px; width: 95%; height: ' + (14 * (this.capacity / this.maxCapacity)) + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
+		this.circle = $('<div style = "background: url(\'images/circle.png\') no-repeat; background-size: 84px ' + circleHeight
+			 + 'px; width: 95%; height: ' + circleHeight + 'px; position: absolute; z-index: 4"></div>').appendTo($(this.div));
+		this.bottom = $('<div style = "background: url(\'images/bottom.png\') no-repeat; background-size: 84px ' + bottomHeight
+			 + 'px; width: 95%; height: ' + bottomHeight + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
 
 		$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});
 
 		this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
-
-		var self = this;
-
-		$(this.div).resize(function(){
-			self.draw();
-		});
-	
-
-	
-		/*for (var i = 0; i < ; ++i) {
-			$(this.div).children('table').append('<tr><td></td></tr>');
-			this.getCell(i).css({'width': '50px', 'height': '10px'});
-			if (i >= this.capacity - this.initFilled) {
-				this.getCell(i).css({'background-color': this.color});
-			}
-		}*/
 	},
 
 	setDefault: function(dontDraw) {
@@ -135,7 +123,6 @@ var Pourer = $.inherit({
 		this.div = div;
 		$(this.div).empty();
 		this.problem = problem;
-		$('<div>all data will be here</div>').appendTo($(this.div));
 		this.constructCommands();
 		this.vessels = [];
 		this.init();
