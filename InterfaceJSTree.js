@@ -1,4 +1,4 @@
-function onCreateItem(tree, newNode, type, problem, funcId, inputArgs){
+function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
@@ -49,7 +49,21 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputArgs){
 					$('#selectCondition0_' + cmdId).val(inputArgs[0]);
 				}
 
-				var conditionProperties = problem.executionUnit.getConditionProperties();
+				$(newNode).append('<select class = "testFunctionName">');
+				for (var i = 0; i < problem.executionUnit.getConditionProperties().length; ++i) {
+					var name = problem.executionUnit.getConditionProperties()[i]['name'];
+					$(newNode).children('.testFunctionName').append('<option value = "' + i + '">' + name + '</option><br>');
+				}
+				$(newNode).append('</select> (')
+				$(newNode).children('.testFunctionName').change(function(p){
+					return function() {
+						p.updated();
+					}
+				}(problem));
+				
+				var conditionPropertiesId = inputConditionPropertiesId ? inputConditionPropertiesId : 0; 
+				var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+
 				var args = conditionProperties['args'];
 				if (!args || !$.isArray(args)) {
 					throw 'Invalid arguments list in condtion properties';
@@ -267,7 +281,7 @@ function createJsTreeForFunction(id, problem, isFunction) {
 								if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
 									args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
 								}
-								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), args);
+								onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), undefined, args);
 							}, type != 'funcdef'); 
 					}
 					else if (!isFunction){

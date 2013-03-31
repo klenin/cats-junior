@@ -20,8 +20,10 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 			block.pushCommand(convert(commands[i].children, block, problem));
 		}
 		else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-			var conditionArguments = problem.executionUnit.getConditionProperties().args;
 			var args = [$('#' + id).children('select:eq(0)').children('option:selected').val()];
+			var conditionPropertiesId = $('#' + id).children('.testFunctionName').children('option:selected').val();
+			var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+			var conditionArguments = conditionProperties.args;
 			for (var j = 0; j < conditionArguments.length; ++j) {
 				args.push(
 					conditionArguments[j].getDomObjectValue($('#' + id).children('.testFunctionArgument:eq(' + j + ')')));
@@ -37,10 +39,10 @@ function convert(commands, parent, problem, funcName, id, argumentsList, funcId)
 					block2 = new Block([], block, problem);
 				}
 			}
-			var testName = problem.executionUnit.getConditionProperties().name;
+			var testName = conditionProperties.name;
 			block.pushCommand(type == 'while' ? 
-				new WhileStmt(testName, args, block1, block, id, problem) : 
-				new IfStmt(testName, args, block1, block2, block, id, problem));
+				new WhileStmt(testName, args, block1, conditionProperties, block, id, problem) : 
+				new IfStmt(testName, args, block1, block2, conditionProperties, block, id, problem));
 		}
 		else if (type == 'for')		{
 			var cnt = $('#' + id).children('spin').mySpin('getTotal');
@@ -212,7 +214,11 @@ function convertTreeToCommands(commands, parent, problem) {
 				var dict = convertCondition(commands[i].test);
 				if (!dict)
 					return undefined;
-				var ifStmt = new IfStmt(dict['testName'], dict['args'], undefined, undefined, block, undefined, problem);			
+				var conditionProperties = problem.executionUnit.getConditionProperties(dict['testName']);
+				if (!conditionProperties) {
+					throw 'Invalid condition function name!!!';
+				}
+				var ifStmt = new IfStmt(dict['testName'], dict['args'], undefined, undefined, conditionProperties, block, undefined, problem);			
 				var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 				var body2;
 				if (commands[i].orelse.length)
@@ -226,7 +232,11 @@ function convertTreeToCommands(commands, parent, problem) {
 				var dict = convertCondition(commands[i].test);
 				if (!dict)
 					return undefined;
-				var whileStmt = new WhileStmt(dict['testName'], dict['args'], undefined, block, undefined, problem)
+				var conditionProperties = problem.executionUnit.getConditionProperties(dict['testName']);
+				if (!conditionProperties) {
+					throw 'Invalid condition function name!!!';
+				}
+				var whileStmt = new WhileStmt(dict['testName'], dict['args'], undefined, conditionProperties, block, undefined, problem)
 				var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 				if (!body)
 					return undefined;

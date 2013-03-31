@@ -413,7 +413,17 @@ var ArrowInLabyrinth = $.inherit({
 	},
 
 	getConditionProperties: function() {
-		return this.__self.testFunction;
+		if (name == undefined) {
+			return this.__self.testFunction;
+		}
+
+		for (var i = 0; i < this.__self.testFunction.length; ++i) {
+			if (this.__self.testFunction[i].name == name) {
+				return this.__self.testFunction[i];
+			}
+		}
+
+		return undefined;
 	},
 
 	getCommands: function() {
@@ -472,7 +482,7 @@ var ArrowInLabyrinth = $.inherit({
 		'D': 'down'
 	},
 
-	testFunction : {
+	testFunction : [{
 		'name': 'objectPosition',
 		'args': [
 		new TestFunctionArgumentConst([
@@ -493,7 +503,7 @@ var ArrowInLabyrinth = $.inherit({
 		])],
 		'jsFunc': objectPosition,
 		'handlerFunc': objectPosition_handler,
-	},
+	}],
 
 	cssFileName: "styles/arrowInLabyrinth.css",
 

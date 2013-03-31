@@ -1,0 +1,30 @@
+{	
+	"executionUnitName": "Pourer",
+	"commands": ["pour"],
+	"maxCmdNum": 10,
+	"commandsFine": 10,
+	"vessels": [
+		{
+			"capacity": 45,
+			"initFilled": 45, 
+			"isEndless": false
+		},
+		
+		{
+			"capacity": 20,
+			"initFilled": 0, 
+			"isEndless": false
+		}
+	],
+	"finishState": [
+		{
+			"vessel": 1,
+			"filled": 5
+		}
+	],
+	"startLife": 1,
+	"dLife": 0,
+	"startPoints": 0,
+	"controlCommands": ["if", "funcdef"],
+	"pointsWon": 100
+}

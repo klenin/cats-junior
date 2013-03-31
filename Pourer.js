@@ -144,7 +144,7 @@ var Pourer = $.inherit({
 			vesselsList.push([i + 1, i + 1]);
 		}
 
-		this.testFunction = //[
+		this.testFunction = [
 		{
 			'name': 'compare',
 			'args': [
@@ -154,15 +154,15 @@ var Pourer = $.inherit({
 			],
 			'jsFunc': compare,
 			'handlerFunc': compare_handler,
-		}/*,
+		},
 		{
 			'name': 'checkFilled',
 			'args': [
-				vesselsList,
-				[['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']],
-
+				new TestFunctionArgumentConst(vesselsList),
+				new TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
+				new TestFunctionArgumentConst(vesselsList),
 			]
-		}]*/
+		}]
 	},
 
 	init: function() {
@@ -349,8 +349,18 @@ var Pourer = $.inherit({
 		return this.data.commands.indexOf(command) !== -1
 	},
 
-	getConditionProperties: function() {
-		return this.testFunction;
+	getConditionProperties: function(name) {
+		if (name == undefined) {
+			return this.testFunction;
+		}
+
+		for (var i = 0; i < this.testFunction.length; ++i) {
+			if (this.testFunction[i].name == name) {
+				return this.testFunction[i];
+			}
+		}
+
+		return undefined;
 	},
 
 	getCommands: function() {

@@ -513,12 +513,13 @@ var ForStmt = $.inherit({
 });
 
 var CondStmt = $.inherit({
-	__constructor : function(testName, args, parent, id, problem) {
+	__constructor : function(testName, args, conditionProperties, parent, id, problem) {
 		this.args = args.clone();
 		this.testName = testName;
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
+		this.conditionProperties = conditionProperties;
 		this.generateArguments();
 	},
 	
@@ -551,10 +552,9 @@ var CondStmt = $.inherit({
 		//var str = generateTabs(tabsNum) + 'if ';
 		str = '';
 
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var conditionArguments = conditionProperties.args;
+		var conditionArguments = this.conditionProperties.args;
 
-		if (this.testName != conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
+		if (this.testName != this.conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
 			throw 'Invalid condition name or arguments list';
 		}
 		
@@ -608,10 +608,9 @@ var CondStmt = $.inherit({
 	},
 	
 	constructTestFunc: function(args) {
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var conditionArguments = conditionProperties.args;
+		var conditionArguments = this.conditionProperties.args;
 
-		if (this.testName != conditionProperties.name) {
+		if (this.testName != this.conditionProperties.name) {
 			throw 'Invalid condition name';
 		}
 	
@@ -619,13 +618,12 @@ var CondStmt = $.inherit({
 			return function() {
 				return prop.jsFunc(a);
 			}
-		}(conditionProperties, args);
+		}(this.conditionProperties, args);
 
 	},
 	
 	convertArguments: function(arguments) {
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var conditionArguments = conditionProperties.args;
+		var conditionArguments = this.conditionProperties.args;
 
 		var funcDef = this.getFunction();
 		var funcArguments = funcDef ? funcDef.getArguments() : [];
@@ -670,8 +668,7 @@ var CondStmt = $.inherit({
 	generateArguments: function(args) {
 		var arguments = undefined;
 		var clear = false;
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var conditionArguments = conditionProperties.args;
+		var conditionArguments = this.conditionProperties.args;
 		if (args) {
 			arguments = args;
 			clear = true;
@@ -691,8 +688,8 @@ var CondStmt = $.inherit({
 });
 
 var IfStmt = $.inherit(CondStmt, {
-	__constructor : function(testName, args, firstBlock, secondBlock, parent, id, problem) {
-		this.__base(testName, args, parent, id, problem);
+	__constructor : function(testName, args, firstBlock, secondBlock, conditionProperties, parent, id, problem) {
+		this.__base(testName, args, conditionProperties, parent, id, problem);
         this.curBlock = undefined;
 		this.blocks = [firstBlock, secondBlock];
 		this.name = secondBlock ? 'ifelse' : 'if';
@@ -743,8 +740,7 @@ var IfStmt = $.inherit(CondStmt, {
 			this.blocks[1].setDefault();
 		this.curBlock = undefined;
 		this.highlightOff();
-		var conditionProperties = this.problem.executionUnit.getConditionProperties();
-		var conditionArguments = conditionProperties.args;
+		var conditionArguments = this.conditionProperties.args;
 		$('#' + this.id).children('select:eq(0)').val(this.args[0]);
 		for (var i = 0; i < conditionArguments.length; ++i) {
 			conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
@@ -821,7 +817,7 @@ var IfStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem, undefined, self.args);
+				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem, undefined, self.conditionProperties, self.args);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.generateArguments();
@@ -876,7 +872,7 @@ var IfStmt = $.inherit(CondStmt, {
 });
 
 var WhileStmt = $.inherit(CondStmt, {
-	__constructor : function(testName, args, body, parent, id, problem) {
+	__constructor : function(testName, args, body, conditionProperties, parent, id, problem) {
         this.finished = false;//
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
@@ -886,6 +882,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
+		this.conditionProperties = conditionProperties;
 		this.name = 'while';
 	},
 	
@@ -943,7 +940,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false;
 		this.body.setDefault();
 		this.highlightOff();
-		var conditionArguments = this.problem.executionUnit.getConditionProperties().args;
+		var conditionArguments = this.conditionProperties.args;
 		$('#' + this.id).children('select:eq(0)').val(this.args[0]);
 		for (var i = 0; i < conditionArguments.length; ++i) {
 			conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
@@ -1002,7 +999,7 @@ var WhileStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem, undefined, self.args);
+				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem, undefined, conditionProperties, self.args);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.body.generateCommand(tree, $(newNode));
@@ -1520,7 +1517,7 @@ var FuncCall = $.inherit({
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, self.argumentsValues);  //$('#func0')?!
+				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, undefined,  self.argumentsValues);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				for (var i = 0; i < self.argumentsValues.length; ++i) {
@@ -2260,11 +2257,13 @@ var Problem = $.inherit({
 			var commands = problems[problem].executionUnit.getCommands();
 			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
 
-			for (var i in commands) {
-				$gbl[problem][commands[i].name] = commands[i].handler;
+			for (var j = 0; j < conditionProperties.length; ++j) {
+				for (var i in commands) {
+					$gbl[problem][commands[i].name] = commands[i].handler;
+				}
+				
+				$gbl[problem][conditionProperties[i].name] = conditionProperties[i].handlerFunc;
 			}
-			
-			$gbl[problem][conditionProperties.name] = conditionProperties.handlerFunc;
 			this.changed = false;
 		}
 		catch(e){

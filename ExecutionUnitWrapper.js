@@ -64,7 +64,7 @@ var ExecutionUnitWrapper = $.inherit({
 		return this.executionUnit.isCommandSupported(command);
 	},
 
-	getConditionProperties: function() {
+	getConditionProperties: function(name) {
 		this.checkExecutionUnit();
 		return this.executionUnit.getConditionProperties();
 	},
