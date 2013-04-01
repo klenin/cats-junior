@@ -1,3 +1,27 @@
+function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				
+	var conditionPropertiesId = $(select).val();
+	var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+
+	$(node).children('.testFunctionArgument').remove();
+
+	var args = conditionProperties['args'];
+	if (!args || !$.isArray(args)) {
+		throw 'Invalid arguments list in condtion properties';
+	}
+	
+	for (var i = 0; i < args.length; ++i) {
+		args[i].generateDomObject($(node), 
+			function(p) {
+				return function() {
+					p.updated();
+				}
+			}(problem), 
+			inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined,
+			problem);
+	}
+
+}
+
 function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
@@ -38,7 +62,7 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputConditionProper
 				{
 					$('#selectCondition0_' + cmdId).append('<option value = "' + (i == 0 ? '""' : 'not') + '">' + selectConditions[i][1] + '</option><br>');
 				}
-				$(newNode).append('</select> (')
+				$(newNode).append('</select>')
 				$('#selectCondition0_' + cmdId).change(function(p){
 					return function() {
 						p.updated();
@@ -54,31 +78,19 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputConditionProper
 					var name = problem.executionUnit.getConditionProperties()[i]['name'];
 					$(newNode).children('.testFunctionName').append('<option value = "' + i + '">' + name + '</option><br>');
 				}
-				$(newNode).append('</select> (')
-				$(newNode).children('.testFunctionName').change(function(p){
+				$(newNode).append('</select>')
+				$(newNode).children('.testFunctionName').change(function(p, node, a){
 					return function() {
+						generateArgumentsForConditionFunction(p, this, node, a);
 						p.updated();
 					}
-				}(problem));
-				
-				var conditionPropertiesId = inputConditionPropertiesId ? inputConditionPropertiesId : 0; 
-				var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+				}(problem, $(newNode), inputArgs));
 
-				var args = conditionProperties['args'];
-				if (!args || !$.isArray(args)) {
-					throw 'Invalid arguments list in condtion properties';
-				}
-				
-				for (var i = 0; i < args.length; ++i) {
-					args[i].generateDomObject($(newNode), 
-						function(p) {
-							return function() {
-								p.updated();
-							}
-						}(problem), 
-						inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined,
-						problem);
-				}
+				var conditionPropertiesId = inputConditionPropertiesId ? inputConditionPropertiesId : 0; 
+
+				$(newNode).children('.testFunctionName').val(conditionPropertiesId);
+				$(newNode).children('.testFunctionName').change(); //
+
 				if (type == 'ifelse'){
 					tree.rename_node(newNode, 'Если');
 					tree.create($(newNode), "after", false, 
