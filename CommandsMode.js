@@ -2256,12 +2256,11 @@ var Problem = $.inherit({
 
 			var commands = problems[problem].executionUnit.getCommands();
 			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
-
-			for (var j = 0; j < conditionProperties.length; ++j) {
-				for (var i in commands) {
-					$gbl[problem][commands[i].name] = commands[i].handler;
-				}
-				
+			for (var i in commands) {
+				$gbl[problem][commands[i].name] = commands[i].handler;
+			}
+			
+			for (var i = 0; i < conditionProperties.length; ++i) {
 				$gbl[problem][conditionProperties[i].name] = conditionProperties[i].handlerFunc;
 			}
 			this.changed = false;

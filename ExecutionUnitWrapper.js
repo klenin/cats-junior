@@ -66,7 +66,7 @@ var ExecutionUnitWrapper = $.inherit({
 
 	getConditionProperties: function(name) {
 		this.checkExecutionUnit();
-		return this.executionUnit.getConditionProperties();
+		return this.executionUnit.getConditionProperties(name);
 	},
 
 	getCommands: function() {
