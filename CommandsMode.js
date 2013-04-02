@@ -43,7 +43,7 @@ var Command = $.inherit({
 			}
 			else {
 				result = result && (this.arguments[i].value == cmd.arguments[i].value && 
-					this.arguments[i].currentValue == cmd.arguments[i].currentValue || !this.finished);
+					this.arguments[i].currentValue == cmd.arguments[i].currentValue/* || !this.finished*/);
 			}
 		}
 
@@ -75,6 +75,9 @@ var Command = $.inherit({
 	},
 	
 	exec: function(cnt, arguments) {
+		if (this.finished) {
+			return cnt;
+		}
 		var commandCounter = undefined;
 		if (this.curCnt == 0) {
 			this.setArguments(arguments);
@@ -147,6 +150,7 @@ var Command = $.inherit({
 		//this.hideCounters();
 		//this.getSpin().mySpin('stopExecution'); //???
 		this.spinAccess('hideBtn');
+		this.finished = false;
 		if (isCmdHighlighted(this.id))
 			changeCmdHighlight(this.id);
 	},
@@ -1926,6 +1930,7 @@ var Problem = $.inherit({
 		//$('#accordion' + this.tabIndex).accordion('resize');
 		var needHideCounters = this.cmdList && this.cmdList.started();
 		this.changed = true;
+		this.cmdList.makeUnfinished();	
 		if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
 			this.cmdList = newCmdList;
 			this.setDefault();
@@ -1939,8 +1944,8 @@ var Problem = $.inherit({
 				this.playing = true;
 				//this.hideCounters();
 			}
-			if (this.cmdList.isFinished())
-				this.cmdList.makeUnfinished();	
+			//if (this.cmdList.isFinished())
+				
 		}
 
 		this.highlightWrongNames();

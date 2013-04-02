@@ -412,7 +412,7 @@ var ArrowInLabyrinth = $.inherit({
 		return this.data.commands.indexOf(command) !== -1
 	},
 
-	getConditionProperties: function() {
+	getConditionProperties: function(name) {
 		if (name == undefined) {
 			return this.__self.testFunction;
 		}
