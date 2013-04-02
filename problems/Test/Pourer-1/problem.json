@@ -1,6 +1,6 @@
 {	
 	"executionUnitName": "Pourer",
-	"commands": ["pour"],
+	"commands": ["pour", "pourOut"],
 	"maxCmdNum": 10,
 	"commandsFine": 10,
 	"vessels": [
@@ -25,6 +25,6 @@
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,
-	"controlCommands": ["if", "funcdef"],
+	"controlCommands": ["if", "ifelse", "funcdef"],
 	"pointsWon": 100
 }

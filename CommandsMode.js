@@ -71,6 +71,9 @@ var Command = $.inherit({
 				this.arguments.setCurrentValue(arguments[i]);
 			}*/
 			this.getSpinAt(i).mySpin('setArgumentValues', arguments);
+			if (!checkNumber(this.arguments[i].value) && !isInt(this.arguments[i].value) && arguments && arguments[this.arguments[i].value]) {
+				this.arguments[i].setCurrentValue(arguments[this.arguments[i].value]);
+			}
 		}
 	},
 	
@@ -537,6 +540,7 @@ var CondStmt = $.inherit({
 		this.testName = block.testName;
 		this.args = block.args.clone();
 		this.id = block.id;
+		this.conditionProperties = block.conditionProperties;
 		this.generateArguments();
 	},
 	

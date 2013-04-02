@@ -161,7 +161,9 @@ var Pourer = $.inherit({
 				new TestFunctionArgumentConst(vesselsList),
 				new TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
 				new TestFunctionArgumentConst(vesselsList),
-			]
+			],
+			'jsFunc': compare,
+			'handlerFunc': compare_handler,
 		}]
 	},
 
@@ -382,6 +384,18 @@ var Pourer = $.inherit({
 	isGreater: function(vessel, value) {
 		return this.vessels[vessel].filled > value;
 	},
+
+	isLessVessel: function(first, second) {
+		return this.vessels[first].filled < this.vessels[second].filled;
+	},
+
+	isEqualVessel: function(first, second) {
+		return this.vessels[first].filled == this.vessels[second].filled;
+	},
+
+	isGreaterVessel: function(first, second) {
+		return this.vessels[first].filled > this.vessels[second].filled;
+	},
 	
 	isFinished: function() {
 		var finished = true;
@@ -468,13 +482,79 @@ function compare_handler(vessel, comparator, value){
 		case '>':
 			return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
 		case '<=':
-			return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+			return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || 
+				curProblem.getExecutionUnit().isEqual(vessel, value);
 		case '>=':
-			return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+			return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || 
+				curProblem.getExecutionUnit().isEqual(vessel, value);
 		case '==':
 			return curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 		case '!=':
 			return !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);			
+	}
+
+	return false;
+}
+
+
+function checkFilled(args){
+	if (args.length != 4) {
+		throw 'Invalid arguments list!!';
+	}
+
+	var first = args[1] - 1;
+	var comparator = args[2];
+	var second = args[3] - 1;
+	var result = false;
+
+	switch(comparator) {
+		case '<':
+			result = curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second);
+			break;
+		case '>':
+			result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second);
+			break;
+		case '<=':
+			result = curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) || 
+				curProblem.getExecutionUnit().isEqualVessel(first, second);
+			break;
+		case '>=':
+			result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) || 
+				curProblem.getExecutionUnit().isEqualVessel(first, second);
+			break;
+		case '==':
+			result = curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
+			break;
+		case '!=':
+			result = !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);			
+			break;
+	}
+
+	if (args[0] == 'not')
+		result = !result;
+
+	return result;
+}
+
+function checkFilledHandler(first, comparator, second){
+	first -= 1;
+	comparator = comparator.v;
+
+	switch(comparator) {
+		case '<':
+			return curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second);
+		case '>':
+			return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second);
+		case '<=':
+			return curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) || 
+				curProblem.getExecutionUnit().isEqualVessel(first, second);
+		case '>=':
+			return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) || 
+				curProblem.getExecutionUnit().isEqualVessel(first, second);
+		case '==':
+			return curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
+		case '!=':
+			return !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);			
 	}
 
 	return false;

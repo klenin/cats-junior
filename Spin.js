@@ -21,8 +21,8 @@
 				$this.data('total', 1);
 				$this.data('totalVal', 1);
 				$this.data('currentTotal', 1);
-				$this.data('minimum', min ? min : 1);
-				$this.data('maximum', max ? max : MAX_VALUE);
+				$this.data('minimum', min != undefined ? min : 1);
+				$this.data('maximum', max != undefined ? max : MAX_VALUE);
 
 				$this.data('isBeingExecuted', false);
 

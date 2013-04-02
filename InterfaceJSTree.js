@@ -88,9 +88,6 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputConditionProper
 
 				var conditionPropertiesId = inputConditionPropertiesId ? inputConditionPropertiesId : 0; 
 
-				$(newNode).children('.testFunctionName').val(conditionPropertiesId);
-				$(newNode).children('.testFunctionName').change(); //
-
 				if (type == 'ifelse'){
 					tree.rename_node(newNode, 'Если');
 					tree.create($(newNode), "after", false, 
@@ -104,6 +101,10 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputConditionProper
 							$(elseNode).prop('id', 'else' + cmdId);
 					}, true); 
 				}
+
+				$(newNode).children('.testFunctionName').val(conditionPropertiesId);
+				$(newNode).children('.testFunctionName').change(); //
+
 				break;
 			case 'funccall':
 				var arguments = inputArgs;

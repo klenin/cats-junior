@@ -104,8 +104,8 @@ var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
 	},
 
 	setValue: function(object, value) {
-		if (isInt(value)) {
-			$(object).mySpin('setTotal', value);
+		if (isInt(value) || checkNumber(value)) {
+			$(object).mySpin('setTotal', isInt(value) ? value : parseInt(value));
 		}
 		else {
 			if (!checkName(value)) {
