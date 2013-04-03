@@ -8,9 +8,11 @@ function generateArgumentsForConditionFunction(problem, select, node, inputArgs)
 	if (!args || !$.isArray(args)) {
 		throw 'Invalid arguments list in condtion properties';
 	}
+
+	var prev = $(node).children('.testFunctionName');
 	
 	for (var i = 0; i < args.length; ++i) {
-		args[i].generateDomObject($(node), 
+		prev = args[i].generateDomObject($(prev), 
 			function(p) {
 				return function() {
 					p.updated();

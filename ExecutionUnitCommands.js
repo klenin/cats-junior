@@ -37,8 +37,8 @@ var TestFunctionArgumentConst = $.inherit(TestFunctionArgument, {
 		this.values = values.clone();
 	},
 
-	generateDomObject: function(container, callback, value) {
-		select = $('<select class="testFunctionArgument"></select>').appendTo(container);
+	generateDomObject: function(prev, callback, value) {
+		select = $('<select class="testFunctionArgument"></select>').insertAfter(prev);
 		for (var i = 0; i < this.values.length; ++i) {
 			$(select).append('<option value="' + this.values[i][0] + '">' + this.values[i][1] + '</option><br>');
 		}
@@ -47,6 +47,7 @@ var TestFunctionArgumentConst = $.inherit(TestFunctionArgument, {
 		if (value) {
 			$(select).val(value);
 		}
+		return select;
 	},
 
 	findValue: function(value) {
@@ -84,10 +85,10 @@ var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
 		this.maxValue = maxValue;
 	},
 
-	generateDomObject: function(container, callback, value, problem) {
+	generateDomObject: function(prev, callback, value, problem) {
 		var spin = $('<spin class="testFunctionArgument"></spin>');
-		spin.mySpin('init', $(container), [], problem, 'int', false, this.minValue, this.maxValue);
-		$(container).append(spin);
+		spin.mySpin('init', $(prev).parent(), [], problem, 'int', false, this.minValue, this.maxValue);
+		$(prev).after(spin);
 		if (value != undefined) {
 			this.setValue($(spin), value);
 		}

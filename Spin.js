@@ -17,12 +17,13 @@
 				$this.data('type', type);
 				$this.data('isCounter', isCounter);
 				$this.data('argumentValues', {});
-
-				$this.data('total', 1);
-				$this.data('totalVal', 1);
-				$this.data('currentTotal', 1);
+				
 				$this.data('minimum', min != undefined ? min : 1);
 				$this.data('maximum', max != undefined ? max : MAX_VALUE);
+				
+				$this.data('total', $this.data('minimum'));
+				$this.data('totalVal', $this.data('minimum'));
+				$this.data('currentTotal', $this.data('minimum'));
 
 				$this.data('isBeingExecuted', false);
 
