@@ -32,7 +32,7 @@ var Command = $.inherit({
 		}
 		this.timestamp = new Date().getTime();
 	},
-	
+
 	eq: function(cmd, compareCnt){ // fix
 		var result = cmd.getClass() == 'command' && cmd.id == this.id && cmd.name == this.name;
 		result = result && (cmd.arguments.length == this.arguments.length);
@@ -239,7 +239,14 @@ var Command = $.inherit({
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.name)}, function(newNode){
-				onCreateItem(tree, newNode, $('#' + self.name + self.problem.tabIndex).attr('rel'), self.problem);
+				onCreateItem(tree, 
+					newNode, 
+					$('#' + self.name + self.problem.tabIndex).attr('rel'), 
+					self.problem,
+					undefined,
+					undefined, 
+					undefined, 
+					true);
 				self.id = $(newNode).attr('id');
 				for (var i = 0; i < self.arguments.length; ++i) {
 						if (isInt(self.arguments[i].value)) {
@@ -303,8 +310,7 @@ var ForStmt = $.inherit({
 	__constructor : function(body, cnt, parent, id, problem) {
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
-		this.body = body;
-		this.body.parent = this;//check it!!
+		this.setBody(body);
 		this.parent = parent;	
 		this.id = id;
 		this.cnt = cnt;
@@ -318,6 +324,13 @@ var ForStmt = $.inherit({
 		}
 		this.name = 'for';
 		this.timestamp = new Date().getTime();
+	},
+
+	setBody: function(body) {
+		this.body = body;
+		if (this.body) {
+			this.body.parent = this;
+		}
 	},
 
 	getSpin: function() {
@@ -490,7 +503,14 @@ var ForStmt = $.inherit({
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, $('#for0').attr('rel'), self.problem);
+				onCreateItem(tree, 
+					newNode, 
+					$('#for0').attr('rel'), 
+					self.problem,
+					undefined,
+					undefined, 
+					undefined, 
+					true);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.getSpin().mySpin('setTotal', self.cnt);
@@ -717,8 +737,18 @@ var IfStmt = $.inherit(CondStmt, {
 		this.__base(testName, args, conditionProperties, parent, id, problem);
         this.curBlock = undefined;
 		this.blocks = [firstBlock, secondBlock];
+		this.setBlocks(firstBlock, secondBlock);
 		this.name = secondBlock ? 'ifelse' : 'if';
-		this.blocks[0].parent = this;
+	},
+
+	setBlocks: function(block1, block2) {
+		this.blocks[0] = block1;
+		this.blocks[1] = block2;
+
+		if (this.blocks[0]) {
+			this.blocks[0].parent = this;
+		}
+
 		if (this.blocks[1]) {
 			this.blocks[1].parent = this;
 		}
@@ -846,7 +876,14 @@ var IfStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), self.problem, undefined, self.conditionProperties, self.args);
+				onCreateItem(tree, 
+					newNode, 
+					self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), 
+					self.problem, 
+					undefined, 
+					self.conditionProperties, 
+					self.args,
+					true);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.generateArguments();
@@ -919,14 +956,20 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.isStarted = false; //should be changed to one or two properties.
 		this.args = args.clone();
 		this.testName = testName;
-		this.body = body;
-		this.body.parent = this;
+		this.setBody(body);
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
 		this.conditionProperties = conditionProperties;
 		this.name = 'while';
 		this.timestamp = new Date().getTime();
+	},
+
+	setBody: function(body) {
+		this.body = body;
+		if (this.body) {
+			this.body.parent = this;
+		}
 	},
 	
 	isFinished: function(){
@@ -1042,7 +1085,14 @@ var WhileStmt = $.inherit(CondStmt, {
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.problem.getCommandName(self.getClass())}, function(newNode){
-				onCreateItem(tree, newNode, $('#while0').attr('rel'), self.problem, undefined, conditionProperties, self.args);
+				onCreateItem(tree, 
+					newNode, 
+					$('#while0').attr('rel'),
+					self.problem,
+					undefined, 
+					conditionProperties, 
+					self.args, 
+					true);
 				var numId = $(newNode).prop('numId');
 				self.id = $(newNode).attr('id');
 				self.body.generateCommand(tree, $(newNode));
@@ -1183,7 +1233,7 @@ var Block = $.inherit({
 		if (this.commands.length < block.commands.length) {
 			for (var i = this.commands.length; i < block.commands.length; ++i) {
 				this.pushCommand(block.commands[i]);
-				block.commands[i].parent = this;
+				this.commands[i].parent = this;
 			}
 		}
 		else if (this.commands.length > block.commands.length) {
@@ -1273,8 +1323,7 @@ var Block = $.inherit({
 var FuncDef = $.inherit({
 	__constructor : function(name, argumentsList, body, parent, id, funcId, problem) {
 		this.name = name;
-		this.body = body;
-		this.body.parent = this;
+		this.setBody(body);
 		this.argumentsList = argumentsList.clone();
 		this.parent = parent;
 		this.problem = problem;
@@ -1287,6 +1336,13 @@ var FuncDef = $.inherit({
 		this.funcId = funcId;
 		this.problem.functionsWithId[this.funcId] = this;
 		this.timestamp = new Date().getTime();
+	},
+
+	setBody: function(body) {
+		this.body = body;
+		if (this.body) {
+			this.body.parent = this;
+		}
 	},
 	
 	isFinished: function(){
@@ -1592,7 +1648,14 @@ var FuncCall = $.inherit({
 		++self.problem.loadedCnt;
 		tree.create(node, isBlock(tree._get_type(node)) ? "last" : "after", 
 			{'data': self.name}, function(newNode){
-				onCreateItem(tree, newNode, 'funccall', self.problem, self.funcId, undefined,  self.argumentsValues);  //$('#func0')?!
+				onCreateItem(tree, 
+					newNode, 
+					'funccall', 
+					self.problem, 
+					self.funcId, 
+					undefined,  
+					self.argumentsValues,
+					true);  //$('#func0')?!
 				var numId = $(newNode).prop('numId');
 				self.id = numId;
 				for (var i = 0; i < self.argumentsValues.length; ++i) {

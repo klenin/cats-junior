@@ -24,7 +24,7 @@ function generateArgumentsForConditionFunction(problem, select, node, inputArgs)
 
 }
 
-function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs){
+function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs, dontNeedToUpdate){
 	//var type = initObject.attr('rel');
 	if (type == 'func-header' ||type == 'func-body')
 		type = 'funccall';
@@ -124,7 +124,9 @@ function onCreateItem(tree, newNode, type, problem, funcId, inputConditionProper
 		}
 	}
 	//setSpin(problem);
-	problem.updated();
+	if (!dontNeedToUpdate) {
+		problem.updated();
+	}
 }
 	
 function isBlock(type){

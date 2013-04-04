@@ -183,6 +183,7 @@ function waitForCommandsGeneration(problem) {
 	}
 	else {
 		$.unblockUI();
+		problem.updated();
 	}
 }
 

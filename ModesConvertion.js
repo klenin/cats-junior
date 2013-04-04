@@ -206,7 +206,7 @@ function convertTreeToCommands(commands, parent, problem) {
 				var body = convertTreeToCommands(commands[i].body, forStmt, problem);
 				if (!body)
 					return undefined;
-				forStmt.body = body;
+				forStmt.setBody(body);
 				block.pushCommand(forStmt);
 				break;
 			case 'If':
@@ -223,8 +223,7 @@ function convertTreeToCommands(commands, parent, problem) {
 				var body2;
 				if (commands[i].orelse.length)
 					body2 = convertTreeToCommands(commands[i].orelse, ifStmt, problem);
-				ifStmt.blocks[0] = body1;
-				ifStmt.blocks[1] = body2;
+				ifStmt.setBlocks(body1, body2);
 				block.pushCommand(ifStmt);
 				break;
 			case 'While':
@@ -240,7 +239,7 @@ function convertTreeToCommands(commands, parent, problem) {
 				var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 				if (!body)
 					return undefined;
-				whileStmt.body = body;
+				whileStmt.setBody(body);
 				block.pushCommand(whileStmt);
 				break;
 			case 'FunctionDef':
@@ -258,7 +257,7 @@ function convertTreeToCommands(commands, parent, problem) {
 				
 				var funcDef = new FuncDef(commands[i].name.v, arguments, undefined, block, undefined, ++cmdId, problem);
 				var body = convertTreeToCommands(commands[i].body, funcDef, problem);
-				funcDef.body = body;
+				funcDef.setBody(body);
 				block.pushCommand(funcDef);
 
 				problem.functions[commands[i].name.v][arguments.length] = funcDef;
