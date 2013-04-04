@@ -15,14 +15,14 @@
 		push: function(name, args, funcId) {
 			var $this = $(this);
 			$this.append(
-				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" rel="funccall">' +
+				'<div id = "funcDiv' + cmdId + '"class="funccall ui-accordion-header ui-helper-reset ui-state-default ui-corner-all" style="display: inline-block; width: 100%;" rel="funccall">' +
 					'<span class="func-icon ui-icon-minus">&nbsp;&nbsp;&nbsp</span>'+
 					'<span class="func-header jstree-draggable" style="display: inline-block; min-height: 25px;" rel="func-header">' + name + '</span>' +
 					'<span> (</span>' + 
 					'<span class="func-icon ui-icon-plus">&nbsp;&nbsp;&nbsp</span>'+
 					'<span>)</span>' + 
 					//'<input id = "input' + cmdId + '"/>'  +
-					'<div id = "funcDef-' + cmdId + '" style="min-height:200px" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
+					'<div id = "funcDef-' + cmdId + '" style="min-height:200px; display: inline-block; width: 100%; overflow: auto;" class = "func-body ui-corner-all ui-widget-content" rel="func-body"></div>' +
 				'</div>');
 			$('#funcDiv' + cmdId).attr('funcId', funcId === undefined ? cmdId : funcId);
 			//$this.children('div').children('input').hide();
