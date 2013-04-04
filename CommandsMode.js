@@ -30,6 +30,7 @@ var Command = $.inherit({
 		if (func) {
 			this.spinAccess('setArguments', func.getArguments());
 		}
+		this.timestamp = new Date().getTime();
 	},
 	
 	eq: function(cmd, compareCnt){ // fix
@@ -289,6 +290,12 @@ var Command = $.inherit({
 
 	getArguments: function() {
 		return this.arguments;
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
 	}
 });
 
@@ -297,6 +304,7 @@ var ForStmt = $.inherit({
 		this.executing = false;//
 		this.isStarted = false; //should be changed to one or two properties.
 		this.body = body;
+		this.body.parent = this;//check it!!
 		this.parent = parent;	
 		this.id = id;
 		this.cnt = cnt;
@@ -309,6 +317,7 @@ var ForStmt = $.inherit({
 			this.getSpin().mySpin('setArguments', func.getArguments());
 		}
 		this.name = 'for';
+		this.timestamp = new Date().getTime();
 	},
 
 	getSpin: function() {
@@ -516,6 +525,13 @@ var ForStmt = $.inherit({
 	
 	funcCallUpdated: function() {
 		this.body.funcCallUpdated();
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
+		this.body.checkIntegrity(this);
 	}
 });
 
@@ -528,6 +544,7 @@ var CondStmt = $.inherit({
 		this.problem = problem;
 		this.conditionProperties = conditionProperties;
 		this.generateArguments();
+		this.timestamp = new Date().getTime();
 	},
 	
 	eq: function(block){
@@ -629,7 +646,7 @@ var CondStmt = $.inherit({
 		}(this.conditionProperties, args);
 
 	},
-	
+	/*substitute function arguments values for arguments in condition*/
 	convertArguments: function(arguments) {
 		var conditionArguments = this.conditionProperties.args;
 
@@ -669,17 +686,17 @@ var CondStmt = $.inherit({
 		//if (this.args[2] != 0 && this.args[2] != 1)
 		//	throw 'Invalid argument ' + this.args[2];
 	},
+	
 	getFunction: function() { 
 		return this.parent ? this.parent.getFunction() : undefined;
 	},
 	
+	/*add function arguments as possible values of arguments in condition*/
 	generateArguments: function(args) {
 		var arguments = undefined;
-		var clear = false;
 		var conditionArguments = this.conditionProperties.args;
 		if (args) {
 			arguments = args;
-			clear = true;
 		}
 		else {
 			var funcDef = this.getFunction();
@@ -689,7 +706,7 @@ var CondStmt = $.inherit({
 		}
 		if (arguments) {
 			for (var i = 0; i < conditionArguments.length; ++i) {
-				conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), arguments, clear);
+				conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), arguments, true);
 			}
 		}
 	}
@@ -701,6 +718,10 @@ var IfStmt = $.inherit(CondStmt, {
         this.curBlock = undefined;
 		this.blocks = [firstBlock, secondBlock];
 		this.name = secondBlock ? 'ifelse' : 'if';
+		this.blocks[0].parent = this;
+		if (this.blocks[1]) {
+			this.blocks[1].parent = this;
+		}
 	},
 	
 	isFinished: function(){
@@ -876,6 +897,18 @@ var IfStmt = $.inherit(CondStmt, {
 		if (this.blocks[1]) {
 			this.blocks[1].removeFunctionCall(funcId);
 		}
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!=='  + parent.timestamp;
+		}
+		
+		this.blocks[0].checkIntegrity(this);
+
+		if (this.blocks[1]) {
+			this.blocks[1].checkIntegrity(this);
+		}
 	}
 });
 
@@ -887,11 +920,13 @@ var WhileStmt = $.inherit(CondStmt, {
 		this.args = args.clone();
 		this.testName = testName;
 		this.body = body;
+		this.body.parent = this;
 		this.parent = parent;	
 		this.id = id;
 		this.problem = problem;
 		this.conditionProperties = conditionProperties;
 		this.name = 'while';
+		this.timestamp = new Date().getTime();
 	},
 	
 	isFinished: function(){
@@ -1037,6 +1072,13 @@ var WhileStmt = $.inherit(CondStmt, {
 	
 	removeFunctionCall: function(funcId) {
 		this.body.removeFunctionCall(funcId);
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
+		this.body.checkIntegrity(this);
 	}
 });
 
@@ -1047,6 +1089,7 @@ var Block = $.inherit({
 		this.commands = commands;
 		this.parent = parent;
 		this.problem = problem;
+		this.timestamp = new Date().getTime();
 	},
 	
 	insertCommand : function(command, pos) {
@@ -1138,7 +1181,10 @@ var Block = $.inherit({
 			this.commands[i] = this.commands[i].copyDiff(block.commands[i], /*this.isFinished() &&*/ i == this.commands.length - 1 && compareCnt);
 		}
 		if (this.commands.length < block.commands.length) {
-			this.commands = this.commands.concat(block.commands.slice(this.commands.length))
+			for (var i = this.commands.length; i < block.commands.length; ++i) {
+				this.pushCommand(block.commands[i]);
+				block.commands[i].parent = this;
+			}
 		}
 		else if (this.commands.length > block.commands.length) {
 			this.commands.splice(block.commands.length, this.commands.length - block.commands.length);
@@ -1211,6 +1257,16 @@ var Block = $.inherit({
 		for (var i = 0; i < this.commands.length; ++i) {
 			this.commands[i].funcCallUpdated();
 		}
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent && this.parent.timestamp !== parent.timestamp) {
+			throw 'Block ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
+
+		for (var i = 0; i < this.commands.length; ++i) {
+			this.commands[i].checkIntegrity(this);
+		}
 	}
 });
 
@@ -1218,6 +1274,7 @@ var FuncDef = $.inherit({
 	__constructor : function(name, argumentsList, body, parent, id, funcId, problem) {
 		this.name = name;
 		this.body = body;
+		this.body.parent = this;
 		this.argumentsList = argumentsList.clone();
 		this.parent = parent;
 		this.problem = problem;
@@ -1229,6 +1286,7 @@ var FuncDef = $.inherit({
 		this.problem.functions[this.name][this.argumentsList.length] = this; //cheat!!! needs to be reworked
 		this.funcId = funcId;
 		this.problem.functionsWithId[this.funcId] = this;
+		this.timestamp = new Date().getTime();
 	},
 	
 	isFinished: function(){
@@ -1273,9 +1331,9 @@ var FuncDef = $.inherit({
 		if (func.getClass() != 'functionDef'){
 			return func;
 		}
-		this.body.copyDiff(func.body, compareCnt);
 		this.argumentsList = func.argumentsList.clone();
 		this.name = func.name;
+		this.body.copyDiff(func.body, compareCnt);
 		return this;
 	},
 	
@@ -1369,6 +1427,14 @@ var FuncDef = $.inherit({
 	
 	funcCallUpdated: function() {
 		this.body.funcCallUpdated();
+	},
+
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
+		this.body.checkIntegrity(this);
 	}
 });
 
@@ -1380,6 +1446,7 @@ var FuncCall = $.inherit({
 		this.executing = false;
 		this.id = id;
 		this.argumentsValues = argumentsValues.clone();
+		this.timestamp = new Date().getTime();
 		//this.funcName = name;
 	},
 	
@@ -1612,6 +1679,12 @@ var FuncCall = $.inherit({
 	
 	funcCallUpdated: function() {
 		//TODO:
+	},
+
+	checkIntegrity: function(parent) {
+		if (this.parent.timestamp !== parent.timestamp) {
+			throw this.name + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+		}
 	}
 });
 
@@ -1907,6 +1980,10 @@ var Problem = $.inherit({
 	setCounters: function(j, dontReload){
 		this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
 	},
+
+	checkIntegrity: function() {
+		this.cmdList.checkIntegrity();
+	},
 	
 	updated: function(){
 		this.functions = {};
@@ -1952,6 +2029,7 @@ var Problem = $.inherit({
 				
 		}
 
+		this.cmdList.checkIntegrity();
 		this.highlightWrongNames();
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
