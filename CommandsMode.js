@@ -2092,7 +2092,7 @@ var Problem = $.inherit({
 				
 		}
 
-		this.cmdList.checkIntegrity();
+		//this.cmdList.checkIntegrity();
 		this.highlightWrongNames();
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
