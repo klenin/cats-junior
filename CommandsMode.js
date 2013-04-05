@@ -248,6 +248,10 @@ var Command = $.inherit({
 					undefined, 
 					true);
 				self.id = $(newNode).attr('id');
+				var func = self.getFunction();
+				if (func) {
+					self.spinAccess('setArguments', func.getArguments());
+				}
 				for (var i = 0; i < self.arguments.length; ++i) {
 						if (isInt(self.arguments[i].value)) {
 							self.getSpinAt(i).mySpin('setTotal', self.arguments[i].value);
