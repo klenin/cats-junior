@@ -28,7 +28,7 @@
 				$this.data('isBeingExecuted', false);
 
 				$this.append(
-					'<input class="spinCnt" value="1" editable="false"></input>'
+					'<input class="spinCnt" value="' + $this.data('totalVal') + '" editable="false"></input>'
 					);
 
 				if ($this.data('type') == 'int') {
