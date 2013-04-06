@@ -2392,33 +2392,37 @@ var Problem = $.inherit({
 			var problem = this.tabIndex;
 			var output = $('#cons' + this.tabIndex);
 			var input = codeareas[problem].getValue();
-			output.html('');
-			Sk.configure({output:outf, 'problem': problem});
-			finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
-			$scope[problem] = 0,
-			$gbl[problem] = {},
-			$loc[problem] = $gbl[problem];
-			for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
-			{
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
-				eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
-			}
-			eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
-			nextline[problem] = getScope().firstlineno;
-			$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
-			$scopestack[problem] = 0;
-
-			var commands = problems[problem].executionUnit.getCommands();
-			var conditionProperties = problems[problem].executionUnit.getConditionProperties();
-			for (var i in commands) {
-				$gbl[problem][commands[i].name] = commands[i].handler;
-			}
 			
-			for (var i = 0; i < conditionProperties.length; ++i) {
-				$gbl[problem][conditionProperties[i].name] = conditionProperties[i].handlerFunc;
+			if (input != '') {
+				output.html('');
+				Sk.configure({output:outf, 'problem': problem});
+				finalcode[problem] = Sk.importMainWithBody("<stdin>", false, input);
+				$scope[problem] = 0,
+				$gbl[problem] = {},
+				$loc[problem] = $gbl[problem];
+				for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i)
+				{
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+				}
+				eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+				nextline[problem] = getScope().firstlineno;
+				$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+				$scopestack[problem] = 0;
+
+				var commands = problems[problem].executionUnit.getCommands();
+				var conditionProperties = problems[problem].executionUnit.getConditionProperties();
+				for (var i in commands) {
+					$gbl[problem][commands[i].name] = commands[i].handler;
+				}
+				
+				for (var i = 0; i < conditionProperties.length; ++i) {
+					$gbl[problem][conditionProperties[i].name] = conditionProperties[i].handlerFunc;
+				}
+				this.changed = false;
 			}
-			this.changed = false;
+
 		}
 		catch(e){
 			console.error(e);

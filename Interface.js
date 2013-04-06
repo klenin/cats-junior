@@ -284,23 +284,26 @@ function fillTabs(){
 							$('#accordion' + j).myAccordion( 'clear' );
 							problems[j].prepareForExecuting();
 							problems[j].functions = {};
-							var block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
-							if (block) {
-								//problems[j].cmdList = block;//??
+							var block = undefined;
+							if (finalcode[j]) {
+								block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
+								if (block) {
+									//problems[j].cmdList = block;//??
 
-								problems[j].loadedCnt = 1;
-								startWaitForCommandsGeneration(problems[j]);
-								block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
-								--problems[j].loadedCnt;
-								
-								//setTimeout(function() {problems[j].updated()}, 20000);
-								//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-							}
-							else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-								$("#commandsMode" + j).prop('checked', false);
-								$("#codeMode" + j).prop('checked', true);
-								problems[j].updated();
-								return;
+									problems[j].loadedCnt = 1;
+									startWaitForCommandsGeneration(problems[j]);
+									block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+									--problems[j].loadedCnt;
+									
+									//setTimeout(function() {problems[j].updated()}, 20000);
+									//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+								}
+								else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+									$("#commandsMode" + j).prop('checked', false);
+									$("#codeMode" + j).prop('checked', true);
+									problems[j].updated();
+									return;
+								}
 							}
 						}
 						catch(e){
