@@ -1233,6 +1233,7 @@ var Block = $.inherit({
 		}
 		for (var i = 0; i < Math.min(this.commands.length, block.commands.length); ++i) {
 			this.commands[i] = this.commands[i].copyDiff(block.commands[i], /*this.isFinished() &&*/ i == this.commands.length - 1 && compareCnt);
+			this.commands[i].parent = this;
 		}
 		if (this.commands.length < block.commands.length) {
 			for (var i = this.commands.length; i < block.commands.length; ++i) {
@@ -2096,7 +2097,7 @@ var Problem = $.inherit({
 				
 		}
 
-		//this.cmdList.checkIntegrity();
+		this.cmdList.checkIntegrity();
 		this.highlightWrongNames();
 		//$('#accordion' + this.tabIndex).accordion( "resize" );
 	},
