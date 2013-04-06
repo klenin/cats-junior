@@ -184,6 +184,7 @@ function waitForCommandsGeneration(problem) {
 	else {
 		$.unblockUI();
 		problem.updated();
+		problem.executionUnit.draw();
 	}
 }
 
