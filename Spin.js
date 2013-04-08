@@ -1,233 +1,235 @@
-(function($)
-{
-	var methods = 
+define('Spin', ['jQuery', 'jQueryUI'], function(){
+	(function($)
 	{
-		//counter -- total 
-		//value -- current
-		//during execution we will see value/counter
-		init: function(cmd, args, problem, type, isCounter, min, max) {
-			return this.each(function(){
-				var $this = $(this);
+		var methods = 
+		{
+			//counter -- total 
+			//value -- current
+			//during execution we will see value/counter
+			init: function(cmd, args, problem, type, isCounter, min, max) {
+				return this.each(function(){
+					var $this = $(this);
 
-				var command = cmd;
-				
-				$this.data('command', command);
-				$this.data('problem', problem);
-				$this.data('arguments', args.clone());
-				$this.data('type', type);
-				$this.data('isCounter', isCounter);
-				$this.data('argumentValues', {});
-				
-				$this.data('minimum', min != undefined ? min : 1);
-				$this.data('maximum', max != undefined ? max : MAX_VALUE);
-				
-				$this.data('total', $this.data('minimum'));
-				$this.data('totalVal', $this.data('minimum'));
-				$this.data('currentTotal', $this.data('minimum'));
+					var command = cmd;
+					
+					$this.data('command', command);
+					$this.data('problem', problem);
+					$this.data('arguments', args.clone());
+					$this.data('type', type);
+					$this.data('isCounter', isCounter);
+					$this.data('argumentValues', {});
+					
+					$this.data('minimum', min != undefined ? min : 1);
+					$this.data('maximum', max != undefined ? max : MAX_VALUE);
+					
+					$this.data('total', $this.data('minimum'));
+					$this.data('totalVal', $this.data('minimum'));
+					$this.data('currentTotal', $this.data('minimum'));
 
-				$this.data('isBeingExecuted', false);
+					$this.data('isBeingExecuted', false);
 
-				$this.append(
-					'<input class="spinCnt" value="' + $this.data('totalVal') + '" editable="false"></input>'
-					);
+					$this.append(
+						'<input class="spinCnt" value="' + $this.data('totalVal') + '" editable="false"></input>'
+						);
 
-				if ($this.data('type') == 'int') {
-					$this.append('<img src="images/spin-button.png">');
-				}
-
-				$this.children('img').bind('click', function(e){
-					var pos = e.pageY - $(this).offset().top;
-					var vector = ($(this).height()/2 > pos ? 1 : -1);
-
-					$this.mySpin('onSpinImgClick', vector);
-				});
-
-				$this.children('input').change(function() {
-					$this.mySpin('onUpdateTotal', $this.children('input').val())
-				});
-			});
-		},
-
-		getSpinImg: function() {
-			return $(this).children('img');
-		},
-
-		getTotal: function() {
-			return $(this).data('total');
-		},
-
-		setTotal: function(total, v) {
-			$(this).data('total', total);
-			$(this).data('totalVal', v ? v : total);
-			$(this).children('input').val($(this).data('totalVal'));
-		},
-
-		setTotalWithArgument: function(total) {
-			var args = $(this).data('arguments');
-			var i = 0;
-			for (i = 0; i < args.length; ++i) {
-				if (args[i] == total) {
-					break;
-				}
-			}
-
-			if (i == args.length) {
-				throw 'Unknown argument!'
-			}
-			
-			$(this).mySpin('setTotal', $(this).data('minimum') - i - 1, total);
-		},
-
-		getTotalValue: function() {
-			return $(this).data('totalVal');
-		},
-
-		onSpinImgClick: function(delta) {
-			var total = $(this).mySpin('getTotal');
-			var newTotal = parseInt(total) + parseInt(delta);
-
-			if (newTotal < $(this).data('minimum')) {
-				if ($(this).data('arguments') && $(this).data('arguments').length) {
-					if ($(this).data('minimum') - newTotal - 1 > $(this).data('arguments').length - 1) {
-						newTotal -= parseInt(delta);
+					if ($this.data('type') == 'int') {
+						$this.append('<img src="images/spin-button.png">');
 					}
-					$(this).mySpin('setTotal', newTotal, 
-						$(this).data('arguments')[Math.min($(this).data('minimum') - newTotal - 1, 
-						$(this).data('arguments').length - 1)]);
-					$(this).data('problem').updated();
-					return;
-				}
-				else {
-					newTotal = $(this).data('minimum');
-				}
-			}
 
-			else if (newTotal > $(this).data('maximum')) {
-				newTotal = $(this).data('maximum');
-			}
+					$this.children('img').bind('click', function(e){
+						var pos = e.pageY - $(this).offset().top;
+						var vector = ($(this).height()/2 > pos ? 1 : -1);
 
-			$(this).mySpin('setTotal', newTotal);
-			$(this).data('problem').updated();
-			return false;
-		},
+						$this.mySpin('onSpinImgClick', vector);
+					});
 
-		onUpdateTotal: function(newTotal) {
-			//TODO: create one function for  onUpdateTotal, onSpinImgClick if it's possible
+					$this.children('input').change(function() {
+						$this.mySpin('onUpdateTotal', $this.children('input').val())
+					});
+				});
+			},
 
-			if (checkNumber(newTotal)) {
-				if (newTotal < $(this).data('minimum')) {
-					newTotal = $(this).data('minimum');
-				}
-				else if (newTotal > $(this).data('maximum')) {
-						newTotal = $(this).data('maximum');
-				}
-				$(this).mySpin('setTotal', parseInt(newTotal));
-			}
-			else {
-				if (!checkName(newTotal)) {
-					throw 'Invalid argument!!!'
-				}
+			getSpinImg: function() {
+				return $(this).children('img');
+			},
 
+			getTotal: function() {
+				return $(this).data('total');
+			},
+
+			setTotal: function(total, v) {
+				$(this).data('total', total);
+				$(this).data('totalVal', v ? v : total);
+				$(this).children('input').val($(this).data('totalVal'));
+			},
+
+			setTotalWithArgument: function(total) {
+				var args = $(this).data('arguments');
 				var i = 0;
-				for (i = 0; i < $(this).data('arguments').length; ++i) {
-					if (newTotal ==  $(this).data('arguments')) {
+				for (i = 0; i < args.length; ++i) {
+					if (args[i] == total) {
 						break;
 					}
 				}
 
-				if (i == $(this).data('arguments').length) {
-					throw 'Invalid argument'; //highlight?
+				if (i == args.length) {
+					throw 'Unknown argument!'
+				}
+				
+				$(this).mySpin('setTotal', $(this).data('minimum') - i - 1, total);
+			},
+
+			getTotalValue: function() {
+				return $(this).data('totalVal');
+			},
+
+			onSpinImgClick: function(delta) {
+				var total = $(this).mySpin('getTotal');
+				var newTotal = parseInt(total) + parseInt(delta);
+
+				if (newTotal < $(this).data('minimum')) {
+					if ($(this).data('arguments') && $(this).data('arguments').length) {
+						if ($(this).data('minimum') - newTotal - 1 > $(this).data('arguments').length - 1) {
+							newTotal -= parseInt(delta);
+						}
+						$(this).mySpin('setTotal', newTotal, 
+							$(this).data('arguments')[Math.min($(this).data('minimum') - newTotal - 1, 
+							$(this).data('arguments').length - 1)]);
+						$(this).data('problem').updated();
+						return;
+					}
+					else {
+						newTotal = $(this).data('minimum');
+					}
 				}
 
-				$(this).mySpin('setTotal', $(this).data('maximum') - 1 - i, 
-					$(this).data('arguments')[i]);
-			}
-				
-			$(this).data('problem').updated();
-			return false;
-			
-		},
+				else if (newTotal > $(this).data('maximum')) {
+					newTotal = $(this).data('maximum');
+				}
 
-		hideBtn: function(cnt) {
-			$(this).mySpin('getSpinImg').hide();
-			if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
-				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
-			}
-			else {
-				$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))))
-			}
-		},
+				$(this).mySpin('setTotal', newTotal);
+				$(this).data('problem').updated();
+				return false;
+			},
 
-		showBtn: function() {
-			$(this).mySpin('getSpinImg').show();
-			$(this).children('input').val($(this).data('totalVal'));
-		},
+			onUpdateTotal: function(newTotal) {
+				//TODO: create one function for  onUpdateTotal, onSpinImgClick if it's possible
 
-		startExecution: function(current) {
-			$(this).data('currentTotal', $(this).data('total'));
-			if (current != undefined) {
-				$(this).data('value') = current;
-			}
-			else {
-				if (isInt($(this).data('totalVal'))) {
-					$(this).data('value', $(this).data('totalVal'));
+				if (checkNumber(newTotal)) {
+					if (newTotal < $(this).data('minimum')) {
+						newTotal = $(this).data('minimum');
+					}
+					else if (newTotal > $(this).data('maximum')) {
+							newTotal = $(this).data('maximum');
+					}
+					$(this).mySpin('setTotal', parseInt(newTotal));
 				}
 				else {
-					$(this).data('value', parseInt($(this).data('argumentValues')[$(this).data('totalVal')]));
-					$(this).data('currentTotal', $(this).data('value'));
+					if (!checkName(newTotal)) {
+						throw 'Invalid argument!!!'
+					}
+
+					var i = 0;
+					for (i = 0; i < $(this).data('arguments').length; ++i) {
+						if (newTotal ==  $(this).data('arguments')) {
+							break;
+						}
+					}
+
+					if (i == $(this).data('arguments').length) {
+						throw 'Invalid argument'; //highlight?
+					}
+
+					$(this).mySpin('setTotal', $(this).data('maximum') - 1 - i, 
+						$(this).data('arguments')[i]);
 				}
-			}
-			if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
-				throw 'Invalid counter!!!';
-			}
-			if ($(this).data('type') == 'int' && $(this).data('isCounter') == true) {
-				$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
-			}
-			else {
-				$(this).children('input').val($(this).data('value'));
-			}
-			$(this).data('isBeingExecuted', true);
-		},
+					
+				$(this).data('problem').updated();
+				return false;
+				
+			},
 
-		stopExecution: function() {
-			$(this).data('isBeingExecuted', false);
-			$(this).mySpin('setTotal', $(this).data('total'), $(this).data('totalVal'));
-		},
+			hideBtn: function(cnt) {
+				$(this).mySpin('getSpinImg').hide();
+				if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
+					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
+				}
+				else {
+					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))))
+				}
+			},
 
-		decreaseValue: function() {
-			if ($(this).data('type') != 'int') {
-				throw 'Can\'t decrease not int!!!';
-			}
-			$(this).data('value', Math.max($(this).data('value') - 1, 0));
-			$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );
-		},
+			showBtn: function() {
+				$(this).mySpin('getSpinImg').show();
+				$(this).children('input').val($(this).data('totalVal'));
+			},
 
-		setArguments: function(arguments) {
-			var args = arguments.clone()
-			$(this).data('arguments', args);
-		},
+			startExecution: function(current) {
+				$(this).data('currentTotal', $(this).data('total'));
+				if (current != undefined) {
+					$(this).data('value') = current;
+				}
+				else {
+					if (isInt($(this).data('totalVal'))) {
+						$(this).data('value', $(this).data('totalVal'));
+					}
+					else {
+						$(this).data('value', parseInt($(this).data('argumentValues')[$(this).data('totalVal')]));
+						$(this).data('currentTotal', $(this).data('value'));
+					}
+				}
+				if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
+					throw 'Invalid counter!!!';
+				}
+				if ($(this).data('type') == 'int' && $(this).data('isCounter') == true) {
+					$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
+				}
+				else {
+					$(this).children('input').val($(this).data('value'));
+				}
+				$(this).data('isBeingExecuted', true);
+			},
 
-		setArgumentValues: function(argumentValues) {
-			var args = $.extend(true, {}, argumentValues);
-			$(this).data('argumentValues', args);
-		},
-	}
+			stopExecution: function() {
+				$(this).data('isBeingExecuted', false);
+				$(this).mySpin('setTotal', $(this).data('total'), $(this).data('totalVal'));
+			},
 
-	$.fn.mySpin = function(method) {
-	    if (methods[method]) {
-	    	return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
-	    } 
-		else if (typeof method === 'object' || ! method) {
-	      return methods.init.apply( this, arguments );
-	    } 
-		else {
-	      $.error('Method ' +  method + ' does not exist on jQuery.mySpin');
+			decreaseValue: function() {
+				if ($(this).data('type') != 'int') {
+					throw 'Can\'t decrease not int!!!';
+				}
+				$(this).data('value', Math.max($(this).data('value') - 1, 0));
+				$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );
+			},
+
+			setArguments: function(arguments) {
+				var args = arguments.clone()
+				$(this).data('arguments', args);
+			},
+
+			setArgumentValues: function(argumentValues) {
+				var args = $.extend(true, {}, argumentValues);
+				$(this).data('argumentValues', args);
+			},
 		}
-    }    
-  
-	
-	$.fn.mySpin.defaults = {
-	};
-}
-(jQuery));
+
+		$.fn.mySpin = function(method) {
+		    if (methods[method]) {
+		    	return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ));
+		    } 
+			else if (typeof method === 'object' || ! method) {
+		      return methods.init.apply( this, arguments );
+		    } 
+			else {
+		      $.error('Method ' +  method + ' does not exist on jQuery.mySpin');
+			}
+	    }    
+	  
+		
+		$.fn.mySpin.defaults = {
+		};
+	}
+	(jQuery));
+});
 

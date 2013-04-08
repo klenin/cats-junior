@@ -1,99 +1,113 @@
-var executionUnits = {
-	'ArrowInLabyrinth': ArrowInLabyrinth,
-	'Pourer': Pourer
-};
+define('ExecutionUnitWrapper', ['jQuery', 
+	'jQueryUI', 
+	'jQueryInherit',
+	'Pourer',
+	'ArrowInLabyrinth'], function(){
+	var ArrowInLabyrinthModule = require('ArrowInLabyrinth');
+	var PourerModule = require('Pourer');
 
-var ExecutionUnitWrapper = $.inherit({
-	__constructor: function(problem, problemData, div, executionUnitName) {
-		this.executionUnit = new executionUnits[executionUnitName](problem, problemData, div);
-		this.checkExecutionUnit();
-	},
+	var ArrowInLabyrinth = ArrowInLabyrinthModule.ArrowInLabyrinth;
+	var Pourer = PourerModule.Pourer;
+	
+	var executionUnits = {
+		'ArrowInLabyrinth': ArrowInLabyrinth,
+		'Pourer': Pourer
+	};
 
-	generateCommands: function(div) {
-		this.checkExecutionUnit();
-		this.executionUnit.generateCommands(div);
-	},
+	return {
+		ExecutionUnitWrapper: $.inherit({
+			__constructor: function(problem, problemData, div, executionUnitName) {
+				this.executionUnit = new executionUnits[executionUnitName](problem, problemData, div);
+				this.checkExecutionUnit();
+			},
 
-	getCommandName: function(command) {
-		this.checkExecutionUnit();
-		return this.executionUnit.getCommandName(command);
-	},
+			generateCommands: function(div) {
+				this.checkExecutionUnit();
+				this.executionUnit.generateCommands(div);
+			},
 
-	checkExecutionUnit: function() {
-		if (!this.executionUnit) {
-			throw "Executor is undefined!!!";
-		}
-	},
+			getCommandName: function(command) {
+				this.checkExecutionUnit();
+				return this.executionUnit.getCommandName(command);
+			},
 
-	setDefault: function(dontDraw) {
-		this.checkExecutionUnit();
-		this.executionUnit.setDefault(dontDraw);
-	},
+			checkExecutionUnit: function() {
+				if (!this.executionUnit) {
+					throw "Executor is undefined!!!";
+				}
+			},
 
-	draw: function() {
-		this.checkExecutionUnit();
-		this.executionUnit.draw();	
-	},
+			setDefault: function(dontDraw) {
+				this.checkExecutionUnit();
+				this.executionUnit.setDefault(dontDraw);
+			},
 
-	isDead: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.isDead();	
-	},
+			draw: function() {
+				this.checkExecutionUnit();
+				this.executionUnit.draw();	
+			},
 
-	executeCommand: function(command, args) {
-		this.checkExecutionUnit();
-		this.executionUnit.executeCommand(command, args);	
-	},
+			isDead: function() {
+				this.checkExecutionUnit();
+				return this.executionUnit.isDead();	
+			},
 
-	gameOver: function() {
-		this.checkExecutionUnit();
-		this.executionUnit.gameOver();
-	},
+			executeCommand: function(command, args) {
+				this.checkExecutionUnit();
+				this.executionUnit.executeCommand(command, args);	
+			},
 
-	getPoints: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.getPoints();
-	},
+			gameOver: function() {
+				this.checkExecutionUnit();
+				this.executionUnit.gameOver();
+			},
 
-	getExecutionUnit: function() {
-		return this.executionUnit;
-	},
+			getPoints: function() {
+				this.checkExecutionUnit();
+				return this.executionUnit.getPoints();
+			},
 
-	isCommandSupported: function(command) {
-		this.checkExecutionUnit();
-		return this.executionUnit.isCommandSupported(command);
-	},
+			getExecutionUnit: function() {
+				return this.executionUnit;
+			},
 
-	getConditionProperties: function(name) {
-		this.checkExecutionUnit();
-		return this.executionUnit.getConditionProperties(name);
-	},
+			isCommandSupported: function(command) {
+				this.checkExecutionUnit();
+				return this.executionUnit.isCommandSupported(command);
+			},
 
-	getCommands: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.getCommands();
-	},
+			getConditionProperties: function(name) {
+				this.checkExecutionUnit();
+				return this.executionUnit.getConditionProperties(name);
+			},
 
-	getCssFileName: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.getCssFileName();
-	},
+			getCommands: function() {
+				this.checkExecutionUnit();
+				return this.executionUnit.getCommands();
+			},
 
-	addTypesInTree: function(tree) {
-		this.checkExecutionUnit();
-		
-		for (var i = 0; i < this.executionUnit.__self.jsTreeTypes.length; ++i) {
-			tree.add_type(this.executionUnit.__self.jsTreeTypes[i][0], this.executionUnit.__self.jsTreeTypes[i][1]);
-		}
-	},
+			getCssFileName: function() {
+				this.checkExecutionUnit();
+				return this.executionUnit.getCssFileName();
+			},
 
-	onTabSelect: function() {
-		this.checkExecutionUnit();
-		return this.executionUnit.onTabSelect();
-	},
+			addTypesInTree: function(tree) {
+				this.checkExecutionUnit();
+				
+				for (var i = 0; i < this.executionUnit.__self.jsTreeTypes.length; ++i) {
+					tree.add_type(this.executionUnit.__self.jsTreeTypes[i][0], this.executionUnit.__self.jsTreeTypes[i][1]);
+				}
+			},
 
-	changePoints: function(delta) {
-		this.checkExecutionUnit();
-		this.executionUnit.points += delta;
-	}
+			onTabSelect: function() {
+				this.checkExecutionUnit();
+				return this.executionUnit.onTabSelect();
+			},
+
+			changePoints: function(delta) {
+				this.checkExecutionUnit();
+				this.executionUnit.points += delta;
+			}
+		})
+	};
 });
