@@ -693,7 +693,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				this.changeLabyrinth(this.problem.step, undefined, this.__self.changeDir[dir][this.arrow.dir].curDir, !this.problem.speed);
 				if (this.stepsFine){
 					this.points -= this.stepsFine;
-					var mes = new MessageStepFine(this.problem.step, this.points);
+					var mes = new ShowMessages.MessageStepFine(this.problem.step, this.points);
 				}
 			},
 

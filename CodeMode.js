@@ -1,4 +1,4 @@
-define('CodeMode', ['Env'], function(){
+define('CodeMode', ['SkulptModule'], function(){
 	function outf(text)
 	{
 		text = text.replace(/</g, '&lt;');
@@ -70,7 +70,8 @@ define('CodeMode', ['Env'], function(){
 		    if (op === "USub") return -v;
 	        if (op === "UAdd") return v;
 	        if (op === "Invert") return ~v;
-		}
+		}
+
 	}
 
 	function calculateValue(source)
@@ -85,6 +86,51 @@ define('CodeMode', ['Env'], function(){
 		if (expr._astname != 'Expr')
 			return 'Invalid expression';
 		return calculateExpression(expr.value);
+	}
+
+	function compile(source, problem, commands, conditionProperties) {
+		try {
+			if (source != '') {
+				Sk.configure({
+					output: outf,
+					'problem': problem
+				});
+				finalcode[problem] = Sk.importMainWithBody("<stdin>", false, source);
+				$scope[problem] = 0,
+				$gbl[problem] = {},
+				$loc[problem] = $gbl[problem];
+				for (var i = 0; i < finalcode[problem].compiled.scopes.length; ++i) {
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + ' = {};');
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.defaults = [];');
+					eval('$loc[' + problem + '].' + finalcode[problem].compiled.scopes[i].scopename + '.stack = [];');
+				}
+				eval('$loc[' + problem + '].scope0.stack.push({"loc": {}, "param": {}, blk: 0});');
+				nextline[problem] = getScope().firstlineno;
+				$scopename[problem] = finalcode[problem].compiled.scopes[0].scopename;
+				$scopestack[problem] = 0;
+
+				for (var i in commands) {
+					$gbl[problem][commands[i].name] = commands[i].handler;
+				}
+
+				for (var i = 0; i < conditionProperties.length; ++i) {
+					$gbl[problem][conditionProperties[i].name] = conditionProperties[i].handlerFunc;
+				}
+			}
+		} catch (e) {
+			console.error(e);
+			finalcode[problem] = undefined;
+			$scope[problem] = undefined,
+			$gbl[problem] = undefined,
+			$loc[problem] = $gbl[problem];
+			nextline[problem] = undefined;
+			throw 'Compilation error';
+		}
+	}
+
+	return {
+		outf: outf,
+		compile: compile
 	}
 });
 

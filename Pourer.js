@@ -430,7 +430,7 @@ define('Pourer',
 
 					if (this.data.stepsFine){
 						this.points -= this.data.stepsFine;
-						var mes = new MessageStepFine(this.problem.step, this.points);
+						var mes = new ShowMessages.MessageStepFine(this.problem.step, this.points);
 					}
 
 					this.draw();

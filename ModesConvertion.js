@@ -274,5 +274,10 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 		}
 		return block;
 	}
+
+	return {
+		convert: convert, 
+		convertTreeToCommands: convertTreeToCommands
+	}
 });
 

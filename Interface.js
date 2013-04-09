@@ -2,14 +2,13 @@ define('Interface', ['jQuery',
 	'jQueryUI', 
 	'BlockUI',
 	'jQueryCookie',
-	'CodeMirror',
-	'CodeMirrorPython',
+	'CodeMirrorModule',
 	'Servers',
 	'CallServer',
-	'CommandsMode',
+	'Problems',
 	'CodeMode',
 	'jQueryTmpl'], function(){
-	var CommandsMode = require('CommandsMode');
+	var Problems = require('Problems');
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 	function login(callback, firstTrying){
@@ -219,7 +218,7 @@ define('Interface', ['jQuery',
 		problems = [];
 		currentServer.getProblems(function(data){
 			for (var i = 0; i < data.length; ++i){
-				problems[i] = new CommandsMode.Problem(data[i], i);
+				problems[i] = new Problems.Problem(data[i], i);
 				if ($('#ui-tabs-' + (i + 1)).length){
 					$('#ui-tabs-' + (i + 1)).empty();
 					$('#tabs').tabs('remove', i + 1);
