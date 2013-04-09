@@ -94,7 +94,7 @@ require.config({
 		'SkSymtable': ['Env'],
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
-		'SkBuiltinDict': ['SkBuiltin']
+		'SkBuiltinDict': ['SkStr']
     }
   });
 	

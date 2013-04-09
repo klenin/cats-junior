@@ -7,8 +7,10 @@ define('Interface', ['jQuery',
 	'CallServer',
 	'Problems',
 	'CodeMode',
-	'jQueryTmpl'], function(){
+	'jQueryTmpl',
+	'ModesConvertion'], function(){
 	var Problems = require('Problems');
+	var ModesConvertion = require('ModesConvertion');
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 	function login(callback, firstTrying){
@@ -297,7 +299,7 @@ define('Interface', ['jQuery',
 								problems[j].functions = {};
 								var block = undefined;
 								if (finalcode[j]) {
-									block = convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
+									block = ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
 									if (block) {
 										//problems[j].cmdList = block;//??
 

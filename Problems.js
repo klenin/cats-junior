@@ -5,7 +5,8 @@ define('Problems', ['jQuery',
 	'InterfaceJSTree',
 	'CommandsMode',
 	'ModesConvertion',
-	'CodeMode'],
+	'CodeMode',
+	'ShowMessages'],
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
@@ -13,6 +14,7 @@ function() {
 	var CommandsMode = require('CommandsMode');
 	var ModesConvertion = require('ModesConvertion');
 	var CodeMode = require('CodeMode');
+	var ShowMessages = require('ShowMessages');
 
 	var Problem = $.inherit({
 		__constructor: function(problem, tabIndex) {
@@ -234,7 +236,7 @@ function() {
 				var e = 1;
 				while (CodeMode.getCurBlock() >= 0 && (e || $expr[problem])) {
 					$expr[problem] = 0;
-					e = getScope().blocks[CodeMode.getCurBlock()].expr;
+					e = CodeMode.getScope().blocks[CodeMode.getCurBlock()].expr;
 					try {
 						eval(finalcode[problem].code);
 						this.updateWatchList();
@@ -248,8 +250,8 @@ function() {
 				this.executionUnit.draw();
 				if (CodeMode.getCurBlock() >= 0) {
 					var b = CodeMode.getCurBlock();
-					while (getScope().blocks[b].funcdef)++b;
-					nextline[problem] = getScope().blocks[b].lineno;
+					while (CodeMode.getScope().blocks[b].funcdef)++b;
+					nextline[problem] = CodeMode.getScope().blocks[b].lineno;
 				}
 
 				if (nextline[problem] != undefined) {
