@@ -234,3 +234,12 @@ input.argCallInput {
 a.wrongName {
 	border: 1px dotted red !important;
 }
+
+/*svg\:svg {
+	display: none;
+}*/
+
+.svg_error {
+	color: red;
+	font-weight: bold;
+}

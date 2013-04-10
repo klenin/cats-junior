@@ -501,6 +501,10 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				
 			},
 
+			onTabSelected: function() {
+				
+			},
+
 			generateCommands: function(div) {
 				for (var i = 0; i < this.data.commands.length; ++i) {
 					if (!this.__self.cmdClassToName[this.data.commands[i]]) {

@@ -1,8 +1,9 @@
-define('Pourer',
+define('Pourer', 
 	function(require){
 		var ExecutionUnitCommands = require('ExecutionUnitCommands');
 		var ShowMessages = require('ShowMessages');
 		var Message = ShowMessages.Message;
+		var Cylinder = require('Cylinder');
 
 		var Vessel = $.inherit({
 			__constructor: function(color, capacity, initFilled, isEndless, div, maxCapacity) {
@@ -21,7 +22,7 @@ define('Pourer',
 			},
 
 			init: function() {
-				var vesselHeight = (241 * (this.capacity / this.maxCapacity));
+				/*var vesselHeight = (241 * (this.capacity / this.maxCapacity));
 				var circleHeight = (34 * (this.capacity / this.maxCapacity));
 				var bottomHeight = (14 * (this.capacity / this.maxCapacity));
 				
@@ -36,7 +37,39 @@ define('Pourer',
 
 				$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});
 
-				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
+				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);*/
+
+				this.vesselDiv = $('<div style="float:left;border:0px solid black; width:150px; height:400px; position: absolute"></div>').appendTo($('body'));
+
+				var self = this;
+
+				$(this.vesselDiv).svg({
+					onLoad: function (svg) { 
+						self.svg = svg;
+						/*makeCylinder(svg, {
+							inner: 300 * (self.initFilled + 0.0)/ self.maxCapacity, 
+							outer: 300 * (self.capacity + 0.0) / self.maxCapacity, 
+							red:0.5, 
+							green:1.0, 
+							blue:1.0
+						});
+						$(self.vesselDiv).hide();*/
+					}
+				});
+				/*
+				$(this.vesselDiv).cylinder({
+					  colors: {
+					    container: {
+					      fill: '#e5e5e5',
+					      stroke: '#dcdada'
+					    },
+					    fluid: {
+					      fill: '#0051A6',
+					      stroke: '#003974'
+					    }
+					  },
+					  value: (this.initFilled + 0.0) / this.maxCapacity
+					});*/
 			},
 
 			setDefault: function(dontDraw) {
@@ -44,7 +77,17 @@ define('Pourer',
 			},
 
 			draw: function() {
-				if (this.filled == 0) {
+				$(this.vesselDiv).css({'top': $(this.div).position().top});
+				$(this.vesselDiv).show();
+
+				makeCylinder(this.svg, {
+					inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
+					outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
+					red:0.5, 
+					green:1.0, 
+					blue:1.0
+				});
+				/*if (this.filled == 0) {
 					$(this.bottom).hide();
 					$(this.circle).hide();
 				}
@@ -73,7 +116,9 @@ define('Pourer',
 
 				$(this.title).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() + 15,
 					'left': $(this.vesselDiv).position().left});
-				$(this.title).html(this.filled + '/' + this.capacity);
+				$(this.title).html(this.filled + '/' + this.capacity);*/
+				//$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
+				
 			},
 
 			pourTo: function(delta) { //we pour from this vessel to another
@@ -119,6 +164,14 @@ define('Pourer',
 
 			getWidth: function() {
 				return $(this.vesselDiv).width(); 
+			},
+
+			hide: function() {
+				$(this.vesselDiv).hide();
+			},
+
+			show: function() {
+				this.draw();
 			}
 		});
 
@@ -282,10 +335,10 @@ define('Pourer',
 					var args = [
 						new ExecutionUnitCommands.ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length),
 						new ExecutionUnitCommands.ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length)];
-					this.commands['pour'] = new ExecutionUnitCommand('pour', pour, args);
-					this.commands['pourOut'] = new ExecutionUnitCommand('pourOut', pourOut, 
+					this.commands['pour'] = new ExecutionUnitCommands.ExecutionUnitCommand('pour', pour, args);
+					this.commands['pourOut'] = new ExecutionUnitCommands.ExecutionUnitCommand('pourOut', pourOut, 
 						[new ExecutionUnitCommands.ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
-					this.commands['fill'] = new ExecutionUnitCommand('fill', fill, 
+					this.commands['fill'] = new ExecutionUnitCommands.ExecutionUnitCommand('fill', fill, 
 						[new ExecutionUnitCommands.ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
 
 					var vesselsList = [];
@@ -553,6 +606,27 @@ define('Pourer',
 						finished = finished && (this.vessels[vessel].filled == this.data.finishState[i].filled);
 					}
 					return finished;
+				},
+
+				onTabSelected: function(problemId) {
+					if (problemId != this.problem.tabIndex) {
+						this.hide();
+					}
+					else {
+						this.show();
+					}
+				},
+
+				hide: function() {
+					for (var i = 0; i < this.vessels.length; ++i) {
+						this.vessels[i].hide();
+					}
+				},
+
+				show: function() {
+					for (var i = 0; i < this.vessels.length; ++i) {
+						this.vessels[i].show();
+					}
 				}
 			},
 			{

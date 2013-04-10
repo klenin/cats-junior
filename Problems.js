@@ -772,6 +772,10 @@ function() {
 				++index;
 			}
 			return 'func' + index;
+		},
+
+		onTabSelected: function(problemId) {
+			this.executionUnit.onTabSelected(problemId);
 		}
 	});
 

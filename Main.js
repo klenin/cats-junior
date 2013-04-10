@@ -49,13 +49,16 @@ require.config({
 		'SkCompile': 'import/skulpt/src/compile',
 		'SkImport': 'import/skulpt/src/import',
 		'SkBuiltinDict': 'import/skulpt/src/builtindict',
-		'SkFunc': 'import/skulpt/src/function'
+		'SkFunc': 'import/skulpt/src/function',
+		'Svg': 'import/jquery/jquery.svg',
+		'Cylinder': 'import/jquery/tube_cylinder'
     },
     shim: {
     	'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
+		'JsTree': ['jQuery'],
 		'Env': ['GoogBase', 'GoogAsserts'],
 		'GoogDeps': ['GoogBase'],
 		'GoogString': ['GoogBase'],
@@ -94,7 +97,9 @@ require.config({
 		'SkSymtable': ['Env'],
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
-		'SkBuiltinDict': ['SkStr']
+		'SkBuiltinDict': ['SkStr'],
+		'Cylinder': ['Svg'],
+		'Svg': ['jQuery']
     }
   });
 	
@@ -128,13 +133,15 @@ requirejs(['require',
 				if (ui.index > 0 && ui.index - 1 < problems.length){
 					curProblemIndex = ui.index - 1;
 					curProblem = problems[curProblemIndex];
+					for (var i = 0; i < problems.length; ++i) {
+						problems[i].onTabSelected(curProblemIndex);
+					}
 				}
 				if (ui.index == (problems.length + 2))
 				{
 					setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
 				}
 				$.cookie('tabIndex', ui.index);
-			
 			},
 
 			show: function(event, ui) {
