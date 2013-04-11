@@ -3,7 +3,7 @@ define('Pourer',
 		var ExecutionUnitCommands = require('ExecutionUnitCommands');
 		var ShowMessages = require('ShowMessages');
 		var Message = ShowMessages.Message;
-		var Cylinder = require('Cylinder');
+		var CylinderModule = require('Cylinder');
 
 		var Vessel = $.inherit({
 			__constructor: function(color, capacity, initFilled, isEndless, div, maxCapacity) {
@@ -35,9 +35,9 @@ define('Pourer',
 				this.bottom = $('<div style = "background: url(\'images/bottom.png\') no-repeat; background-size: 84px ' + bottomHeight
 					 + 'px; width: 95%; height: ' + bottomHeight + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
 
-				$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});
+				$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});*/
 
-				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);*/
+				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
 
 				this.vesselDiv = $('<div style="float:left;border:0px solid black; width:150px; height:400px; position: absolute"></div>').appendTo($('body'));
 
@@ -80,13 +80,18 @@ define('Pourer',
 				$(this.vesselDiv).css({'top': $(this.div).position().top});
 				$(this.vesselDiv).show();
 
-				makeCylinder(this.svg, {
-					inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
-					outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
-					red:0.5, 
-					green:1.0, 
-					blue:1.0
-				});
+				if (!this.cylinder) {
+					this.cylinder = new Cylinder(this.svg, {
+						inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
+						outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
+						red:0.5, 
+						green:1.0, 
+						blue:1.0
+					});
+				}
+				else {
+					this.cylinder.update(300 * (this.filled + 0.0)/ this.maxCapacity);
+				}
 				/*if (this.filled == 0) {
 					$(this.bottom).hide();
 					$(this.circle).hide();
@@ -112,11 +117,11 @@ define('Pourer',
 					$(this.bottom).show();
 					$(this.vesselBg).css({'height': $(this.vesselDiv).height() - $(this.bottom).height() - $(this.circle).height() / 2 + 'px', 'top': $(this.circle).height() / 2 + 'px'});	
 					$(this.circle).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
-				}
+				}*/
 
 				$(this.title).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() + 15,
 					'left': $(this.vesselDiv).position().left});
-				$(this.title).html(this.filled + '/' + this.capacity);*/
+				$(this.title).html(this.filled + '/' + this.capacity);
 				//$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
 				
 			},
@@ -510,10 +515,10 @@ define('Pourer',
 						this.vessels[src].pourTo(delta);
 						this.vessels[dest].pourFrom(delta);
 
-						if (this.problem.speed) {
+						/*if (this.problem.speed) {
 							this.vessels[src].draw();
 							this.vessels[dest].draw();
-						}
+						}*/
 					}
 					catch (err) {
 						throw 'Invalid command!';

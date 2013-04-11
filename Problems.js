@@ -247,7 +247,7 @@ function() {
 
 					}
 				}++this.executedCommandsNum;
-				this.executionUnit.draw();
+				//this.executionUnit.draw();
 				if (CodeMode.getCurBlock() >= 0) {
 					var b = CodeMode.getCurBlock();
 					while (CodeMode.getScope().blocks[b].funcdef)++b;
@@ -456,7 +456,7 @@ function() {
 				this.executionUnit.draw();
 				this.changeProgressBar();
 				this.enableButtons();
-				if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked')) Interface.onFinishExecuting(getCurProblem());
+				//if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked')) Interface.onFinishExecuting(getCurProblem());
 			}
 		},
 
@@ -775,7 +775,10 @@ function() {
 		},
 
 		onTabSelected: function(problemId) {
-			this.executionUnit.onTabSelected(problemId);
+			if (this.executionUnit) {
+				this.executionUnit.onTabSelected(problemId);
+			}
+			
 		}
 	});
 
