@@ -139,6 +139,16 @@ Sk.builtin.type = function(name, bases, dict)
 };
 
 /**
+ * @constructor
+ */
+Sk.builtin.object = function()
+{
+    if (!(this instanceof Sk.builtin.object)) return new Sk.builtin.object();
+    this['$d'] = new Sk.builtin.dict([]);
+    return this;
+};
+
+/**
  *
  */
 Sk.builtin.type.makeTypeObj = function(name, newedInstanceOfType)
@@ -334,16 +344,6 @@ Sk.builtin.type.buildMRO = function(klass)
     return new Sk.builtin.tuple(Sk.builtin.type.buildMRO_(klass));
 };
 
-
-/**
- * @constructor
- */
-Sk.builtin.object = function()
-{
-    if (!(this instanceof Sk.builtin.object)) return new Sk.builtin.object();
-    this['$d'] = new Sk.builtin.dict([]);
-    return this;
-};
 
 Sk.builtin.object.prototype.GenericGetAttr = function(name)
 {

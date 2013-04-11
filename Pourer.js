@@ -80,14 +80,16 @@ define('Pourer',
 				$(this.vesselDiv).css({'top': $(this.div).position().top});
 				$(this.vesselDiv).show();
 
-				if (!this.cylinder) {
-					this.cylinder = new Cylinder(this.svg, {
-						inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
-						outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
-						red:0.5, 
-						green:1.0, 
-						blue:1.0
-					});
+				makeCylinder(this.svg, {
+					inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
+					outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
+					red:0.5, 
+					green:1.0, 
+					blue:1.0
+				});
+
+				/*if (!this.cylinder) {
+					this.cylinder = new Cylinder(this.svg, );
 				}
 				else {
 					this.cylinder.update(300 * (this.filled + 0.0)/ this.maxCapacity);
