@@ -16,10 +16,12 @@ define('CommandsMode', ['jQuery',
 	        this.name = name;
 			this.arguments = [];
 
+			this.initArguments = arguments.clone();
+
 			for (var i = 0; i < arguments.length; ++i) {
 				this.arguments.push(arguments[i].copy());
 			}
-			//this.argumentsValues = argumentsValues.clone();
+			this.initArgumentsValues = argumentsValues.clone();
 			//var cnt = undefined;
 			this.counterIndex = undefined;
 			for (var i = 0 ; i < arguments.length; ++i) {
@@ -44,6 +46,11 @@ define('CommandsMode', ['jQuery',
 				this.spinAccess('setArguments', func.getArguments());
 			}
 			this.timestamp = new Date().getTime();
+		},
+
+		createClone: function() {
+			var clone = new Command(this.name, this.initArguments, this.initArgumentsValues, this.parent, this.id, this.problem);
+			return clone;
 		},
 
 		eq: function(cmd, compareCnt){ // fix
@@ -341,6 +348,12 @@ define('CommandsMode', ['jQuery',
 			}
 			this.name = 'for';
 			this.timestamp = new Date().getTime();
+		},
+
+		createClone: function() {
+			var body = this.body.createClone();
+			var clone = new ForStmt(body, this.cnt, this.parent, this.id, this.problem);
+			return clone;
 		},
 
 		setBody: function(body) {
@@ -758,6 +771,16 @@ define('CommandsMode', ['jQuery',
 			this.name = secondBlock ? 'ifelse' : 'if';
 		},
 
+		createClone: function() {
+			var firstBlock = this.blocks[0].createClone();
+			var scndBlock = undefined;
+			if (this.blocks[1]) {
+				scndBlock = this.blocks[1].createClone();
+			}
+			var clone = new IfStmt(this.testName, this.args, firstBlock, scndBlock, this.conditionProperties, this.parent, this.id, this.problem);
+			return clone;
+		},
+
 		setBlocks: function(block1, block2) {
 			this.blocks[0] = block1;
 			this.blocks[1] = block2;
@@ -982,6 +1005,12 @@ define('CommandsMode', ['jQuery',
 			this.timestamp = new Date().getTime();
 		},
 
+		createClone: function() {
+			var body = this.body.createClone();
+			var clone = new IfStmt(this.testName, this.args, body, this.conditionProperties, this.parent, this.id, this.problem);
+			return clone;
+		},
+
 		setBody: function(body) {
 			this.body = body;
 			if (this.body) {
@@ -1157,8 +1186,20 @@ define('CommandsMode', ['jQuery',
 			this.parent = parent;
 			this.problem = problem;
 			this.timestamp = new Date().getTime();
+			this.prevCmd = -1;
 		},
 		
+		createClone: function() {
+			var commands = [];
+
+			for (var i = 0; i < this.commands.length; ++i) {
+				commands.push(this.commands[i].createClone());
+			}
+
+			var clone = new Block(commands, this.parent, this.problem);
+			return clone;
+		},
+
 		insertCommand : function(command, pos) {
 		    this.commands.splice(pos, command);
 		},
@@ -1191,7 +1232,8 @@ define('CommandsMode', ['jQuery',
 			while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 			{
 				cmd = this.commands[this.curCmd];
-				cnt = cmd.exec(cnt, arguments);
+				cnt = cmd.exec(cnt, arguments, this.prevCmd == this.curCmd);
+				this.prevCmd = this.curCmd;
 				if (cmd.isFinished())
 					++this.curCmd;
 			}
@@ -1221,6 +1263,7 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.commands.length; ++i)
 				this.commands[i].setDefault();
 			this.curCmd = 0;
+			this.prevCmd = -1;
 		},
 		
 		showCounters: function() {
@@ -1354,6 +1397,12 @@ define('CommandsMode', ['jQuery',
 			this.funcId = funcId;
 			this.problem.functionsWithId[this.funcId] = this;
 			this.timestamp = new Date().getTime();
+		},
+
+		createClone: function() {
+			var body = this.body.createClone();
+			var clone = new FuncDef(this.name, this.argumentsList, body, this.parent, this.id, this.funcId, this.problem);
+			return clone;
 		},
 
 		setBody: function(body) {
@@ -1522,11 +1571,18 @@ define('CommandsMode', ['jQuery',
 			this.argumentsValues = argumentsValues.clone();
 			this.timestamp = new Date().getTime();
 			//this.funcName = name;
+			this.callStack = [];
 		},
 		
+		createClone: function() {
+			var clone = new FuncCall(this.name, this.argumentsValues, this.parent, this.id, undefined, this.problem);
+			return clone;
+		},
+
 		isFinished: function(){
-			funcDef = this.getFuncDef();
-			return funcDef ? funcDef.body.isFinished() : false;
+			return this.callStack.length == 0 || this.getCallStackTop().isFinished();
+			/*funcDef = this.getFuncDef();
+			return funcDef ? funcDef.body.isFinished() : false;*/
 		},
 		
 		getFuncDef: function() {
@@ -1550,15 +1606,24 @@ define('CommandsMode', ['jQuery',
 				this.argumentsValues.length == func.argumentsValues.length;
 		},
 		
-		exec: function(cnt) {
-			funcDef = this.getFuncDef();
+		exec: function(cnt, a, continueExec) {
+			if (this.callStack.length && this.getCallStackTop().isFinished()) {
+				this.callStack.pop();
+			}
+
+			if (!continueExec) {
+				this.callStack.push(this.getFuncDef().createClone());
+			}
+
+			var funcDef = this.getCallStackTop();
+
 			if (!funcDef) {
 				throw "Undefined function " + this.name;
 			}
-			if (!this.executing)
+			if (!continueExec)
 			{
 				this.setArguments(funcDef.getArguments(), this.argumentsValues);
-				cnt -= 1;
+				cnt -= 1; //check it!!!
 				var numId = $('#' + this.id).prop('numId');
 				if (!cnt || this.problem.speed)
 				{
@@ -1571,12 +1636,8 @@ define('CommandsMode', ['jQuery',
 					$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 				}
 				this.problem.lastExecutedCmd = this;
-				if (this.curCnt + 1 > this.cnt)
-				{
-					++this.curCnt;
-					return cnt;
-				}
 				this.executing = true;
+
 				if (funcDef) {
 					funcDef.body.setDefault();
 				}
@@ -1587,6 +1648,10 @@ define('CommandsMode', ['jQuery',
 			return cnt;
 		},
 		
+		getCallStackTop: function() {
+			return this.callStack[this.callStack.length - 1];
+		},
+
 		getClass: function(){
 			return 'functionCall';
 		},

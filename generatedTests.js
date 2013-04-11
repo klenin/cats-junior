@@ -1,4 +1,3 @@
-define('generatedTests', [], function(){
 	TESTS_NUM = 55;
 	tests = [];
 	tests.push("print 4\n");
@@ -56,4 +55,3 @@ define('generatedTests', [], function(){
 	tests.push("print [c for c in \"asdf\"]\n");
 	tests.push("print range(10)[slice(0, 5, 2)]\n");
 	tests.push("x = []\nx.append(x)\nprint({x:'OK'}[x])\n");
-});
