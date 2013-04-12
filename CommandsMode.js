@@ -1571,7 +1571,7 @@ define('CommandsMode', ['jQuery',
 			this.argumentsValues = argumentsValues.clone();
 			this.timestamp = new Date().getTime();
 			//this.funcName = name;
-			this.callStack = [];
+			this.funcDef = undefined;
 		},
 		
 		createClone: function() {
@@ -1580,7 +1580,7 @@ define('CommandsMode', ['jQuery',
 		},
 
 		isFinished: function(){
-			return this.callStack.length == 0 || this.getCallStackTop().isFinished();
+			return this.funcDef == undefined || this.funcDef.isFinished();
 			/*funcDef = this.getFuncDef();
 			return funcDef ? funcDef.body.isFinished() : false;*/
 		},
@@ -1606,21 +1606,21 @@ define('CommandsMode', ['jQuery',
 				this.argumentsValues.length == func.argumentsValues.length;
 		},
 		
-		exec: function(cnt, a, continueExec) {
-			if (this.callStack.length && this.getCallStackTop().isFinished()) {
-				this.callStack.pop();
+		exec: function(cnt, a) {
+			if (this.funcDef && this.funcDef.isFinished()) {
+				this.funcDef = undefined;
 			}
 
-			if (!continueExec) {
-				this.callStack.push(this.getFuncDef().createClone());
+			if (!this.funcDef) {
+				this.funcDef = this.getFuncDef().createClone();
 			}
 
-			var funcDef = this.getCallStackTop();
+			var funcDef = this.funcDef;
 
 			if (!funcDef) {
 				throw "Undefined function " + this.name;
 			}
-			if (!continueExec)
+			if (!this.executing)
 			{
 				this.setArguments(funcDef.getArguments(), this.argumentsValues);
 				cnt -= 1; //check it!!!
@@ -1644,14 +1644,14 @@ define('CommandsMode', ['jQuery',
 			}
 			if (funcDef) {
 				cnt = funcDef.body.exec(cnt, this.arguments);
+				if (funcDef.body.isFinished()) {
+					this.executing = false;
+					this.funcDef = undefined;
+				}
 			}
 			return cnt;
 		},
 		
-		getCallStackTop: function() {
-			return this.callStack[this.callStack.length - 1];
-		},
-
 		getClass: function(){
 			return 'functionCall';
 		},
