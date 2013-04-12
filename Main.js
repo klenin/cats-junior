@@ -137,10 +137,10 @@ requirejs(['require',
 						problems[i].onTabSelected(curProblemIndex);
 					}
 				}
-				if (ui.index == (problems.length + 2))
+				/*if (ui.index == (problems.length + 2))
 				{
 					setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
-				}
+				}*/
 				$.cookie('tabIndex', ui.index);
 			},
 

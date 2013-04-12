@@ -218,12 +218,14 @@ define('Interface', ['jQuery',
 		}); 
 		changeUser();
 		problems = [];
+		codeareas = [];
 		currentServer.getProblems(function(data){
 			for (var i = 0; i < data.length; ++i){
 				problems[i] = new Problems.Problem(data[i], i);
 				if ($('#ui-tabs-' + (i + 1)).length){
 					$('#ui-tabs-' + (i + 1)).empty();
 					$('#tabs').tabs('remove', i + 1);
+					$('#codearea' + i).empty();
 				}
 				$('#tabs').tabs('add', '#ui-tabs-' + (i + 1), problems[i].code, i + 1);
 				var buttons = [];
