@@ -236,13 +236,14 @@ define('Interface', ['jQuery',
 	function startWaitForCommandsGeneration(problem) {
 		if (problem.loadedCnt > 0) {
 			$.blockUI({ 
-				message: '<img src="images/busy.gif" />', 
+				message: '',
 				fadeIn: 0,
-				css: {
-					width: '20px', 
-			        top: '20px', 
-			        left: '20px'
-				}});
+				overlayCSS: { 
+					backgroundColor: '#ffffff',
+					opacity: 0,
+					cursor: 'progress'
+				}
+			});
 			waitForCommandsGeneration(problem);
 		}
 	}
