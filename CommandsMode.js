@@ -1137,7 +1137,7 @@ define('CommandsMode', ['jQuery',
 						$('#while0').attr('rel'),
 						self.problem,
 						undefined, 
-						conditionProperties, 
+						self.conditionProperties, 
 						self.args, 
 						true);
 					var numId = $(newNode).prop('numId');
