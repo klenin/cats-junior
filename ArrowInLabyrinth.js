@@ -613,6 +613,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			
 			setLabyrinth: function(specSymbols) {
 				var obj = undefined;
+				this.numOfPrizes = 0;
 				for (var i = 0; i < this.mapFromTest.length; ++i){
 					this.map[i] = [];
 					for (var j = 0; j < this.mapFromTest[i].length; ++j){
