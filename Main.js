@@ -100,7 +100,9 @@ require.config({
 		'SkBuiltinDict': ['SkStr'],
 		'Cylinder': ['Svg', 'jQueryInherit'],
 		'Svg': ['jQuery'],
-		'Misc': []
+		'Misc': ['Declaration'],
+		'AtHome': [],
+		'Declaration': ['AtHome']
     }
   });
 	
@@ -113,7 +115,8 @@ requirejs(['require',
 	'jQueryCookie',
 	'CodeMode',
 	'Accordion',
-	'SkMiscEval'],
+	'SkMiscEval',
+	'Declaration'],
 	function   () {
 		var Servers = require('Servers');
 		var Interface = require('Interface');

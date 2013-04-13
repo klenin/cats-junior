@@ -6,7 +6,8 @@ define('Problems', ['jQuery',
 	'CommandsMode',
 	'ModesConvertion',
 	'CodeMode',
-	'ShowMessages'],
+	'ShowMessages',
+	'Declaration'],
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');

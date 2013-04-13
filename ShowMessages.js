@@ -1,4 +1,4 @@
-define('ShowMessages', ['jQuery', 'jQueryUI', 'jQueryInherit'], function(){
+define('ShowMessages', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Declaration'], function(){
 	var Message = $.inherit({
 		__constructor: function(params) {
 			this.params = params;

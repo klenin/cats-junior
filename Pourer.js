@@ -4,6 +4,7 @@ define('Pourer',
 		var ShowMessages = require('ShowMessages');
 		var Message = ShowMessages.Message;
 		var CylinderModule = require('Cylinder');
+		var Declaration = require('Declaration');
 
 		var Vessel = $.inherit({
 			__constructor: function(color, capacity, initFilled, isEndless, div, maxCapacity) {

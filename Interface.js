@@ -8,9 +8,11 @@ define('Interface', ['jQuery',
 	'Problems',
 	'CodeMode',
 	'jQueryTmpl',
-	'ModesConvertion'], function(){
+	'ModesConvertion',
+	'Declaration'], function(){
 	var Problems = require('Problems');
 	var ModesConvertion = require('ModesConvertion');
+	var Servers = require('Servers');
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
 
 	function login(callback, firstTrying){
@@ -62,7 +64,7 @@ define('Interface', ['jQuery',
 		name = user[0].defaultValue;
 		for (var i = 0; i < users.length; ++i){
 			if (name == users[i].name){
-				var curUser = new Servers.User(users[i].login, '', users[i].jury, users[i].name);
+				var curUser = new Servers.User(users[i].login, '', users[i].jury, users[i].name, users[i].id);
 				if ($.cookie('passwd')) {
 					curUser.passwd = $.cookie('passwd');
 				}
@@ -96,7 +98,13 @@ define('Interface', ['jQuery',
 			for (var i = 0; i < data.length; ++i){
 				if (data[i].ooc == 1)
 					continue;
-				users.push({'login': data[i].login, 'name': data[i].name, 'jury': data[i].jury, 'passwd': currentServer.defaultPass}); 
+				users.push({
+					'login': data[i].login, 
+					'name': data[i].name, 
+					'jury': data[i].jury, 
+					'passwd': currentServer.defaultPass,
+					'id': data[i].account_id,
+				}); 
 			}
 			$('#userListDiv').empty();
 			if (users.length > 0){
@@ -130,6 +138,49 @@ define('Interface', ['jQuery',
 		if (!currentServer.getSid())
 			(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 		curProblem.submit();
+	}
+
+	function loadCode(rid){
+		currentServer.getCode(rid, function(data){
+			var i = curProblem.tabIndex;
+			codeareas[i].setValue(data);
+			codeareas[i].refresh();
+			curProblem.setDefault();
+		});
+	}
+
+	getContestContentClick = function () {
+		if (!currentServer.getSid()) {
+			alert('Невозможно загрузить решение, так как не выбран пользователь');
+			return false;
+		}
+
+		currentServer.getConsoleContent(function(data){
+			var div = $('<div></div>');
+			for (var i = 0; i < data.length; ++i) {
+				/*if (data[i].team_name == currentServer.getUser().name)*/ {
+					$(div).append('<input type="radio" name="attempts" id="attempts_' + i + '" value="'+ data[i].id + '"' + 
+						(i == 0 ? 'checked': '') +'/>' + 
+						'<label for="attempts_' +  i + '">' + data[i].time + '</label><br>');
+				}
+			}
+
+			$(div).dialog({
+				modal: true,
+				buttons: {
+					Ok: function() {
+						loadCode($(this).children(':checked').val());
+						$(this).dialog('close');					
+					},
+					Cancel: function(){
+						$(this).dialog('close');	
+					}
+				}, 
+				autoOpen: false
+			});
+
+			$(div).dialog('open');
+		});
 	}
 
 	function getContests(){
@@ -260,6 +311,8 @@ define('Interface', ['jQuery',
 				$('#btn_clear' + i).click(clearClick);
 				$('#submit' + i).button({icons: {primary: 'ui-icon-check'}});
 				$('#submit' + i).click(submitClick);
+				$('#loadCode' + i).button().click(getContestContentClick);
+				$('#loadCode' + i).hide();
 				$('#tdcode' + i).hide();
 				$('#addWatch' + i).hide();
 				$('#watchTable' + i).hide();
@@ -336,6 +389,7 @@ define('Interface', ['jQuery',
 							$('#jstree-container' + j).show();
 							$('#funccall-container' + j).show();
 							$('#tdcode' + j).hide();
+							$('#loadCode' + j).hide();
 							$('#addWatch' + j).hide();
 							$('#watchTable' + j).hide();
 							$('#tdcommands' + j).show();
@@ -357,6 +411,7 @@ define('Interface', ['jQuery',
 							$('#tdcontainer' + j).hide();
 							$('#btn_clear' + j).hide();
 							$('#tdcode' + j).show();
+							$('#loadCode' + j).show();
 							codeareas[j].setValue(problems[j].convertCommandsToCode());
 							codeareas[j].refresh();
 							problems[j].setDefault();
@@ -385,6 +440,7 @@ define('Interface', ['jQuery',
 							$('#addWatchDialog').dialog('open');
 						}
 					}(i));
+
 				lastWatchedIndex.push(0);
 				watchList.push({});
 			}

@@ -1,4 +1,4 @@
-define('CallServer', ['jQuery'], function(){
+define('CallServer', ['jQuery', 'AtHome'], function(){
 	function callScript(url, callback, dtype){
 		if (atHome){
 			$.ajax({

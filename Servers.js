@@ -1,13 +1,14 @@
-define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
+define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(){
 	var CallServer = require('CallServer');
 	
 	
 	var User = $.inherit({
-		__constructor: function(login, pass, jury, name) {
+		__constructor: function(login, pass, jury, name, id) {
 			this.login = login;
 			this.passwd = pass;
 			this.jury = jury;
 			this.name = name;
+			this.id = id;
 		},
 
 		setPasswd: function(pass) {
@@ -60,6 +61,14 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			return this.session.sid;
 		},
 
+		getUserId: function() {
+			return this.user.id;
+		},
+
+		getUser: function() {
+			return this.user;
+		},
+
 		submit: function() {
 		},
 
@@ -80,6 +89,14 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		getResults: function() {
+		},
+
+		getConsoleContent: function() {
+
+		},
+
+		getCode: function(rid) {
+
 		}
 	});
 
@@ -120,72 +137,66 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		login: function(userLogin, userPass, callback) {
-			var self = this;
 			CallServer.callScript(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;', 
 				function(data) {
-					self.onLogin(data);
 					callback(data);
 				}, 
 				this.dataType);
 		},
 
 		logout: function(callback) {
-			var self = this;
 			CallServer.callScript(this.url +'f=logout;sid=' + this.getSid() + ';json=1;', 
 				function(data) {
-					self.onLogout(data);
 					callback(data);
 				}, 
 				this.dataType);
 		},
 
 		getUsersList: function(callback) {
-			var self = this;
 			CallServer.callScript(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=1;sort_dir=0;', 
 				function(data) {
-					self.onGetUsersList(data);
 					callback(data);
 				}, 
 				this.dataType);
 		},
 
 		getContestsList: function(callback) {
-			var self = this;
 			CallServer.callScript(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', 
 				function(data) {
-					self.onGetContestsList(data);
 					callback(data);
 				}, 
 				this.dataType);
 		},
 
 		getProblems: function(callback) {
-			var self = this;
 			CallServer.callScript(this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1',
 				function(data) {
-					self.onGetProblems(data);
 					callback(data);
 				},
 				this.dataType);
 		},
 
-		onLogin: function(data) {
+		getConsoleContent: function(callback){
+			if (this.getCid() && this.getSid()){
+				CallServer.callScript(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() + 
+					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
+					function(data) {
+						callback(data);
+					},
+					this.dataType
+				);
+			}
 		},
 
-		onLogout: function(data) {
-			
-		},
-
-		onGetUsersList: function(data) {
-		
-		},
-
-		onGetContestsList: function(data) {
-		
-		},
-		
-		onGetProblems: function(data) {
-		
+		getCode: function(rid, callback) {
+			if (this.getCid() && this.getSid()){
+				CallServer.callScript(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() + 
+					';rid=' + rid, 
+					function(data){
+							callback(data);
+					},
+					'text');
+			}
 		}
 	});
 
