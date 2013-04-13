@@ -1562,7 +1562,7 @@ define('CommandsMode', ['jQuery',
 	});
 
 	var FuncCall = $.inherit({
-		__constructor : function(name, argumentsValues, parent, id, funcName, problem) {
+		__constructor : function(name, argumentsValues, parent, id, problem) {
 			this.name = name;
 			this.parent = parent;
 			this.problem = problem;
@@ -1570,12 +1570,11 @@ define('CommandsMode', ['jQuery',
 			this.id = id;
 			this.argumentsValues = argumentsValues.clone();
 			this.timestamp = new Date().getTime();
-			//this.funcName = name;
 			this.funcDef = undefined;
 		},
 		
 		createClone: function() {
-			var clone = new FuncCall(this.name, this.argumentsValues, this.parent, this.id, undefined, this.problem);
+			var clone = new FuncCall(this.name, this.argumentsValues, this.parent, this.id, this.problem);
 			return clone;
 		},
 

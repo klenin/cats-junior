@@ -58,7 +58,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					args.push($('#' + id).children('input:eq(' + j + ')').val());
 				}
 				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data : 
-					$('#' + id).text().split(' ').join(''), args,  block, id, $('#' + id).attr('funcId'), problem));
+					$('#' + id).text().split(' ').join(''), args,  block, id, problem));
 			}
 			else{
 				var argValues = [];
@@ -184,8 +184,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 							block, undefined, problem));
 					}
 					else {
-						var funcId = problem.functions[commands[i].value.func.id.v][getArgumentValues(commands[i]).length].funcId;
-						block.pushCommand(new CommandsMode.FuncCall(commands[i].value.func.id.v, getArgumentValues(commands[i]), block, undefined, funcId, problem));
+						block.pushCommand(new CommandsMode.FuncCall(commands[i].value.func.id.v, getArgumentValues(commands[i]), block, undefined, problem));
 					}
 					break;
 				case 'For':
