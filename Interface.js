@@ -158,18 +158,24 @@ define('Interface', ['jQuery',
 		currentServer.getConsoleContent(function(data){
 			var div = $('<div></div>');
 			for (var i = 0; i < data.length; ++i) {
-				/*if (data[i].team_name == currentServer.getUser().name)*/ {
+				if (data[i].type == 'submit' && data[i].problem_title == curProblem.title) {
 					$(div).append('<input type="radio" name="attempts" id="attempts_' + i + '" value="'+ data[i].id + '"' + 
 						(i == 0 ? 'checked': '') +'/>' + 
 						'<label for="attempts_' +  i + '">' + data[i].time + '</label><br>');
 				}
 			}
 
+			if (!$(div).children('input').length) {
+				$(div).append('<p>Попытки отсутствуют</p>');
+			}
+
 			$(div).dialog({
 				modal: true,
 				buttons: {
 					Ok: function() {
-						loadCode($(this).children(':checked').val());
+						if ($(this).children('input').length) {
+							loadCode($(this).children(':checked').val());
+						}
 						$(this).dialog('close');					
 					},
 					Cancel: function(){
