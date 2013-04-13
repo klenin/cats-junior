@@ -6,7 +6,8 @@ define('CommandsMode', ['jQuery',
 	'InterfaceJSTree',
 	'Accordion',
 	'ExecutionUnitWrapper',
-	'ShowMessages'], function(){
+	'ShowMessages',
+	'Misc'], function(){
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
 	var InterfaceJSTree = require('InterfaceJSTree');
 	var ShowMessages = require('ShowMessages');

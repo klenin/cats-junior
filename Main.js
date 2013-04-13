@@ -99,7 +99,8 @@ require.config({
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
 		'Cylinder': ['Svg', 'jQueryInherit'],
-		'Svg': ['jQuery']
+		'Svg': ['jQuery'],
+		'Misc': []
     }
   });
 	

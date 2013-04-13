@@ -472,7 +472,22 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		}
 		return result;
 	}
+
+	function isCompleted_handler() {
+		return curProblem.executionUnit.getExecutionUnit().isCompleted();
+	}
 	
+	function isCompleted(args) {
+		var condition = args[0];
+		var result = curProblem.executionUnit.getExecutionUnit().isCompleted();
+
+		if (condition == 'not') {
+			result = !result; 
+		}
+
+		return result;
+	}
+
 	return {
 		ArrowInLabyrinth: $.inherit({
 			__constructor: function(problem, problemData, div) {
@@ -912,6 +927,10 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			getCssFileName: function() {
 				return this.__self.cssFileName;
+			},
+
+			isCompleted: function() {
+				return this.curNumOfPrizes == this.numOfPrizes;
 			}
 		}, 
 		{ //static methods and properties
@@ -983,6 +1002,12 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				])],
 				'jsFunc': objectPosition,
 				'handlerFunc': objectPosition_handler,
+			},
+			{
+				'name': 'isCompleted',
+				'args':[],
+				'jsFunc': isCompleted,
+				'handlerFunc': isCompleted_handler
 			}],
 
 			cssFileName: "styles/arrowInLabyrinth.css",

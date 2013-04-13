@@ -1,4 +1,4 @@
-define('Spin', ['jQuery', 'jQueryUI'], function(){
+define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 	(function($)
 	{
 		var methods = 

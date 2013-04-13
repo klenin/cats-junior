@@ -1,4 +1,4 @@
-define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit'], function(){
+define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'], function(){
 	var ExecutionUnitCommandArgument = $.inherit({
 		__constructor : function(name, type, isCounter, minValue, maxValue) {
 			this.name = name;
