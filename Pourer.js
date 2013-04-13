@@ -635,6 +635,19 @@ define('Pourer',
 					for (var i = 0; i < this.vessels.length; ++i) {
 						this.vessels[i].show();
 					}
+				},
+				
+				getState: function() {
+					var result = {};
+					result.vessels = [];
+
+					for (var i = 0; i < this.vessels.length; ++i){
+						results.push(this.vessels[i].filled);
+					}
+					result.isFinished = this.isFinished();
+					result.points = this.points;
+
+					return result;
 				}
 			},
 			{

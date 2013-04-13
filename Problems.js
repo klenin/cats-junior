@@ -780,6 +780,10 @@ function() {
 				this.executionUnit.onTabSelected(problemId);
 			}
 			
+		},
+
+		getState: function() {
+			return this.executionUnit.getState();
 		}
 	});
 

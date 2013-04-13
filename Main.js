@@ -51,7 +51,8 @@ require.config({
 		'SkBuiltinDict': 'import/skulpt/src/builtindict',
 		'SkFunc': 'import/skulpt/src/function',
 		'Svg': 'import/jquery/jquery.svg',
-		'Cylinder': 'import/jquery/tube_cylinder'
+		'Cylinder': 'import/jquery/tube_cylinder',
+		'QUnit': 'import/jquery/qunit-1.11.0'
     },
     shim: {
     	'jQueryCookie': ['jQuery'],
@@ -105,7 +106,9 @@ require.config({
 		'Declaration': ['AtHome']
     }
   });
-	
+
+	QUnit.config.autostart = false;
+
 requirejs(['require', 
 	'jQuery', 
 	'jQueryUI', 
@@ -116,12 +119,16 @@ requirejs(['require',
 	'CodeMode',
 	'Accordion',
 	'SkMiscEval',
-	'Declaration'],
+	'Declaration', 
+	'Tests'],
 	function   () {
 		var Servers = require('Servers');
 		var Interface = require('Interface');
 		var InterfaceJSTree = require('InterfaceJSTree');
+		//var Tests = require('Tests');
+
 		
+
 	    $(document).ready(function(){
 		if ($.browser.msie){
 			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
@@ -309,5 +316,13 @@ requirejs(['require',
 		else 
 			Interface.fillTabs();
 		cmdId = problems.length;
+
+		/*$('#startTests').button().click(function(){
+			QUnit.start();
+			Tests.RunTests();
+		});*/
+
+		QUnit.start(); //Tests loaded, run tests
+		//Tests.RunTests();
 	});
 });	

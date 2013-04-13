@@ -261,6 +261,82 @@ define('Interface', ['jQuery',
 		}
 	}
 
+	function goToCommandsMode(problem) {
+		var j = problem.tabIndex;
+		var l = codeareas[j].getValue().length;
+		try {
+			problem.prepareForExecuting();
+			var block = finalcode[j] ?
+				ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
+				new CommandsMode.Block([], undefined, problem);
+
+			$('#jstree-container' + j).empty();	
+			$('#accordion' + j).myAccordion( 'clear' );
+			problem.functions = {};
+			if (block) {
+				//problems[j].cmdList = block;//??
+
+				problem.loadedCnt = 1;
+				startWaitForCommandsGeneration(problem);
+				block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+				--problem.loadedCnt;
+				
+				//setTimeout(function() {problems[j].updated()}, 20000);
+				//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+			}
+			else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+				$("#commandsMode" + j).prop('checked', false);
+				$("#codeMode" + j).prop('checked', true);
+				problem.updated();
+				return;
+			}
+		}
+		catch(e){
+			console.error(e);
+			$.unblockUI();
+			++cmdId;
+			problem.updated();
+			if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+				$("#commandsMode" + j).prop('checked', false);
+				$("#codeMode" + j).prop('checked', true);
+				return;
+			}
+		}
+		$('#ulCommands' + j).show();
+		$('#jstree-container' + j).show();
+		$('#funccall-container' + j).show();
+		$('#tdcode' + j).hide();
+		$('#loadCode' + j).hide();
+		$('#addWatch' + j).hide();
+		$('#watchTable' + j).hide();
+		$('#tdcommands' + j).show();
+		$('#btn_clear' + j).show();
+		$('#tdcontainer' + j).show();
+		$('#accordion' + j).show();
+		problems[j].updated();
+	}
+
+	function goToCodeMode(problem) {
+		var j = problem.tabIndex;
+		$('#accordion' + j).empty();
+		$('#accordion' + j).hide()
+		$('#ulCommands' + j).hide();
+		$('#ulCommands_' + j).show();
+		$('#jstree-container' + j).hide();
+		$('#funccall-container' + j).hide();
+		$('#tdcommands' + j).hide();
+		$('#tdcommands_' + j).show();
+		$('#tdcontainer' + j).hide();
+		$('#btn_clear' + j).hide();
+		$('#tdcode' + j).show();
+		$('#loadCode' + j).show();
+		codeareas[j].setValue(problem.convertCommandsToCode());
+		codeareas[j].refresh();
+		problem.setDefault();
+		$('#addWatch' + j).show();
+		$('#watchTable' + j).show();
+	}
+
 	function fillTabs(){
 		if ($('#ui-tabs-0').length){
 			$('#ui-tabs-0').empty();
@@ -355,77 +431,10 @@ define('Interface', ['jQuery',
 				$(groupBox).change(function(j){
 					return function(){
 					    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
-							var l = codeareas[j].getValue().length;
-							try {
-								problems[j].prepareForExecuting();
-								var block = finalcode[j] ?
-									ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true):
-									new CommandsMode.Block([], undefined, problems[j]);
-
-								$('#jstree-container' + j).empty();	
-								$('#accordion' + j).myAccordion( 'clear' );
-								problems[j].functions = {};
-								if (block) {
-									//problems[j].cmdList = block;//??
-
-									problems[j].loadedCnt = 1;
-									startWaitForCommandsGeneration(problems[j]);
-									block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
-									--problems[j].loadedCnt;
-									
-									//setTimeout(function() {problems[j].updated()}, 20000);
-									//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-								}
-								else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-									$("#commandsMode" + j).prop('checked', false);
-									$("#codeMode" + j).prop('checked', true);
-									problems[j].updated();
-									return;
-								}
-							}
-							catch(e){
-								console.error(e);
-								$.unblockUI();
-								++cmdId;
-								problems[j].updated();
-								if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-									$("#commandsMode" + j).prop('checked', false);
-									$("#codeMode" + j).prop('checked', true);
-									return;
-								}
-							}
-							$('#ulCommands' + j).show();
-							$('#jstree-container' + j).show();
-							$('#funccall-container' + j).show();
-							$('#tdcode' + j).hide();
-							$('#loadCode' + j).hide();
-							$('#addWatch' + j).hide();
-							$('#watchTable' + j).hide();
-							$('#tdcommands' + j).show();
-							$('#btn_clear' + j).show();
-							$('#tdcontainer' + j).show();
-							$('#accordion' + j).show();
-							problems[j].updated();
-					
-				    	}
+							goToCommandsMode(problems[j]);
+					   	}
 					    else {
-							$('#accordion' + j).empty();
-							$('#accordion' + j).hide()
-				    		$('#ulCommands' + j).hide();
-							$('#ulCommands_' + j).show();
-							$('#jstree-container' + j).hide();
-							$('#funccall-container' + j).hide();
-							$('#tdcommands' + j).hide();
-							$('#tdcommands_' + j).show();
-							$('#tdcontainer' + j).hide();
-							$('#btn_clear' + j).hide();
-							$('#tdcode' + j).show();
-							$('#loadCode' + j).show();
-							codeareas[j].setValue(problems[j].convertCommandsToCode());
-							codeareas[j].refresh();
-							problems[j].setDefault();
-							$('#addWatch' + j).show();
-							$('#watchTable' + j).show();
+					    	goToCodeMode(problems[j]);
 				    	}
 					}
 				}(i));
@@ -598,6 +607,8 @@ define('Interface', ['jQuery',
 		changeContest: changeContest,
 		fillTabs: fillTabs,
 		onFinishExecuting: onFinishExecuting,
+		goToCodeMode: goToCodeMode,
+		goToCommandsMode: goToCommandsMode
 	};
 
 });

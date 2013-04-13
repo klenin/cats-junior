@@ -932,6 +932,19 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			isCompleted: function() {
 				return this.curNumOfPrizes == this.numOfPrizes;
+			},
+
+			getState: function() {
+				return {
+					'arrow': {
+						'dir': this.arrow.dir, 
+						'coord': this.arrow.coord,
+						'dead': this.arrow.dead
+					},
+					'points': this.points,
+					'curNumOfPrizes': this.curNumOfPrizes,
+					'completed': this.isCompleted()
+				}
 			}
 		}, 
 		{ //static methods and properties
