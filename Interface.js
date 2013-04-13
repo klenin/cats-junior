@@ -13,7 +13,9 @@ define('Interface', ['jQuery',
 	var Problems = require('Problems');
 	var ModesConvertion = require('ModesConvertion');
 	var Servers = require('Servers');
+	var CommandsMode = require('CommandsMode');
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
+
 
 	function login(callback, firstTrying){
 		currentServer.setSid(undefined);
@@ -356,29 +358,29 @@ define('Interface', ['jQuery',
 							var l = codeareas[j].getValue().length;
 							try {
 								problems[j].prepareForExecuting();
-								var block = undefined;
-								if (finalcode[j]) {
-									block = ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
-									$('#jstree-container' + j).empty();	
-									$('#accordion' + j).myAccordion( 'clear' );
-									problems[j].functions = {};
-									if (block) {
-										//problems[j].cmdList = block;//??
+								var block = finalcode[j] ?
+									ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true):
+									new CommandsMode.Block([], undefined, problems[j]);
 
-										problems[j].loadedCnt = 1;
-										startWaitForCommandsGeneration(problems[j]);
-										block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
-										--problems[j].loadedCnt;
-										
-										//setTimeout(function() {problems[j].updated()}, 20000);
-										//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-									}
-									else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-										$("#commandsMode" + j).prop('checked', false);
-										$("#codeMode" + j).prop('checked', true);
-										problems[j].updated();
-										return;
-									}
+								$('#jstree-container' + j).empty();	
+								$('#accordion' + j).myAccordion( 'clear' );
+								problems[j].functions = {};
+								if (block) {
+									//problems[j].cmdList = block;//??
+
+									problems[j].loadedCnt = 1;
+									startWaitForCommandsGeneration(problems[j]);
+									block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+									--problems[j].loadedCnt;
+									
+									//setTimeout(function() {problems[j].updated()}, 20000);
+									//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
+								}
+								else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+									$("#commandsMode" + j).prop('checked', false);
+									$("#codeMode" + j).prop('checked', true);
+									problems[j].updated();
+									return;
 								}
 							}
 							catch(e){
