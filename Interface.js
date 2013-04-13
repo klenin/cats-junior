@@ -355,13 +355,13 @@ define('Interface', ['jQuery',
 					    if ($("input[name='group" + j + "']" + ":checked").prop('id') == 'commandsMode' + j) {
 							var l = codeareas[j].getValue().length;
 							try {
-								$('#jstree-container' + j).empty();	
-								$('#accordion' + j).myAccordion( 'clear' );
 								problems[j].prepareForExecuting();
-								problems[j].functions = {};
 								var block = undefined;
 								if (finalcode[j]) {
 									block = ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true);
+									$('#jstree-container' + j).empty();	
+									$('#accordion' + j).myAccordion( 'clear' );
+									problems[j].functions = {};
 									if (block) {
 										//problems[j].cmdList = block;//??
 
