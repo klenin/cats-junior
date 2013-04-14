@@ -1,1 +1,1 @@
-var atHome = 1; //for testing
+var atHome = 0;
