@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<CATS version="1.7">
+<Problem title="По кругу" lang="ru"
+  author="E. Vasilyeva" tlimit="1" mlimit="256" inputFile="input.txt" outputFile="output.txt">
+
+<Keyword code="cmp.trivial" />
+
+<ProblemStatement>
+<p>
+Необходимо собрать максимальное количество звездочек, потратив на это минимальное количество команд (Прямо, Налево, Направо). Одна и та же команда, выполненная несколько раз (например, в цикле или функции), учитывается один раз. 
+За каждую звезду получаете 15 очков. За каждую команду штраф - 5 очков.</p><p>
+</p><p>
+</p>
+</ProblemStatement>
+<JsonData><include src="problem.json"/></JsonData>
+<Solution src="sol_.pp" name="sol" />
+<Module name="problem" src="problem.json" type="checker" de_code="1"/>
+<Checker style="partial" src="Main.py" />
+<Test rank="*"><Out use="sol" /></Test>
+
+<Test rank="1" points = "100"><In src="problem.json"/></Test>
+</Problem>
+</CATS>

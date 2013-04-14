@@ -5,14 +5,12 @@
 	"commandsFine": 10,
 	"vessels": [
 		{
-			"color": "#FF0000",
 			"capacity": 99,
 			"initFilled": 0, 
 			"isEndless": false
 		},
 		
 		{
-			"color": "#00FF00",
 			"capacity": 98,
 			"initFilled": 0, 
 			"isEndless": false
@@ -28,5 +26,5 @@
 	"dLife": 0,
 	"startPoints": 0,
 	"controlCommands": ["if", "funcdef"],
-	"pointsWon": 100
+	"pointsWon": 90	
 }
