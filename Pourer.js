@@ -7,8 +7,7 @@ define('Pourer',
 		var Declaration = require('Declaration');
 
 		var Vessel = $.inherit({
-			__constructor: function(color, capacity, initFilled, isEndless, div, maxCapacity) {
-				this.color = color;
+			__constructor: function(capacity, initFilled, isEndless, div, maxCapacity) {
 				this.capacity = capacity;
 				this.initFilled = initFilled;
 				this.filled = initFilled;
@@ -298,6 +297,7 @@ define('Pourer',
 		function checkFilledHandler(first, comparator, second){
 			first -= 1;
 			comparator = comparator.v;
+			second -= 1;
 
 			switch(comparator) {
 				case '<':
@@ -372,8 +372,8 @@ define('Pourer',
 							new ExecutionUnitCommands.TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
 							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
 						],
-						'jsFunc': compare,
-						'handlerFunc': compare_handler,
+						'jsFunc': checkFilled,
+						'handlerFunc': checkFilledHandler,
 					}]
 				},
 
@@ -389,8 +389,7 @@ define('Pourer',
 					
 					for (var i = 0; i < this.data.vessels.length; ++i) {
 						var cell = $('<td valign="bottom"></td>').appendTo($(this.row));
-						this.vessels.push(new Vessel(this.data.vessels[i].color, 
-							this.data.vessels[i].capacity, 
+						this.vessels.push(new Vessel(this.data.vessels[i].capacity, 
 							this.data.vessels[i].initFilled, 
 							this.data.vessels[i].isEndless,
 							cell,
