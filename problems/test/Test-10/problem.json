@@ -26,7 +26,7 @@
 			"style": "star",
 			"name": "звезда",
 			"action": "eat",
-			"points": 50,
+			"points": 31,
 			"dLife": 0
 		}
 	],
@@ -34,7 +34,9 @@
 	"locks": [],
 	"movingElements":[],
 	"commands": ["forward", "left", "right"],
+	"controlCommands": ["if", "ifelse", "funcdef", "while"],
 	"startLife": 1,
 	"dLife": 0,
-	"startPoints": 0
+	"startPoints": 0, 
+	"commandsFine": 8
 }

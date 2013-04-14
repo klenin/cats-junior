@@ -7,7 +7,7 @@ define('Tests',
 		var Interface = require('Interface');
 
 		function getJsTree(problem) {
-			return jQuery.jstree._reference('#jstree-container' + problem.tabIndex);
+			return $('#jstree-container' + problem.tabIndex);
 		}
 
 		function addCommand(tree, type, problem){
@@ -55,7 +55,7 @@ define('Tests',
 			$('#tabs').tabs('select', tabIndex);
 		}
 
-		asyncTest('test select of problems', function(){
+		asyncTest('test select of problems', 1, function(){
 			selectProblem(1);
 
 			setTimeout(function(){
@@ -64,7 +64,7 @@ define('Tests',
 			}, 500);
 		});
 
-		asyncTest('test addCommand()', function(){
+		asyncTest('test addCommand()', 2, function(){
 			var tree = getJsTree(curProblem);
 			var type = 'forward';
 
@@ -74,7 +74,7 @@ define('Tests',
 				var nodes = getTreeNodes(tree);
 
 				ok(nodes.length == 1, 'nodes count');
-				ok(nodes[0].attr('rel') == type, 'check type');
+				ok(nodes[0].attr.rel == type, 'check type');
 				start();
 			}, 1000);
 		});

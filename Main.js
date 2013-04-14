@@ -107,7 +107,7 @@ require.config({
     }
   });
 
-	QUnit.config.autostart = false;
+	//QUnit.config.autostart = false;
 
 requirejs(['require', 
 	'jQuery', 
@@ -120,7 +120,7 @@ requirejs(['require',
 	'Accordion',
 	'SkMiscEval',
 	'Declaration', 
-	'Tests'],
+	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
 		var Interface = require('Interface');
@@ -322,7 +322,7 @@ requirejs(['require',
 			Tests.RunTests();
 		});*/
 
-		QUnit.start(); //Tests loaded, run tests
+		//QUnit.start(); //Tests loaded, run tests
 		//Tests.RunTests();
 	});
 });	
