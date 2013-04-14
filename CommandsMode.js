@@ -50,7 +50,11 @@ define('CommandsMode', ['jQuery',
 		},
 
 		createClone: function() {
-			var clone = new Command(this.name, this.initArguments, this.initArgumentsValues, this.parent, this.id, this.problem);
+			var argumentValues = [];
+			for (var i = 0; i < this.arguments.length; ++i) {
+				argumentsValues.push(this.arguments[i].value);
+			}
+			var clone = new Command(this.name, this.arguments, argumentValues, this.parent, this.id, this.problem);
 			return clone;
 		},
 

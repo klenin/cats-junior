@@ -23,7 +23,6 @@ define('Pourer',
 
 			init: function() {
 				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
-
 				this.vesselDiv = $('<div style="width:150px; height:' + 
 					(300 * (this.capacity + 0.0)/ this.maxCapacity) + ';position: absolute"></div>').appendTo($('body'));
 
