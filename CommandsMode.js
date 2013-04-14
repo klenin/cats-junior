@@ -52,7 +52,7 @@ define('CommandsMode', ['jQuery',
 		createClone: function() {
 			var argumentValues = [];
 			for (var i = 0; i < this.arguments.length; ++i) {
-				argumentsValues.push(this.arguments[i].value);
+				argumentValues.push(this.arguments[i].value);
 			}
 			var clone = new Command(this.name, this.arguments, argumentValues, this.parent, this.id, this.problem);
 			return clone;
@@ -1663,6 +1663,7 @@ define('CommandsMode', ['jQuery',
 		setDefault: function(){
 			$('#' + this.id + '>span').css('background-color', '#FFFFFF');
 			this.executing = false;
+			this.funcDef = undefined;
 			/*funcDef = this.getFuncDef();
 			if (funcDef) {
 				funcDef.body.setDefault();	
