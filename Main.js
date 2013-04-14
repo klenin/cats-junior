@@ -50,8 +50,9 @@ require.config({
 		'SkImport': 'import/skulpt/src/import',
 		'SkBuiltinDict': 'import/skulpt/src/builtindict',
 		'SkFunc': 'import/skulpt/src/function',
-		'Svg': 'import/jquery/jquery.svg',
-		'Cylinder': 'import/jquery/tube_cylinder',
+		//'Svg': 'import/jquery/jquery.svg',
+		'Cylinder': 'import/jquery/cylinder',
+		'Raphael': 'import/jquery/raphael', 
 		'QUnit': 'import/jquery/qunit-1.11.0'
     },
     shim: {
@@ -99,11 +100,13 @@ require.config({
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
-		'Cylinder': ['Svg', 'jQueryInherit'],
-		'Svg': ['jQuery'],
+		//'Cylinder': ['Svg', 'jQueryInherit'],
+		//'Svg': ['jQuery'],
 		'Misc': ['Declaration'],
 		'AtHome': [],
-		'Declaration': ['AtHome']
+		'Declaration': ['AtHome'],
+		'Raphael': ['jQuery'],
+		'Cylinder': ['Raphael']
     }
   });
 

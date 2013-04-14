@@ -22,41 +22,13 @@ define('Pourer',
 			},
 
 			init: function() {
-				/*var vesselHeight = (241 * (this.capacity / this.maxCapacity));
-				var circleHeight = (34 * (this.capacity / this.maxCapacity));
-				var bottomHeight = (14 * (this.capacity / this.maxCapacity));
-				
-				this.vesselDiv = $('<div style="background: url(\'images/vessel_bg.png\') no-repeat; background-size: 84px ' + vesselHeight
-					 + 'px; width: 84px; height: ' + vesselHeight + 'px; position: absolute;"></div>').appendTo($(this.div));
-
-				this.vesselBg = $('<div style = "background: url(\'images/water_bg.png\'); width: 95%; position: relative; z-index: 2"></div>').appendTo($(this.vesselDiv));
-				this.circle = $('<div style = "background: url(\'images/circle.png\') no-repeat; background-size: 84px ' + circleHeight
-					 + 'px; width: 95%; height: ' + circleHeight + 'px; position: absolute; z-index: 4"></div>').appendTo($(this.div));
-				this.bottom = $('<div style = "background: url(\'images/bottom.png\') no-repeat; background-size: 84px ' + bottomHeight
-					 + 'px; width: 95%; height: ' + bottomHeight + 'px; position: absolute; z-index: 3"></div>').appendTo($(this.div));
-
-				$(this.vesselBg).css({'height': ((this.initFilled / this.maxCapacity) * 100) + '%'});*/
-
 				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
 
-				this.vesselDiv = $('<div style="float:left;border:0px solid black; width:150px; height:400px; position: absolute"></div>').appendTo($('body'));
+				this.vesselDiv = $('<div style="width:150px; height:' + 
+					(300 * (this.capacity + 0.0)/ this.maxCapacity) + ';position: absolute"></div>').appendTo($('body'));
 
-				var self = this;
-
-				$(this.vesselDiv).svg({
-					onLoad: function (svg) { 
-						self.svg = svg;
-						/*makeCylinder(svg, {
-							inner: 300 * (self.initFilled + 0.0)/ self.maxCapacity, 
-							outer: 300 * (self.capacity + 0.0) / self.maxCapacity, 
-							red:0.5, 
-							green:1.0, 
-							blue:1.0
-						});
-						$(self.vesselDiv).hide();*/
-					}
-				});
-				/*
+				$(this.vesselDiv).css({'top': $(this.div).position().top})
+				
 				$(this.vesselDiv).cylinder({
 					  colors: {
 					    container: {
@@ -66,10 +38,11 @@ define('Pourer',
 					    fluid: {
 					      fill: '#0051A6',
 					      stroke: '#003974'
-					    }
-					  },
+					    },
+					  }, 
+					  height: 300 * (this.capacity + 0.0)/ this.maxCapacity,
 					  value: (this.initFilled + 0.0) / this.maxCapacity
-					});*/
+				});
 			},
 
 			setDefault: function(dontDraw) {
@@ -77,54 +50,12 @@ define('Pourer',
 			},
 
 			draw: function() {
-				$(this.vesselDiv).css({'top': $(this.div).position().top});
 				$(this.vesselDiv).show();
-
-				makeCylinder(this.svg, {
-					inner: 300 * (this.filled + 0.0)/ this.maxCapacity, 
-					outer: 300 * (this.capacity + 0.0) / this.maxCapacity, 
-					red:0.5, 
-					green:1.0, 
-					blue:1.0
-				});
-
-				/*if (!this.cylinder) {
-					this.cylinder = new Cylinder(this.svg, );
-				}
-				else {
-					this.cylinder.update(300 * (this.filled + 0.0)/ this.maxCapacity);
-				}
-				/*if (this.filled == 0) {
-					$(this.bottom).hide();
-					$(this.circle).hide();
-				}
-				else {
-					$(this.bottom).show();
-					$(this.bottom).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() - $(this.bottom).height(),
-						'left': $(this.vesselDiv).position().left})
-				}
-				
-				if (this.filled < this.capacity) {
-					$(this.vesselBg).css({'height': (this.filled / this.capacity) * $(this.vesselDiv).height() - $(this.bottom).height() + 'px', 'top': $(this.vesselDiv).height() * (1 - (this.filled / this.capacity))});		
-					if (this.filled != 0) {
-						$(this.circle).show();
-					}
-					$(this.circle).css({'top': Math.min(
-						$(this.vesselBg).position().top + $(this.vesselDiv).position().top - $(this.circle).height() / 2, 
-						$(this.bottom).position().top - $(this.circle).height() / 2), 
-						'left': $(this.vesselDiv).position().left});
-				}
-				else {
-					$(this.circle).show();
-					$(this.bottom).show();
-					$(this.vesselBg).css({'height': $(this.vesselDiv).height() - $(this.bottom).height() - $(this.circle).height() / 2 + 'px', 'top': $(this.circle).height() / 2 + 'px'});	
-					$(this.circle).css({'top': $(this.vesselDiv).position().top, 'left': $(this.vesselDiv).position().left});
-				}*/
+				$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
 
 				$(this.title).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() + 15,
 					'left': $(this.vesselDiv).position().left});
 				$(this.title).html(this.filled + '/' + this.capacity);
-				//$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
 				
 			},
 
@@ -150,11 +81,11 @@ define('Pourer',
 			},
 
 			getBottom: function() {
-				return this.getTop() + $(this.vesselDiv).height();
+				return this.getTop() + $(this.vesselDiv).height() + 5;
 			},
 
 			getTop: function() {
-				return $(this.vesselDiv).position().top;
+				return $(this.div).position().top;
 			},
 
 			setBottom: function(bottom) {
