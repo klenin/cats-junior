@@ -123,6 +123,7 @@ requirejs(['require',
 	'Accordion',
 	'SkMiscEval',
 	'Declaration', 
+	'Accordion'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
