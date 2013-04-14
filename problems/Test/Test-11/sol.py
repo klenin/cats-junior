@@ -1,23 +1,35 @@
-def go():
-  if not isCompleted():
-    moveForward()
-    if objectPosition("wall", "atTheLeft"):
-      right(1)
-    else:
-      left(1)
-    go()
 def moveForward():
-  if not objectPosition("wall", "inFrontOf"):
-    forward(1)
+  if objectPosition("wall", "atTheLeft"):
     if objectPosition("wall", "atTheRight"):
-      if objectPosition("wall", "atTheLeft"):
-        moveForward()
-      else:
-        if objectPosition("wall", "inFrontOf"):
-          moveForward()
-        else:
-          if objectPosition("wall", "behind"):
-            moveForward()
-    else:
+      forward(1)
       moveForward()
-go()
+def rotate():
+  if not objectPosition("wall", "atTheLeft"):
+    left(1)
+  else:
+    right(1)
+def rotate1():
+  if not objectPosition("wall", "atTheRight"):
+    right(1)
+  else:
+    left(1)
+for i in range(13):
+  moveForward()
+  if objectPosition("wall", "inFrontOf"):
+    rotate()
+    forward(1)
+  else:
+    rotate()
+    forward(2)
+    left(1)
+    forward(1)
+for i in range(17):
+  moveForward()
+  if objectPosition("wall", "inFrontOf"):
+    rotate1()
+    forward(1)
+  else:
+    rotate1()
+    forward(2)
+    right(1)
+    forward(1)
