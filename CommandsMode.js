@@ -1696,6 +1696,7 @@ define('CommandsMode', ['jQuery',
 			this.name = func.name;
 			//this.funcName = func
 			this.argumentsValues = func.argumentsValues.clone();
+			this.id = func.id;
 			return this;
 		},
 		
@@ -1746,7 +1747,7 @@ define('CommandsMode', ['jQuery',
 						self.argumentsValues,
 						true);  //$('#func0')?!
 					var numId = $(newNode).prop('numId');
-					self.id = numId;
+					self.id = 'funccall' + numId;
 					for (var i = 0; i < self.argumentsValues.length; ++i) {
 						$(newNode).children('input:eq(' + i + ')').val(self.argumentsValues[i]);
 					}
