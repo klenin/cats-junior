@@ -854,7 +854,8 @@
 
 				p.ot = $.jstree._reference(o) || this;
 				p.o = p.ot._get_node(o);
-				p.r = r === - 1 ? -1 : this._get_node(r);
+				p.r = r === - 1 ? -1 : $(r).is('.jstree') ? r : this._get_node(r);
+				
 				p.p = (typeof pos === "undefined" || pos === false) ? "last" : pos; // TODO: move to a setting
 				if(!is_cb && prepared_move.o && prepared_move.o[0] === p.o[0] && prepared_move.r[0] === p.r[0] && prepared_move.p === p.p) {
 					this.__callback(prepared_move);
@@ -2192,7 +2193,6 @@
 		user_data : {},
 
 		drag_start : function (e, data, html) { 
-			console.log('drag_start', 2195);
 			if($.vakata.dnd.is_drag) { $.vakata.dnd.drag_stop({}); }
 			try {
 				e.currentTarget.unselectable = "on";
@@ -2209,8 +2209,6 @@
 			return false;
 		},
 		drag : function (e) { 
-			console.log('drag', 2211);
-
 			if(!$.vakata.dnd.is_down) { return; }
 			if(!$.vakata.dnd.is_drag) {
 				if(Math.abs(e.pageX - $.vakata.dnd.init_x) > 5 || Math.abs(e.pageY - $.vakata.dnd.init_y) > 5) { 
@@ -2259,7 +2257,6 @@
 			$(document).triggerHandler("drag.vakata", { "event" : e, "data" : $.vakata.dnd.user_data });
 		},
 		drag_stop : function (e) {
-			console.log('drag_stop', 2262);
 			if(sli) { clearInterval(sli); }
 			if(sti) { clearInterval(sti); }
 			$(document).unbind("mousemove", $.vakata.dnd.drag);
@@ -2306,7 +2303,6 @@
 								$.vakata.dnd.helper.attr("class", "jstree-dnd-helper jstree-" + this.data.themes.theme);
 							}
 							//if($(e.currentTarget).find("> ul > li").length === 0) {
-							console.log(e.currentTarget, e.target, dc);
 							if(e.currentTarget === e.target && $.vakata.dnd.user_data.obj && $($.vakata.dnd.user_data.obj).length && $($.vakata.dnd.user_data.obj).parents(".jstree:eq(0)")[0] !== e.target) { // node should not be from the same tree
 								var tr = $.jstree._reference(e.target), dc;
 								if(tr.data.dnd.foreign) {
@@ -2414,7 +2410,6 @@
 						}
 					}, this))
 				.delegate("a", "mouseleave.jstree", $.proxy(function (e) { 
-						console.log('mouseleave.jstree', 2416);
 						if($.vakata.dnd.is_drag && $.vakata.dnd.user_data.jstree) {
 							if(e.relatedTarget && e.relatedTarget.id && e.relatedTarget.id === "jstree-marker-line") {
 								return false; 
@@ -2442,8 +2437,6 @@
 
 			$(document)
 				.bind("drag_stop.vakata", $.proxy(function () {
-						console.log('drag_stop.vakata', 2443);
-						console.log(this.data.dnd.to1, this.data.dnd.to2, this.data.dnd.i1, this.data.dnd.i2);
 						if(this.data.dnd.to1) { clearTimeout(this.data.dnd.to1); }
 						if(this.data.dnd.to2) { clearTimeout(this.data.dnd.to2); }
 						if(this.data.dnd.i1) { clearInterval(this.data.dnd.i1); }
@@ -2464,10 +2457,8 @@
 						if(ml) { ml.css({ "top" : "-2000px" }); }
 					}, this))
 				.bind("drag_start.vakata", $.proxy(function (e, data) {
-						console.log('drag_start.vakata', 2464);
 						if(data.data.jstree) { 
 							var et = $(data.event.target);
-							console.log(et, et.closest(".jstree"), et.hasClass("jstree-" + this.get_index()));
 							if(et.closest(".jstree").hasClass("jstree-" + this.get_index())) {
 								this.dnd_enter(et);
 							}
@@ -2498,8 +2489,6 @@
 			if(s.drag_target) {
 				$(document)
 					.delegate(s.drag_target, "mousedown.jstree-" + this.get_index(), $.proxy(function (e) {
-						console.log("mousedown.jstree-" + this.get_index(), 2492);
-						console.log(e.target);
 						if ($(e.target).is('input')){
 							e.preventDefault();
 							return false;
@@ -2514,25 +2503,17 @@
 			if(s.drop_target) {
 				$(document)
 					.delegate(s.drop_target, "mouseenter.jstree-" + this.get_index(), $.proxy(function (e) {
-						console.log("mouseenter.jstree-" + this.get_index(), 2516);
-						console.log(this.data.dnd.active);
 							if(this.data.dnd.active && this._get_settings().dnd.drop_check.call(this, { "o" : o, "r" : $(e.target), "e" : e })) {
 								$.vakata.dnd.helper.children("ins").attr("class","jstree-ok");
 							}
 						}, this))
 					.delegate(s.drop_target, "mouseleave.jstree-" + this.get_index(), $.proxy(function (e) {
-							console.log("mouseleave.jstree-" + this.get_index(), 2522);
-							console.log(this.data.dnd.active);
 							if(this.data.dnd.active) {
 								$.vakata.dnd.helper.children("ins").attr("class","jstree-invalid");
 							}
 						}, this))
 					.delegate(s.drop_target, "mouseup.jstree-" + this.get_index(), $.proxy(function (e) {
-						console.log("mouseup.jstree-" + this.get_index(), 2528);
-						console.log(this.data.dnd.active, $.vakata.dnd.helper.children("ins").hasClass("jstree-ok"));
-
 							if(this.data.dnd.active && $.vakata.dnd.helper.children("ins").hasClass("jstree-ok")) {
-								console.log(this._get_settings().dnd.drop_finish);
 								this._get_settings().dnd.drop_finish.call(this, { "o" : o, "r" : $(e.target), "e" : e });
 							}
 						}, this));
@@ -2621,13 +2602,10 @@
 				return r;
 			},
 			dnd_open : function () {
-				console.log('dnd_open', 2618);
 				this.data.dnd.to2 = false;
 				this.open_node(r, $.proxy(this.dnd_prepare,this), true);
 			},
 			dnd_finish : function (e) {
-				console.log('dnd_finish', 2623);
-
 				if(this.data.dnd.foreign) {
 					if(this.data.dnd.after || this.data.dnd.before || this.data.dnd.inside) {
 						this._get_settings().dnd.drag_finish.call(this, { "o" : o, "r" : r, "p" : last_pos });
@@ -2643,7 +2621,6 @@
 				if(ml) { ml.hide(); }
 			},
 			dnd_enter : function (obj) {
-				console.log('dnd_enter', 2640);
 				if(this.data.dnd.mto) { 
 					clearTimeout(this.data.dnd.mto);
 					this.data.dnd.mto = false;
@@ -2673,7 +2650,6 @@
 				}
 			},
 			dnd_leave : function (e) {
-				console.log('dnd_leave', 2640);
 				this.data.dnd.after		= false;
 				this.data.dnd.before	= false;
 				this.data.dnd.inside	= false;
@@ -2692,7 +2668,6 @@
 				}
 			},
 			start_drag : function (obj, e) {
-				console.log('start_drag', 2689);
 				o = this._get_node(obj);
 				if(this.data.ui && this.is_selected(o)) { o = this._get_node(null, true); }
 				var dt = o.length > 1 ? this._get_string("multiple_selection") : this.get_text(o) ? this.get_text(o) : "";
@@ -2700,8 +2675,6 @@
 				this.start_drag1(o, e, dt);
 			},
 			start_drag1: function(obj, e, dt) {
-				console.log('start_drag1', 2721);
-				console.log(o);
 				o = obj;
 				$.vakata.dnd.drag_start(e, { jstree : true, obj : o }, "<ins class='jstree-icon'></ins>" + dt );
 				if(this.data.themes) { 
@@ -2733,7 +2706,6 @@
 		$.vakata.css.add_sheet({ str : css_string, title : "jstree" });
 		m = $("<div />").attr({ id : "jstree-marker" }).hide().html("&raquo;")
 			.bind("mouseleave mouseenter", function (e) { 
-			console.log(4);
 				m.hide();
 				ml.hide();
 				e.preventDefault(); 
@@ -2743,7 +2715,6 @@
 			.appendTo("body");
 		ml = $("<div />").attr({ id : "jstree-marker-line" }).hide()
 			.bind("mouseup", function (e) { 
-			console.log(3);
 				if(r && r.length) { 
 					r.children("a").trigger(e); 
 					e.preventDefault(); 
@@ -2752,7 +2723,6 @@
 				} 
 			})
 			.bind("mouseleave", function (e) { 
-			console.log(2);
 				var rt = $(e.relatedTarget);
 				if(rt.is(".jstree") || rt.closest(".jstree").length === 0) {
 					if(r && r.length) { 
@@ -2767,11 +2737,9 @@
 			})
 			.appendTo("body");
 		$(document).bind("drag_start.vakata", function (e, data) {
-			console.log('drag_start.vakata', 2758);
 			if(data.data.jstree) { m.show(); if(ml) { ml.show(); } }
 		});
 		$(document).bind("drag_stop.vakata", function (e, data) {
-			console.log('drag_stop.vakata', 2762);
 			if(data.data.jstree) { m.hide(); if(ml) { ml.hide(); } }
 		});
 	});
