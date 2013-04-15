@@ -630,6 +630,10 @@ function() {
 			}
 		},
 
+		prepareForConvertionFromCode: function() {
+			this.functions = {};
+		},
+
 		compileCode: function() {
 			try {
 				var problem = this.tabIndex;

@@ -266,13 +266,14 @@ define('Interface', ['jQuery',
 		var l = codeareas[j].getValue().length;
 		try {
 			problem.prepareForExecuting();
+			problem.prepareForConvertionFromCode();
 			var block = finalcode[j] ?
 				ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
 				new CommandsMode.Block([], undefined, problem);
 
 			$('#jstree-container' + j).empty();	
 			$('#accordion' + j).myAccordion( 'clear' );
-			problem.functions = {};
+			
 			if (block) {
 				//problems[j].cmdList = block;//??
 
