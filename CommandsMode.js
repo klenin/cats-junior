@@ -1430,6 +1430,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cnt) {
 			//return this.body.exec(cnt);
 			this.finished = true;
+			return cnt;
 		},
 		
 		getClass: function(){
