@@ -558,7 +558,7 @@ function() {
 			this.cmdList.showCounters();
 		},
 
-		submit: function() {
+		getSubmitStr: function() {
 			var result;
 			if ($('#codeMode' + this.tabIndex).prop('checked')) {
 				result = codeareas[this.tabIndex].getValue();
@@ -566,11 +566,9 @@ function() {
 				result = this.convertCommandsToCode();
 			}
 			if (atHome) {
-				submitStr = 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
-				submit(submitStr, this.id);
-			} else {
-				submit(result, this.id);
-			}
+				return 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
+			} 
+			return result;
 		},
 
 		exportCommands: function() {

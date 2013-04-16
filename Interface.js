@@ -139,7 +139,7 @@ define('Interface', ['jQuery',
 		}		
 		if (!currentServer.getSid())
 			(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
-		curProblem.submit();
+		submit(curProblem.getSubmitStr(), curProblem.id);
 		return true;
 	}
 
