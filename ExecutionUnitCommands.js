@@ -62,13 +62,13 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return undefined;
 		},
 
-		addArguments: function(object, arguments, clear) {
+		addArguments: function(object, args, clear) {
 			if (clear) {
 				$(object).children(':gt(' + (this.values.length - 1) + ')').remove();
 			}
 
-			for (var i = 0; arguments && i < arguments.length; ++i) {
-				$(object).append('<option value="' + arguments[i] + '">' + arguments[i] + '</option><br>');
+			for (var i = 0; args && i < args.length; ++i) {
+				$(object).append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
 			}
 		},
 
@@ -102,8 +102,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return value;
 		},
 
-		addArguments: function(object, arguments, clear) {
-			$(object).mySpin('setArguments', arguments);
+		addArguments: function(object, args, clear) {
+			$(object).mySpin('setArguments', args);
 		},
 
 		setValue: function(object, value) {

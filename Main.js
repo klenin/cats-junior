@@ -16,8 +16,6 @@ require.config({
 		'GoogError': 'import/skulpt/support/closure-library/closure/goog/debug/error',
 		'GoogString': 'import/skulpt/support/closure-library/closure/goog/string/string',
 		'GoogDeps': 'import/skulpt/support/closure-library/closure/goog/deps',
-		'CodeMirror': 'import/CodeMirror/lib/codemirror',
-		'CodeMirrorPython': 'import/CodeMirror/mode/python/python',
 		'jQueryTmpl': 'import/jquery/jquery.tmpl',
 		'SkMiscEval': 'import/skulpt/src/misceval',
 		'SkBuiltin': 'import/skulpt/src/builtin',
@@ -69,7 +67,7 @@ require.config({
 		'GoogAsserts': ['GoogError', 'GoogString'],
 		'CodeMirror': [],
 		'CodeMirrorPython': ['CodeMirror'],
-		'Misc': ['jQuery', 'jQueryInherit'],
+		'Misc': ['jQuery', 'jQueryInherit', 'Declaration'],
 		'SkMiscEval': ['Env'],
 		'SkBuiltin': ['Env'],
 		'SkErrors': ['SkBuiltin'],
@@ -101,9 +99,6 @@ require.config({
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
-		//'Cylinder': ['Svg', 'jQueryInherit'],
-		//'Svg': ['jQuery'],
-		'Misc': ['Declaration'],
 		'AtHome': [],
 		'Declaration': ['AtHome'],
 		'Raphael': ['jQuery'],
@@ -132,8 +127,6 @@ requirejs(['require',
 		var Interface = require('Interface');
 		var InterfaceJSTree = require('InterfaceJSTree');
 		//var Tests = require('Tests');
-
-		
 
 	    $(document).ready(function(){
 		if ($.browser.msie){

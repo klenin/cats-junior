@@ -13,20 +13,20 @@ define('CommandsMode', ['jQuery',
 	var ShowMessages = require('ShowMessages');
 
 	var Command = $.inherit({
-		__constructor : function(name, arguments, argumentsValues, parent, id, problem) {
+		__constructor : function(name, args, argumentsValues, parent, id, problem) {
 	        this.name = name;
 			this.arguments = [];
 
-			this.initArguments = arguments.clone();
+			this.initArguments = args.clone();
 
-			for (var i = 0; i < arguments.length; ++i) {
-				this.arguments.push(arguments[i].copy());
+			for (var i = 0; i < args.length; ++i) {
+				this.arguments.push(args[i].copy());
 			}
 			this.initArgumentsValues = argumentsValues.clone();
 			//var cnt = undefined;
 			this.counterIndex = undefined;
-			for (var i = 0 ; i < arguments.length; ++i) {
-				if (arguments[i].isCounter) {
+			for (var i = 0 ; i < args.length; ++i) {
+				if (args[i].isCounter) {
 					if (this.counterIndex != undefined) {
 						throw 'Command can\'t have several counters!!!';
 					}
@@ -90,26 +90,26 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		setArguments: function(arguments) {
+		setArguments: function(args) {
 			for (var i = 0; i < this.arguments.length; ++i) {
 				/*if (arguments) {
 					//if (arguments[i] == undefined)
 					this.arguments.setCurrentValue(arguments[i]);
 				}*/
-				this.getSpinAt(i).mySpin('setArgumentValues', arguments);
-				if (!checkNumber(this.arguments[i].value) && !isInt(this.arguments[i].value) && arguments && arguments[this.arguments[i].value]) {
-					this.arguments[i].setCurrentValue(arguments[this.arguments[i].value]);
+				this.getSpinAt(i).mySpin('setArgumentValues', args);
+				if (!checkNumber(this.arguments[i].value) && !isInt(this.arguments[i].value) && args && args[this.arguments[i].value]) {
+					this.arguments[i].setCurrentValue(args[this.arguments[i].value]);
 				}
 			}
 		},
 		
-		exec: function(cnt, arguments) {
+		exec: function(cnt, inputArgs) {
 			if (this.finished) {
 				return cnt;
 			}
 			var commandCounter = undefined;
 			if (this.curCnt == 0) {
-				this.setArguments(arguments);
+				this.setArguments(inputArgs);
 				this.spinAccess('startExecution');
 			}
 
@@ -119,7 +119,7 @@ define('CommandsMode', ['jQuery',
 			else if (this.hasCounter) {
 				var val = this.arguments[this.counterIndex].value;
 				if (!isInt(val)) {
-					commandCounter = parseInt(arguments[val]);
+					commandCounter = parseInt(inputArgs[val]);
 				}
 				else {
 					commandCounter = parseInt(val);
@@ -150,9 +150,9 @@ define('CommandsMode', ['jQuery',
 				}
 				this.problem.checkLimit();
 				++this.curCnt;
-				if ((this.problem.speed || commandCounter == this.curCnt) && this.hasCounter) {
+				//if ((this.problem.speed || commandCounter == this.curCnt) && this.hasCounter) {
 					this.getSpinAt(this.counterIndex).mySpin('decreaseValue');
-				}
+				//}
 			}
 
 			this.finished = this.curCnt >= commandCounter;
@@ -312,10 +312,10 @@ define('CommandsMode', ['jQuery',
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
 		
-		updateArguments: function(funcId, arguments) {
+		updateArguments: function(funcId, args) {
 			var func = this.getFunction();
 			if (func && func.funcId == funcId) {
-				this.spinAccess('setArguments', arguments);
+				this.spinAccess('setArguments', args);
 			}
 			return;
 		},
@@ -381,15 +381,15 @@ define('CommandsMode', ['jQuery',
 				(compareCnt ? block.cnt >= this.curCnt : block.cnt == this.cnt));
 		},
 		
-		exec: function(cnt, arguments)
+		exec: function(cnt, args)
 		{
 			if (this.curCnt == 0) {
-				this.getSpin().mySpin('setArgumentValues', arguments);
+				this.getSpin().mySpin('setArgumentValues', args);
 				this.getSpin().mySpin('startExecution');
 
 				var val = this.getSpin().mySpin('getTotalValue');
 				if (!isInt(val)) {
-					this.cnt = parseInt(arguments[val]);
+					this.cnt = parseInt(args[val]);
 				}
 				else {
 					this.cnt = parseInt(val);
@@ -702,7 +702,7 @@ define('CommandsMode', ['jQuery',
 
 		},
 		/*substitute function arguments values for arguments in condition*/
-		convertArguments: function(arguments) {
+		convertArguments: function(inputArgs) {
 			var conditionArguments = this.conditionProperties.args;
 
 			var funcDef = this.getFunction();
@@ -720,8 +720,8 @@ define('CommandsMode', ['jQuery',
 				var k = 0
 				for (k = 0; k < funcArguments.length; ++k) {
 					if (this.args[i + 1] == funcArguments[k]) {
-						if (arguments[funcArguments[k]] != undefined) {
-							var valueForArgument = conditionArguments[i].findValue(arguments[funcArguments[k]]);
+						if (inputArgs[funcArguments[k]] != undefined) {
+							var valueForArgument = conditionArguments[i].findValue(inputArgs[funcArguments[k]]);
 							if (valueForArgument != undefined) {
 								args.push(valueForArgument)
 								break;
@@ -748,20 +748,16 @@ define('CommandsMode', ['jQuery',
 		
 		/*add function arguments as possible values of arguments in condition*/
 		generateArguments: function(args) {
-			var arguments = undefined;
 			var conditionArguments = this.conditionProperties.args;
-			if (args) {
-				arguments = args;
-			}
-			else {
+			if (!args) {
 				var funcDef = this.getFunction();
 				if (funcDef) {
-					var arguments = funcDef.getArguments();
+					args = funcDef.getArguments();
 				}
 			}
-			if (arguments) {
+			if (args) {
 				for (var i = 0; i < conditionArguments.length; ++i) {
-					conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), arguments, true);
+					conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), args, true);
 					conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
 				}
 			}
@@ -812,10 +808,10 @@ define('CommandsMode', ['jQuery',
 				this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
 		},
 		
-		exec: function(cnt, arguments) {
+		exec: function(cnt, args) {
 			if (this.curBlock == undefined && cnt)
 			{		
-				this.constructTestFunc(this.convertArguments(arguments));
+				this.constructTestFunc(this.convertArguments(args));
 				this.curBlock = this.test() ? 0 : 1;
 				cnt -= 1;
 				if (!cnt || this.problem.speed)
@@ -832,7 +828,7 @@ define('CommandsMode', ['jQuery',
 				if (!this.blocks[this.curBlock])
 					return cnt;
 			}
-			return this.blocks[this.curBlock].exec(cnt, arguments);
+			return this.blocks[this.curBlock].exec(cnt, args);
 		},
 		
 		getClass: function(){
@@ -950,14 +946,14 @@ define('CommandsMode', ['jQuery',
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
 		
-		updateArguments: function(funcId, arguments) {
+		updateArguments: function(funcId, args) {
 			var funcDef = this.getFunction();
 			if (funcDef && funcDef.funcId == funcId) {
-				this.generateArguments(arguments); 
+				this.generateArguments(args); 
 			}
-			this.blocks[0].updateArguments(funcId, arguments);
+			this.blocks[0].updateArguments(funcId, args);
 			if (this.blocks[1]) {
-				this.blocks[1].updateArguments(funcId, arguments);
+				this.blocks[1].updateArguments(funcId, args);
 			}
 		},
 		
@@ -1032,13 +1028,13 @@ define('CommandsMode', ['jQuery',
 			return this.__base(block) && this.body.eq(block.body);
 		},
 		
-		exec: function(cnt, arguments) {
+		exec: function(cnt, args) {
 			while (cnt && !this.finished && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 			{
 				this.isStarted = true;
 				if (!this.executing)
 				{
-					this.constructTestFunc(this.convertArguments(arguments));
+					this.constructTestFunc(this.convertArguments(args));
 					cnt -= 1;
 					if (!cnt || this.problem.speed)
 					{
@@ -1059,7 +1055,7 @@ define('CommandsMode', ['jQuery',
 					this.executing = true;
 					this.body.setDefault();
 				}
-				cnt = this.body.exec(cnt, arguments);
+				cnt = this.body.exec(cnt, args);
 				if (this.body.isFinished())
 				{
 					this.executing = false;
@@ -1156,12 +1152,12 @@ define('CommandsMode', ['jQuery',
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
 		
-		updateArguments: function(funcId, arguments) {
+		updateArguments: function(funcId, args) {
 			var funcDef = this.getFunction();
 			if (funcDef && funcDef.funcId == funcId) {
-				this.generateArguments(arguments); 
+				this.generateArguments(args); 
 			}
-			this.body.updateArguments(funcId, arguments);
+			this.body.updateArguments(funcId, args);
 		},
 		
 		funcCallUpdated: function() {
@@ -1233,12 +1229,12 @@ define('CommandsMode', ['jQuery',
 			return f;
 		},
 		
-		exec: function(cnt, arguments) {
+		exec: function(cnt, args) {
 			var cmd = undefined;
 			while(cnt && this.commands.length > this.curCmd && !(this.problem.stopped || this.problem.paused || this.problem.executionUnit.isDead()))
 			{
 				cmd = this.commands[this.curCmd];
-				cnt = cmd.exec(cnt, arguments, this.prevCmd == this.curCmd);
+				cnt = cmd.exec(cnt, args, this.prevCmd == this.curCmd);
 				this.prevCmd = this.curCmd;
 				if (cmd.isFinished())
 					++this.curCmd;
@@ -1364,9 +1360,9 @@ define('CommandsMode', ['jQuery',
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
 		
-		updateArguments: function(funcId, arguments) {
+		updateArguments: function(funcId, args) {
 			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].updateArguments(funcId, arguments);
+				this.commands[i].updateArguments(funcId, args);
 			}
 		},
 		
@@ -1823,10 +1819,10 @@ define('CommandsMode', ['jQuery',
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
 		
-		updateArguments: function(funcId, arguments) {
+		updateArguments: function(funcId, args) {
 			var funcDef = this.getFuncDef();
 			if (funcDef && funcDef.funcId == funcId) {
-				this.updateJstreeObject(arguments);
+				this.updateJstreeObject(args);
 			}
 			//this.body.updateArguments(funcId, arguments);
 		},

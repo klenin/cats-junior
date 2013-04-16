@@ -246,11 +246,12 @@ function checkNumber(number) {
 function changeCmdHighlight(elem){
 	if (!elem)
 		return false;
-	var elem = $('#' + elem);
+	elem = $('#' + elem);
 	if (elem.hasClass('highlighted'))
 		elem.removeClass('highlighted');
 	else
 		elem.addClass('highlighted');
+	return true;
 }
 
 function isCmdHighlighted(elem) {

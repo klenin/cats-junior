@@ -18,18 +18,18 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 		}
 		for (var i = 0; i < commands.length; ++i){
 			var type = commands[i].attr['rel'];
-			var id = commands[i].attr['id'];
+			var cmdId = commands[i].attr['id'];
 			if (type == 'block' && commands[i].children)		{
 				block.pushCommand(convert(commands[i].children, block, problem));
 			}
 			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-				var args = [$('#' + id).children('select:eq(0)').children('option:selected').val()];
-				var conditionPropertiesId = $('#' + id).children('.testFunctionName').children('option:selected').val();
+				var args = [$('#' + cmdId).children('select:eq(0)').children('option:selected').val()];
+				var conditionPropertiesId = $('#' + cmdId).children('.testFunctionName').children('option:selected').val();
 				var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
 				var conditionArguments = conditionProperties.args;
 				for (var j = 0; j < conditionArguments.length; ++j) {
 					args.push(
-						conditionArguments[j].getDomObjectValue($('#' + id).children('.testFunctionArgument:eq(' + j + ')')));
+						conditionArguments[j].getDomObjectValue($('#' + cmdId).children('.testFunctionArgument:eq(' + j + ')')));
 				}	
 
 				var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
@@ -44,32 +44,32 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				}
 				var testName = conditionProperties.name;
 				block.pushCommand(type == 'while' ? 
-					new CommandsMode.WhileStmt(testName, args, block1, conditionProperties, block, id, problem) : 
-					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, id, problem));
+					new CommandsMode.WhileStmt(testName, args, block1, conditionProperties, block, cmdId, problem) : 
+					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, cmdId, problem));
 			}
 			else if (type == 'for')		{
-				var cnt = $('#' + id).children('spin').mySpin('getTotal');
+				var cnt = $('#' + cmdId).children('spin').mySpin('getTotal');
 				var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
-				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  id, problem));
+				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  cmdId, problem));
 			}
 			else if (type == 'funccall'){
 				var args = [];
-				for (var j = 0; j < $('#' + id).children('input').length; ++j) {
-					args.push($('#' + id).children('input:eq(' + j + ')').val());
+				for (var j = 0; j < $('#' + cmdId).children('input').length; ++j) {
+					args.push($('#' + cmdId).children('input:eq(' + j + ')').val());
 				}
 				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data : 
-					$('#' + id).text().split(' ').join(''), args,  block, id, problem));
+					$('#' + cmdId).text().split(' ').join(''), args,  block, cmdId, problem));
 			}
 			else{
 				var argValues = [];
-				for (var j = 0; j < $('#' + id).children('spin').length; ++j) {
-					argValues.push($('#' + id).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
+				for (var j = 0; j < $('#' + cmdId).children('spin').length; ++j) {
+					argValues.push($('#' + cmdId).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
 				}
 				var cmd = new CommandsMode.Command(type, 
 					problem.executionUnit.getCommands()[type].getArguments(), 
 					argValues,
 					block, 
-					id,
+					cmdId,
 					problem);
 				block.pushCommand(cmd);
 			}
@@ -245,24 +245,24 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					block.pushCommand(whileStmt);
 					break;
 				case 'FunctionDef':
-					var arguments = [];
+					var args = [];
 					for (var j = 0; j < commands[i].args.args.length; ++j) {
-						arguments.push(commands[i].args.args[j].id.v);
+						args.push(commands[i].args.args[j].id.v);
 					}
 					if (problem.functions[commands[i].name.v] == undefined) {
 						problem.functions[commands[i].name.v] = [];
 					}
 
-					if (problem.functions[commands[i].name.v][arguments.length] != undefined) {
+					if (problem.functions[commands[i].name.v][args.length] != undefined) {
 						throw 'Several functionas with the same name aren\'t supported in visual mode!!!'
 					}
 					
-					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, arguments, undefined, block, undefined, ++cmdId, problem);
+					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, ++cmdId, problem);
 					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 					funcDef.setBody(body);
 					block.pushCommand(funcDef);
 
-					problem.functions[commands[i].name.v][arguments.length] = funcDef;
+					problem.functions[commands[i].name.v][args.length] = funcDef;
 
 					break;	
 				case 'Pass':

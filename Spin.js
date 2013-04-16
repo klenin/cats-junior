@@ -96,7 +96,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 							$(this).data('arguments')[Math.min($(this).data('minimum') - newTotal - 1, 
 							$(this).data('arguments').length - 1)]);
 						$(this).data('problem').updated();
-						return;
+						return false;
 					}
 					else {
 						newTotal = $(this).data('minimum');
@@ -167,7 +167,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 			startExecution: function(current) {
 				$(this).data('currentTotal', $(this).data('total'));
 				if (current != undefined) {
-					$(this).data('value') = current;
+					$(this).data('value', current);
 				}
 				else {
 					if (isInt($(this).data('totalVal'))) {
@@ -203,8 +203,8 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );
 			},
 
-			setArguments: function(arguments) {
-				var args = arguments.clone()
+			setArguments: function(args) {
+				var args = args.clone()
 				$(this).data('arguments', args);
 			},
 
@@ -224,6 +224,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 			else {
 		      $.error('Method ' +  method + ' does not exist on jQuery.mySpin');
 			}
+			return false;
 	    }    
 	  
 		

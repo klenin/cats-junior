@@ -230,7 +230,7 @@ function() {
 		tryNextStep: function(dontHiglight) {
 			var problem = this.tabIndex;
 			if (!finalcode[problem]) {
-				return;
+				return undefined;
 			}
 			if (CodeMode.getCurBlock() >= 0) {
 				if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
@@ -373,8 +373,8 @@ function() {
 			this.highlightWrongNames();
 		},
 
-		updateArguments: function(funcId, arguments) {
-			this.cmdList.updateArguments(funcId, arguments);
+		updateArguments: function(funcId, args) {
+			this.cmdList.updateArguments(funcId, args);
 		},
 
 		highlightWrongNames: function() {
@@ -692,7 +692,8 @@ function() {
 				}
 			} else {
 				try {
-					//this.speed = 1000;
+					var s = this.speed;
+					this.speed = 1000;
 					this.paused = false;
 					this.hideCounters();
 					if (!this.playing || this.changed) {
@@ -721,6 +722,7 @@ function() {
 					this.highlightLast();
 					this.executionUnit.draw();
 					if (this.cmdList.isFinished()) this.playing = false;
+					this.speed = s;
 				} catch (e) {
 					console.error(e);
 					$('#cons' + this.tabIndex).append(e);

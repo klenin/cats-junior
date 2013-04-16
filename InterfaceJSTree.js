@@ -110,8 +110,8 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 
 					break;
 				case 'funccall':
-					var arguments = inputArgs;
-					for (var i = 0; i < arguments.length; ++i) {
+					var args = inputArgs;
+					for (var i = 0; i < args.length; ++i) {
 						$(newNode)
 							.append('<input class="argCallInput"/>')
 							.bind('change', function(){
@@ -311,20 +311,20 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					"drop_finish": function(data){
 						var node = data.o;
 
-							if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
-								node = $(node).parent();
-								$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
-								$(node).remove();
-								problem.removeFunctionCall($(node).attr('funcId'));
-								return true;
-							}
+						if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
+							node = $(node).parent();
+							$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
+							$(node).remove();
+							problem.removeFunctionCall($(node).attr('funcId'));
+							return true;
+						}
 
-							/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
-							{
-								$(node).parent().remove();
-								problem.removeFunctionCall($(node).parent().children('.func-header').html());
-								return true;
-							}*/
+						/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
+						{
+							$(node).parent().remove();
+							problem.removeFunctionCall($(node).parent().children('.func-header').html());
+							return true;
+						}*/
 
 						if (node) {
 							var type = this._get_type(node);
@@ -339,6 +339,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 								this.remove(next);
 							problem.updated();				
 						}
+						return true;
 					}
 				},
 				"ui" : {
@@ -368,6 +369,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					return false;
 				}
 				problem.updated();
+				return true;
 			}).bind('refresh.jstree', function(event, data) {
 				problem.updated();
 			}).bind("dblclick.jstree", function (e, data) {
