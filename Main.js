@@ -56,6 +56,7 @@ require.config({
 		'QUnit': 'import/jquery/qunit-1.11.0'
     },
     shim: {
+    	'jQuery': [],
     	'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
 		'jQueryInherit': ['jQuery'],
@@ -123,7 +124,8 @@ requirejs(['require',
 	'Accordion',
 	'SkMiscEval',
 	'Declaration', 
-	'Accordion'
+	'Accordion',
+	'jQueryTmpl'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');

@@ -568,7 +568,7 @@
 
 	/*global define:true */
 	if (typeof define === 'function' && define.amd && define.amd.jQuery) {
-		define(['jquery'], setup);
+		define(['jQuery'], setup);
 	} else {
 		setup(jQuery);
 	}
