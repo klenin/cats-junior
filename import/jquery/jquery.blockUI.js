@@ -303,6 +303,12 @@
 			if (!opts.theme /*&& (!opts.applyPlatformOpacityRules)*/)
 				lyr2.css(opts.overlayCSS);
 			lyr2.css('position', full ? 'fixed' : 'absolute');
+			if (!full) {
+				lyr2.css('top', $(el).position().top);
+				lyr2.css('left', $(el).position().left);
+				lyr2.css('width', $(el).css('width'));
+				lyr2.css('height', $(el).css('height'));
+			}
 
 			// make iframe layer transparent in IE
 			if (msie || opts.forceIframe)

@@ -78,27 +78,29 @@
 						</tr>
 						<tr>
 							<td id = "tdcontainer${tab}">
-								<table width = "100%">
-									<tr>
-										<td>
-											<div id = "accordion${tab}" style="display:inline-block; width: 100%">
-											</div>
-										</td>
-									</tr>
-									<tr>
-										<td>
-											<div id = "jstree-container${tab}" class = "sortable-func">
-											</div>
-										</td>
+								<div id = "divcontainer${tab}" style="position: static">
+									<table width = "100%">
+										<tr>
+											<td>
+												<div id = "accordion${tab}" style="display:inline-block; width: 100%">
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div id = "jstree-container${tab}" class = "sortable-func">
+												</div>
+											</td>
 
-									</tr>
-									<tr>
-										<td>
-											<div class = "jstree-drop recycle-bin">
-											</div>
-										</td>
-									</tr>
-								</table>
+										</tr>
+										<tr>
+											<td>
+												<div class = "jstree-drop recycle-bin">
+												</div>
+											</td>
+										</tr>
+									</table>
+								</div>
 							</td>
 							<td>
 								<button id = "addWatch${tab}">Добавить наблюдение</button><br>

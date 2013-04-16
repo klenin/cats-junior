@@ -206,6 +206,8 @@ function() {
 			for (var i = 0; i < btnsPlay.length; ++i)
 			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 			$('#tabs').tabs("option", "disabled", []);
+			$('#divcontainer' + this.tabIndex).unblock();
+			$('#resizable' + this.tabIndex).unblock();
 		},
 
 		disableButtons: function() {
@@ -217,6 +219,25 @@ function() {
 				if (i != this.tabIndex + 1) disabled.push(i);
 			}
 			$('#tabs').tabs("option", "disabled", disabled);
+			$('#divcontainer' + this.tabIndex).block({
+				message: null,
+				fadeIn: 0,
+				overlayCSS: { 
+					backgroundColor: '#ffffff',
+					opacity: 0,
+					cursor: 'default'
+				}
+			});
+
+			/*$('#resizable' + this.tabIndex).block({
+				message: null,
+				fadeIn: 0,
+				overlayCSS: { 
+					backgroundColor: '#ffffff',
+					opacity: 0,
+					cursor: 'default'
+				}
+			});*/
 		},
 
 		updateWatchList: function() {
@@ -660,6 +681,7 @@ function() {
 			this.showCounters();
 			this.setCounters();
 			this.playing = false;
+			this.enableButtons();
 		},
 
 		pause: function() {

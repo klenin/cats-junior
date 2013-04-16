@@ -1,1 +1,0 @@
-var atHome = 0;
