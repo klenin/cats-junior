@@ -762,6 +762,7 @@ define('CommandsMode', ['jQuery',
 			if (arguments) {
 				for (var i = 0; i < conditionArguments.length; ++i) {
 					conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), arguments, true);
+					conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
 				}
 			}
 		}

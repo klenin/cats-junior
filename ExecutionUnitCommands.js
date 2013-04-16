@@ -43,7 +43,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				$(select).append('<option value="' + this.values[i][0] + '">' + this.values[i][1] + '</option><br>');
 			}
 		
-			$(select).change(callback);
+			$(select).change(function(){
+				callback();
+			});
 			if (value) {
 				$(select).val(value);
 			}
