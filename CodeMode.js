@@ -9,7 +9,7 @@ define('CodeMode', ['SkulptModule'], function(){
 	{
 		var problem = getCurProblem();
 		if(!finalcode[problem]){
-			return;
+			return undefined;
 		}
 		var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
 		return eval('$loc[' + problem + '].' + scope + '.stack[$loc[' + problem + '].' + scope + '.stack.length - 1].blk');
@@ -19,7 +19,7 @@ define('CodeMode', ['SkulptModule'], function(){
 	{
 		var problem = getCurProblem();
 		if(!finalcode[problem]){
-			return;
+			return undefined;
 		}
 		return finalcode[problem].compiled.scopes[$scope[problem]];
 	}
@@ -31,7 +31,7 @@ define('CodeMode', ['SkulptModule'], function(){
 			var result = undefined;
 			var problem = getCurProblem();
 			if(!finalcode[problem]){
-				return;
+				return undefined;
 			}
 			if ($scope[problem] != undefined && $loc[problem] != undefined)
 			{
@@ -72,6 +72,7 @@ define('CodeMode', ['SkulptModule'], function(){
 	        if (op === "Invert") return ~v;
 		}
 
+		return undefined;
 	}
 
 	function calculateValue(source)

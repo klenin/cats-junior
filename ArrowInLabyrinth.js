@@ -1,4 +1,4 @@
-define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration'], function(){
+define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', 'InterfaceJSTree'], function(){
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 	var InterfaceJSTree = require('InterfaceJSTree');
@@ -810,15 +810,15 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				changedElems.push(new Coord(this.arrow.coord.x, this.arrow.coord.y));
 				var changeCoord = this.tryNextCoord(i, changedElems);
 				if (changeCoord){
-					for (var i = 0; i < this.map.length; ++i){
-						this.map[i][this.arrow.coord.x].highlightOff();
-						if (i != this.arrow.coord.y)
-							changedElems.push(new Coord(this.arrow.coord.x, i));
+					for (var j = 0; j < this.map.length; ++j){
+						this.map[j][this.arrow.coord.x].highlightOff();
+						if (j != this.arrow.coord.y)
+							changedElems.push(new Coord(this.arrow.coord.x, j));
 					}
-					for (var i = 0; i < this.map[0].length; ++i){
-						this.map[this.arrow.coord.y][i].highlightOff();
-						if (i != this.arrow.coord.x)
-							changedElems.push(new Coord(i, this.arrow.coord.y));
+					for (var j = 0; j < this.map[0].length; ++j){
+						this.map[this.arrow.coord.y][j].highlightOff();
+						if (j != this.arrow.coord.x)
+							changedElems.push(new Coord(j, this.arrow.coord.y));
 					}
 					this.map[this.arrow.coord.y][this.arrow.coord.x].deleteElement(this.arrow);
 					this.arrow.coord = new Coord(cX, cY);
@@ -854,20 +854,20 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				}
 				if (changeCoord && 	!this.arrow.dead){
 					changedElems.push(new Coord(cX, cY));
-					for (var i = 0; i < this.map.length; ++i){
-						this.map[i][this.arrow.coord.x].highlightOn();
-						if (i != this.arrow.coord.y)
-							changedElems.push(new Coord(this.arrow.coord.x, i));
+					for (var j = 0; j < this.map.length; ++j){
+						this.map[j][this.arrow.coord.x].highlightOn();
+						if (j != this.arrow.coord.y)
+							changedElems.push(new Coord(this.arrow.coord.x, j));
 					}
-					for (var i = 0; i < this.map[0].length; ++i){
-						this.map[this.arrow.coord.y][i].highlightOn();
-						if (i != this.arrow.coord.x)
-							changedElems.push(new Coord(i, this.arrow.coord.y));
+					for (var j = 0; j < this.map[0].length; ++j){
+						this.map[this.arrow.coord.y][j].highlightOn();
+						if (j != this.arrow.coord.x)
+							changedElems.push(new Coord(j, this.arrow.coord.y));
 					}
 				}
 				if (!dontNeedToDraw){
-					for (var i = 0; i < changedElems.length; ++i)
-						this.map[changedElems[i].y][changedElems[i].x].draw();
+					for (var j = 0; j < changedElems.length; ++j)
+						this.map[changedElems[j].y][changedElems[j].x].draw();
 				}
 			},
 			

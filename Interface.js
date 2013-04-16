@@ -132,7 +132,7 @@ define('Interface', ['jQuery',
 		})
 	}
 
-	submitClick = function(){
+	var submitClick = function(){
 		if (!currentServer.getSid()) {
 			alert('Невозможно отослать решение, так как не выбран пользователь');
 			return false;
@@ -140,6 +140,7 @@ define('Interface', ['jQuery',
 		if (!currentServer.getSid())
 			(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 		curProblem.submit();
+		return true;
 	}
 
 	function loadCode(rid){
@@ -151,7 +152,7 @@ define('Interface', ['jQuery',
 		});
 	}
 
-	getContestContentClick = function () {
+	var getContestContentClick = function () {
 		if (!currentServer.getSid()) {
 			alert('Невозможно загрузить решение, так как не выбран пользователь');
 			return false;
@@ -188,6 +189,7 @@ define('Interface', ['jQuery',
 			});
 
 			$(div).dialog('open');
+			return true;
 		});
 	}
 
@@ -266,13 +268,14 @@ define('Interface', ['jQuery',
 		var l = codeareas[j].getValue().length;
 		try {
 			problem.prepareForExecuting();
+			problem.prepareForConvertionFromCode();
 			var block = finalcode[j] ?
 				ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
 				new CommandsMode.Block([], undefined, problem);
 
 			$('#jstree-container' + j).empty();	
 			$('#accordion' + j).myAccordion( 'clear' );
-			problem.functions = {};
+			
 			if (block) {
 				//problems[j].cmdList = block;//??
 
@@ -584,8 +587,8 @@ define('Interface', ['jQuery',
 	function updateStyleSheet(index, filename) 
 	{
 	    if ($("#dynamic_css_" + index).length == 0) {
-	        $("head").append("<link>")
-	        css = $("head").children(":last");
+	        $("head").append("<link>");
+	        var css = $("head").children(":last");
 	        css.attr({
 	          id: "dynamic_css_" + index,
 	          rel:  "stylesheet",

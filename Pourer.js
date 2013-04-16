@@ -42,6 +42,7 @@ define('Pourer',
 					  height: 300 * (this.capacity + 0.0)/ this.maxCapacity,
 					  value: (this.initFilled + 0.0) / this.maxCapacity
 				});
+				$(this.vesselDiv).hide();
 			},
 
 			setDefault: function(dontDraw) {

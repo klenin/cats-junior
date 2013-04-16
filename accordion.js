@@ -269,7 +269,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 				}
 
 				$(this).myAccordion('fixComma', div);
-				return arguments;
+				return true;
 			},
 
 			findNextComma: function(comma) {
@@ -280,6 +280,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 					}
 					span = $(span).next();
 				}
+				return true;
 			},
 
 			fixComma: function(div) {
@@ -324,13 +325,13 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 			
 			getArguments: function(div) {
 				var index = $(div).index();
-				var arguments = [];
+				var args = [];
 				var l = $(this).data('arguments')[index].length;
 				for (var k = 0; k <  $(this).data('arguments')[index].length; ++k) {
 					//console.log($(this).data('myAccordion').arguments[index][k], typeof $(this).data('myAccordion').arguments[index][k]);
-					arguments.push($(this).data('arguments')[index][k].children('a').html().split(' ').join(''))
+					args.push($(this).data('arguments')[index][k].children('a').html().split(' ').join(''))
 				}
-				return arguments;
+				return args;
 			}
 		}
 
@@ -344,6 +345,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 			else {
 		      $.error('Method ' +  method + ' does not exist on jQuery.myAccordion');
 			}
+			return false;
 	    }    
 	  
 		
