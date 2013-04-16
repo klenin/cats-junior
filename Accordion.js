@@ -73,7 +73,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 					var name = $this.myAccordion('getFunctionName', $(this).parent());
 					var index = $this.data('arguments')[$(this).parent().index()].length; 
 					if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index + 1]) {
-						alert('Р¤СѓРЅРєС†РёСЏ СЃ С‚Р°РєРёРј Р¶Рµ РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚');
+						alert('Функция с таким же именем уже существует');
 						return false;
 					}
 					var argSpan = $('<span class="argInput"><a href="#">arg' + index + '</a></span>')
@@ -130,12 +130,12 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 					var argumentsNum = $this.data('arguments')[index].length;
 					if (oldName != newName && $this.data('problem').functions[newName] && 
 						$this.data('problem').functions[newName][argumentsNum]) {
-						alert('Р¤СѓРЅРєС†РёСЏ СЃ С‚Р°РєРёРј Р¶Рµ РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚');
+						alert('Функция с таким же именем уже существует');
 						$(input).focus();
 						return false;
 					}
 					if (!checkName(newName)) {
-						alert('РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РёРјСЏ С„СѓРЅРєС†РёРё!');
+						alert('Некорректное имя функции!');
 						$(input).focus();
 						return false;
 					}
@@ -167,7 +167,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 						var name = $this.myAccordion('getFunctionName', div);
 						var index = $this.data('arguments')[$(div).index()].length; 
 						if ($this.data('problem').functions[name] && $this.data('problem').functions[name][index - 1]) {
-							alert('Р¤СѓРЅРєС†РёСЏ СЃ С‚Р°РєРёРј Р¶Рµ РёРјРµРЅРµРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚');
+							alert('Функция с таким же именем уже существует');
 							$(input).val(oldName).focus();
 							return false;
 						}
@@ -180,7 +180,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 					}
 					
 					if (!checkName(newName)) {
-						alert('РќРµРєРѕСЂСЂРµРєС‚РЅРѕРµ РёРјСЏ Р°СЂРіСѓРјРµРЅС‚Р°!');
+						alert('Некорректное имя аргумента!');
 						$(input).focus();
 						return false;
 					}
@@ -355,4 +355,3 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 	}
 	(jQuery));
 });
-
