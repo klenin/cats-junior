@@ -442,9 +442,9 @@ define('CommandsMode', ['jQuery',
 				{
 					this.executing = false;
 					++this.curCnt;
-					if (this.problem.speed || this.cnt == this.curCnt) {
+					//if (this.problem.speed || this.cnt == this.curCnt) {
 						this.getSpin().mySpin('decreaseValue');
-					}	
+					//}	
 				}
 			}
 
