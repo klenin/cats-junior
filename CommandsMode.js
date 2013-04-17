@@ -1223,8 +1223,9 @@ define('CommandsMode', ['jQuery',
 			{
 				if (i >= block.commands.length)
 					return false;
-				var f1 = this.commands[i].eq(block.commands[i], block.commands[i].getClass() == 'command' && 
-					i == Math.min(this.commands.length - 1, this.curCmd));
+				var compareCnt = (block.commands[i].getClass() == 'command' || block.commands[i].getClass() == 'for') && 
+					i == Math.min(this.commands.length - 1, this.curCmd);
+				var f1 = this.commands[i].eq(block.commands[i], compareCnt);
 				f = f && f1;
 			}
 			return f;
