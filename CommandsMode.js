@@ -157,7 +157,6 @@ define('CommandsMode', ['jQuery',
 
 			this.finished = this.curCnt >= commandCounter;
 			if (this.curCnt == commandCounter) {
-				this.curCnt = 0;
 				commandCounter = this.initCnt;
 			}
 			if ( i == t - 1 || t == 0 ) {
@@ -220,8 +219,10 @@ define('CommandsMode', ['jQuery',
 					if (this.counterIndex != undefined) {
 						this.arguments[this.counterIndex].value = cmd.arguments[cmd.counterIndex].value;
 						this.arguments[this.counterIndex].currentValue = cmd.arguments[cmd.counterIndex].currentValue;
+						this.finished = this.curCnt >= this.arguments[this.counterIndex].currentValue; // check
 					}
 				}
+
 				this.id = cmd.id;
 				return this;
 			}
