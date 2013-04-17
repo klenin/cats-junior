@@ -515,13 +515,13 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		highlightOff: function() {
-			$('#' + this.id + '> span').css('background-color', '');
+			$('#' + this.id + '> spin').css('background-color', '');
 			$('#' + this.id + '> a').css('background-color', '');
 			this.body.highlightOff();
 		},
 		
 		highlightOn: function() {
-			$('#' + this.id + '> span').css('background-color', '#1CB2B3');
+			$('#' + this.id + '> spin').css('background-color', '#1CB2B3');
 			$('#' + this.id + '> a').css('background-color', '#1CB2B3');
 		},
 		
