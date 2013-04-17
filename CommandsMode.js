@@ -378,8 +378,15 @@ define('CommandsMode', ['jQuery',
 		},
 
 		eq: function(block, compareCnt){
-			return (block.getClass() == 'for' && block.id == this.id && 
-				(compareCnt ? block.cnt >= this.curCnt : block.cnt == this.cnt));
+			var result = (block.getClass() == 'for' && block.id == this.id);
+			if (compareCnt) {
+				//(block.cnt == this.curCnt && !this.executing) -- we didn't start last iteration yet
+				result = result && ((block.cnt > this.curCnt) || (block.cnt == this.curCnt && !this.executing));
+			}
+			else {
+				result = result && (block.cnt == this.cnt);
+			}
+			return result && this.body.eq(block.body, false);
 		},
 		
 		exec: function(cnt, args)
@@ -801,12 +808,12 @@ define('CommandsMode', ['jQuery',
 			return this.curBlock != undefined && (!this.blocks[this.curBlock] || this.blocks[this.curBlock].isFinished());
 		},
 		
-		eq: function(block){
+		eq: function(block, compareCnt){
 		
 			return this.__base(block) &&
 				((this.curBlock == undefined && block.curBlock == undefined) ||
 				(this.curBlock != undefined && block.curBlock != undefined && 
-				this.blocks[this.curBlock].eq(block.blocks[this.curBlock])));
+				this.blocks[this.curBlock].eq(block.blocks[this.curBlock], compareCnt)));
 		},
 		
 		exec: function(cnt, args) {
@@ -1025,8 +1032,8 @@ define('CommandsMode', ['jQuery',
 			return this.finished;
 		},
 		
-		eq: function(block){
-			return this.__base(block) && this.body.eq(block.body);
+		eq: function(block, compareCnt){
+			return this.__base(block) && this.body.eq(block.body, compareCnt);
 		},
 		
 		exec: function(cnt, args) {
@@ -1215,7 +1222,7 @@ define('CommandsMode', ['jQuery',
 			return this.commands.length == this.curCmd;
 		},
 		
-		eq: function(block){
+		eq: function(block, compareCnt){
 			if (block.getClass() != 'block')
 				return false;
 			var f = true;
@@ -1223,8 +1230,15 @@ define('CommandsMode', ['jQuery',
 			{
 				if (i >= block.commands.length)
 					return false;
-				var compareCnt = (block.commands[i].getClass() == 'command' || block.commands[i].getClass() == 'for') && 
-					i == Math.min(this.commands.length - 1, this.curCmd);
+				compareCnt = compareCnt && 
+					((block.commands[i].getClass() == 'command' || 
+						block.commands[i].getClass() == 'for' || 
+						block.commands[i].getClass() == 'block') && 
+					i == Math.min(this.commands.length - 1, this.curCmd));
+				//if we are in for or in function, always compare counters on equality
+				if (block.commands[i].getClass() == 'command' && (block.parent.getClass() == 'for' || block.getFunction() != undefined)) {
+					compareCnt = false;
+				}
 				var f1 = this.commands[i].eq(block.commands[i], compareCnt);
 				f = f && f1;
 			}
@@ -1423,7 +1437,7 @@ define('CommandsMode', ['jQuery',
 		eq: function(func) {
 			if (func.getClass() != 'functionDef')
 				return false;
-			return func.name == this.name && this.body.eq(func.body); //???
+			return func.name == this.name && this.body.eq(func.body, false); //???
 		},
 		
 		exec: function(cnt) {

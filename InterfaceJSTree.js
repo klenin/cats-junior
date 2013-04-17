@@ -54,7 +54,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 			switch(type){
 				case 'for':
 					var spin = $('<spin></spin>');
-					spin.mySpin('init', $(newNode), [], problem, 'int');
+					spin.mySpin('init', $(newNode), [], problem, 'int', true, 1);
 					$(newNode).append(spin);
 					break;
 				case 'if':

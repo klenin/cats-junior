@@ -360,7 +360,7 @@ function() {
 			var needHideCounters = this.cmdList && this.cmdList.started();
 			this.changed = true;
 			this.cmdList.makeUnfinished();
-			if (this.cmdList && !this.cmdList.eq(newCmdList) || !this.cmdList) {
+			if (this.cmdList && !this.cmdList.eq(newCmdList, true) || !this.cmdList) {
 				this.cmdList = newCmdList;
 				this.setDefault();
 				this.showCounters();
