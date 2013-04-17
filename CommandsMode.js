@@ -64,8 +64,8 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; result && i < this.arguments.length; ++i) {
 				result = result && (this.arguments[i].isCounter == cmd.arguments[i].isCounter);
 				if (this.arguments[i].isCounter && cmd.arguments[i].isCounter && compareCnt) { //check it!!!
-					result = result && (this.arguments[i].value >= cmd.arguments[i].value && 
-						this.arguments[i].currentValue >= cmd.arguments[i].currentValue);
+					result = result && (this.arguments[i].value <= cmd.arguments[i].value && 
+						this.arguments[i].currentValue <= cmd.arguments[i].currentValue);
 				}
 				else {
 					result = result && (this.arguments[i].value == cmd.arguments[i].value && 
