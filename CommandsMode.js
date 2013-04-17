@@ -193,7 +193,7 @@ define('CommandsMode', ['jQuery',
 		
 		hideCounters: function() { //
 			for (var i = 0; i < this.arguments.length; ++i) {
-				if (this.arguments.type == 'int') {
+				if (this.arguments[i].type == 'int') {
 					if (i == this.counterIndex) {
 						if (!this.finished) {
 							this.getSpinAt(i).mySpin('hideBtn', this.arguments[i].currentValue - this.curCnt);
