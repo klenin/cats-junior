@@ -603,9 +603,9 @@ function() {
 				return;
 			}
 			if (!this.playing || this.executionUnit.isDead()) {
+				this.setDefault();
 				this.setCounters();
 				this.hideCounters();
-				this.setDefault();
 			}
 			try {
 				this.speed = s;

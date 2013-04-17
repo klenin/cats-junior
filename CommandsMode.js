@@ -454,7 +454,7 @@ define('CommandsMode', ['jQuery',
 				this.cnt = this.initCnt;
 			}
 			if ( this.finished ) {
-				this.getSpin().mySpin('stopExecution');
+				//this.getSpin().mySpin('stopExecution');
 				this.cnt = this.initCnt;
 			}		
 			return cnt;
@@ -468,8 +468,9 @@ define('CommandsMode', ['jQuery',
 			this.executing = false;
 			this.isStarted = false;
 			this.curCnt = 0;
-			this.getSpin().mySpin('hideBtn');
 			this.cnt = this.initCnt;
+			this.finished = false;
+			this.getSpin().mySpin('hideBtn');
 			//this.hideCounters();
 			this.body.setDefault();
 			this.highlightOff();
