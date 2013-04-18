@@ -1785,6 +1785,7 @@ define('CommandsMode', ['jQuery',
 			args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
 			if (inputs.length > args.length) {
 				$(inputs).filter(':gt(' + (args.length - 1) + ')').remove();
+				$(inputs).filter(':eq(' + (args.length) + ')').remove();
 			}
 			else {
 				for (var i = inputs.length; i < args.length; ++i) {
