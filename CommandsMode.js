@@ -150,9 +150,9 @@ define('CommandsMode', ['jQuery',
 				}
 				this.problem.checkLimit();
 				++this.curCnt;
-				//if ((this.problem.speed || commandCounter == this.curCnt) && this.hasCounter) {
+				if (/*(this.problem.speed || commandCounter == this.curCnt) && */this.hasCounter) {
 					this.getSpinAt(this.counterIndex).mySpin('decreaseValue');
-				//}
+				}
 			}
 
 			this.finished = this.curCnt >= commandCounter;
@@ -199,11 +199,11 @@ define('CommandsMode', ['jQuery',
 							this.getSpinAt(i).mySpin('hideBtn', this.arguments[i].currentValue - this.curCnt);
 						} 
 						else {
-							this.getSpin(i).mySpin('hideBtn', 0);
+							this.getSpinAt(i).mySpin('hideBtn', 0);
 						}
 					}
 					else {
-						this.getSpin(i).mySpin('hideBtn', this.arguments[i].currentValue);
+						this.getSpinAt(i).mySpin('hideBtn', this.arguments[i].currentValue);
 					}
 				}
 			}
