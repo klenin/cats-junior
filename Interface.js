@@ -298,12 +298,12 @@ define('Interface', ['jQuery',
 			console.error(e);
 			$.unblockUI();
 			++cmdId;
-			problem.updated();
 			if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
 				$("#commandsMode" + j).prop('checked', false);
 				$("#codeMode" + j).prop('checked', true);
 				return;
 			}
+			problem.updated();
 		}
 		$('#ulCommands' + j).show();
 		$('#jstree-container' + j).show();
@@ -321,7 +321,7 @@ define('Interface', ['jQuery',
 
 	function goToCodeMode(problem) {
 		var j = problem.tabIndex;
-		$('#accordion' + j).empty();
+		//$('#accordion' + j).empty();
 		$('#accordion' + j).hide()
 		$('#ulCommands' + j).hide();
 		$('#ulCommands_' + j).show();
