@@ -1,7 +1,7 @@
 define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 	function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				
 		var conditionPropertiesId = $(select).val();
-		var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+		var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId)
 
 		$(node).children('.testFunctionArgument').remove();
 
@@ -79,7 +79,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					$(newNode).append('<select class = "testFunctionName">');
 					for (var i = 0; i < problem.executionUnit.getConditionProperties().length; ++i) {
 						var name = problem.executionUnit.getConditionProperties()[i]['name'];
-						$(newNode).children('.testFunctionName').append('<option value = "' + i + '">' + name + '</option><br>');
+						$(newNode).children('.testFunctionName').append('<option value = "' + name + '">' + name + '</option><br>');
 					}
 					$(newNode).append('</select>')
 					$(newNode).children('.testFunctionName').change(function(p, node, a){

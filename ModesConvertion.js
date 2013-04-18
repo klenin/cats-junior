@@ -25,7 +25,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
 				var args = [$('#' + cmdId).children('select:eq(0)').children('option:selected').val()];
 				var conditionPropertiesId = $('#' + cmdId).children('.testFunctionName').children('option:selected').val();
-				var conditionProperties = problem.executionUnit.getConditionProperties()[conditionPropertiesId];
+				var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId);
 				var conditionArguments = conditionProperties.args;
 				for (var j = 0; j < conditionArguments.length; ++j) {
 					args.push(

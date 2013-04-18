@@ -932,7 +932,7 @@ define('CommandsMode', ['jQuery',
 						self.blocks[1] ? $('#ifelse0').attr('rel') : $('#if0').attr('rel'), 
 						self.problem, 
 						undefined, 
-						self.conditionProperties, 
+						self.conditionProperties.name, 
 						self.args,
 						true);
 					var numId = $(newNode).prop('numId');
@@ -1147,7 +1147,7 @@ define('CommandsMode', ['jQuery',
 						$('#while0').attr('rel'),
 						self.problem,
 						undefined, 
-						self.conditionProperties, 
+						self.conditionProperties.name, 
 						self.args, 
 						true);
 					var numId = $(newNode).prop('numId');
