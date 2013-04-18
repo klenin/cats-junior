@@ -280,7 +280,7 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 					}
 					span = $(span).next();
 				}
-				return true;
+				return undefined;
 			},
 
 			fixComma: function(div) {
