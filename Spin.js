@@ -59,6 +59,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 
 			setTotal: function(total, v) {
 				$(this).data('total', total);
+				$(this).data('currentTotal', v ? v : total);
 				$(this).data('totalVal', v ? v : total);
 				$(this).children('input').val($(this).data('totalVal'));
 			},
@@ -149,22 +150,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				
 			},
 
-			hideBtn: function(cnt) {
-				$(this).mySpin('getSpinImg').hide();
-				if (isInt($(this).data('totalVal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
-					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))) + '/' + $(this).data('totalVal'));
-				}
-				else {
-					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('totalVal'))))
-				}
-			},
-
-			showBtn: function() {
-				$(this).mySpin('getSpinImg').show();
-				$(this).children('input').val($(this).data('totalVal'));
-			},
-
-			startExecution: function(current) {
+			updateTotals: function(current){
 				$(this).data('currentTotal', $(this).data('total'));
 				if (current != undefined) {
 					$(this).data('value', current);
@@ -178,6 +164,26 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 						$(this).data('currentTotal', $(this).data('value'));
 					}
 				}
+			},
+
+			hideBtn: function(cnt) {
+				$(this).mySpin('getSpinImg').hide();
+				//$(this).mySpin('updateTotals');
+				if (isInt($(this).data('currentTotal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
+					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('currentTotal'))) + '/' + $(this).data('currentTotal'));
+				}
+				else {
+					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('currentTotal'))))
+				}
+			},
+
+			showBtn: function() {
+				$(this).mySpin('getSpinImg').show();
+				$(this).children('input').val($(this).data('totalVal'));
+			},
+
+			startExecution: function(current) {
+				$(this).mySpin('updateTotals', current);
 				if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
 					throw 'Invalid counter!!!';
 				}
@@ -212,6 +218,11 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				var args = $.extend(true, {}, argumentValues);
 				$(this).data('argumentValues', args);
 			},
+
+			setDefault: function() {
+				$(this).data('currentTotal', $(this).data('totalVal'));
+				$(this).data('value', $(this).data('total'));//
+			}
 		}
 
 		$.fn.mySpin = function(method) {

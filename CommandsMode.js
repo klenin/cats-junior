@@ -175,6 +175,7 @@ define('CommandsMode', ['jQuery',
 		setDefault: function() {
 			this.curCnt = 0;
 			var numId = $('#' + this.id).prop('numId');
+			this.spinAccess('setDefault');
 			//this.hideCounters();
 			//this.getSpin().mySpin('stopExecution'); //???
 			this.spinAccess('hideBtn');
@@ -470,6 +471,7 @@ define('CommandsMode', ['jQuery',
 			this.curCnt = 0;
 			this.cnt = this.initCnt;
 			this.finished = false;
+			this.getSpin().mySpin('setDefault');
 			this.getSpin().mySpin('hideBtn');
 			//this.hideCounters();
 			this.body.setDefault();
