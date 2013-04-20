@@ -33,7 +33,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 						);
 
 					if ($this.data('type') == 'int') {
-						$this.append('<img src="images/spin-button.png">');
+						$this.append('<img src="images/spin-button.png" style="position: relative; top: 4px">');
 					}
 
 					$this.children('img').bind('click', function(e){
