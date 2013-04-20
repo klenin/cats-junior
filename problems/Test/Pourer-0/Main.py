@@ -18,19 +18,19 @@ class Vessel:
 		self.isEndless = isEndless
 		self.filled = initFilled
 		
-	def pourTo(delta):
+	def pourTo(self, delta):
 		if not self.isEndless:
 			self.filled -= delta
 
-	def pourFrom(delta):
+	def pourFrom(self, delta):
 		self.filled += delta
 
-	def pourOut():
+	def pourOut(self):
 		if self.isEndless:
 			raise MyException('Can\'t pour out endless vessel!!!')
 		self.filled = 0;
 
-	def fill():
+	def fill(self):
 		self.filled = self.capacity
 
 class Pourer:
@@ -38,7 +38,7 @@ class Pourer:
 		vessels = kwargs.get('vessels')
 		self.vessels = []
 		for vessel in vessels:
-			self.vessels.push_back(Vessel(vessel.capacity, vessel.initFilled, vessel.isEndless))
+			self.vessels.append(Vessel(vessel['capacity'], vessel['initFilled'], vessel['isEndless']))
 
 		self.dLife = kwargs.get('dLife', 0)
 		self.life = kwargs.get('startLife', 0)
@@ -47,7 +47,9 @@ class Pourer:
 		self.maxCmdNum = kwargs.get('maxCmdNum', 10000)
 		self.commandsFine = kwargs.get('commandsFine', 0)
 		self.stepsFine = kwargs.get('stepsFine', 0)
-
+		self.pointsWon = kwargs.get('pointsWon', 0)
+		self.finishState = kwargs.get('finishState', [])
+		
 		self.steps = 0
 		self.cmdNum = 0
 
@@ -59,22 +61,22 @@ class Pourer:
 
 	def pour(self, src, dest):
 		try:
-			if (src == dest):
+			if src == dest:
 				return
 			
-			if (self.vessels[src].filled == 0 || self.vessels[dest].capacity == self.vessels[dest].filled):
+			if self.vessels[src].filled == 0 or self.vessels[dest].capacity == self.vessels[dest].filled:
 				return
 
 			delta = min(self.vessels[dest].capacity - self.vessels[dest].filled, self.vessels[src].filled)
 			self.vessels[src].pourTo(delta)
 			self.vessels[dest].pourFrom(delta)
-		except:
+		except Exception as e:
 			raise MyException('Invalid command, pour!')
 			
 	def pourOut(self, vessel):
 		try:
 			self.vessels[vessel].pourOut();
-		except:
+		except Exception as e:
 			raise MyException('Invalid command, pourOut!')
 
 	def fill(self, vessel):
@@ -83,42 +85,60 @@ class Pourer:
 		except:
 			raise MyException('Invalid command, fill!')
 
-	def isLess(vessel, value):
+	def isLess(self, vessel, value):
 		return self.vessels[vessel].filled < value;
 
-	def isEqual(vessel, value):
+	def isEqual(self, vessel, value):
 		return self.vessels[vessel].filled == value;
 
-	def isGreater(vessel, value):
+	def isGreater(self, vessel, value):
 		return self.vessels[vessel].filled > value;
 
-	def isLessVessel(first, second):
+	def isLessVessel(self, first, second):
 		return self.vessels[first].filled < self.vessels[second].filled;
 
-	def isEqualVessel(first, second):
+	def isEqualVessel(self, first, second):
 		return self.vessels[first].filled == self.vessels[second].filled;
 
-	def isGreaterVessel(first, second):
+	def isGreaterVessel(self, first, second):
 		return self.vessels[first].filled > self.vessels[second].filled;
 
-	def isFinished():
-		var finished = true;
-		for (var i = 0; i < self.data.finishState.length; ++i) {
-			var vessel = self.data.finishState[i].vessel;
-			finished = finished && (self.vessels[vessel].filled == self.data.finishState[i].filled);
-		}
+	def isFinished(self):
+		finished = True
+		for i in range(len(self.finishState)):
+			vessel = self.finishState[i]['vessel']
+			finished = finished and (self.vessels[vessel].filled == self.vessels[vessel].filled)
+
 		return finished;
 		
 global curState
 
+def changeCmdNum():
+	st = inspect.stack()
+	if st[2][2] not in curState.usedFunc[st[1][3]]:
+		curState.cmdNum += 1
+		curState.usedFunc[st[1][3]].append(st[2][2])
+
+def checkForDead():
+	curState.steps += 1
+	if curState.life == 0 or curState.steps > curState.maxStep or curState.cmdNum == curState.maxCmdNum:
+		curState.dead = True
+		raise MyException('Game over')		
+		
 def pour(src, dst):
+	changeCmdNum()
 	curState.pour(src - 1, dst - 1)
+	checkForDead()
 
 def pourOut(vessel):
-	curState.pourOut(vessel)
+	changeCmdNum()
+	curState.pourOut(vessel - 1)
+	checkForDead()
 
 def fill(vessel):
-	curState.fill(vessel)
+	changeCmdNum()
+	curState.fill(vessel - 1)
+	checkForDead()
 
 def compare(vessel, comparator, value):
 	vessel -= 1
@@ -139,7 +159,7 @@ def compare(vessel, comparator, value):
 	else:
 		raise MyException('Invalid comparator')
 
-def checkFilled(first, comparator, second)
+def checkFilled(first, comparator, second):
 	first -= 1
 	second -= 1
 	
@@ -160,6 +180,7 @@ def checkFilled(first, comparator, second)
 
 
 def solve():
+	oldstdout = sys.stdout
 	try:
 		f = open('problem.json', 'r')
 		s = f.read()
@@ -169,14 +190,16 @@ def solve():
 			raise MyException('Vessels are undefined')
 
 		global curState
-		curState = State(**problem)				
+		curState = Pourer(**problem)				
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
-		oldstdout = sys.stdout
 		sys.stdout = open(os.devnull, 'w')
 		exec(sol, {'pour': pour, 'pourOut': pourOut, 'fill': fill, 'compare': compare, 'checkFilled': checkFilled})
 		sys.stdout = oldstdout
-	except:
+		if curState.isFinished():
+			curState.pnts += curState.pointsWon
+	except Exception as e:
 		sys.stdout = oldstdout
+	
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
 if __name__ == '__main__':
