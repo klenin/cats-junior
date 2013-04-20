@@ -107,7 +107,7 @@ class Pourer:
 		finished = True
 		for i in range(len(self.finishState)):
 			vessel = self.finishState[i]['vessel']
-			finished = finished and (self.vessels[vessel].filled == self.vessels[vessel].filled)
+			finished = finished and (self.finishState[i]['filled'] == self.vessels[vessel].filled)
 
 		return finished;
 		
