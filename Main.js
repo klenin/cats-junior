@@ -140,12 +140,12 @@ requirejs(['require',
 		$('#funcName').hide();
 		$('#tabs').tabs({
 			select: function(event, ui) {
-				if (ui.index > 0 && ui.index - 1 < problems.length){
-					curProblemIndex = ui.index - 1;
+				curProblemIndex = ui.index - 1;
+				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
-					for (var i = 0; i < problems.length; ++i) {
-						problems[i].onTabSelected(curProblemIndex);
-					}
+				}
+				for (var i = 0; i < problems.length; ++i) {
+					problems[i].onTabSelected(curProblemIndex);
 				}
 				/*if (ui.index == (problems.length + 2))
 				{
