@@ -545,10 +545,11 @@ define('CommandsMode', ['jQuery',
 		highlightOn: function() {
 			/*if (!isCmdHighlighted(this.id)) {
 				changeCmdHighlight(this.id);
-				this.body.hideHighlighting();
+				
 			}*/
 			$('#' + this.id).removeClass('hiddenHighlighting');
 			$('#' + this.id).addClass('highlighted');
+			this.body.hideHighlighting();
 			/*$('#' + this.id + '> spin').css('background-color', '#1CB2B3');
 			$('#' + this.id + '> a').css('background-color', '#1CB2B3');*/
 		},
