@@ -117,6 +117,11 @@ define('ExecutionUnitWrapper', ['jQuery',
 			getState: function() {
 				this.checkExecutionUnit();
 				this.executionUnit.getState();
+			},
+
+			cmdListFinished: function() {
+				this.checkExecutionUnit();
+				this.executionUnit.cmdListFinished();
 			}
 		})
 	};

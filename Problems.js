@@ -417,6 +417,7 @@ function() {
 					if (this.cmdList.isFinished()) {
 						this.playing = false;
 						this.enableButtons();
+						this.executionUnit.cmdListFinished();
 						return;
 					}
 				}
@@ -741,7 +742,10 @@ function() {
 					++this.executedCommandsNum;
 					this.highlightLast();
 					this.executionUnit.draw();
-					if (this.cmdList.isFinished()) this.playing = false;
+					if (this.cmdList.isFinished()) {
+						this.playing = false;
+						this.executionUnit.cmdListFinished();
+					} 
 					this.speed = s;
 				} catch (e) {
 					console.error(e);

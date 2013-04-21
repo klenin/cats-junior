@@ -949,6 +949,10 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					'curNumOfPrizes': this.curNumOfPrizes,
 					'completed': this.isCompleted()
 				}
+			},
+
+			cmdListFinished: function() {
+				return;
 			}
 		}, 
 		{ //static methods and properties
