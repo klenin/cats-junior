@@ -423,15 +423,19 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		var dir = '';
 		switch(direction.v){
 			case 'atTheLeft': 
+			case 'слева':
 				dir = 'left';
 				break;
 			case 'atTheRight':
+			case 'справа':
 				dir = 'right';
 				break;
 			case 'inFrontOf':
+			case 'спереди':
 				dir = 'forward';
 				break;
 			case 'behind':
+			case 'сзади':
 				dir = 'behind';
 				break;
 			default:

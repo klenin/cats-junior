@@ -708,11 +708,8 @@ define('CommandsMode', ['jQuery',
 					if (checkNumber(value)) {
 						str += value;
 					} 
-					else if (checkName(value)) {
+					else  {
 						str += '"' + value + '"';
-					}
-					else {
-						str += "u'" + value + "'";
 					}
 				}
 				else {
@@ -1829,7 +1826,7 @@ define('CommandsMode', ['jQuery',
 					str += this.argumentsValues[i];
 				}
 				else {
-					str += "u'" + this.argumentsValues[i] + "'";
+					str += "'" + this.argumentsValues[i] + "'";
 				}
 			}
 			str += ')\n';
