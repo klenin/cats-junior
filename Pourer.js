@@ -71,7 +71,7 @@ define('Pourer',
 
 			pourOut: function() {
 				if (this.isEndless) {
-					throw 'Can\'t pour out endless vessel!!!';
+					throw 'Нельзя вылить содержимое бесконечного сосуда';
 				}
 				this.filled = 0;
 			},
@@ -127,7 +127,7 @@ define('Pourer',
 
 		function compare(args){
 			if (args.length != 4) {
-				throw 'Invalid arguments list!!';
+				throw 'Некорректный список аргументов';
 			}
 
 			var vessel = args[1] - 1;
@@ -188,7 +188,7 @@ define('Pourer',
 
 		function checkFilled(args){
 			if (args.length != 4) {
-				throw 'Invalid arguments list!!';
+				throw 'Некорректный список аргументов';
 			}
 
 			var first = args[1] - 1;
@@ -338,7 +338,7 @@ define('Pourer',
 				generateCommands: function(div) {
 					for (var i = 0; i < this.data.commands.length; ++i) {
 						if (!this.__self.cmdClassToName[this.data.commands[i]]) {
-							throw 'Unknown command!!!';
+							throw 'Команда ' + this.data.commands[i] + ' не поддерживается';
 						}
 						var divclass = this.data.commands[i];
 						var j = this.problem.tabIndex;
@@ -404,7 +404,7 @@ define('Pourer',
 
 				executeCommand: function(command, args) {
 					if (this.data.commands.indexOf(command) === -1) {
-						throw 'Invalid command';
+						throw 'Команда ' + command + ' не поддерживается';
 					}
 
 					switch (command) {
@@ -418,7 +418,7 @@ define('Pourer',
 							this.fill(args);
 							break;
 						default:
-							throw 'Invalid command!!!';
+							throw 'Команда ' + command + ' не поддерживается';
 					}
 
 					if (this.data.stepsFine){
@@ -456,7 +456,7 @@ define('Pourer',
 						}*/
 					}
 					catch (err) {
-						throw 'Invalid command!';
+						throw 'Некорректная команда';
 					}
 				},
 
@@ -466,7 +466,7 @@ define('Pourer',
 						this.vessels[vessel].pourOut();
 					}
 					catch (err) {
-						throw 'Invalid command!';
+						throw 'Некорректная команда';
 					}
 					
 				},
@@ -477,7 +477,7 @@ define('Pourer',
 						this.vessels[vessel].fill();
 					}
 					catch (err) {
-						throw 'Invalid command!';
+						throw 'Некорректная команда';
 					}
 				},
 

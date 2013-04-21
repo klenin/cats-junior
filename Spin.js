@@ -74,7 +74,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				}
 
 				if (i == args.length) {
-					throw 'Unknown argument!'
+					throw 'Неизвестный аргумент'
 				}
 				
 				$(this).mySpin('setTotal', $(this).data('minimum') - i - 1, total);
@@ -127,7 +127,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				}
 				else {
 					if (!checkName(newTotal)) {
-						throw 'Invalid argument!!!'
+						throw 'Некорректное имя аргумента'
 					}
 
 					var i = 0;
@@ -138,7 +138,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 					}
 
 					if (i == $(this).data('arguments').length) {
-						throw 'Invalid argument'; //highlight?
+						throw 'Некорректный аргумент'; //highlight?
 					}
 
 					$(this).mySpin('setTotal', $(this).data('maximum') - 1 - i, 
@@ -185,7 +185,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 			startExecution: function(current) {
 				$(this).mySpin('updateTotals', current);
 				if (!isInt($(this).data('value')) || $(this).data('value') < 0) {
-					throw 'Invalid counter!!!';
+					throw 'Некорректный счетчик';
 				}
 				if ($(this).data('type') == 'int' && $(this).data('isCounter') == true) {
 					$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
@@ -203,7 +203,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 
 			decreaseValue: function() {
 				if ($(this).data('type') != 'int') {
-					throw 'Can\'t decrease not int!!!';
+					throw 'Счетчик не может быть не целым';
 				}
 				$(this).data('value', Math.max($(this).data('value') - 1, 0));
 				$(this).children('input').val( $(this).data('value') + '/' + $(this).data('currentTotal') );

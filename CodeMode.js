@@ -125,7 +125,7 @@ define('CodeMode', ['SkulptModule'], function(){
 			$gbl[problem] = undefined,
 			$loc[problem] = $gbl[problem];
 			nextline[problem] = undefined;
-			throw 'Compilation error';
+			throw 'Ошибка компиляции';
 		}
 	}
 

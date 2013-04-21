@@ -353,7 +353,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 	function objectPosition(args){
 		if (args.length != 3) {
-			throw 'Invalid arguments list!!';
+			throw 'Некорректное число аргументов';
 		}
 		var condition = args[0];
 		var object = args[1];
@@ -523,7 +523,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			generateCommands: function(div) {
 				for (var i = 0; i < this.data.commands.length; ++i) {
 					if (!this.__self.cmdClassToName[this.data.commands[i]]) {
-						throw 'Unknown command!!!';
+						throw 'Команда ' + this.data.commands[i] + ' не поддерживается';
 					}
 					var divclass = this.data.commands[i];
 					var j = this.problem.tabIndex;
@@ -700,7 +700,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			executeCommand: function(command, args) {
 				if (this.data.commands.indexOf(command) === -1) {
-					throw 'Invalid command';
+					throw 'Команда ' + command + ' не поддерживается';
 				}
 				this.oneStep(command, 1);
 			},

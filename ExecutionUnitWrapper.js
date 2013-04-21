@@ -33,7 +33,7 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			checkExecutionUnit: function() {
 				if (!this.executionUnit) {
-					throw "Executor is undefined!!!";
+					throw "Простейший исполнитель не определен";
 				}
 			},
 

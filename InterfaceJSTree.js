@@ -7,7 +7,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 
 		var args = conditionProperties['args'];
 		if (!args || !$.isArray(args)) {
-			throw 'Invalid arguments list in condtion properties';
+			throw 'Некорректный аргумент в описании функции сравнения';
 		}
 
 		var prev = $(node).children('.testFunctionName');

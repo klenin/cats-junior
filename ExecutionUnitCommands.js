@@ -112,7 +112,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 			else {
 				if (!checkName(value)) {
-					throw 'Invalid argument!!!';
+					throw 'Некорректный аргумент';
 				}
 				$(object).mySpin('setTotalWithArgument', value);
 			}

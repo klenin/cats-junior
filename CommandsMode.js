@@ -28,7 +28,7 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0 ; i < args.length; ++i) {
 				if (args[i].isCounter) {
 					if (this.counterIndex != undefined) {
-						throw 'Command can\'t have several counters!!!';
+						throw 'Команда не может иметь несколько счетчиков';
 					}
 					this.counterIndex = i;
 				}
@@ -126,7 +126,7 @@ define('CommandsMode', ['jQuery',
 				}
 				
 				if (!isInt(commandCounter) || commandCounter < 0) {
-					throw 'Invalid counter!!';
+					throw 'Некорректное значение счетчика';
 				}
 			}
 
@@ -260,7 +260,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 			
 			if (!self.problem.isCommandSupported(self.name)) {
-				throw 'Unsupported command!1';
+				throw 'Команда ' + self.name + ' не поддерживается';
 			}
 			
 			++self.problem.loadedCnt;
@@ -285,11 +285,11 @@ define('CommandsMode', ['jQuery',
 							}
 							else {
 								if (!checkName(self.arguments[i].value)) {
-									throw 'Invalid argument!!!';
+									throw 'Некорректное имя аргумента';
 								}
 								var func = self.getFunction();
 								if (!func) {
-									throw 'Unknown argument!'
+									throw 'Неопределенный аргумент'
 								}
 								self.getSpinAt(i).mySpin('setTotalWithArgument', self.arguments[i].value);
 							}
@@ -405,7 +405,7 @@ define('CommandsMode', ['jQuery',
 				}
 				
 				if (!isInt(this.cnt) || this.cnt < 0) {
-					throw 'Invalid counter!!';
+					throw 'Некорректное значение счетчика';
 				}
 			}
 			
@@ -543,7 +543,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 			
 			if (!self.problem.isCommandSupported(self.name)) {
-				throw 'Unsupported command!2';
+				throw 'Команда ' + self.name + ' не поддерживается';
 			}
 
 			++self.problem.loadedCnt;
@@ -646,7 +646,7 @@ define('CommandsMode', ['jQuery',
 			var conditionArguments = this.conditionProperties.args;
 
 			if (this.testName != this.conditionProperties.name || conditionArguments.length  + 1 != this.args.length) {
-				throw 'Invalid condition name or arguments list';
+				throw 'Некорректное имя функции сравнения или список аргументов';
 			}
 			
 			if (this.args[0] == 'not')
@@ -658,7 +658,7 @@ define('CommandsMode', ['jQuery',
 
 			for (var i = 0; i < conditionArguments.length; ++i) {
 				if (this.args[i + 1] === undefined) {
-					throw 'Invalid arguments list'
+					throw 'Некорректный список аргументов'
 				}
 				var value = conditionArguments[i].findValue(this.args[i + 1]);
 
@@ -684,7 +684,7 @@ define('CommandsMode', ['jQuery',
 					}
 
 					if (k == funcArguments.length) {
-						throw 'Invalid argument';
+						throw 'Некорректный аргумент';
 					}
 					str += this.args[i + 1];
 				}
@@ -702,7 +702,7 @@ define('CommandsMode', ['jQuery',
 			var conditionArguments = this.conditionProperties.args;
 
 			if (this.testName != this.conditionProperties.name) {
-				throw 'Invalid condition name';
+				throw 'Некорректное имя функции сравнения';
 			}
 		
 			this.test = function(prop, a){
@@ -741,7 +741,7 @@ define('CommandsMode', ['jQuery',
 					}
 				}
 				if (k == funcArguments.length) {
-					throw 'Invalid argument';
+					throw 'Некорректный аргумент';
 				}
 			}
 
@@ -922,7 +922,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 
 			if (!self.problem.isCommandSupported(self.name)) {
-				throw 'Unsupported command!3';
+				throw 'Команда ' + self.name + ' не поддерживается';
 			}
 			
 			self.loaded = false;
@@ -1138,7 +1138,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 
 			if (!self.problem.isCommandSupported(self.name)) {
-				throw 'Unsupported command!4';
+				throw 'Команда ' + self.name + ' не поддерживается';
 			}
 			
 			++self.problem.loadedCnt;
@@ -1514,7 +1514,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 
 			if (!self.problem.isCommandSupported('funcdef')) {
-				throw 'Unsupported command!5';
+				throw 'Объявление функций не поддерживается';
 			}
 			
 			++self.problem.loadedCnt;
@@ -1639,7 +1639,7 @@ define('CommandsMode', ['jQuery',
 			var funcDef = this.funcDef;
 
 			if (!funcDef) {
-				throw "Undefined function " + this.name;
+				throw 'Функция ' + this.name + ' не определена';
 			}
 			if (!this.executing)
 			{
@@ -1828,7 +1828,7 @@ define('CommandsMode', ['jQuery',
 			}
 
 			if (i != argumentsList.length) {
-				throw "Invalid arguments list ";
+				throw "Некорректный список аргументов";
 				return false;
 			}
 

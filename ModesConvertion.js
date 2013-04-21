@@ -150,7 +150,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					argValues.push(command.value.args[i].s.v);
 					break;
 				default:
-					throw 'Unsupported argument type!!!'
+					throw 'Неподдерживаемый тип аргумента'
 			}
 		}	
 		return argValues;
@@ -172,10 +172,10 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					var execCommand = execCommands[commands[i].value.func.id.v];
 					if (execCommand) {
 						if (execCommand.name != commands[i].value.func.id.v) {
-							throw 'Invalid input data!!';
+							throw 'Некорректная команда';
 						}
 						if (!(commands[i].value.args.length == execCommand.getArguments().length)) {
-							throw 'Invalid arguments number!!!';
+							throw 'Неверное число аргументов';
 						}
 
 						block.pushCommand(new CommandsMode.Command(commands[i].value.func.id.v, 
@@ -218,7 +218,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 						return undefined;
 					var conditionProperties = problem.executionUnit.getConditionProperties(dict['testName']);
 					if (!conditionProperties) {
-						throw 'Invalid condition function name!!!';
+						throw 'Некорректное имя функции сравнения';
 					}
 					var ifStmt = new CommandsMode.IfStmt(dict['testName'], dict['args'], undefined, undefined, conditionProperties, block, undefined, problem);			
 					var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
@@ -235,7 +235,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 						return undefined;
 					var conditionProperties = problem.executionUnit.getConditionProperties(dict['testName']);
 					if (!conditionProperties) {
-						throw 'Invalid condition function name!!!';
+						throw 'Некорректное имя функции сравнения';
 					}
 					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], dict['args'], undefined, conditionProperties, block, undefined, problem)
 					var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
@@ -254,7 +254,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					}
 
 					if (problem.functions[commands[i].name.v][args.length] != undefined) {
-						throw 'Several functionas with the same name aren\'t supported in visual mode!!!'
+						throw 'Несколько функций с одним и тем же именем не поддерживаются в визуальном режиме'
 					}
 					
 					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, ++cmdId, problem);
