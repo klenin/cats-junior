@@ -164,41 +164,42 @@ def checkFilled(first, comparator, second):
 	second -= 1
 	
 	if comparator == '<':
-		return curState.isLessVessel(vessel, value)
+		return curState.isLessVessel(first, second)
 	elif comparator == '>':
-		return curState.isGreaterVessel(vessel, value)
+		return curState.isGreaterVessel(first, second)
 	elif comparator == '<=':
-		return curState.isLessVessel(vessel, value) or curState.isEqualVessel(vessel, value)
+		return curState.isLessVessel(first, second) or curState.isEqualVessel(first, second)
 	elif comparator == '>=':
-		return curState.isGreaterVessel(vessel, value) or curState.isEqualVessel(vessel, value)
+		return curState.isGreaterVessel(first, second) or curState.isEqualVessel(first, second)
 	elif comparator == '==':
-		return curState.isEqualVessel(vessel, value)
+		return curState.isEqualVessel(first, second)
 	elif comparator == '!=':
-		return not curState.isEqualVessel(vessel, value)
+		return not curState.isEqualVessel(first, second)
 	else:
 		raise MyException('Invalid comparator')
 
 
 def solve():
 	oldstdout = sys.stdout
-	try:
-		f = open('problem.json', 'r')
-		s = f.read()
-		problem = json.loads(s)
-		f.close()
-		if not 'vessels' in problem:
-			raise MyException('Vessels are undefined')
+	#try:
+	f = open('problem.json', 'r')
+	s = f.read()
+	problem = json.loads(s)
+	f.close()
+	if not 'vessels' in problem:
+		raise MyException('Vessels are undefined')
 
-		global curState
-		curState = Pourer(**problem)				
-		sol = codecs.open('output.txt', 'r', 'utf-8').read()
-		sys.stdout = open(os.devnull, 'w')
-		exec(sol, {'pour': pour, 'pourOut': pourOut, 'fill': fill, 'compare': compare, 'checkFilled': checkFilled})
-		sys.stdout = oldstdout
-		if curState.isFinished():
-			curState.pnts += curState.pointsWon
-	except Exception as e:
-		sys.stdout = oldstdout
+	global curState
+	curState = Pourer(**problem)				
+	sol = codecs.open('output.txt', 'r', 'utf-8').read()
+	sys.stdout = open(os.devnull, 'w')
+	exec(sol, {'pour': pour, 'pourOut': pourOut, 'fill': fill, 'compare': compare, 'checkFilled': checkFilled})
+	sys.stdout = oldstdout
+	if curState.isFinished():
+		curState.pnts += curState.pointsWon
+	#except Exception as e:
+		#sys.stdout = oldstdout
+		#print(e)
 	
 	print(curState.pnts - curState.stepsFine * curState.steps - curState.commandsFine * curState.cmdNum)
 				
