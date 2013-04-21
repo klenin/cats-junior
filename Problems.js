@@ -287,12 +287,14 @@ function() {
 				if (CodeMode.getCurBlock() < 0) {
 					if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
 					//$('#cons' + problem).append('\nfinished\n');
+					this.executionUnit.cmdListFinished();
 					this.playing = false;
 					return 0;
 				}
 			} else {
 				if (nextline[problem] != undefined) codeareas[problem].setLineClass(nextline[problem], null);
 				//$('#cons' + problem).append('\nfinished\n');
+				this.executionUnit.cmdListFinished();
 				this.playing = false;
 				return 0;
 			}
