@@ -234,14 +234,24 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 		
+		hideHighlighting: function() {
+			$('#' + this.id).addClass('hiddenHighlighting');
+		},
+
 		highlightOff: function() {
-			if (isCmdHighlighted(this.id))
-				changeCmdHighlight(this.id);
+			/*if (isCmdHighlighted(this.id))
+				changeCmdHighlight(this.id);*/
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			$('#' + this.id).removeClass('highlighted');
 		},
 		
 		highlightOn: function(){
-			if (!isCmdHighlighted(this.id))
+			/*if (!isCmdHighlighted(this.id)){
 				changeCmdHighlight(this.id);
+				this.body.hideHighlighting();
+			}*/
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			$('#' + this.id).addClass('highlighted');
 		},
 		
 		convertToCode: function(tabsNum) {
@@ -357,6 +367,11 @@ define('CommandsMode', ['jQuery',
 			this.timestamp = new Date().getTime();
 		},
 
+		hideHighlighting: function() {
+			$('#' + this.id).addClass('hiddenHighlighting');
+			this.body.hideHighlighting();
+		},
+
 		createClone: function() {
 			var body = this.body.createClone();
 			var clone = new ForStmt(body, this.cnt, this.parent, this.id, this.problem);
@@ -425,8 +440,9 @@ define('CommandsMode', ['jQuery',
 								this.problem.prevCmd.highlightOff();
 							this.problem.prevCmd = this;
 						}
-						$('#' + this.id + '>spin').css('background-color', '#1CB2B3');
-						$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+						this.highlightOn();
+						//$('#' + this.id + '>spin').css('background-color', '#1CB2B3');
+						//$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 
 					}
 					this.problem.lastExecutedCmd = this;
@@ -517,14 +533,24 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		highlightOff: function() {
-			$('#' + this.id + '> spin').css('background-color', '');
-			$('#' + this.id + '> a').css('background-color', '');
+			/*if (isCmdHighlighted(this.id))
+				changeCmdHighlight(this.id);*/
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			$('#' + this.id).removeClass('highlighted');
+			/*$('#' + this.id + '> spin').css('background-color', '');
+			$('#' + this.id + '> a').css('background-color', '');*/
 			this.body.highlightOff();
 		},
 		
 		highlightOn: function() {
-			$('#' + this.id + '> spin').css('background-color', '#1CB2B3');
-			$('#' + this.id + '> a').css('background-color', '#1CB2B3');
+			/*if (!isCmdHighlighted(this.id)) {
+				changeCmdHighlight(this.id);
+				this.body.hideHighlighting();
+			}*/
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			$('#' + this.id).addClass('highlighted');
+			/*$('#' + this.id + '> spin').css('background-color', '#1CB2B3');
+			$('#' + this.id + '> a').css('background-color', '#1CB2B3');*/
 		},
 		
 		convertToCode: function(tabsNum) {
@@ -627,15 +653,29 @@ define('CommandsMode', ['jQuery',
 			this.generateArguments();
 		},
 		
+		hideHighlighting: function() {
+			$('#' + this.id).addClass('hiddenHighlighting');
+		},
+
 		highlightOff: function(){
+			/*if (isCmdHighlighted(this.id))
+				changeCmdHighlight(this.id);*/
+			$('#' + this.id).removeClass('highlighted');
+			$('#' + this.id).removeClass('hiddenHighlighting');
 			//$('#' + this.id + '>select').css('background-color', '');
-			$('#' + this.id + '>a').css('background-color', '');
+			//$('#' + this.id + '>a').css('background-color', '');
 			//$('#' + this.id + '>ins').css('background-color', '#eeeeee');
 		},
 		
 		highlightOn: function(){
+			/*if (!isCmdHighlighted(this.id)){
+				changeCmdHighlight(this.id);
+				//this.body.highlightOff();
+			}*/
+			$('#' + this.id).addClass('highlighted');
+			$('#' + this.id).removeClass('hiddenHighlighting');
 			//$('#' + this.id + '>select').css('background-color', '#1CB2B3');
-			$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+			//$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 			//$('#' + this.id + '>ins').css('background-color', '#1CB2B3');
 		},
 		
@@ -899,6 +939,13 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
+		hideHighlighting: function() {
+			this.__base();
+			this.blocks[0].hideHighlighting();
+			if (this.blocks[1])
+				this.blocks[1].hideHighlighting();
+		},
+
 		highlightOff: function(){
 			this.__base();
 			this.blocks[0].highlightOff();
@@ -906,6 +953,13 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1].highlightOff();
 		},
 		
+		highlightOn: function(){
+			this.__base();
+			this.blocks[0].hideHighlighting();
+			if (this.blocks[1])
+				this.blocks[1].hideHighlighting();
+		},
+
 		convertToCode: function(tabsNum) {
 			var str = generateTabs(tabsNum) + 'if ';
 			str += this.__base(tabsNum);		 
@@ -1123,11 +1177,21 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
+		hideHighlighting: function() {
+			this.__base();
+			this.body.hideHighlighting();
+		},
+
 		highlightOff: function(){
 			this.__base();
 			this.body.highlightOff();
 		},
 		
+		highlightOn: function(){
+			this.__base();
+			this.body.hideHighlighting();
+		},
+
 		convertToCode: function(tabsNum) {
 			var str = generateTabs(tabsNum) + 'while ';
 			str += this.__base(tabsNum);		 
@@ -1333,6 +1397,11 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
+		hideHighlighting: function() {
+			for (var i = 0; i < this.commands.length; ++i)
+				this.commands[i].hideHighlighting();
+		},
+
 		highlightOff: function(){
 			for (var i = 0; i < this.commands.length; ++i)
 				this.commands[i].highlightOff();
@@ -1486,6 +1555,10 @@ define('CommandsMode', ['jQuery',
 			this.body.makeUnfinished();
 		},
 		
+		hideHighlighting: function() {
+			this.body.hideHighlighting();
+		},
+
 		highlightOff: function(){
 			this.body.highlightOff();
 		},
@@ -1654,7 +1727,8 @@ define('CommandsMode', ['jQuery',
 							this.problem.prevCmd.highlightOff();
 						this.problem.prevCmd = this;
 					}
-					$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+					this.highlightOn();
+					//$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 				}
 				this.problem.lastExecutedCmd = this;
 				this.executing = true;
@@ -1678,7 +1752,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		setDefault: function(){
-			$('#' + this.id + '>span').css('background-color', '#FFFFFF');
+			this.highlightOff();
 			this.executing = false;
 			this.funcDef = undefined;
 			/*funcDef = this.getFuncDef();
@@ -1723,12 +1797,25 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
+		hideHighlighting: function() {
+			$('#' + this.id).addClass('hiddenHighlighting');
+		},	
+
 		highlightOff: function(){
-			$('#' + this.id + '>a').css('background-color', '');
+			/*if (isCmdHighlighted(this.id))
+				changeCmdHighlight(this.id);*/
+			$('#' + this.id).removeClass('highlighted');
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			//$('#' + this.id + '>a').css('background-color', '');
 		},
 		
 		highlightOn: function(){
-			$('#' + this.id + '>a').css('background-color', '#1CB2B3');
+			/*if (!isCmdHighlighted(this.id)){
+				changeCmdHighlight(this.id);
+			}*/
+			$('#' + this.id).addClass('highlighted');
+			$('#' + this.id).removeClass('hiddenHighlighting');
+			//$('#' + this.id + '>a').css('background-color', '#1CB2B3');
 		},
 		
 		convertToCode: function(tabsNum) {

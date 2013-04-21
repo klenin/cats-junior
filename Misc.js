@@ -247,10 +247,13 @@ function changeCmdHighlight(elem){
 	if (!elem)
 		return false;
 	elem = $('#' + elem);
-	if (elem.hasClass('highlighted'))
+	if (elem.hasClass('highlighted')){
 		elem.removeClass('highlighted');
-	else
+	}
+	else {
 		elem.addClass('highlighted');
+	}
+		
 	return true;
 }
 

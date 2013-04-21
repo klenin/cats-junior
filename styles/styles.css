@@ -38,7 +38,7 @@ input.cnt{
 }
 span.cnt{
 	width: 60px; 
-	height: 21px; 
+height: 21px; 
 	padding-left: 10px; 
 	top: 0px; 
 	z-index: 2;
@@ -104,7 +104,8 @@ div.funcdef{ background: url('../images/func.png') 5% 100% no-repeat; background
 	background-position: -48px -128px;
 }
 
-.highlighted{ background: #1CB2B3 !important; }
+.highlighted{ background: #1CB2B3 !important; width: 100% !important; }
+.hiddenHighlighting{ background: #FFFFFF !important; width: 100% !important; }
 ul.ul_commands{
 	padding-left: 5px;
 	margin: 0px;
