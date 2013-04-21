@@ -79,7 +79,8 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					$(newNode).append('<select class = "testFunctionName">');
 					for (var i = 0; i < problem.executionUnit.getConditionProperties().length; ++i) {
 						var name = problem.executionUnit.getConditionProperties()[i]['name'];
-						$(newNode).children('.testFunctionName').append('<option value = "' + name + '">' + name + '</option><br>');
+						var title = problem.executionUnit.getConditionProperties()[i]['title'];
+						$(newNode).children('.testFunctionName').append('<option value = "' + name + '">' + title + '</option><br>');
 					}
 					$(newNode).append('</select>')
 					$(newNode).children('.testFunctionName').change(function(p, node, a){

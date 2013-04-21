@@ -997,6 +997,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			testFunction : [{
 				'name': 'objectPosition',
+				'title': 'Позиция:',
 				'args': [
 				new ExecutionUnitCommands.TestFunctionArgumentConst([
 						['wall', 'Стена'],
@@ -1019,6 +1020,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			},
 			{
 				'name': 'isCompleted',
+				'title': 'Задание выполнено',
 				'args':[],
 				'jsFunc': isCompleted,
 				'handlerFunc': isCompleted_handler

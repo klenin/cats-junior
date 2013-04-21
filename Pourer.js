@@ -288,6 +288,7 @@ define('Pourer',
 					this.testFunction = [
 					{
 						'name': 'compare',
+						'title': 'Заполнено:',
 						'args': [
 							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
 							new ExecutionUnitCommands.TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
@@ -298,6 +299,7 @@ define('Pourer',
 					},
 					{
 						'name': 'checkFilled',
+						'title': 'Cравнение:',
 						'args': [
 							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
 							new ExecutionUnitCommands.TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
