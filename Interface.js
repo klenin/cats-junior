@@ -423,11 +423,14 @@ define('Interface', ['jQuery',
 							cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
 					},
 				    mode: {name: "python",
-			           version: 2,
+			           version: 3,
 			           singleLineStringErrors: false},
 			        indentUnit: 2,
 			        tabMode: "shift",
-			        matchBrackets: true
+			        matchBrackets: true,
+			        onChange: function(instance, obj) {
+			        	curProblem.stop();
+			        } 
 				});
 				codeareas.push(CM);
 				var groupBox = "input[name='group" + i + "']";

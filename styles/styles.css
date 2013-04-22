@@ -6,9 +6,12 @@ select{
 	min-width: 30px;
 	max-width: 100px;
 	width: auto;
-	height: 28px;
-	line-height: 28px;
+	height: 23px;
+	line-height: 23px;
 	padding-top: 5px;
+	position: relative;
+	top: 4px;
+	font-size: 0.85em !important;
 }
 table.field{
 	border-width:0px; 
@@ -38,7 +41,7 @@ input.cnt{
 }
 span.cnt{
 	width: 60px; 
-height: 21px; 
+	height: 21px; 
 	padding-left: 10px; 
 	top: 0px; 
 	z-index: 2;
@@ -146,7 +149,7 @@ div.recycle-bin{
 }
 input.spinCnt{
 	font-family:Verdana;
-	font-size: 1em;
+	font-size: 0.85em;
 	width: 60px; height: 21px; 
 	background-color: 
 	rgb(255, 255, 255); 
