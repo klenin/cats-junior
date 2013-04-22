@@ -81,7 +81,7 @@ define('Pourer',
 			},
 
 			getBottom: function() {
-				return this.getTop() + $(this.vesselDiv).height() + 5;
+				return this.getTop() + $(this.vesselDiv).height() + 10;
 			},
 
 			getTop: function() {
@@ -93,7 +93,7 @@ define('Pourer',
 			},
 			
 			setLeft: function(left) {
-				$(this.vesselDiv).css('left', left);
+				$(this.vesselDiv).css('left', left + 10);
 			},
 
 			getDivLeft: function() {
