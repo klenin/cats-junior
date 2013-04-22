@@ -64,7 +64,7 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				$(this).children('input').val($(this).data('totalVal'));
 			},
 
-			setTotalWithArgument: function(total) {
+			setTotalWithArgument: function(total, afterDomCreation) {
 				var args = $(this).data('arguments');
 				var i = 0;
 				for (i = 0; i < args.length; ++i) {
@@ -73,8 +73,8 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 					}
 				}
 
-				if (i == args.length) {
-					throw 'Неизвестный аргумент'
+				if (i == args.length && !afterDomCreation) {
+					throw "Неизвестный аргумент"
 				}
 				
 				$(this).mySpin('setTotal', $(this).data('minimum') - i - 1, total);

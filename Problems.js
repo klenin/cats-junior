@@ -294,7 +294,7 @@ function() {
 			} else {
 				if (nextline[problem] != undefined) codeareas[problem].setLineClass(nextline[problem], null);
 				//$('#cons' + problem).append('\nfinished\n');
-				this.executionUnit.cmdListFinished();
+			this.executionUnit.cmdListFinished();
 				this.playing = false;
 				return 0;
 			}

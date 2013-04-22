@@ -806,8 +806,10 @@ define('CommandsMode', ['jQuery',
 			}
 			if (args) {
 				for (var i = 0; i < conditionArguments.length; ++i) {
-					conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), args, true);
-					conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
+					if ($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')').length) { //in some cases we haven't yet created dom objects, so spins should be updated later
+						conditionArguments[i].addArguments($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), args, true);
+						conditionArguments[i].setValue($('#' + this.id).children('.testFunctionArgument:eq(' + i + ')'), this.args[i + 1]);
+					}
 				}
 			}
 		}

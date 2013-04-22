@@ -92,7 +92,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			spin.mySpin('init', $(prev).parent(), [], problem, 'int', false, this.minValue, this.maxValue);
 			$(prev).after(spin);
 			if (value != undefined) {
-				this.setValue($(spin), value);
+				this.setValue($(spin), value, true);
 			}
 		},
 
@@ -106,7 +106,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			$(object).mySpin('setArguments', args);
 		},
 
-		setValue: function(object, value) {
+		setValue: function(object, value, afterDomCreation) {
 			if (isInt(value) || checkNumber(value)) {
 				$(object).mySpin('setTotal', isInt(value) ? value : parseInt(value));
 			}
@@ -114,7 +114,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				if (!checkName(value)) {
 					throw 'Некорректный аргумент';
 				}
-				$(object).mySpin('setTotalWithArgument', value);
+				$(object).mySpin('setTotalWithArgument', value, afterDomCreation); //wa for the case when we've just created new element and haven't set arguments yet
 			}
 			
 		},
