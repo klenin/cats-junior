@@ -1716,7 +1716,7 @@ define('CommandsMode', ['jQuery',
 			}
 			if (!this.executing)
 			{
-				this.setArguments(funcDef.getArguments(), this.argumentsValues);
+				this.setArguments(funcDef.getArguments(), this.argumentsValues, a);
 				cnt -= 1; //check it!!!
 				var numId = $('#' + this.id).prop('numId');
 				if (!cnt || this.problem.speed)
@@ -1906,12 +1906,20 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
-		setArguments: function(argumentsList, argumentsValues) {
+		setArguments: function(argumentsList, argumentsValues, parentFunctionArgs) {
 			var i = 0;
 			this.arguments = {};
 			
 			for (i = 0; i < Math.min(argumentsList.length, argumentsValues.length); ++i) {
-				this.arguments[argumentsList[i]] = argumentsValues[i];
+				if (checkNumber(argumentsValues[i])){
+					this.arguments[argumentsList[i]] = argumentsValues[i];
+				}
+				else if (parentFunctionArgs && parentFunctionArgs[argumentsValues[i]]){
+					this.arguments[argumentsList[i]] = parentFunctionArgs[argumentsValues[i]];
+				}
+				else {
+					this.arguments[argumentsList[i]] = argumentsValues[i];
+				}
 			}
 
 			if (i != argumentsList.length) {

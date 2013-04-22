@@ -97,7 +97,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		findValue: function(value) {
-			if(!isInt(value) || value < this.minValue || value > this.maxValue)
+			if(!isInt(value)  && !isInt(parseInt(value)) || value < this.minValue || value > this.maxValue)
 				return undefined;
 			return value;
 		},
