@@ -484,7 +484,7 @@ def solve():
 		sol = codecs.open('output.txt', 'r', 'utf-8').read()
 		oldstdout = sys.stdout
 		sys.stdout = open(os.devnull, 'w')
-		exec(sol, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition})
+		exec(sol, {'forward': forward, 'left': left, 'right': right, 'wait': wait, 'objectPosition': objectPosition, 'isCompleted': isCompleted})
 		sys.stdout = oldstdout
 	except:
 		sys.stdout = oldstdout

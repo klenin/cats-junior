@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <CATS version="1.7">
 <Problem title="Спирали" lang="ru"
-  author="E. Vasilyeva" tlimit="1" mlimit="256" inputFile="input.txt" outputFile="output.txt">
+  author="E. Vasilyeva" tlimit="25" mlimit="256" inputFile="input.txt" outputFile="output.txt">
 
 <Keyword code="cmp.trivial" />
 
