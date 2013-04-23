@@ -25,6 +25,5 @@
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,
-	"controlCommands": ["if", "funcdef"],
 	"pointsWon": 90	
 }
