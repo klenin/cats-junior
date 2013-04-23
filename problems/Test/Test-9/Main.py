@@ -278,14 +278,31 @@ class State:
 				key.locks[j] = lock
 				self.field[lock.y][lock.x].cells.append(lock)
 				
-	def getFieldElem(self, dir):
+	def getNextCoord(self, dir):
 		newDir = nextDirect(dir, self.cur.dir);
 		cX = self.cur.x + newDir.x;
 		cY = self.cur.y + newDir.y;
-		if  dir != 'forward':
+		
+		if  dir != 'forward' and dir != 'behind':
 			cX += nextDirect('forward', newDir.dir).x;
 			cY += nextDirect('forward', newDir.dir).y;
+			
+		return Coord(cX, cY)
+				
+	def getFieldElem(self, dir):
+		newDir = nextDirect(dir, self.cur.dir);
+		
+		cX = self.cur.x + newDir.x;
+		cY = self.cur.y + newDir.y;
+		
+		if  dir != 'forward' and dir != 'behind':
+			cX += nextDirect('forward', newDir.dir).x;
+			cY += nextDirect('forward', newDir.dir).y;
+			
 		return self.field[cY][cX];
+		
+	def labyrinthOverrun(self, x, y):
+		return x < 0 or y < 0 or x >= len(self.field[0]) or y >= len(self.field)
 
 global curState
 def swap(arr, i, j):
@@ -424,6 +441,10 @@ def objectPosition(object, direction):
 	else:
 		return False
 
+	c = curState.getNextCoord(dir)
+	if curState.labyrinthOverrun(c.x, c.y):
+		return object == 'border'
+		
 	cell = curState.getFieldElem(dir)
 	if object == 'wall':
 		result = cell.isWall
@@ -439,7 +460,6 @@ def objectPosition(object, direction):
 		result = cell.findCell(Key) != None;
 	else:
 		return False
-
 	return result
 
 def isCompleted():

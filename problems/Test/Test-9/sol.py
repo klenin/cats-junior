@@ -1,6 +1,16 @@
+def goToTheLeft():
+  right(1)
+  moveForward()
+  left(1)
+  moveForward()
+def goToTheRight():
+  right(1)
+  moveForward()
+  right(1)
+  moveForward()
 def moveForward():
-  if not objectPosition("box", "inFrontOf"):
-    if not objectPosition("wall", "inFrontOf"):
+  if not objectPosition("wall", "inFrontOf"):
+    if not objectPosition("box", "inFrontOf"):
       if not objectPosition("border", "inFrontOf"):
         forward(1)
         moveForward()
@@ -9,17 +19,7 @@ def moveToBox():
     if not objectPosition("box", "atTheRight"):
       forward(1)
       moveToBox()
-def qGoLeft():
-  right(1)
-  moveForward()
-  left(1)
-  moveForward()
-def qGoRight():
-  right(1)
-  moveForward()
-  right(1)
-  moveForward()
-def returnFromChild():
+def returnFromTheChild():
   if not objectPosition("box", "behind"):
     left(2)
   moveForward()
@@ -31,14 +31,14 @@ def returnFromChild():
     left(1)
     moveToBox()
     right(1)
-def zSolve():
-  qGoLeft()
+def solve():
+  goToTheLeft()
   if objectPosition("box", "inFrontOf"):
-    zSolve()
-  returnFromChild()
-  qGoRight()
+    solve()
+  returnFromTheChild()
+  goToTheRight()
   if objectPosition("box", "inFrontOf"):
-    zSolve()
-  returnFromChild()
+    solve()
+  returnFromTheChild()
 forward(1)
-zSolve()
+solve()
