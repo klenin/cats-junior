@@ -156,7 +156,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 	}
 
 	function createJsTreeForFunction(id, problem, isFunction) {
-		//return function() {
+		//return function(p) {
 			return $(id).jstree({ 
 				"types" : {
 					"max_depth" : -2,
@@ -277,10 +277,10 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 							data.o = $(data.o).parent()[0];
 
 						var type = this._get_type(data.o);
-						var name = problem.getCommandName(type);
+						var name = curProblem.getCommandName(type);
 
 						if (type == 'funcdef') {
-							name = 'func_' + problem.numOfFunctions;
+							name = 'func_' + curProblem.numOfFunctions;
 						}
 						else if (type == 'funccall') {
 							name = $(data.o).children('.func-header').text();
@@ -298,15 +298,15 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 								function(newNode){
 									var args = [];
 									if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
-										args = $( '#accordion' + problem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
+										args = $( '#accordion' + curProblem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
 									}
-									onCreateItem(this, newNode, $(data.o).attr('rel'), problem, $(data.o).parent().attr('funcId'), undefined, args);
+									onCreateItem(this, newNode, $(data.o).attr('rel'), curProblem, $(data.o).parent().attr('funcId'), undefined, args);
 								}, type != 'funcdef'); 
 						}
 						else if (!isFunction){
-							$( '#accordion' + problem.tabIndex ).myAccordion( 'push', problem.getAvaliableFunctionName() );
-							createJsTreeForFunction( '#funcDef-' + cmdId++, problem, true );
-							//problem.updated();
+							$( '#accordion' + curProblem.tabIndex ).myAccordion( 'push', curProblem.getAvaliableFunctionName() );
+							createJsTreeForFunction( '#funcDef-' + cmdId++, curProblem, true );
+							//curProblem.updated();
 						}
 					},
 					"drop_finish": function(data){
@@ -314,16 +314,16 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 
 						if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
 							node = $(node).parent();
-							$( '#accordion' + problem.tabIndex ).myAccordion('clearDiv', node);
+							$( '#accordion' + curProblem.tabIndex ).myAccordion('clearDiv', node);
 							$(node).remove();
-							problem.removeFunctionCall($(node).attr('funcId'));
+							curProblem.removeFunctionCall($(node).attr('funcId'));
 							return true;
 						}
 
 						/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
 						{
 							$(node).parent().remove();
-							problem.removeFunctionCall($(node).parent().children('.func-header').html());
+							curProblem.removeFunctionCall($(node).parent().children('.func-header').html());
 							return true;
 						}*/
 
@@ -338,7 +338,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 							this.remove(data.o);
 							if (next)
 								this.remove(next);
-							problem.updated();				
+							curProblem.updated();				
 						}
 						return true;
 					}
@@ -356,9 +356,9 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					data.inst.move_node(elseStmt, node, 'after', false, false, true);
 					elseStmt = undefined;
 			}
-				problem.updated();
+				curProblem.updated();
 			}).bind('click', function(event, ui) {
-				problem.showCounters();
+				curProblem.showCounters();
 			}).bind("rename.jstree", function(event, data) {
 				if (!checkName(data.rslt.new_name)) {
 					alert('Invalid function name!!!');
@@ -369,22 +369,22 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 					
 					return false;
 				}
-				problem.updated();
+				curProblem.updated();
 				return true;
 			}).bind('refresh.jstree', function(event, data) {
-				problem.updated();
+				curProblem.updated();
 			}).bind("dblclick.jstree", function (e, data) {
 		        /*var node = $(e.target).closest("li");
 		        var type = $.jstree._reference(this)._get_type(node);
 				if (type == 'funccall') {
 					$.jstree._reference(this).rename(node);
-					problem.funcCallUpdated();
+					curProblem.funcCallUpdated();
 				}*/
 				//TODO:
 			}).bind("loaded.jstree", function (e, data) {
-		    	problem.executionUnit.addTypesInTree(jQuery.jstree._reference(id));
+		    	curProblem.executionUnit.addTypesInTree(jQuery.jstree._reference(id));
 			});
-	//	}
+		//}(problem);
 	}
 
 	return {
