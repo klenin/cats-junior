@@ -410,9 +410,10 @@ function() {
 
 		loop: function(cnt, i) {
 			try {
+				var continueExecution = 1;
 				if (!this.playing || this.paused) return; // cheat
 				if ($('#codeMode' + this.tabIndex).prop('checked')) {
-					this.tryNextStep();
+					continueExecution = this.tryNextStep();
 				} else {
 					if (!this.cmdList.exec(1))++this.executedCommandsNum;
 					this.changeProgressBar();
@@ -423,7 +424,9 @@ function() {
 						return;
 					}
 				}
-				this.nextStep(cnt - 1, ++i);
+				if (continueExecution) {
+					this.nextStep(cnt - 1, ++i);
+				}
 			} catch (e) {
 				console.error(e);
 				$('#cons' + this.tabIndex).append(e);
