@@ -358,10 +358,25 @@ define('CommandsMode', ['jQuery',
 			this.curCnt = 0;
 			this.problem = problem;
 			this.finished = false;
-			var func = this.getFunction();
-			if (func) {
-				this.getSpin().mySpin('setArguments', func.getArguments());
+			if (this.getSpin().length){ //spin isn't created yet when we generate commands from code
+				var func = this.getFunction();
+				if (func) {
+					this.getSpin().mySpin('setArguments', func.getArguments());
+				}
+				if (isInt(this.cnt)) {
+						this.getSpin().mySpin('setTotal', this.cnt);
+				}
+				else {
+					if (!checkName(this.cnt)) {
+						throw 'Некорректное имя аргумента';
+					}
+					if (!func) {
+						throw 'Неопределенный аргумент'
+					}
+					this.getSpin().mySpin('setTotalWithArgument', this.cnt);
+				}
 			}
+			
 			this.name = 'for';
 			this.timestamp = new Date().getTime();
 		},
@@ -586,7 +601,25 @@ define('CommandsMode', ['jQuery',
 						true);
 					var numId = $(newNode).prop('numId');
 					self.id = $(newNode).attr('id');
-					self.getSpin().mySpin('setTotal', self.cnt);
+
+					var func = self.getFunction();
+					if (func) {
+						self.getSpin().mySpin('setArguments', func.getArguments());
+					}
+
+					if (isInt(self.cnt)) {
+						self.getSpin().mySpin('setTotal', self.cnt);
+					}
+					else {
+						if (!checkName(self.cnt)) {
+							throw 'Некорректное имя аргумента';
+						}
+						var func = self.getFunction();
+						if (!func) {
+							throw 'Неопределенный аргумент'
+						}
+						self.getSpin().mySpin('setTotalWithArgument', self.cnt);
+					}
 					self.body.generateCommand(tree, $(newNode));
 					--self.problem.loadedCnt;
 				}, true); 

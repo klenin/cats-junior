@@ -48,7 +48,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, cmdId, problem));
 			}
 			else if (type == 'for')		{
-				var cnt = $('#' + cmdId).children('spin').mySpin('getTotal');
+				var cnt = $('#' + cmdId).children('spin').mySpin('getTotalValue');
 				var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
 				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  cmdId, problem));
 			}

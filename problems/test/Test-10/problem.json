@@ -34,7 +34,7 @@
 	"locks": [],
 	"movingElements":[],
 	"commands": ["forward", "left", "right"],
-	"controlCommands": ["if", "ifelse", "funcdef", "while"],
+	"controlCommands": ["if", "ifelse", "funcdef", "while", "for"],
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0, 
