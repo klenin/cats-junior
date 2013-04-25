@@ -361,13 +361,14 @@ function() {
 			//$('#accordion' + this.tabIndex).accordion('resize');
 			var needHideCounters = this.cmdList && this.cmdList.started();
 			this.changed = true;
-			this.cmdList.makeUnfinished();
-			if (this.cmdList && !this.cmdList.eq(newCmdList, true) || !this.cmdList) {
-				this.cmdList = newCmdList;
-				this.setDefault();
-				this.showCounters();
-			} else {
-				this.cmdList = this.cmdList.copyDiff(newCmdList, true);
+			//this.cmdList.makeUnfinished();
+			//if (this.cmdList && !this.cmdList.eq(newCmdList, false) || !this.cmdList) {
+			this.cmdList = newCmdList;
+			this.setDefault();
+			this.showCounters();
+
+			/*} else {
+				this.cmdList = this.cmdList.copyDiff(newCmdList, false);
 				if (!this.playing) this.showCounters();
 				if (needHideCounters) {
 					this.playing = true;
@@ -375,7 +376,7 @@ function() {
 				}
 				//if (this.cmdList.isFinished())
 
-			}
+			}*/
 
 			//this.cmdList.checkIntegrity();
 			this.highlightWrongNames();
