@@ -18,6 +18,6 @@
 <Checker style="partial" src="Main.py" />
 <Test rank="*"><Out use="sol" /></Test>
 
-<Test rank="1" points = "85"><In src="problem.json"/></Test>
+<Test rank="1" points = "115"><In src="problem.json"/></Test>
 </Problem>
 </CATS>
