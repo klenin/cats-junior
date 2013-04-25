@@ -453,7 +453,7 @@ function() {
 			this.speed = 100;
 			this.setCounters(0, true);
 			var lastCmd = (this.divI() >= this.list().length) ? $('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
-			if (!isCmdHighlighted(lastCmd)) changeCmdHighlight(lastCmd);
+			if (!isCmdHighlighted(lastCmd)) lastCmd.highlightOn();
 			this.executionUnit.draw();
 			this.changeProgressBar();
 		},

@@ -180,8 +180,7 @@ define('CommandsMode', ['jQuery',
 			//this.getSpin().mySpin('stopExecution'); //???
 			this.spinAccess('hideBtn');
 			this.finished = false;
-			if (isCmdHighlighted(this.id))
-				changeCmdHighlight(this.id);
+			this.highlightOff();
 		},
 		
 		isFinished: function() {
@@ -453,6 +452,7 @@ define('CommandsMode', ['jQuery',
 					}
 					this.executing = true;
 					this.body.setDefault();
+					this.body.hideHighlighting();
 				}
 				cnt = this.body.exec(cnt);
 				if (this.body.isFinished())
@@ -1074,7 +1074,7 @@ define('CommandsMode', ['jQuery',
 
 		createClone: function() {
 			var body = this.body.createClone();
-			var clone = new IfStmt(this.testName, this.args, body, this.conditionProperties, this.parent, this.id, this.problem);
+			var clone = new WhileStmt(this.testName, this.args, body, this.conditionProperties, this.parent, this.id, this.problem);
 			return clone;
 		},
 
@@ -1119,6 +1119,7 @@ define('CommandsMode', ['jQuery',
 					}
 					this.executing = true;
 					this.body.setDefault();
+					this.body.hideHighlighting();
 				}
 				cnt = this.body.exec(cnt, args);
 				if (this.body.isFinished())
@@ -1329,10 +1330,7 @@ define('CommandsMode', ['jQuery',
 					if (this.problem.prevCmd && this.problem.prevCmd.id != cmd.id)
 						this.problem.prevCmd.highlightOff()
 					this.problem.prevCmd = cmd;
-					if (!isCmdHighlighted(cmd.id))
-					{
-						changeCmdHighlight(cmd.id);
-					}
+					cmd.highlightOn();
 				}
 				if (!cnt)
 					cmd.hideCounters();
@@ -1735,6 +1733,7 @@ define('CommandsMode', ['jQuery',
 
 				if (funcDef) {
 					funcDef.body.setDefault();
+					funcDef.body.hideHighlighting();
 				}
 			}
 			if (funcDef) {
