@@ -119,13 +119,13 @@ define('CodeMode', ['SkulptModule'], function(){
 				}
 			}
 		} catch (e) {
-			console.error(e);
+			//console.error(e);
 			finalcode[problem] = undefined;
 			$scope[problem] = undefined,
 			$gbl[problem] = undefined,
 			$loc[problem] = $gbl[problem];
 			nextline[problem] = undefined;
-			throw 'Ошибка компиляции';
+			throw e;
 		}
 	}
 

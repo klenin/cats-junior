@@ -637,9 +637,14 @@ function() {
 					}
 				}(this), s);
 			} catch (e) {
-				console.error(e);
+				//console.error(e);
 				this.playing = false;
-				$('#cons' + this.tabIndex).html('Некорректный код');
+				if (e.tp$name == "ParseError" && e.args.v[0].v == "bad input on line") {
+					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + (e.args.v[1].v - 1) + ' строке');
+				}
+				else {
+					$('#cons' + this.tabIndex).html('Некорректный код');
+				}
 			}
 		},
 
@@ -675,7 +680,7 @@ function() {
 			catch (e) {
 				this.updateWatchList();
 				if (codeareas[problem].getValue().length) {
-					throw "Некорректный код\n";
+					throw e;
 				}
 			}
 
