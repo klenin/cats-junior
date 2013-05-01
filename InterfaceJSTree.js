@@ -169,12 +169,12 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 						},
 						"if" : {
 							"icon" : { 
-								"image" : "images/block_small.png" 
+								"image" : "images/if_small.png" 
 							}
 						},
 						"ifelse" : {
 							"icon" : { 
-								"image" : "images/block_small.png" 
+								"image" : "images/if_else_small.png" 
 							}
 						},
 						"else" : {
@@ -184,12 +184,12 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 						},
 						"while" : {
 							"icon" : { 
-								"image" : "images/block_small.png" 
+								"image" : "images/loop_small.png" 
 							}
 						},
 						"for" : {
 							"icon" : { 
-								"image" : "images/block_small.png" 
+								"image" : "images/loop_small.png" 
 							}
 						},
 						"funccall" : {
