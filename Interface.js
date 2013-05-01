@@ -149,6 +149,15 @@ define('Interface', ['jQuery',
 			codeareas[i].setValue(data);
 			codeareas[i].refresh();
 			curProblem.setDefault();
+			if ($("input[name='group" + i + "']" + ":checked").prop('id') == 'commandsMode' + i) {
+				try {
+					goToCommandsMode(problems[i]);
+				}
+				catch(e) {
+					$('#cons' + i).html('Невозможно сконвертировать полученный код в команды');
+				}
+				
+		   	}
 		});
 	}
 
@@ -309,7 +318,6 @@ define('Interface', ['jQuery',
 		$('#jstree-container' + j).show();
 		$('#funccall-container' + j).show();
 		$('#tdcode' + j).hide();
-		$('#loadCode' + j).hide();
 		$('#addWatch' + j).hide();
 		$('#watchTable' + j).hide();
 		$('#tdcommands' + j).show();
@@ -332,7 +340,6 @@ define('Interface', ['jQuery',
 		$('#tdcontainer' + j).hide();
 		$('#btn_clear' + j).hide();
 		$('#tdcode' + j).show();
-		$('#loadCode' + j).show();
 		codeareas[j].setValue(problem.convertCommandsToCode());
 		codeareas[j].refresh();
 		problem.setDefault();
@@ -400,7 +407,6 @@ define('Interface', ['jQuery',
 				$('#submit' + i).button({icons: {primary: 'ui-icon-check'}});
 				$('#submit' + i).click(submitClick);
 				$('#loadCode' + i).button().click(getContestContentClick);
-				$('#loadCode' + i).hide();
 				$('#tdcode' + i).hide();
 				$('#addWatch' + i).hide();
 				$('#watchTable' + i).hide();
