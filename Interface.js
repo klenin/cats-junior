@@ -567,6 +567,7 @@ define('Interface', ['jQuery',
 		$('#accordion' + problem.tabIndex).myAccordion('clear');
 		$('#accordion' + problem.tabIndex).children().remove();
 		
+		$('.funcInput').attr('funcid', undefined).hide();
 		problem.setDefault();
 		problem.updated();
 	}
