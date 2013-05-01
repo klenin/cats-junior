@@ -410,6 +410,16 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			case 'Граница':
 				result = curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y);
 				break;
+			case 'cell':
+			case 'Пустое место':
+				result = !(cell.isWall || 
+					cell.findCell(Prize) != undefined || 
+					cell.findCell(Box) != undefined || 
+					cell.findCell(Monster) != undefined ||
+					cell.findCell(Lock) != undefined ||
+					cell.findCell(Key) != undefined ||
+					curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y));
+				break;
 			default:
 				return false;
 		}
@@ -470,6 +480,16 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			case 'border':
 			case 'Граница':
 				result = curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y);
+				break;
+			case 'cell':
+			case 'Пустое место':
+				result = !(cell.isWall || 
+					cell.findCell(Prize) != undefined || 
+					cell.findCell(Box) != undefined || 
+					cell.findCell(Monster) != undefined ||
+					cell.findCell(Lock) != undefined ||
+					cell.findCell(Key) != undefined ||
+					curProblem.executionUnit.getExecutionUnit().labirintOverrun(cell.coord.x, cell.coord.y));
 				break;
 			default:
 				return false;
@@ -1014,7 +1034,8 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						['box', 'Ящик'],
 						['lock', 'Замок'],
 						['key', 'Ключ'],
-						['border', 'Граница']
+						['border', 'Граница'],
+						['cell', 'Пустое место']
 
 					]),
 				new ExecutionUnitCommands.TestFunctionArgumentConst([
