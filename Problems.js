@@ -798,7 +798,7 @@ function() {
 		},
 
 		checkLimit: function() {
-			if (this.maxCmdNum && this.divIndex > this.maxCmdNum || this.maxStep && this.step == this.maxStep) {
+			if (this.maxCmdNum && this.divIndex > this.maxCmdNum || this.maxStep && this.step == this.maxStep || this.step > MAX_STEP_VALUE) {
 				var mes = this.maxCmdNum ? new ShowMessages.MessageCmdLimit() : new ShowMessages.MessageStepsLimit();
 				this.executionUnit.gameOver();
 				//this.stopped = true;

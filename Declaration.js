@@ -105,6 +105,7 @@ var problemsData = [
 }
 }];
 var elseStmt = undefined;
-var maxStep = 100;
+var maxStep = 10000;
 var undo = false;
 var MAX_VALUE = 999999999999999;
+var MAX_STEP_VALUE = 10000;
