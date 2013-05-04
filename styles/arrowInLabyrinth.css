@@ -20,12 +20,12 @@ div.wait{ background: #A9A9A9 url('../images/wait_small.png') 5% 100% no-repeat;
 div.wait1{ background: #1CB2B3 url('../images/wait_small.png') 5% 100% no-repeat !important; background-position: 50% 50%;}
 
 td.wall, td.floor, td.highlightFloor, td.highlightWall{
-	width: 30px;
-	height: 30px;
+	width: 32px;
 	border: 0px;
 	margin: 0px; 
 	padding: 0px;
 	border-spacing: 0px;
+	height: 32px;
 }
 td.wall{ background-image: url('../images/wall.jpg'); }
 td.floor{ background-image: url('../images/floor.jpg'); }

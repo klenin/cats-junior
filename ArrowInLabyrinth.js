@@ -536,14 +536,6 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				this.commands['wait'] = new ExecutionUnitCommands.ExecutionUnitCommand('wait', wait, args);
 			},
 
-			onTabSelect: function() {
-				
-			},
-
-			onTabSelected: function() {
-				
-			},
-
 			generateCommands: function(div) {
 				for (var i = 0; i < this.data.commands.length; ++i) {
 					if (!this.__self.cmdClassToName[this.data.commands[i]]) {
@@ -700,6 +692,14 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						this.map[i][j].draw();
 					}
 				}
+			
+				this.updateSizes();
+
+				$(window).resize(function(self){
+					return function(){
+						self.updateSizes();
+					}
+				}(this));
 			},
 
 			highlightOn: function() {
@@ -716,10 +716,20 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					this.map[this.arrow.coord.y][i].highlightOff();
 			},
 			
+			updateSizes: function() {
+				var width = $(this.table).children('tbody').children('tr').children('td').css('width');
+				if (width == '0px') {
+					width = 32;
+				}
+				$(this.table).children('tbody').children('tr').children('td').css('height', width);	
+			},
+
 			drawLabyrint: function() {
 				for (var i = 0; i < this.map.length; ++i)
-					for (var j = 0; j < this.map[i].length; ++j)
+					for (var j = 0; j < this.map[i].length; ++j) {
 						this.map[i][j].draw();
+					}
+				this.updateSizes();
 			},
 
 			executeCommand: function(command, args) {
@@ -973,6 +983,14 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			cmdListFinished: function() {
 				return;
+			},
+
+			onTabSelect: function() {
+				this.updateSizes();
+			},
+
+			onTabSelected: function() {
+				this.updateSizes();
 			}
 		}, 
 		{ //static methods and properties

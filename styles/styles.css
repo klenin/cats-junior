@@ -1,6 +1,6 @@
-BODY{
+BODY, p, input, select, a, form, label, td{
 	font-family:Verdana, 'Arial';
-	font-size: 1em;
+	font-size: 12px !important;
 }
 select{
 	min-width: 30px;
@@ -11,7 +11,7 @@ select{
 	padding-top: 5px;
 	position: relative;
 	top: 4px;
-	font-size: 0.85em !important;
+	font-size: 12px !important;
 }
 table.field{
 	border-width:0px; 
@@ -65,7 +65,6 @@ div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
 }
 
 div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
-
 	list-style-type: none; 
 	margin: 5px;
 
