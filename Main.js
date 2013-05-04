@@ -294,6 +294,12 @@ requirejs(['require',
 		if ($.cookie('contestId') == undefined && tabIndex){
 			Interface.fillTabs();
 			$('#tabs').tabs("select" , tabIndex);
+			//sometimes this event is fired earlier than current labyrinth cell width is calculated
+			//it happens only on loading of the last loaded tab
+			//wait for 200ms to correctly update height of the cells -- WA!!!!!!!!
+			setTimeout(function(){
+				curProblem.onTabSelect();
+			}, 200);
 		}
 		else if ($.cookie('contestId') != undefined && $.cookie('userId') == undefined){
 			$('#' + $.cookie('contestId')).prop('checked', true);
