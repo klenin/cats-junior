@@ -1,11 +1,11 @@
 define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 	var CommandsMode = require('CommandsMode');
 	
-	function convert(commands, parent, problem, funcName, id, argumentsList, funcId){
+	function convert(commands, parent, problem, funcName, div, argumentsList, funcId){
 		var block = new CommandsMode.Block([], parent, problem);
 		var func = undefined;
 		if (funcName) {
-			func = new CommandsMode.FuncDef(funcName, argumentsList, [], parent, id, funcId, problem);
+			func = new CommandsMode.FuncDef(funcName, argumentsList, [], parent, div, funcId, problem);
 			block = new CommandsMode.Block([], func, problem);
 			func.body = block;
 			if (!problem.functions[funcName]) {
@@ -19,17 +19,18 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 		for (var i = 0; i < commands.length; ++i){
 			var type = commands[i].attr['rel'];
 			var cmdId = commands[i].attr['id'];
+			var node = $('#' + cmdId);
 			if (type == 'block' && commands[i].children)		{
 				block.pushCommand(convert(commands[i].children, block, problem));
 			}
 			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-				var args = [$('#' + cmdId).children('select:eq(0)').children('option:selected').val()];
-				var conditionPropertiesId = $('#' + cmdId).children('.testFunctionName').children('option:selected').val();
+				var args = [$().children('select:eq(0)').children('option:selected').val()];
+				var conditionPropertiesId = $(node).children('.testFunctionName').children('option:selected').val();
 				var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId);
 				var conditionArguments = conditionProperties.args;
 				for (var j = 0; j < conditionArguments.length; ++j) {
 					args.push(
-						conditionArguments[j].getDomObjectValue($('#' + cmdId).children('.testFunctionArgument:eq(' + j + ')')));
+						conditionArguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
 				}	
 
 				var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
@@ -44,32 +45,32 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				}
 				var testName = conditionProperties.name;
 				block.pushCommand(type == 'while' ? 
-					new CommandsMode.WhileStmt(testName, args, block1, conditionProperties, block, cmdId, problem) : 
-					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, cmdId, problem));
+					new CommandsMode.WhileStmt(testName, args, block1, conditionProperties, block, node, problem) : 
+					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, node, problem));
 			}
 			else if (type == 'for')		{
-				var cnt = $('#' + cmdId).children('spin').mySpin('getTotalValue');
+				var cnt = $(node).children('spin').mySpin('getTotalValue');
 				var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
-				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  cmdId, problem));
+				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  node, problem));
 			}
 			else if (type == 'funccall'){
 				var args = [];
-				for (var j = 0; j < $('#' + cmdId).children('input').length; ++j) {
-					args.push($('#' + cmdId).children('input:eq(' + j + ')').val());
+				for (var j = 0; j < $(node).children('input').length; ++j) {
+					args.push($(node).children('input:eq(' + j + ')').val());
 				}
 				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data : 
-					$('#' + cmdId).text().split(' ').join(''), args,  block, cmdId, problem));
+					$(node).text().split(' ').join(''), args,  block, node, problem));
 			}
 			else{
 				var argValues = [];
-				for (var j = 0; j < $('#' + cmdId).children('spin').length; ++j) {
-					argValues.push($('#' + cmdId).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
+				for (var j = 0; j < $(node).children('spin').length; ++j) {
+					argValues.push($(node).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
 				}
 				var cmd = new CommandsMode.Command(type, 
 					problem.executionUnit.getCommands()[type].getArguments(), 
 					argValues,
 					block, 
-					cmdId,
+					node,
 					problem);
 				block.pushCommand(cmd);
 			}

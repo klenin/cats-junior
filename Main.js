@@ -113,6 +113,7 @@ requirejs(['require',
 	'jQueryUI', 
 	'Servers', 
 	'Interface', 
+	'CommandsMode',//
 	'InterfaceJSTree', 
 	'jQueryCookie',
 	'CodeMode',

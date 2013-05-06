@@ -2,8 +2,8 @@ define('Problems', ['jQuery',
 	'jQueryInherit',
 	'ModesConvertion',
 	'ExecutionUnitWrapper',
-	'InterfaceJSTree',
 	'CommandsMode',
+	'InterfaceJSTree',
 	'ModesConvertion',
 	'CodeMode',
 	'ShowMessages',
@@ -348,7 +348,7 @@ function() {
 				var id = $(div).attr('id');
 				var funcId = $(div).attr('funcId');
 				var argumentsList = accordion.myAccordion('getArguments', div);
-				var code = ModesConvertion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, id, argumentsList, funcId);
+				var code = ModesConvertion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, div, argumentsList, funcId);
 				newCmdList.pushCommand(code);
 			}
 
@@ -358,29 +358,11 @@ function() {
 			} else {
 				newCmdList = code;
 			}
-			//$('#accordion' + this.tabIndex).accordion('resize');
-			var needHideCounters = this.cmdList && this.cmdList.started();
 			this.changed = true;
-			//this.cmdList.makeUnfinished();
-			//if (this.cmdList && !this.cmdList.eq(newCmdList, false) || !this.cmdList) {
 			this.cmdList = newCmdList;
 			this.setDefault();
-			this.showCounters();
-
-			/*} else {
-				this.cmdList = this.cmdList.copyDiff(newCmdList, false);
-				if (!this.playing) this.showCounters();
-				if (needHideCounters) {
-					this.playing = true;
-					//this.hideCounters();
-				}
-				//if (this.cmdList.isFinished())
-
-			}*/
-
-			//this.cmdList.checkIntegrity();
+			this.updateInterface('FINISH_EXECUTION');
 			this.highlightWrongNames();
-			//$('#accordion' + this.tabIndex).accordion( "resize" );
 		},
 
 		updateFunctonNames: function(funcId, oldName, newName) {
@@ -465,7 +447,7 @@ function() {
 				if (this.stopped) {
 					this.setDefault();
 					this.cmdHighlightOff();
-					this.showCounters();
+					this.updateInterface('FINISH_EXECUTION');
 					this.setCounters();
 					return;
 				}
@@ -567,7 +549,7 @@ function() {
 				'cnt': 0
 			}]
 
-			return this.cmdList.convertToCode(0);
+			return this.cmdList.generatePythonCode(0);
 		},
 
 		die: function() {
@@ -577,13 +559,8 @@ function() {
 			$('#btn_pause' + this.tabIndex).button('disable');
 		},
 
-		hideCounters: function() {
-			this.cmdList.hideCounters();
-
-		},
-
-		showCounters: function() {
-			this.cmdList.showCounters();
+		updateInterface: function(newState) {
+			this.cmdList.updateInterface(newState);
 		},
 
 		getSubmitStr: function() {
@@ -612,7 +589,7 @@ function() {
 			if (!this.playing || this.executionUnit.isDead()) {
 				this.setDefault();
 				this.setCounters();
-				this.hideCounters();
+				this.updateInterface('START_EXECUTION');
 			}
 			try {
 				this.speed = s;
@@ -628,7 +605,7 @@ function() {
 				this.paused = false;
 				this.stopped = false;
 				this.disableButtons();
-				this.hideCounters();
+				this.updateInterface('START_EXECUTION');
 
 				this.lastExecutedCmd = undefined;
 				setTimeout(function(problem) {
@@ -690,7 +667,7 @@ function() {
 			this.stopped = true;
 			this.setDefault();
 			this.cmdHighlightOff();
-			this.showCounters();
+			this.updateInterface('FINISH_EXECUTION')
 			this.setCounters();
 			this.playing = false;
 			this.enableButtons();
@@ -727,12 +704,12 @@ function() {
 					var s = this.speed;
 					this.speed = 1000;
 					this.paused = false;
-					this.hideCounters();
+					this.updateInterface('START_EXECUTION');
 					if (!this.playing || this.changed) {
 
 						if (!this.playing) {
 							this.setCounters();
-							this.hideCounters();
+							this.updateInterface('START_EXECUTION');
 							var needReturn = this.cmdList.isFinished();
 							this.setDefault();
 							if (needReturn) return;
@@ -776,7 +753,7 @@ function() {
 						return;
 					}
 					this.playing = false;
-					this.showCounters();
+					this.updateInterface('FINISH_EXECUTION');
 					this.setCounters();
 					return;
 				}++c;
@@ -786,7 +763,7 @@ function() {
 					this.prepareForExecuting();
 				}
 				this.disableButtons();
-				this.hideCounters();
+				this.updateInterface('START_EXECUTION');
 				var s = this.speed;
 				this.speed = 0;
 				this.playing = true;
@@ -825,6 +802,37 @@ function() {
 
 		getState: function() {
 			return this.executionUnit.getState();
+		},
+		
+		needToContinueExecution: function() {
+			return !(this.stopped || this.paused || this.executionUnit.isDead());
+		},
+		
+		recalculatePenalty: function(command) {
+			if (!this.problem.usedCommands[command.getId()]){
+				++this.problem.divIndex;
+				this.problem.usedCommands[command.getId()] = true;
+				if (this.problem.commandsFine){
+					this.problem.executionUnit.changePoints(-this.problem.commandsFine);
+					var mes = new ShowMessages.MessageCommandFine(this.problem.step, this.problem.executionUnit.getPoints());
+				}
+			}
+		},
+		
+		setLastExecutedCommand: function(command) {
+			this.lastExecutedCmd = command;
+		},
+		
+		newCommandGenerationStarted: function() {
+			++this.loadedCnt;
+		},
+		
+		newCommandGenerated: function() {
+			--this.loadedCnt;
+		},
+
+		getCommands: function() {
+			return this.executionUnit.getCommands();
 		}
 	});
 

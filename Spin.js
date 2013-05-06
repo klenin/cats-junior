@@ -170,10 +170,10 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 				$(this).mySpin('getSpinImg').hide();
 				//$(this).mySpin('updateTotals');
 				if (isInt($(this).data('currentTotal')) && $(this).data('type') == 'int' && $(this).data('isCounter') == true)  {
-					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('currentTotal'))) + '/' + $(this).data('currentTotal'));
+					$(this).children('input').val($(this).data('value') + '/' + $(this).data('currentTotal'));
 				}
 				else {
-					$(this).children('input').val(((!isNaN(cnt)) ? (cnt) : ($(this).data('currentTotal'))))
+					$(this).children('input').val($(this).data('value'));
 				}
 			},
 

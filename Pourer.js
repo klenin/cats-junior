@@ -272,13 +272,13 @@ define('Pourer',
 				constructCommands: function() {
 					this.commands = {};
 					var args = [
-						new ExecutionUnitCommands.ExecutionUnitCommandArgument('src', 'int', false, 1, this.data.vessels.length),
-						new ExecutionUnitCommands.ExecutionUnitCommandArgument('dst', 'int', false, 1, this.data.vessels.length)];
+						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false),
+						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)];
 					this.commands['pour'] = new ExecutionUnitCommands.ExecutionUnitCommand('pour', pour, args);
 					this.commands['pourOut'] = new ExecutionUnitCommands.ExecutionUnitCommand('pourOut', pourOut, 
-						[new ExecutionUnitCommands.ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
+						[new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)]);
 					this.commands['fill'] = new ExecutionUnitCommands.ExecutionUnitCommand('fill', fill, 
-						[new ExecutionUnitCommands.ExecutionUnitCommandArgument('vessel', 'int', false, 1, this.data.vessels.length)]);
+						[new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)]);
 
 					var vesselsList = [];
 					for (var i = 0; i < this.data.vessels.length; ++i) {
@@ -290,9 +290,9 @@ define('Pourer',
 						'name': 'compare',
 						'title': 'Заполнено:',
 						'args': [
-							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
-							new ExecutionUnitCommands.TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
-							new ExecutionUnitCommands.TestFunctionArgumentInt(0, undefined)
+							new ExecutionUnitCommands.CommandArgumentSelect(vesselsList),
+							new ExecutionUnitCommands.CommandArgumentSelect([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
+							new ExecutionUnitCommands.CommandArgumentSpin(0, undefined)
 						],
 						'jsFunc': compare,
 						'handlerFunc': compare_handler,
@@ -301,9 +301,9 @@ define('Pourer',
 						'name': 'checkFilled',
 						'title': 'Cравнение:',
 						'args': [
-							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
-							new ExecutionUnitCommands.TestFunctionArgumentConst([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
-							new ExecutionUnitCommands.TestFunctionArgumentConst(vesselsList),
+							new ExecutionUnitCommands.CommandArgumentSelect(vesselsList),
+							new ExecutionUnitCommands.CommandArgumentSelect([['<', '<'], ['>', '>'], ['<=', '<='], ['>=', '>='], ['==', '=='], ['!=', '!=']]),
+							new ExecutionUnitCommands.CommandArgumentSelect(vesselsList),
 						],
 						'jsFunc': checkFilled,
 						'handlerFunc': checkFilledHandler,

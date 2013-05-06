@@ -1,55 +1,51 @@
 define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'], function(){
-	var ExecutionUnitCommandArgument = $.inherit({
-		__constructor : function(name, type, isCounter, minValue, maxValue) {
-			this.name = name;
-			this.type = type;
-			this.isCounter = isCounter;
-			this.minValue = minValue;
-			this.maxValue = maxValue;
-		},
-		
-		setValue: function(value) {
-			this.value = value;
-			this.currentValue = value;
+
+	var CommandArgument = $.inherit({
+		__constructor: function(){
+			this.domObject = undefined;
+			this.value = undefined;
 		},
 
-		setCurrentValue: function(value) {
-			this.currentValue = value;
+		initializeArgumentDomObject: function(command, index) {
+			this.domObject = $(command).children('.testFunctionArgument:eq(' + index + ')');
 		},
 
-		setDefault: function() {
-			this.currentValue = this.value;
-		},
+		updateValueInDomObject: function() {
+			if (!this.domObject || this.value == undefined) {
+				throw 'Can\'t update values';
+			}
 
-		copy: function() {
-			return new ExecutionUnitCommandArgument(this.name, this.type, this.isCounter, this.minValue, this.maxValue);
-		}
-		
-	});
-
-	var TestFunctionArgument = $.inherit({
-		__constructor : function() {
+			this.setValue(this.value);
 		}
 	});
-
-	var TestFunctionArgumentConst = $.inherit(TestFunctionArgument, {
-		__constructor : function(values) {
-			this.values = values.clone();
+	
+	var CommandArgumentSelect = $.inherit(CommandArgument, {
+		__constructor : function(options) {
+			this.options = options.clone();
+			this.__base();
+		},
+		
+		clone: function() {
+			return new CommandArgumentSelect(this.options);
 		},
 
-		generateDomObject: function(prev, callback, value) {
+		generateDomObject: function(prev, callback, problem, value) {
 			select = $('<select class="testFunctionArgument"></select>').insertAfter(prev);
 			for (var i = 0; i < this.values.length; ++i) {
 				$(select).append('<option value="' + this.values[i][0] + '">' + this.values[i][1] + '</option><br>');
 			}
 		
-			$(select).change(function(){
+			$(select).change(function() {
 				callback();
 			});
+
 			if (value) {
 				$(select).val(value);
+				this.value = value;
 			}
-			return select;
+
+			this.domObject = select;
+			return this.domObject;
 		},
 
 		findValue: function(value) {
@@ -62,38 +58,80 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return undefined;
 		},
 
-		addArguments: function(object, args, clear) {
+		addArguments: function(args, clear) {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
 			if (clear) {
-				$(object).children(':gt(' + (this.values.length - 1) + ')').remove();
+				$(this.domObject).children(':gt(' + (this.values.length - 1) + ')').remove();
 			}
 
 			for (var i = 0; args && i < args.length; ++i) {
-				$(object).append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
+				$(this.domObject).append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
 			}
 		},
 
-		setValue: function(object, value) {
-			$(object).val(value);
+		setValue: function(value, afterDomCreation) {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
+			this.value = value;
+			$(this.domObject).val(value);
 		},
 
-		getDomObjectValue: function(object) {
-			return $(object).children('option:selected').val();
+		getExpression: function() {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
+			return $(this.domObject).children('option:selected').val();
+		},
+		
+		getValue: function(args) {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
+			var value = this.getExpression();
+			return args[value] == undefined ? value : args[value];
+		},
+
+		setDefault: function(){
+			$(this.domObject).mySpin('disabled', false);
+		},
+		
+		updateInterface: function(newState){
+			switch (newState) {
+				case 'START_EXECUTION':
+					$(this.domObject).prop('disabled', true);
+					break;
+				case 'FINISH_EXECUTION':
+					$(this.domObject).mySpin('disabled', false);
+					break;
+			}
 		}
 	});
-
-	var TestFunctionArgumentInt = $.inherit(TestFunctionArgument, {
-			__constructor : function(minValue, maxValue) {
+	
+	var CommandArgumentSpin = $.inherit(CommandArgument, {
+			__constructor : function(minValue, maxValue, isCounter) {
 			this.minValue = minValue;
 			this.maxValue = maxValue;
+			this.isCounter = isCounter;
+			this.__base();
 		},
 
-		generateDomObject: function(prev, callback, value, problem) {
+		clone: function() {
+			return new CommandArgumentSpin(this.minValue, this.maxValue, this.isCounter);
+		},	
+
+		generateDomObject: function(prev, callback, problem, value) {
 			var spin = $('<spin class="testFunctionArgument"></spin>');
-			spin.mySpin('init', $(prev).parent(), [], problem, 'int', false, this.minValue, this.maxValue);
+			spin.mySpin('init', $(prev).parent(), [], problem, 'int', this.isCounter, this.minValue, this.maxValue);
 			$(prev).after(spin);
 			if (value != undefined) {
 				this.setValue($(spin), value, true);
+				this.value = value;
 			}
+			this.domObject = spin;
+			return this.domObject;
 		},
 
 		findValue: function(value) {
@@ -102,56 +140,78 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return value;
 		},
 
-		addArguments: function(object, args, clear) {
-			$(object).mySpin('setArguments', args);
+		addArguments: function(args, clear) {
+			$(this.domObject).mySpin('setArguments', args);
 		},
 
-		setValue: function(object, value, afterDomCreation) {
+		setValue: function(value, afterDomCreation) {
 			if (isInt(value) || checkNumber(value)) {
-				$(object).mySpin('setTotal', isInt(value) ? value : parseInt(value));
+				$(this.domObject).mySpin('setTotal', isInt(value) ? value : parseInt(value));
 			}
 			else {
 				if (!checkName(value)) {
 					throw 'Некорректный аргумент';
 				}
-				$(object).mySpin('setTotalWithArgument', value, afterDomCreation); //wa for the case when we've just created new element and haven't set arguments yet
+				$(this.domObject).mySpin('setTotalWithArgument', value, afterDomCreation); //wa for the case when we've just created new element and haven't set arguments yet
 			}
-			
+			this.value = value;
 		},
 
-		getDomObjectValue: function(object) {
-			return $(object).mySpin('getTotalValue');
-		}
-	});
+		getExpression: function() {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
+			return $(this.domObject).mySpin('getTotalValue');
+		},
+		
+		getValue: function(args) {
+			if (!this.domObject) {
+				throw 'Select isn\'t initialized';
+			}	
+			var value = this.getExpression();
+			return args[value] == undefined ? value : args[value];
+		},
 
-	var TestFunctionArgumentString = $.inherit(TestFunctionArgument, {
-			__constructor : function(name, type, isCounter, minValue, maxValue) {
-			this.name = name;
-			this.type = type;
-			this.isCounter = isCounter;
-			this.minValue = minValue;
-			this.maxValue = maxValue;
+		setDefault: function(){
+			$(this.domObject).mySpin('setDefault');
+			$(this.domObject).mySpin('showBtn');
+		},
+
+		updateInterface: function(newState){
+			switch (newState) {
+				case 'START_EXECUTION':
+					$(this.domObject).mySpin('hideBtn');
+					break;
+				case 'FINISH_EXECUTION':
+					$(this.domObject).mySpin('showBtn');
+					break;
+			}
 		}
-	});
+	});	
 
 	var ExecutionUnitCommand = $.inherit({
-		__constructor : function(name, handler, args) {
+		__constructor: function(name, handler, args) {
 			this.name = name;
 			this.handler = handler;
 			this.arguments = args.clone();
+			this.hasCounter = true;
+
+			for (var i = 0; i < args.length; ++i) {
+				if (args[i].isCounter) {
+					this.hasCounter = true;
+					break;
+				}
+			}
 		},
 		
 		getArguments: function() {
 			return this.arguments;
-
 		}
 	});
 
 	return{
-		ExecutionUnitCommandArgument: ExecutionUnitCommandArgument,
-		TestFunctionArgumentConst: TestFunctionArgumentConst,
-		TestFunctionArgumentInt: TestFunctionArgumentInt,
+		CommandArgumentSelect: CommandArgumentSelect,
+		CommandArgumentSpin: CommandArgumentSpin,
 		ExecutionUnitCommand: ExecutionUnitCommand
 	};
 });
-

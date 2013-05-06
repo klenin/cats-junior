@@ -290,7 +290,7 @@ define('Interface', ['jQuery',
 
 				problem.loadedCnt = 1;
 				startWaitForCommandsGeneration(problem);
-				block.generateCommand(jQuery.jstree._reference('#jstree-container' + j));
+				block.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
 				--problem.loadedCnt;
 				
 				//setTimeout(function() {problems[j].updated()}, 20000);

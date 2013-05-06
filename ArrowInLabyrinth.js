@@ -529,7 +529,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			constructCommands: function() {
 				this.commands = {};
 				var args = [
-					new ExecutionUnitCommands.ExecutionUnitCommandArgument('counter', 'int', true, 1, undefined)];
+					new ExecutionUnitCommands.CommandArgumentSpin(1, undefined, true)];
 				this.commands['forward'] = new ExecutionUnitCommands.ExecutionUnitCommand('forward', forward, args);
 				this.commands['left'] = new ExecutionUnitCommands.ExecutionUnitCommand('left', left, args);
 				this.commands['right'] = new ExecutionUnitCommands.ExecutionUnitCommand('right', right, args);
@@ -1045,7 +1045,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				'name': 'objectPosition',
 				'title': 'Позиция:',
 				'args': [
-				new ExecutionUnitCommands.TestFunctionArgumentConst([
+				new ExecutionUnitCommands.CommandArgumentSelect([
 						['wall', 'Стена'],
 						['prize', 'Приз'],
 						['monster', 'Монстр'],
@@ -1056,7 +1056,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						['cell', 'Пустое место']
 
 					]),
-				new ExecutionUnitCommands.TestFunctionArgumentConst([
+				new ExecutionUnitCommands.CommandArgumentSelect([
 					['atTheLeft', 'слева'],
 					['atTheRight', 'справа'],
 					['inFrontOf', 'спереди'],

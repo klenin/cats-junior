@@ -1,4 +1,6 @@
-define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
+define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'CommandsMode'], function(){
+	var CommandsMode = require ('CommandsMode');
+
 	function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				
 		var conditionPropertiesId = $(select).val();
 		var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId)
@@ -26,9 +28,26 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 	}
 
 	function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs, dontNeedToUpdate){
-		//var type = initObject.attr('rel');
-		if (type == 'func-header' ||type == 'func-body')
+		if (type == 'func-header' ||type == 'func-body') {
 			type = 'funccall';
+		}
+
+		if (problem.executionUnit.isCommandSupported(type)) {
+			var command = problem.executionUnit.getCommands()[type];
+			if (command.getArguments().length) {
+				if (command.hasCounter) {
+					CommandsMode.CommandWithCounter.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+				}
+				else {
+					CommandsMode.Command.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+				}
+			}
+			else {
+				CommandsMode.CommandBase.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+			}
+		}
+		//var type = initObject.attr('rel');
+		/*
 		tree.set_type(type, newNode);
 		$(newNode).addClass(type);
 
@@ -128,7 +147,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 		//setSpin(problem);
 		if (!dontNeedToUpdate) {
 			problem.updated();
-		}
+		}*/
 	}
 		
 	function isBlock(type){
@@ -358,7 +377,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree'], function(){
 			}
 				curProblem.updated();
 			}).bind('click', function(event, ui) {
-				curProblem.showCounters();
+				curProblem.updateInterface('FINISH_EXECUTION');
 			}).bind("rename.jstree", function(event, data) {
 				if (!checkName(data.rslt.new_name)) {
 					alert('Invalid function name!!!');
