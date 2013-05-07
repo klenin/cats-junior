@@ -28,7 +28,10 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		executeOneStep: function(cntNumToExecute, args){
-			if (cntNumToExecute > 0 && !this.finished) {
+			if (cntNumToExecute > 0 && !this.isFinished()) {
+				if (this.problem.needToHighlightCommand(this)) {
+					this.highlightOn();
+				}
 				this.problem.oneStep(this.name, 1, args); 
 				this.problem.recalculatePenalty(this);
 				this.problem.checkLimit();
@@ -40,7 +43,7 @@ define('CommandsMode', ['jQuery',
 			this.executeOneStep(cntNumToExecute, args);	
 			this.finished = true;
 		
-			return cnt - 1;
+			return cntNumToExecute - 1;
 		},
 		
 		getClass: function() {
@@ -60,6 +63,9 @@ define('CommandsMode', ['jQuery',
 			return this.finished;
 		},
 		
+		isStarted: function() {
+			return this.finished;
+		},
 		updateInterface: function(newState) {
 			switch (newState) {
 				case 'START_EXECUTION':
@@ -204,13 +210,16 @@ define('CommandsMode', ['jQuery',
 			return new Command(this.name, this.arguments, argumentValues, this.parent, this.node, this.problem);
 		},
 		
-		exec: function(cntNumToExecute, args) {
+		prepareArgumentsListForExecution: function(args) {
 			var argumentValues = [];
 			for (var i = 0; i < this.arguments.length; ++i) {
 				argumentValues.push(this.arguments[i].getValue(args));
 			}
-
-			this.__base(cntNumToExecute, argumentValues);
+			return argumentValues
+		},
+		
+		exec: function(cntNumToExecute, args) {
+			this.__base(cntNumToExecute, this.prepareArgumentsListForExecution(args));
 		},
 		
 		getClass: function() {
@@ -255,23 +264,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		setArguments: function(args) {
-			
-		},
-		
-		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
-		},
-		
-		removeFunctionCall: function(funcId) {
-			return;
-		},
-		
-		highlightWrongNames: function() {
-			return;
-		},
-		
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
+			throw 'isn\'t implemented yet!!!';
 		},
 		
 		updateArguments: function(funcId, args) {
@@ -284,10 +277,6 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 		
-		funcCallUpdated: function() {
-			return;
-		},
-
 		getArguments: function() {
 			return this.arguments;
 		}
@@ -318,54 +307,64 @@ define('CommandsMode', ['jQuery',
 	});
 
 	var CommandWithCounter = $.inherit(Command, {
-		__constructor: function(name, args, parent, id, problem) {
-		
+		__constructor: function(name, parameters, argumentValues, parent, node, problem) {
+			this.__base(name, parameters, argumentValues, parent, node, problem);
+			this.counter = undefined;
+			for (var i = 0; i < this.arguments.length; ++i) {
+				if (this.arguments[i].isCounter) {
+					if (this.counter != undefined) {
+						throw new IncorrectCommandFormat('Command can\'t have several counters');
+					}
+					this.counter = this.arguments[i];
+				}
+			}
 		},
 		
-		createClone: function () {
-		
+		executeOneStep: function(cntNumToExecute, argumentsList) {
+			this.__base(cntNumToExecute, argumentsList);
+			this.counter.decreaseValue();
+			--cntNumToExecute;
 		},
 		
 		exec: function(cntNumToExecute, args) {
-		
+			var argumentsList = this.prepareArgumentsListForExecution(args);
+			while (cntNumToExecute > 0 && !this.isFinished()) {
+				cntNumToExecute = this.executeOneStep(cntNumToExecute, argumentsList);
+			}
+			return cntNumToExecute;
 		},
 		
 		getClass: function() {
 			return 'CommandWithCounter';
 		},
 		
-		setDefault: function() {
-			
-		},
-		
 		isFinished: function() {
-		
+			return this.counter.getValue() <= 0;
 		},
 		
-		updateInterface: function(newState) {
-		
-		},
-		
-		generateVisualCommand: function() {
-		
-		},
-		
-		setArguments: function(args) {
-			
-		},
-			
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
+		isStarted: function() {
+			return this.counter.getValue() > 0;
 		}
 	});
 
 	var ForStmt = $.inherit(CommandWithCounter, {
-		__constructor: function(body, cntNumToExecute, parent, id, problem) {
+		__constructor: function(body, cntNumToExecute, parent, node, problem) {
+			parameters = [new CommandArgumentSpin(1, undefined, true)];
+			this.__base(undefined, parameters, [cntNumToExecute], parent, node, problem);
+			this.body = body;
+		},
 		
+		setBody: function() {
+			this.body = body;
 		},
 		
 		createClone: function () {
+			return new ForStmt(this.body, this.arguments[0].getExpression(), this.parent, this.node, this.problem);
+		},
 		
+		executeOneStep: function(cntNumToExecute, argumentsList) {
+			if (!this.body.isFinished()) {
+			}
 		},
 		
 		exec: function(cntNumToExecute, args) {
@@ -381,7 +380,11 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isFinished: function() {
+			//return this.counter.getValue() <= 0 || 
+		},
 		
+		isStarted: function() {
+			//this.counter.getValue() > 0 || this.counter.getValue() == 0 && this.body.isStarted();
 		},
 		
 		updateInterface: function(newState) {
@@ -729,7 +732,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cntNumToExecute, args) {
 			while (cntNumToExecute && this.commandIndex < this.commands.length) {
 				cntNumToExecute = this.commands[this.commandIndex].exec(cntNumToExecute, args);
-				if (this.commands[this.commandsIndex].isFinished()) {
+				if (this.commands[this.commandIndex].isFinished()) {
 					++this.commandIndex;
 				}
 			}
@@ -752,6 +755,10 @@ define('CommandsMode', ['jQuery',
 				(this.commandsIndex == this.commands.length - 1 && this.commands[this.commandsIndex].isFinished());
 		},
 		
+		isStarted: function() {
+			return this.commandIndex > 0 || this.commands[this.commandsIndex].isStarted();
+		},
+
 		updateInterface: function(newState) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateInterface(newState);

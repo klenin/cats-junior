@@ -66,12 +66,25 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				for (var j = 0; j < $(node).children('spin').length; ++j) {
 					argValues.push($(node).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
 				}
-				var cmd = new CommandsMode.Command(type, 
-					problem.executionUnit.getCommands()[type].getArguments(), 
-					argValues,
-					block, 
-					node,
-					problem);
+				var command = problem.executionUnit.getCommands()[type];
+				var cmd = undefined;
+				if (command.hasCounter) {
+					cmd = new CommandsMode.CommandWithCounter(type, 
+						problem.executionUnit.getCommands()[type].getArguments(), 
+						argValues,
+						block, 
+						node,
+						problem);
+				}
+				else {
+					cmd = new CommandsMode.Command(type, 
+						problem.executionUnit.getCommands()[type].getArguments(), 
+						argValues,
+						block, 
+						node,
+						problem);
+				}
+
 				block.pushCommand(cmd);
 			}
 		}

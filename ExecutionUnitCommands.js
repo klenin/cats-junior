@@ -91,7 +91,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				throw 'Select isn\'t initialized';
 			}	
 			var value = this.getExpression();
-			return args[value] == undefined ? value : args[value];
+			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
 
 		setDefault: function(){
@@ -168,8 +168,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
-			var value = this.getExpression();
-			return args[value] == undefined ? value : args[value];
+			var value = $(this.domObject).mySpin('getValue');
+			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
 
 		setDefault: function(){
@@ -186,6 +186,10 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					$(this.domObject).mySpin('showBtn');
 					break;
 			}
+		},
+
+		decreaseValue: function() {
+			$(this.domObject).mySpin('decreaseValue');
 		}
 	});	
 

@@ -222,6 +222,10 @@ define('Spin', ['jQuery', 'jQueryUI', 'Misc'], function(){
 			setDefault: function() {
 				$(this).data('currentTotal', $(this).data('totalVal'));
 				$(this).data('value', $(this).data('total'));//
+			},
+
+			getValue: function() {
+				return $(this).data('value');
 			}
 		}
 

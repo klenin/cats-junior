@@ -797,7 +797,6 @@ function() {
 			if (this.executionUnit) {
 				this.executionUnit.onTabSelected(problemId);
 			}
-			
 		},
 
 		getState: function() {
@@ -809,12 +808,12 @@ function() {
 		},
 		
 		recalculatePenalty: function(command) {
-			if (!this.problem.usedCommands[command.getId()]){
-				++this.problem.divIndex;
-				this.problem.usedCommands[command.getId()] = true;
-				if (this.problem.commandsFine){
-					this.problem.executionUnit.changePoints(-this.problem.commandsFine);
-					var mes = new ShowMessages.MessageCommandFine(this.problem.step, this.problem.executionUnit.getPoints());
+			if (!this.usedCommands[command.getId()]){
+				++this.divIndex;
+				this.usedCommands[command.getId()] = true;
+				if (this.commandsFine){
+					this.executionUnit.changePoints(-this.commandsFine);
+					var mes = new ShowMessages.MessageCommandFine(this.step, this.executionUnit.getPoints());
 				}
 			}
 		},
@@ -833,6 +832,19 @@ function() {
 
 		getCommands: function() {
 			return this.executionUnit.getCommands();
+		},
+
+		needToHighlightCommand: function(command) {
+			if (command != this.lastExecutedCmd) {
+				if (this.lastExecutedCmd){
+					this.lastExecutedCmd.highlightOff();
+				}
+				this.lastExecutedCmd = command;
+				if (this.speed) {
+					return true;
+				}
+			}
+			return false;
 		}
 	});
 
