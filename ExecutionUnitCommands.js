@@ -198,7 +198,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.name = name;
 			this.handler = handler;
 			this.arguments = args.clone();
-			this.hasCounter = true;
+			this.hasCounter = false;
 
 			for (var i = 0; i < args.length; ++i) {
 				if (args[i].isCounter) {
