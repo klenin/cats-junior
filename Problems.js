@@ -591,7 +591,7 @@ function() {
 				this.setCounters();
 				this.updateInterface('START_EXECUTION');
 			}
-			try {
+			//try {
 				this.speed = s;
 				if (!this.playing) {
 					if (!$('#codeMode' + this.tabIndex).prop('checked')) {
@@ -613,7 +613,7 @@ function() {
 						problem.play(MAX_VALUE);
 					}
 				}(this), s);
-			} catch (e) {
+			/*} catch (e) {
 				//console.error(e);
 				this.playing = false;
 				if (e.tp$name == "ParseError" && e.args.v[0].v == "bad input on line") {
@@ -622,7 +622,7 @@ function() {
 				else {
 					$('#cons' + this.tabIndex).html('Некорректный код');
 				}
-			}
+			}*/
 		},
 
 		prepareForExecuting: function(dontHighlight) {

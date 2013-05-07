@@ -111,15 +111,15 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	});
 	
 	var CommandArgumentSpin = $.inherit(CommandArgument, {
-			__constructor : function(minValue, maxValue, isCounter) {
+			__constructor : function(minValue, maxValue) {
+			this.__base();
 			this.minValue = minValue;
 			this.maxValue = maxValue;
-			this.isCounter = isCounter;
-			this.__base();
+			this.isCounter = false;
 		},
 
 		clone: function() {
-			return new CommandArgumentSpin(this.minValue, this.maxValue, this.isCounter);
+			return new CommandArgumentSpin(this.minValue, this.maxValue);
 		},	
 
 		generateDomObject: function(prev, callback, problem, value) {
@@ -156,14 +156,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 			this.value = value;
 		},
-
+	
 		getExpression: function() {
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
 			return $(this.domObject).mySpin('getTotalValue');
 		},
-		
+
 		getValue: function(args) {
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
@@ -185,7 +185,24 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				case 'FINISH_EXECUTION':
 					$(this.domObject).mySpin('showBtn');
 					break;
+				case 'START_COMMAND_EXECUTION':
+					$(this.domObject).mySpin('startExecution');
+					break;
+				case 'STOP_COMMAND_EXECUTION':
+					$(this.domObject).mySpin('stopExecution');
+					break;
 			}
+		}
+	});	
+
+	var CommandArgumentSpinCounter = $.inherit(CommandArgumentSpin, {
+			__constructor : function(minValue, maxValue) {
+			this.__base(minValue, maxValue);
+			this.isCounter = true;
+		},
+
+		clone: function() {
+			return new CommandArgumentSpinCounter(this.minValue, this.maxValue);
 		},
 
 		decreaseValue: function() {
@@ -216,6 +233,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	return{
 		CommandArgumentSelect: CommandArgumentSelect,
 		CommandArgumentSpin: CommandArgumentSpin,
+		CommandArgumentSpinCounter: CommandArgumentSpinCounter,
 		ExecutionUnitCommand: ExecutionUnitCommand
 	};
 });

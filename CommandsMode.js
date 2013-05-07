@@ -27,15 +27,28 @@ define('CommandsMode', ['jQuery',
 			return $(this.node).attr('id');
 		},
 		
+		prepareArgumentsListForExecution: function(args) {
+			return [];
+		},
+
+		prepareArgumentsForExecution: function() {
+			return;
+		},
+
 		executeOneStep: function(cntNumToExecute, args){
 			if (cntNumToExecute > 0 && !this.isFinished()) {
+				if (!this.isStarted()) {
+					this.updateInterface('START_COMMAND_EXECUTION');
+				}
 				if (this.problem.needToHighlightCommand(this)) {
 					this.highlightOn();
 				}
-				this.problem.oneStep(this.name, 1, args); 
+				this.problem.oneStep(this.name, 1, this.prepareArgumentsListForExecution(args)); 
 				this.problem.recalculatePenalty(this);
 				this.problem.checkLimit();
 				this.problem.setLastExecutedCommand(this);
+
+
 			}
 		},
 
@@ -66,11 +79,16 @@ define('CommandsMode', ['jQuery',
 		isStarted: function() {
 			return this.finished;
 		},
+
 		updateInterface: function(newState) {
 			switch (newState) {
 				case 'START_EXECUTION':
 					break;
 				case 'FINISH_EXECUTION':
+					break;
+				case 'START_COMMAND_EXECUTION':
+					break;
+				case 'STOP_COMMAND_EXECUTION':
 					break;
 			}
 		},
@@ -215,13 +233,9 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.arguments.length; ++i) {
 				argumentValues.push(this.arguments[i].getValue(args));
 			}
-			return argumentValues
+			return argumentValues;
 		},
-		
-		exec: function(cntNumToExecute, args) {
-			this.__base(cntNumToExecute, this.prepareArgumentsListForExecution(args));
-		},
-		
+			
 		getClass: function() {
 			return 'Command';
 		},
@@ -320,16 +334,15 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
-		executeOneStep: function(cntNumToExecute, argumentsList) {
-			this.__base(cntNumToExecute, argumentsList);
+		executeOneStep: function(cntNumToExecute, args) {
+			this.__base(cntNumToExecute, args);
 			this.counter.decreaseValue();
 			--cntNumToExecute;
 		},
 		
 		exec: function(cntNumToExecute, args) {
-			var argumentsList = this.prepareArgumentsListForExecution(args);
 			while (cntNumToExecute > 0 && !this.isFinished()) {
-				cntNumToExecute = this.executeOneStep(cntNumToExecute, argumentsList);
+				cntNumToExecute = this.executeOneStep(cntNumToExecute, args);
 			}
 			return cntNumToExecute;
 		},
@@ -362,13 +375,19 @@ define('CommandsMode', ['jQuery',
 			return new ForStmt(this.body, this.arguments[0].getExpression(), this.parent, this.node, this.problem);
 		},
 		
-		executeOneStep: function(cntNumToExecute, argumentsList) {
-			if (!this.body.isFinished()) {
+		executeOneStep: function(cntNumToExecute, args) {
+			if (!this.isFinished()) {
+				cntNumToExecute = this.body.exec(cntNumToExecute, args);
+				if (this.body.isFinished()) {
+					this.counter.decreaseValue();
+					this.body.setDefault();
+				}
 			}
+			return cntNumToExecute;
 		},
 		
 		exec: function(cntNumToExecute, args) {
-		
+			
 		},
 		
 		getClass: function() {
@@ -380,11 +399,11 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isFinished: function() {
-			//return this.counter.getValue() <= 0 || 
+			return this.counter.getValue() <= 0;
 		},
 		
 		isStarted: function() {
-			//this.counter.getValue() > 0 || this.counter.getValue() == 0 && this.body.isStarted();
+			this.counter.getValue() > 0 || this.counter.getValue() == 0 && this.body.isStarted();
 		},
 		
 		updateInterface: function(newState) {
