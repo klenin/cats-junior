@@ -46,6 +46,14 @@ define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'C
 				CommandsMode.CommandBase.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
 			}
 		}
+		else {
+			switch(type) {
+				case 'for':
+					CommandsMode.ForStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+					break;
+			}
+			
+		}
 		//var type = initObject.attr('rel');
 		/*
 		tree.set_type(type, newNode);

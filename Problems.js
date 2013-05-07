@@ -7,7 +7,8 @@ define('Problems', ['jQuery',
 	'ModesConvertion',
 	'CodeMode',
 	'ShowMessages',
-	'Declaration'],
+	'Declaration',
+	'ExecutionUnitCommands'],
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
@@ -16,6 +17,7 @@ function() {
 	var ModesConvertion = require('ModesConvertion');
 	var CodeMode = require('CodeMode');
 	var ShowMessages = require('ShowMessages');
+	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 
 	var Problem = $.inherit({
 		__constructor: function(problem, tabIndex) {
@@ -831,7 +833,11 @@ function() {
 		},
 
 		getCommands: function() {
-			return this.executionUnit.getCommands();
+			var statements = {};
+			var args = [
+					new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
+			statements['for'] = new ExecutionUnitCommands.ExecutionUnitCommand('for', undefined, args);
+			return $.extend('true', {}, statements, this.executionUnit.getCommands());
 		},
 
 		needToHighlightCommand: function(command) {

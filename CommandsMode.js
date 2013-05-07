@@ -6,9 +6,11 @@ define('CommandsMode', ['jQuery',
 	'Accordion',
 	'ShowMessages',
 	'Misc',
-	'Exceptions'], function(){
+	'Exceptions',
+	'ExecutionUnitCommands'], function(){
 	var ShowMessages = require('ShowMessages');
 	var Exceptions = require('Exceptions');
+	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 
 	var CommandBase = $.inherit({
 		__constructor: function(name, parent, node, problem) {
@@ -47,16 +49,15 @@ define('CommandsMode', ['jQuery',
 				this.problem.recalculatePenalty(this);
 				this.problem.checkLimit();
 				this.problem.setLastExecutedCommand(this);
-
-
 			}
+			return Math.max(0, cntNumToExecute - 1);
 		},
 
 		exec: function(cntNumToExecute, args) {
-			this.executeOneStep(cntNumToExecute, args);	
+			cntNumToExecute = this.executeOneStep(cntNumToExecute, args);	
 			this.finished = true;
 		
-			return cntNumToExecute - 1;
+			return cntNumToExecute;
 		},
 		
 		getClass: function() {
@@ -300,20 +301,22 @@ define('CommandsMode', ['jQuery',
 			this.__base(tree, node, type, problem, doNotNeedToUpdate);
 
 			var command = problem.getCommands()[type];
-			var parameters = command.getArguments();
-			var prev = $(node).children(':last-child');
-			for (var i = 0; i < parameters.length; ++i) {
-				var parameter = parameters[i].clone();
-				prev = parameter.generateDomObject(
-					$(prev), 
-					function(p) {
-						return function() {
-							p.updated();
-						}
-					}(problem),
-					problem);
+			if (command) {
+				var parameters = command.getArguments();
+				var prev = $(node).children(':last-child');
+				for (var i = 0; i < parameters.length; ++i) {
+					var parameter = parameters[i].clone();
+					prev = parameter.generateDomObject(
+						$(prev), 
+						function(p) {
+							return function() {
+								p.updated();
+							}
+						}(problem),
+						problem);
+				}
 			}
-
+			
 			if (!doNotNeedToUpdate) {
 				problem.updated();
 			}
@@ -332,12 +335,17 @@ define('CommandsMode', ['jQuery',
 					this.counter = this.arguments[i];
 				}
 			}
+			this.started = false;
 		},
 		
 		executeOneStep: function(cntNumToExecute, args) {
-			this.__base(cntNumToExecute, args);
+			var prevCnt = cntNumToExecute;
+			cntNumToExecute = this.__base(cntNumToExecute, args);
+			if (prevCnt > cntNumToExecute) {
+				this.started = true;
+			}
 			this.counter.decreaseValue();
-			--cntNumToExecute;
+			return Math.max(0, cntNumToExecute - 1);
 		},
 		
 		exec: function(cntNumToExecute, args) {
@@ -347,6 +355,11 @@ define('CommandsMode', ['jQuery',
 			return cntNumToExecute;
 		},
 		
+		setDefault: function() {
+			this.__base();
+			this.started = false;
+		},
+
 		getClass: function() {
 			return 'CommandWithCounter';
 		},
@@ -356,18 +369,18 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isStarted: function() {
-			return this.counter.getValue() > 0;
+			return this.started;
 		}
 	});
 
 	var ForStmt = $.inherit(CommandWithCounter, {
 		__constructor: function(body, cntNumToExecute, parent, node, problem) {
-			parameters = [new CommandArgumentSpin(1, undefined, true)];
+			parameters = [new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
 			this.__base(undefined, parameters, [cntNumToExecute], parent, node, problem);
 			this.body = body;
 		},
 		
-		setBody: function() {
+		setBody: function(body) {
 			this.body = body;
 		},
 		
@@ -377,25 +390,34 @@ define('CommandsMode', ['jQuery',
 		
 		executeOneStep: function(cntNumToExecute, args) {
 			if (!this.isFinished()) {
-				cntNumToExecute = this.body.exec(cntNumToExecute, args);
-				if (this.body.isFinished()) {
-					this.counter.decreaseValue();
-					this.body.setDefault();
+				if (!this.isStarted()) {
+					this.updateInterface('START_COMMAND_EXECUTION');
+					--cntNumToExecute;
+					this.started = true;
 				}
+				if (this.problem.needToHighlightCommand(this)) {
+					this.highlightOn();
+				}
+				if (cntNumToExecute > 0) {
+					cntNumToExecute = this.body.exec(cntNumToExecute, args);
+					if (this.body.isFinished()) {
+						this.counter.decreaseValue();
+						this.body.setDefault();
+						this.started = false;
+					}
+				}
+				
 			}
 			return cntNumToExecute;
 		},
-		
-		exec: function(cntNumToExecute, args) {
-			
-		},
-		
+
 		getClass: function() {
 			return 'ForStmt';
 		},
 		
 		setDefault: function() {
-			
+			this.__base();
+			this.body.setDefault();
 		},
 		
 		isFinished: function() {
@@ -403,29 +425,49 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isStarted: function() {
-			this.counter.getValue() > 0 || this.counter.getValue() == 0 && this.body.isStarted();
+			return this.started;
 		},
 		
 		updateInterface: function(newState) {
-		
+			this.body.updateInterface(newState)
 		},
 		
 		hideHighlighting: function() {
-		
+			$(this.node).addClass('hiddenHighlighting');
+			this.body.hideHighlighting();
 		},
 		
 		highlightOff: function() {
-		
+			$(this.node).removeClass('hiddenHighlighting');
+			$(this.node).removeClass('highlighted');
+			this.body.highlightOff();
 		},
 		
 		highlightOn: function() {
-		
+			$(this.node).removeClass('hiddenHighlighting');
+			$(this.node).addClass('highlighted');
+			this.body.hideHighlighting();
 		},
 		
-		generatePythonCode: function() {
-		
+		generatePythonCode: function(tabsNum) {
+			var curCnt = this.problem.curCounter;
+			var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] +
+				(this.problem.counters[curCnt]['cnt'] ? 
+				this.problem.counters[curCnt]['cnt'] : 
+				'') + ' in range(' + this.counter.getExpression() + '):\n';
+			++this.problem.counters[curCnt]['cnt'];
+			this.problem.curCounter = (this.problem.curCounter + 1) % 3;
+			str += this.body.generatePythonCode(tabsNum + 1);
+			--this.problem.counters[curCnt]['cnt'];
+			this.problem.curCounter = curCnt;
+			return str;
 		},
 		
+		onGenerateDomObjectCallback: function(tree, node) {
+			this.__base(tree, node);
+			this.body.generateVisualCommand(tree, node);
+		},
+
 		generateVisualCommand: function() {
 		
 		},
@@ -449,15 +491,7 @@ define('CommandsMode', ['jQuery',
 		getFunction: function() { 
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
-		
-		updateArguments: function(funcId, args) {
-			var func = this.getFunction();
-			if (func && func.funcId == funcId) {
-				this.spinAccess('setArguments', args);
-			}
-			return;
-		},
-		
+			
 		funcCallUpdated: function() {
 			return;
 		},
