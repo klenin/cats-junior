@@ -390,20 +390,26 @@ define('CommandsMode', ['jQuery',
 		
 		executeOneStep: function(cntNumToExecute, args) {
 			if (!this.isFinished()) {
-				if (!this.isStarted()) {
-					this.updateInterface('START_COMMAND_EXECUTION');
+				if (!this.isStarted() || this.body.isFinished()) {
+					if (!this.isStarted()) {
+						this.updateInterface('START_COMMAND_EXECUTION');
+					}
+					else {
+						this.body.setDefault();
+						this.updateInterface('START_EXECUTION');
+					}
 					--cntNumToExecute;
 					this.started = true;
+					if (this.problem.needToHighlightCommand(this)) {
+						this.highlightOn();
+					}
 				}
-				if (this.problem.needToHighlightCommand(this)) {
-					this.highlightOn();
-				}
+				
 				if (cntNumToExecute > 0) {
 					cntNumToExecute = this.body.exec(cntNumToExecute, args);
 					if (this.body.isFinished()) {
 						this.counter.decreaseValue();
-						this.body.setDefault();
-						this.started = false;
+						//this.body.setDefault();
 					}
 				}
 				
@@ -418,6 +424,7 @@ define('CommandsMode', ['jQuery',
 		setDefault: function() {
 			this.__base();
 			this.body.setDefault();
+			this.started = false;
 		},
 		
 		isFinished: function() {
@@ -429,6 +436,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateInterface: function(newState) {
+			this.__base(newState);
 			this.body.updateInterface(newState)
 		},
 		
@@ -805,11 +813,11 @@ define('CommandsMode', ['jQuery',
 		
 		isFinished: function() {
 			return (this.commandIndex >= this.commands.length) || 
-				(this.commandsIndex == this.commands.length - 1 && this.commands[this.commandsIndex].isFinished());
+				(this.commandIndex == this.commands.length - 1 && this.commands[this.commandIndex].isFinished());
 		},
 		
 		isStarted: function() {
-			return this.commandIndex > 0 || this.commands[this.commandsIndex].isStarted();
+			return this.commandIndex > 0 || this.commands[this.commandIndex].isStarted();
 		},
 
 		updateInterface: function(newState) {
