@@ -485,27 +485,15 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
+			return this.body.updateFunctonNames(funcId, oldName, newName)
 		},
 		
 		removeFunctionCall: function(funcId) {
-			return;
+			return this.body.removeFunctionCall(funcId)
 		},
 		
 		highlightWrongNames: function() {
-			return;
-		},
-		
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
-		},
-			
-		funcCallUpdated: function() {
-			return;
-		},
-
-		getArguments: function() {
-			return this.arguments;
+			return this.body.highlightWrongNames();
 		}
 	});
 
