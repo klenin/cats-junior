@@ -345,7 +345,7 @@ define('CommandsMode', ['jQuery',
 				this.started = true;
 			}
 			this.counter.decreaseValue();
-			return Math.max(0, cntNumToExecute - 1);
+			return Math.max(0, cntNumToExecute);
 		},
 		
 		exec: function(cntNumToExecute, args) {
