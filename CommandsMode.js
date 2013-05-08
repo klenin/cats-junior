@@ -112,17 +112,17 @@ define('CommandsMode', ['jQuery',
 			return generateTabs(tabsNum) + this.name + '()\n';
 		},
 		
-		generateVisualCommand: function(tree, node) {
+		generateVisualCommand: function(tree, node, position) {
 			var self = this;
 			
-			if (!self.problem.isCommandSupported(self.name)) {
-				throw 'Команда ' + self.name + ' запрещена в данной задаче';
+			if (!self.problem.isCommandSupported(self.getName())) {
+				throw 'Команда ' + self.getName() + ' запрещена в данной задаче';
 			}
 			
 			tree.create(node, 
-				'after', 
+				position ? position : 'after', 
 				{
-					'data': self.problem.getCommandName(self.name),
+					'data': self.problem.getCommandName(self.getName()),
 				},
 				function(newNode){
 					self.onGenerateDomObjectCallback(tree, newNode);
@@ -133,7 +133,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		onGenerateDomObjectCallback: function(tree, newNode) {
-			this.__self.onCreateJsTreeItem(tree, newNode, this.name, this.problem, true);
+			this.__self.onCreateJsTreeItem(tree, newNode, this.getName(), this.problem, true);
 			this.node = newNode;
 			this.problem.newCommandGenerated();
 		},
@@ -294,6 +294,10 @@ define('CommandsMode', ['jQuery',
 		
 		getArguments: function() {
 			return this.arguments;
+		},
+
+		getNewNodePosition: function() {
+			return 'after';
 		}
 	},
 	{
@@ -418,7 +422,7 @@ define('CommandsMode', ['jQuery',
 		},
 
 		getClass: function() {
-			return 'ForStmt';
+			return 'for';
 		},
 		
 		setDefault: function() {
@@ -473,13 +477,9 @@ define('CommandsMode', ['jQuery',
 		
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
-			this.body.generateVisualCommand(tree, node);
+			this.body.generateVisualCommand(tree, node, 'inside');
 		},
-
-		generateVisualCommand: function() {
-		
-		},
-		
+	
 		setArguments: function(args) {
 			
 		},
@@ -852,9 +852,9 @@ define('CommandsMode', ['jQuery',
 			return str;
 		},
 		
-		generateVisualCommand: function(tree, node) {
+		generateVisualCommand: function(tree, node, position) {
 			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].generateVisualCommand(tree, node ? node : 0);
+				this.commands[i].generateVisualCommand(tree, node ? node : 0, position);
 			}
 		},
 		
