@@ -711,14 +711,14 @@ function() {
 
 						if (!this.playing) {
 							this.setCounters();
-							this.updateInterface('START_EXECUTION');
 							var needReturn = this.cmdList.isFinished();
-							this.setDefault();
-							if (needReturn) return;
+							this.setDefault();	
+							if (needReturn) return;		
 						}
 						codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
 						if (!this.playing) {
 							this.prepareForExecuting();
+							this.updateInterface('START_EXECUTION');
 						} else {
 							this.compileCode();
 						}
