@@ -544,6 +544,19 @@ define('CommandsMode', ['jQuery',
 			this.updateConditionArguments();
 		},
 		
+		createClone: function (className) {
+			var firstBlock = this.blocks[0].createClone();
+			var secondBlock = undefined;
+			if (this.blocks[1]) {
+				secondBlock = this.blocks[1].createClone();
+			}
+			var args = [];
+			for (var i = 0; i < this.arguments.length; ++i) {
+				args.push(this.arguments[i].getExpression())
+			}
+			return new className(this.condName, args, firstBlock, secondBlock, this.parent, this.node, this.problem);
+		},
+
 		setBlocks: function(firstBlock, secondBlock) {
 			this.blocks[0] = firstBlock;
 			if (secondBlock) {
@@ -558,6 +571,32 @@ define('CommandsMode', ['jQuery',
 			if (this.blocks[1]) {
 				this.blocks[1].setDefault();
 			}
+		},
+
+		onBlockExecution: function() {
+			return;
+		},
+
+		executeOneStep: function(cntNumToExecute, args) {
+			if (!this.isFinished()){
+				if (!this.isStarted()) {
+					var testResult = this.testCondition(args);
+					this.blockToExecute = testResult ? 0 : 1;
+					--cntNumToExecute;
+					this.blocks[0].setDefault();
+					this.updateInterface('START_EXECUTION');
+					if (this.problem.needToHighlightCommand(this)) {
+						this.highlightOn();
+					}
+				}
+				if (cntNumToExecute > 0 && this.blocks[this.blockToExecute]) {
+					cntNumToExecute = this.blocks[this.blockToExecute].exec(cntNumToExecute, args);
+					if (this.blocks[this.blockToExecute].isFinished()) {
+						this.onBlockExecution();
+					}
+				}
+			}
+			return cntNumToExecute;
 		},
 
 		isStarted: function() {
@@ -713,38 +752,11 @@ define('CommandsMode', ['jQuery',
 		__constructor: function(condName, args, firstBlock, secondBlock, parent, node, problem) {
 			this.__base(condName, args, firstBlock, secondBlock, parent, node, problem);
 		},
-		
-		createClone: function () {
-			var firstBlock = this.blocks[0].createClone();
-			var secondBlock = undefined;
-			if (this.blocks[1]) {
-				secondBlock = this.blocks[1].createClone();
-			}
-			var args = [];
-			for (var i = 0; i < this.arguments.length; ++i) {
-				args.push(this.arguments[i].getExpression())
-			}
-			return new IfStmt(this.condName, args, firstBlock, secondBlock, this.parent, this.node, this.problem);
+			
+		createClone: function() {
+			return this.__base(IfStmt);
 		},
-		
-		executeOneStep: function(cntNumToExecute, args) {
-			if (!this.isFinished()){
-				if (!this.isStarted()) {
-					var testResult = this.testCondition(args);
-					this.blockToExecute = testResult ? 0 : 1;
-					--cntNumToExecute;
-					this.updateInterface('START_COMMAND_EXECUTION');
-					if (this.problem.needToHighlightCommand(this)) {
-						this.highlightOn();
-					}
-				}
-				if (cntNumToExecute > 0 && this.blocks[this.blockToExecute]) {
-					cntNumToExecute = this.blocks[this.blockToExecute].exec(cntNumToExecute, args);
-				}
-			}
-			return cntNumToExecute;
-		},
-		
+
 		getClass: function() {
 			return this.blocks[1] ? 'ifelse' : 'if';
 		},
@@ -787,18 +799,14 @@ define('CommandsMode', ['jQuery',
 	});
 
 	var WhileStmt = $.inherit(CondStmt, {
-		__constructor: function(testName, args, body, conditionProperties, parent, id, problem) {
-		
+		__constructor: function(condName, args, body, parent, node, problem) {
+			this.__base(condName, args, body, undefined, parent, node, problem);
 		},
 		
-		createClone: function () {
-		
+		createClone: function() {
+			return this.__base(WhileStmt);
 		},
-		
-		exec: function(cntNumToExecute, args) {
-		
-		},
-		
+
 		getClass: function() {
 			return 'while';
 		},
@@ -807,72 +815,12 @@ define('CommandsMode', ['jQuery',
 			return 'while'
 		},
 
-		setDefault: function() {
-			
-		},
-		
 		isFinished: function() {
-		
-		},
-		
-		updateInterface: function(newState) {
-		
-		},
-		
-		hideHighlighting: function() {
-		
-		},
-		
-		highlightOff: function() {
-		
-		},
-		
-		highlightOn: function() {
-		
-		},
-		
-		generatePythonCode: function() {
-		
-		},
-		
-		generateVisualCommand: function() {
-		
-		},
-		
-		setArguments: function(args) {
-			
-		},
-		
-		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
-		},
-		
-		removeFunctionCall: function(funcId) {
-			return;
-		},
-		
-		highlightWrongNames: function() {
-			return;
-		},
-		
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
-		},
-		
-		updateArguments: function(funcId, args) {
-			var func = this.getFunction();
-			if (func && func.funcId == funcId) {
-				this.spinAccess('setArguments', args);
-			}
-			return;
-		},
-		
-		funcCallUpdated: function() {
-			return;
+			return this.isStarted() && this.blocks[this.blockToExecute] == undefined;
 		},
 
-		getArguments: function() {
-			return this.arguments;
+		onBlockExecution: function() {
+			this.blockToExecute = undefined;
 		}
 	},
 	{

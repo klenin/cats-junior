@@ -55,6 +55,9 @@ define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'C
 				case 'ifelse':
 					CommandsMode.IfStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
 					break;
+				case 'while':
+					CommandsMode.WhileStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+					break;
 			}
 			
 		}
