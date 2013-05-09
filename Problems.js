@@ -833,11 +833,7 @@ function() {
 		},
 
 		getCommands: function() {
-			var statements = {};
-			var args = [
-					new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
-			statements['for'] = new ExecutionUnitCommands.ExecutionUnitCommand('for', undefined, args);
-			return $.extend('true', {}, statements, this.executionUnit.getCommands());
+			return this.executionUnit.getCommands();
 		},
 
 		needToHighlightCommand: function(command) {
@@ -851,6 +847,10 @@ function() {
 				}
 			}
 			return false;
+		},
+
+		getConditionProperties: function() {
+			return this.executionUnit.getConditionProperties();
 		}
 	});
 

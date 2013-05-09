@@ -31,8 +31,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		generateDomObject: function(prev, callback, problem, value) {
 			select = $('<select class="testFunctionArgument"></select>').insertAfter(prev);
-			for (var i = 0; i < this.values.length; ++i) {
-				$(select).append('<option value="' + this.values[i][0] + '">' + this.values[i][1] + '</option><br>');
+			for (var i = 0; i < this.options.length; ++i) {
+				$(select).append('<option value="' + this.options[i][0] + '">' + this.options[i][1] + '</option><br>');
 			}
 		
 			$(select).change(function() {
@@ -49,9 +49,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		findValue: function(value) {
-			for (var i = 0; i < this.values.length; ++i) {
-				if (this.values[i][0] == value || this.values[i][1] == value) {
-					return this.values[i][0];
+			for (var i = 0; i < this.options.length; ++i) {
+				if (this.options[i][0] == value || this.options[i][1] == value) {
+					return '\"' + this.options[i][0] + '\"';
 				}
 			}
 
@@ -63,7 +63,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				throw 'Select isn\'t initialized';
 			}	
 			if (clear) {
-				$(this.domObject).children(':gt(' + (this.values.length - 1) + ')').remove();
+				$(this.domObject).children(':gt(' + (this.options.length - 1) + ')').remove();
 			}
 
 			for (var i = 0; args && i < args.length; ++i) {
@@ -95,7 +95,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		setDefault: function(){
-			$(this.domObject).mySpin('disabled', false);
+			$(this.domObject).prop('disabled', false);
 		},
 		
 		updateInterface: function(newState){
@@ -104,9 +104,13 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					$(this.domObject).prop('disabled', true);
 					break;
 				case 'FINISH_EXECUTION':
-					$(this.domObject).mySpin('disabled', false);
+					$(this.domObject).prop('disabled', false);
 					break;
 			}
+		},
+
+		getDomObjectValue: function(object) {
+			return $(object).children('option:selected').val();
 		}
 	});
 	
@@ -192,6 +196,10 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					$(this.domObject).mySpin('stopExecution');
 					break;
 			}
+		},
+
+		getDomObjectValue: function(object) {
+			return $(object).val();
 		}
 	});	
 

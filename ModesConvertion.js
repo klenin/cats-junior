@@ -24,13 +24,13 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				block.pushCommand(convert(commands[i].children, block, problem));
 			}
 			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-				var args = [$().children('select:eq(0)').children('option:selected').val()];
-				var conditionPropertiesId = $(node).children('.testFunctionName').children('option:selected').val();
+				var args = [$(node).children('.testFunctionArgument:eq(1)').children('option:selected').val()];
+				var conditionPropertiesId = $(node).children('.testFunctionArgument:eq(0)').children('option:selected').val();
 				var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId);
 				var conditionArguments = conditionProperties.args;
 				for (var j = 0; j < conditionArguments.length; ++j) {
 					args.push(
-						conditionArguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
+						conditionArguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + (j + 2) + ')')));
 				}	
 
 				var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
@@ -45,8 +45,8 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				}
 				var testName = conditionProperties.name;
 				block.pushCommand(type == 'while' ? 
-					new CommandsMode.WhileStmt(testName, args, block1, conditionProperties, block, node, problem) : 
-					new CommandsMode.IfStmt(testName, args, block1, block2, conditionProperties, block, node, problem));
+					new CommandsMode.WhileStmt(testName, args, block1, block, node, problem) : 
+					new CommandsMode.IfStmt(testName, args, block1, block2, block, node, problem));
 			}
 			else if (type == 'for')		{
 				var cnt = $(node).children('spin').mySpin('getTotalValue');
@@ -234,7 +234,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					if (!conditionProperties) {
 						throw 'Некорректное имя функции сравнения';
 					}
-					var ifStmt = new CommandsMode.IfStmt(dict['testName'], dict['args'], undefined, undefined, conditionProperties, block, undefined, problem);			
+					var ifStmt = new CommandsMode.IfStmt(dict['testName'], dict['args'], undefined, undefined, block, undefined, problem);			
 					var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 					var body2;
 					if (commands[i].orelse.length)
@@ -251,7 +251,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					if (!conditionProperties) {
 						throw 'Некорректное имя функции сравнения';
 					}
-					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], dict['args'], undefined, conditionProperties, block, undefined, problem)
+					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], dict['args'], undefined, block, undefined, problem)
 					var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 					if (!body)
 						return undefined;
