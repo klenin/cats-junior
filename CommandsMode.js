@@ -210,6 +210,11 @@ define('CommandsMode', ['jQuery',
 					this.arguments[i].setValue(argumentValues[i]);
 				}
 			}
+			var funcDef = this.getFunction();
+			if (funcDef) {
+				this.setArguments(funcDef.getArguments());
+			}
+			
 		},
 		
 		initializeArgumentDomObject: function() {
@@ -280,7 +285,9 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		setArguments: function(args) {
-			throw 'isn\'t implemented yet!!!';
+			for (var i = 0; i < this.arguments.length; ++i) {
+				this.arguments[i].addArguments(args, true);
+			}
 		},
 		
 		updateArguments: function(funcId, args) {
@@ -318,9 +325,8 @@ define('CommandsMode', ['jQuery',
 				var parameters = [];
 				for (var i = 0; i < args.length; ++i) {
 					parameters.push(new ExecutionUnitCommands.CommandArgumentInput());
-
-					this.generateArgumentsDom(node, parameters, problem, false);
 				}
+				this.generateArgumentsDom(node, parameters, problem, false);
 			}
 			
 			if (!doNotNeedToUpdate) {
@@ -1007,6 +1013,10 @@ define('CommandsMode', ['jQuery',
 		
 		getFuncId: function() {
 			return $(this.node).attr('funcId');
+		},
+
+		getFunction: function() {
+			return this;
 		},
 
 		setCommands: function(commands) {
