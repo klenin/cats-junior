@@ -1,4 +1,4 @@
-define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'CommandsMode'], function(){
+define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree', 'CommandsMode'], function(){
 	var CommandsMode = require ('CommandsMode');
 
 	function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				

@@ -115,7 +115,7 @@ define('CommandsMode', ['jQuery',
 		generateVisualCommand: function(tree, node, position) {
 			var self = this;
 			
-			if (!self.problem.isCommandSupported(self.getName())) {
+			if (!self.problem.isCommandSupported(self.getName()) && self.getClass() != 'funccall') {
 				throw 'Команда ' + self.getName() + ' запрещена в данной задаче';
 			}
 			
@@ -320,8 +320,8 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		generateArgumentsDom: function(node, parameters, problem, doNotCloneArguments) {
-			var prev = $(node).children('a');
+		generateArgumentsDom: function(node, parameters, problem, doNotCloneArguments, prev) {
+			var prev = prev ? prev : $(node).children('a');
 			for (var i = 0; i < parameters.length; ++i) {
 				var parameter = doNotCloneArguments ? parameters[i] : parameters[i].clone();
 				prev = this.generateArgumentDom(parameter, prev, problem, doNotCloneArguments);
@@ -495,7 +495,7 @@ define('CommandsMode', ['jQuery',
 		
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
-			this.body.generateVisualCommand(tree, node, 'inside');
+			this.body.generateVisualCommand(tree, node, 'last');
 		},
 	
 		setArguments: function(args) {
@@ -696,7 +696,11 @@ define('CommandsMode', ['jQuery',
 				return function() {
 					var condName = $(this).children('option:selected').val();
 					$(this).parent().children('.testFunctionArgument:gt(1)').remove();
-					CondStmt.generateArgumentsDom($(this).parent(), p.getConditionProperties(condName).args, p);
+					CondStmt.generateArgumentsDom($(this).parent(), 
+						p.getConditionProperties(condName).args, 
+						p, 
+						false, 
+						$(this).parent().children('.testFunctionArgument').last());
 					p.updated();
 				};
 			}(this.problem));
@@ -741,10 +745,11 @@ define('CommandsMode', ['jQuery',
 		
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
-			this.blocks[0].generateVisualCommand(tree, node, 'inside');
+			this.blocks[0].generateVisualCommand(tree, node, 'last');
 			if (this.blocks[1]) {
-				this.blocks[1].generateVisualCommand(tree, $(node).next(), 'inside');
+				this.blocks[1].generateVisualCommand(tree, $(node).next(), 'last');
 			}
+			$(this.arguments[0].domObject).change();
 		}
 	},
 	{
@@ -1036,12 +1041,14 @@ define('CommandsMode', ['jQuery',
 			$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, $(this.node).prop('funcId'));
 			this.node = $('#funcDef-' + c);
 			$('#funcDef-' + c).bind('loaded.jstree', function(){	
-				self.body.generateCommand(jQuery.jstree._reference('funcDef-' + c));
+				for (var i = 0; i < self.commands.length; ++i) {
+					self.commands[i].generateVisualCommand(jQuery.jstree._reference('funcDef-' + c), node ? node : 0, position)
+				}
 				self.problem.newCommandGenerated();
 				++cmdId;
 				self.problem.updated();
 			});
-			InterfaceJSTree.createJsTreeForFunction('#funcDef-' + c, this.problem, true);
+			require('InterfaceJSTree').createJsTreeForFunction('#funcDef-' + c, this.problem, true); // Circular Dependency!! But I don't know how we can avoid it :-(
 		},
 
 		getArguments: function() {
@@ -1148,6 +1155,12 @@ define('CommandsMode', ['jQuery',
 					prev = this.__self.generateArgumentDom(arg, prev, this.problem, true);
 				}
 			}
+		},
+
+		onGenerateDomObjectCallback: function(tree, newNode) {
+			this.__self.onCreateJsTreeItem(tree, newNode, 'funccall', this.problem, true);
+			this.node = newNode;
+			tree.rename_node(newNode, this.name);
 		},
 
 		removeFunctionCall: function(funcId) {

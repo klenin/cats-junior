@@ -238,7 +238,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					if (!conditionProperties) {
 						throw 'Некорректное имя функции сравнения';
 					}
-					var ifStmt = new CommandsMode.IfStmt(dict['testName'], dict['args'], undefined, undefined, block, undefined, problem);			
+					var ifStmt = new CommandsMode.IfStmt(dict['testName'], [dict['testName']].concat(dict['args']), undefined, undefined, block, undefined, problem);			
 					var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 					var body2;
 					if (commands[i].orelse.length)
@@ -255,7 +255,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					if (!conditionProperties) {
 						throw 'Некорректное имя функции сравнения';
 					}
-					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], dict['args'], undefined, block, undefined, problem)
+					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], [dict['testName']].dict['args'], undefined, block, undefined, problem)
 					var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 					if (!body)
 						return undefined;
@@ -275,7 +275,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 						throw 'Несколько функций с одним и тем же именем не поддерживаются в визуальном режиме'
 					}
 					
-					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, ++cmdId, problem);
+					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, problem);
 					problem.functions[commands[i].name.v][args.length] = funcDef;
 					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 					funcDef.setCommands(body.commands);
