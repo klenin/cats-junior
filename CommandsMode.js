@@ -692,6 +692,14 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
+			$(this.node).children('.testFunctionArgument').first().off('change').on('change', function(p){
+				return function() {
+					var condName = $(this).children('option:selected').val();
+					$(this).parent().children('.testFunctionArgument:gt(1)').remove();
+					CondStmt.generateArgumentsDom($(this).parent(), p.getConditionProperties(condName).args, p);
+					p.updated();
+				};
+			}(this.problem));
 			/*$(this.node).children('.testFunctionArgument').remove();
 			this.__self.generateArgumentsDom($(this.node), this.arguments, this.problem, true);*/
 		},
@@ -1012,7 +1020,8 @@ define('CommandsMode', ['jQuery',
 				str += this.argumentsList[i];
 			}
 			str += '):\n';
-			this.__base(tabsNum + 1);
+			str += this.__base(tabsNum + 1);
+			return str;
 		},
 		
 		generateVisualCommand: function(tree, node, position) {

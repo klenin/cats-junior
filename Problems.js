@@ -849,8 +849,8 @@ function() {
 			return false;
 		},
 
-		getConditionProperties: function() {
-			return this.executionUnit.getConditionProperties();
+		getConditionProperties: function(condName) {
+			return this.executionUnit.getConditionProperties(condName);
 		}
 	});
 
