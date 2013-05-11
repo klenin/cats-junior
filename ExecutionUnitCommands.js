@@ -245,8 +245,11 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		generateDomObject: function(prev, callback, problem, value) {
-			var input = $('<input class="testFunctionArgument">' + (value ? value : '') + '</input>').insertAfter(prev);
+			var input = $('<input class="testFunctionArgument"></input>').insertAfter(prev);
 		
+			if (value) {
+				$(input).val(value);
+			}
 			$(input).change(function() {
 				callback();
 			});
@@ -265,14 +268,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		getExpression: function() {
 			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
+				throw 'Input isn\'t initialized';
 			}	
 			return $(this.domObject).val();
 		},
 		
 		getValue: function(args) {
 			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
+				throw 'Input isn\'t initialized';
 			}	
 			var value = this.getExpression();
 			if (args != undefined || args[value] != undefined) {

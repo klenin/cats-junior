@@ -59,7 +59,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'Spin', 'JsTree', 'CommandsMode
 					CommandsMode.WhileStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
 					break;
 				case 'funccall': 
-					CommandsMode.FuncCall.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+					CommandsMode.FuncCall.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate, inputArgs);
 					break;
 			}
 			

@@ -306,7 +306,7 @@ define('CommandsMode', ['jQuery',
 			return problem.getCommands()[type];
 		},
 
-		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate) {
+		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate, args) {
 			this.__base(tree, node, type, problem, doNotNeedToUpdate);
 
 			var command = this.constructCommand(type, problem);
@@ -314,21 +314,29 @@ define('CommandsMode', ['jQuery',
 				var parameters = command.getArguments();
 				this.generateArgumentsDom(node, parameters, problem);
 			}
+			else if (args) {
+				var parameters = [];
+				for (var i = 0; i < args.length; ++i) {
+					parameters.push(new ExecutionUnitCommands.CommandArgumentInput());
+
+					this.generateArgumentsDom(node, parameters, problem, false);
+				}
+			}
 			
 			if (!doNotNeedToUpdate) {
 				problem.updated();
 			}
 		},
 
-		generateArgumentsDom: function(node, parameters, problem, doNotCloneArguments, prev) {
+		generateArgumentsDom: function(node, parameters, problem, doNotCloneArguments, prev, values) {
 			var prev = prev ? prev : $(node).children('a');
 			for (var i = 0; i < parameters.length; ++i) {
 				var parameter = doNotCloneArguments ? parameters[i] : parameters[i].clone();
-				prev = this.generateArgumentDom(parameter, prev, problem, doNotCloneArguments);
+				prev = this.generateArgumentDom(parameter, prev, problem, doNotCloneArguments, values ? values[i] : undefined);
 			}
 		},
 
-		generateArgumentDom: function(parameter, prev, problem, doNotCloneArguments) {
+		generateArgumentDom: function(parameter, prev, problem, doNotCloneArguments, value) {
 			return parameter.generateDomObject(
 				$(prev), 
 				function(p) {
@@ -337,7 +345,7 @@ define('CommandsMode', ['jQuery',
 					}
 				}(problem),
 				problem, 
-				doNotCloneArguments ? parameter.getExpression() : undefined);
+				doNotCloneArguments ? parameter.getExpression() : value ? value : undefined);
 		}
 	});
 
