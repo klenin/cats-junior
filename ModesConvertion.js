@@ -1,11 +1,11 @@
 define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 	var CommandsMode = require('CommandsMode');
 	
-	function convert(commands, parent, problem, funcName, div, argumentsList, funcId){
+	function convert(commands, parent, problem, funcName, div, argumentsList){
 		var block = new CommandsMode.Block([], parent, problem);
 		var func = undefined;
 		if (funcName) {
-			func = new CommandsMode.FuncDef(funcName, argumentsList, [], parent, div, funcId, problem);
+			func = new CommandsMode.FuncDef(funcName, argumentsList, [], parent, div, problem);
 			block = new CommandsMode.Block([], func, problem);
 			func.body = block;
 			if (!problem.functions[funcName]) {
@@ -13,7 +13,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 			}
 
 			problem.functions[funcName][argumentsList.length] = func;
-			problem.functionsWithId[funcId] = func;
+			problem.functionsWithId[$(div).prop('funcId')] = func;
 			++problem.numOfFunctions;
 		}
 		for (var i = 0; i < commands.length; ++i){
@@ -24,7 +24,8 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				block.pushCommand(convert(commands[i].children, block, problem));
 			}
 			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-				var args = [$(node).children('.testFunctionArgument:eq(1)').children('option:selected').val()];
+				var args = [$(node).children('.testFunctionArgument:eq(0)').children('option:selected').val(), 
+					$(node).children('.testFunctionArgument:eq(1)').children('option:selected').val()];
 				var conditionPropertiesId = $(node).children('.testFunctionArgument:eq(0)').children('option:selected').val();
 				var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId);
 				var conditionArguments = conditionProperties.args;

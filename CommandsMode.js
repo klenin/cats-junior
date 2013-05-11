@@ -542,7 +542,7 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.conditionProperties.args.length; ++i) {
 				parameters.push(this.conditionProperties.args[i].clone());
 			}
-			this.__base(undefined, parameters, [condName].concat(args), parent, node, problem);
+			this.__base(undefined, parameters, args, parent, node, problem);
 			this.blocks = [];
 			this.blocks[0] = firstBlock;
 			if (secondBlock) {
@@ -563,7 +563,7 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.arguments.length; ++i) {
 				args.push(this.arguments[i].getExpression())
 			}
-			return new className(this.condName, args, firstBlock, secondBlock, this.parent, this.node, this.problem);
+			return new className(this.conditionName, args, firstBlock, secondBlock, this.parent, this.node, this.problem);
 		},
 
 		setBlocks: function(firstBlock, secondBlock) {
