@@ -356,6 +356,10 @@ define('CommandsMode', ['jQuery',
 			this.started = false;
 		},
 		
+		createClone: function() {
+			return new CommandWithCounter(this.name, this.arguments, this.createArgumentsClone(), this.parent, this.node, this.problem);
+		},
+
 		executeOneStep: function(cntNumToExecute, args) {
 			var prevCnt = cntNumToExecute;
 			cntNumToExecute = this.__base(cntNumToExecute, args);
