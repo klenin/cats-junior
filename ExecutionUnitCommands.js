@@ -270,21 +270,25 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Input isn\'t initialized';
 			}	
-			return $(this.domObject).val();
+			var value = $(this.domObject).val();
+			if (isInt(value)) {
+				return parseInt(value);
+			}
+			return '\"' + value + '\"';
 		},
 		
 		getValue: function(args) {
 			if (!this.domObject) {
 				throw 'Input isn\'t initialized';
 			}	
-			var value = this.getExpression();
+			var value = $(this.domObject).val();
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
 			if (isInt(value)) {
 				return parseInt(value);
 			}
-			return value;
+			return '\"' + value + '\"';
 		},
 	
 		getDomObjectValue: function(object) {
