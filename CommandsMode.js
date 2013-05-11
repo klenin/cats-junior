@@ -345,7 +345,7 @@ define('CommandsMode', ['jQuery',
 					}
 				}(problem),
 				problem, 
-				doNotCloneArguments ? parameter.getExpression() : value ? value : undefined);
+				value != undefined ? value : doNotCloneArguments ? parameter.getExpression() : undefined);
 		}
 	});
 
@@ -1006,7 +1006,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		getFuncId: function() {
-			return $(this.node).prop('funcId');
+			return $(this.node).attr('funcId');
 		},
 
 		setCommands: function(commands) {
@@ -1110,6 +1110,7 @@ define('CommandsMode', ['jQuery',
 				if (cntNumToExecute > 0) {
 					var funcDefArguments = this.funcDef.getArguments();
 					var argsCopy = args ? args.clone() : undefined;
+					args = args ? args : [];
 					for (var i = 0; i < this.arguments.length; ++i) {
 						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
 					}
@@ -1152,15 +1153,18 @@ define('CommandsMode', ['jQuery',
 			$(this.node).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 			args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
 			if (this.arguments.length > args.length) {
-				$(this.node).children('testFunctionArgument').filter(':gt(' + (args.length - 1) + ')').remove();
-				$(this.node).children('testFunctionArgument').filter(':eq(' + (args.length) + ')').remove();
+				$(this.node).children('.testFunctionArgument').filter(':gt(' + (args.length - 1) + ')').remove();
+				$(this.node).children('.testFunctionArgument').filter(':eq(' + (args.length) + ')').remove();
 			}
 			else {
 				var prev = $(this.node).children('.testFunctionArgument').last();
+				if (!prev.length) {
+					prev = $(this.node).children('a');
+				}
 				for (var i = this.arguments.length; i < args.length; ++i) {
 					var arg = new ExecutionUnitCommands.CommandArgumentInput();
 					this.arguments.push(arg);
-					prev = this.__self.generateArgumentDom(arg, prev, this.problem, true);
+					prev = this.__self.generateArgumentDom(arg, prev, this.problem, true, '');
 				}
 			}
 		},

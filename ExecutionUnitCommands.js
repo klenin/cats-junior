@@ -278,7 +278,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				throw 'Input isn\'t initialized';
 			}	
 			var value = this.getExpression();
-			if (args != undefined || args[value] != undefined) {
+			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
 			if (isInt(value)) {
