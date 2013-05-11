@@ -255,7 +255,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 					if (!body)
 						return undefined;
-					whileStmt.setBody(body);
+					whileStmt.setBlocks(body);
 					block.pushCommand(whileStmt);
 					break;
 				case 'FunctionDef':
