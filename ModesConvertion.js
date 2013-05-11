@@ -88,6 +88,9 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				block.pushCommand(cmd);
 			}
 		}
+		if (func) {
+			func.setCommands(block.commands);
+		}
 		return func ? func : block;
 	}
 
@@ -272,11 +275,10 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					}
 					
 					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, ++cmdId, problem);
-					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
-					funcDef.setBody(body);
-					block.pushCommand(funcDef);
-
 					problem.functions[commands[i].name.v][args.length] = funcDef;
+					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
+					funcDef.setCommands(body.commands);
+					block.pushCommand(funcDef);
 
 					break;	
 				case 'Pass':

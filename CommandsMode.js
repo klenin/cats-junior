@@ -119,6 +119,7 @@ define('CommandsMode', ['jQuery',
 				throw 'Команда ' + self.getName() + ' запрещена в данной задаче';
 			}
 			
+			self.problem.newCommandGenerationStarted();
 			tree.create(node, 
 				position ? position : 'after', 
 				{
@@ -126,6 +127,7 @@ define('CommandsMode', ['jQuery',
 				},
 				function(newNode){
 					self.onGenerateDomObjectCallback(tree, newNode);
+					self.problem.newCommandGenerated();
 				},
 				true
 			);
@@ -135,7 +137,6 @@ define('CommandsMode', ['jQuery',
 		onGenerateDomObjectCallback: function(tree, newNode) {
 			this.__self.onCreateJsTreeItem(tree, newNode, this.getName(), this.problem, true);
 			this.node = newNode;
-			this.problem.newCommandGenerated();
 		},
 
 		setArguments: function(args) {
@@ -162,10 +163,6 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 		
-		funcCallUpdated: function() {
-			return;
-		},
-
 		getArguments: function() {
 			return;
 		},
@@ -221,12 +218,16 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		createClone: function () {
+		createArgumentsClone: function() {
 			var argumentValues = [];
 			for (var i = 0; i < this.arguments.length; ++i){
 				argumentValues.push(this.arguments[i].getExpression());
 			}
-			return new Command(this.name, this.arguments, argumentValues, this.parent, this.node, this.problem);
+			return argumentValues;
+		},
+
+		createClone: function () {
+			return new Command(this.name, this.arguments, this.createArgumentsClone(), this.parent, this.node, this.problem);
 		},
 		
 		prepareArgumentsListForExecution: function(args) {
@@ -323,16 +324,20 @@ define('CommandsMode', ['jQuery',
 			var prev = $(node).children('a');
 			for (var i = 0; i < parameters.length; ++i) {
 				var parameter = doNotCloneArguments ? parameters[i] : parameters[i].clone();
-				prev = parameter.generateDomObject(
-					$(prev), 
-					function(p) {
-						return function() {
-							p.updated();
-						}
-					}(problem),
-					problem, 
-					doNotCloneArguments ? parameter.getExpression() : undefined);
+				prev = this.generateArgumentDom(parameter, prev, problem, doNotCloneArguments);
 			}
+		},
+
+		generateArgumentDom: function(parameter, prev, problem, doNotCloneArguments) {
+			return parameter.generateDomObject(
+				$(prev), 
+				function(p) {
+					return function() {
+						p.updated();
+					}
+				}(problem),
+				problem, 
+				doNotCloneArguments ? parameter.getExpression() : undefined);
 		}
 	});
 
@@ -836,12 +841,16 @@ define('CommandsMode', ['jQuery',
 			this.commandIndex = 0;
 		},
 		
-		createClone: function () {
+		createCommandsClone: function() {
 			var commands = [];
 			for (var i = 0; i < this.commands.length; ++i) {
 				commands.push(this.commands[i].createClone());
 			}
-			return new Block(commands, this.parent, this.problem);
+			return commands;
+		},
+
+		createClone: function () {
+			return new Block(this.createCommandsClone(), this.parent, this.problem);
 		},
 		
 		insertCommand : function(command, pos) {
@@ -855,7 +864,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cntNumToExecute, args) {
 			while (cntNumToExecute && this.commandIndex < this.commands.length) {
 				cntNumToExecute = this.commands[this.commandIndex].exec(cntNumToExecute, args);
-				if (this.commands[this.commandIndex].isFinished()) {
+				if (this.commands[this.commandIndex].isFinished() || this.commands[this.commandIndex].getClass() == 'funcdef') {
 					++this.commandIndex;
 				}
 			}
@@ -952,184 +961,201 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateArguments(funcId, args);
 			}
-		},
-		
-		funcCallUpdated: function() {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].funcCallUpdated();
-			}
 		}
 	});
 
 	var FuncDef = $.inherit(Block, {
-		__constructor: function(name, argumentsList, commands, parent, id, funcId, problem) {
-		
+		__constructor: function(name, argumentsList, commands, parent, node, problem) {
+			this.__base(commands, parent, problem);
+			this.node = node;
+			this.name = name;
+			this.argumentsList = argumentsList.clone();
 		},
 		
 		createClone: function () {
-		
-		},
-		
-		exec: function(cntNumToExecute, args) {
-		
+			return new FuncDef(this.name, this.argumentsList, this.createCommandsClone(), this.parent, this.node, this.problem);
 		},
 		
 		getClass: function() {
-			return 'FuncDef';
+			return 'funcdef';
 		},
 		
-		setDefault: function() {
-			
+		getFuncId: function() {
+			return $(this.node).prop('funcId');
 		},
-		
-		isFinished: function() {
-		
+
+		setCommands: function(commands) {
+			this.commands = commands;
 		},
-		
-		updateInterface: function(newState) {
-		
+
+		executeBody: function(cntNumToExecute, args) {
+			this.exec(cntNumToExecute, args, true);
 		},
-		
-		hideHighlighting: function() {
-		
-		},
-		
-		highlightOff: function() {
-		
-		},
-		
-		highlightOn: function() {
-		
-		},
-		
-		generatePythonCode: function() {
-		
-		},
-		
-		generateVisualCommand: function() {
-		
-		},
-		
-		setArguments: function(args) {
-			
-		},
-		
-		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
-		},
-		
-		removeFunctionCall: function(funcId) {
-			return;
-		},
-		
-		highlightWrongNames: function() {
-			return;
-		},
-		
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
-		},
-		
-		updateArguments: function(funcId, args) {
-			var func = this.getFunction();
-			if (func && func.funcId == funcId) {
-				this.spinAccess('setArguments', args);
+
+		exec: function(cntNumToExecute, args, needToExecuteBody) {
+			if (needToExecuteBody) {
+				return this.__base(cntNumToExecute, args);
 			}
-			return;
+			return cntNumToExecute;
+		},
+
+		generatePythonCode: function(tabsNum) {
+			str = generateTabs(tabsNum) + 'def ' + this.name + '(';
+			for (var i = 0; i < this.argumentsList.length; ++i) {
+				if (i > 0) {
+					str += ', ';
+				}
+				str += this.argumentsList[i];
+			}
+			str += '):\n';
+			this.__base(tabsNum + 1);
 		},
 		
-		funcCallUpdated: function() {
-			return;
+		generateVisualCommand: function(tree, node, position) {
+			var self = this;
+
+			if (!self.problem.isCommandSupported(this.getClass())) {
+				throw 'Объявление функций не поддерживается';
+			}
+
+			self.problem.newCommandGenerationStarted();
+			var c = ++cmdId;
+			$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, $(this.node).prop('funcId'));
+			this.node = $('#funcDef-' + c);
+			$('#funcDef-' + c).bind('loaded.jstree', function(){	
+				self.body.generateCommand(jQuery.jstree._reference('funcDef-' + c));
+				self.problem.newCommandGenerated();
+				++cmdId;
+				self.problem.updated();
+			});
+			InterfaceJSTree.createJsTreeForFunction('#funcDef-' + c, this.problem, true);
 		},
 
 		getArguments: function() {
-			return this.arguments;
+			return this.argumentsList;
 		}
 	});
 
 	var FuncCall = $.inherit(Command, {
-		__constructor: function(name, args, parent, id, problem) {
-		
+		__constructor: function(name, argumentValues, parent, node, problem) {
+			var parameters = [];
+			for (var i = 0; i < argumentValues.length; ++i) {
+				parameters.push(new ExecutionUnitCommands.CommandArgumentInput());
+			}
+			this.__base(name, parameters, argumentValues, parent, node, problem);
+			this.funcDef = undefined;
 		},
 		
 		createClone: function () {
-		
+			return new FuncCall(this.name, this.createArgumentsClone(), this.parent, this.node, this.problem)
 		},
 		
+		getFuncDef: function() {
+			try {
+				return this.problem.functions[this.name][this.arguments.length];
+			}
+			catch(err) {
+				return undefined;
+			}
+		},
+
+		isStarted: function() {
+			return this.funcDef != undefined;
+		},
+
+		setDefault: function() {
+			this.__base();
+			this.funcDef = undefined;
+		},
+
+		executeOneStep: function(cntNumToExecute, args){
+			if (cntNumToExecute > 0 && !this.isFinished()) {
+				if (!this.isStarted()) {
+					this.updateInterface('START_COMMAND_EXECUTION');
+					if (this.problem.needToHighlightCommand(this)) {
+						this.highlightOn();
+					}
+					this.funcDef = this.getFuncDef().createClone();
+					--cntNumToExecute;
+					this.problem.setLastExecutedCommand(this);
+				}
+				if (cntNumToExecute > 0) {
+					var funcDefArguments = this.funcDef.getArguments();
+					var argsCopy = args ? args.clone() : undefined;
+					for (var i = 0; i < this.arguments.length; ++i) {
+						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
+					}
+					cntNumToExecute = this.funcDef.executeBody(cntNumToExecute, args);
+				}
+			}
+			return Math.max(0, cntNumToExecute);
+		},
+
 		exec: function(cntNumToExecute, args) {
-		
+			cntNumToExecute = this.executeOneStep(cntNumToExecute, args);	
+			if (this.funcDef.isFinished()) {
+				this.funcDef = undefined;
+				this.finished = true;
+			}
+			return cntNumToExecute;
 		},
+		
 		
 		getClass: function() {
-			return 'FuncCall';
+			return 'funccall';
 		},
-		
-		setDefault: function() {
 			
+		getFuncId: function(){
+			var funcDef = this.getFuncDef();
+			if (funcDef) {
+				return funcDef.getFuncId();
+			}
+			this.highlightWrongNames();
 		},
-		
-		isFinished: function() {
-		
-		},
-		
-		updateInterface: function(newState) {
-		
-		},
-		
-		hideHighlighting: function() {
-		
-		},
-		
-		highlightOff: function() {
-		
-		},
-		
-		highlightOn: function() {
-		
-		},
-		
-		generatePythonCode: function() {
-		
-		},
-		
-		generateVisualCommand: function() {
-		
-		},
-		
-		setArguments: function(args) {
-			
-		},
-		
+
 		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
+			if (this.getFuncId() ==  funcId) {
+				this.name = newName;
+				this.updateJstreeObject(undefined, funcDef);
+			}
 		},
 		
+		updateJstreeObject: function(args, funcDef){
+			$(this.node).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
+			args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
+			if (this.arguments.length > args.length) {
+				$(this.node).children('testFunctionArgument').filter(':gt(' + (args.length - 1) + ')').remove();
+				$(this.node).children('testFunctionArgument').filter(':eq(' + (args.length) + ')').remove();
+			}
+			else {
+				var prev = $(this.node).children('.testFunctionArgument').last();
+				for (var i = this.arguments.length; i < args.length; ++i) {
+					var arg = new ExecutionUnitCommands.CommandArgumentInput();
+					this.arguments.push(arg);
+					prev = this.__self.generateArgumentDom(arg, prev, this.problem, true);
+				}
+			}
+		},
+
 		removeFunctionCall: function(funcId) {
-			return;
+			if (!this.getFuncDef() || this.getFuncId() == funcId) {
+				$(this.node).remove();
+			}
 		},
 		
 		highlightWrongNames: function() {
-			return;
-		},
-		
-		getFunction: function() { 
-			return this.parent ? this.parent.getFunction() : undefined;
+			if (!this.problem.functions[this.name] || !this.problem.functions[this.name][this.arguments.length]|| !checkName(this.name)) {
+				$(this.node).children('a').addClass('wrongName');
+			}
+			else {
+				$(this.node).children('a').removeClass('wrongName');
+			}
 		},
 		
 		updateArguments: function(funcId, args) {
-			var func = this.getFunction();
-			if (func && func.funcId == funcId) {
-				this.spinAccess('setArguments', args);
+			if (this.getFuncId() == funcId) {
+				this.updateJstreeObject(args);
 			}
-			return;
-		},
-		
-		funcCallUpdated: function() {
-			return;
-		},
-
-		getArguments: function() {
-			return this.arguments;
 		}
 	});
 	

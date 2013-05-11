@@ -28,7 +28,7 @@ define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'C
 	}
 
 	function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs, dontNeedToUpdate){
-		if (type == 'func-header' ||type == 'func-body') {
+		if (type == 'func-header' || type == 'func-body') {
 			type = 'funccall';
 		}
 
@@ -57,6 +57,9 @@ define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'C
 					break;
 				case 'while':
 					CommandsMode.WhileStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
+					break;
+				case 'funccall': 
+					CommandsMode.FuncCall.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
 					break;
 			}
 			
@@ -305,24 +308,20 @@ define('InterfaceJSTree', ['require', 'jQuery', 'jQueryUI', 'Spin', 'JsTree', 'C
 						if ((!isBlock(this._get_type(node)) || this._get_type(node) == 'funcdef' && this._get_type(data.o) == 'funcdef') && pos == 'inside'){
 							pos = 'after';
 						}
-						if ( !$(data.o).hasClass('jstree-draggable') )
+						while ( !$(data.o).hasClass('jstree-draggable') ) {
 							data.o = $(data.o).parent()[0];
-						if ( !$(data.o).hasClass('jstree-draggable') )
-							data.o = $(data.o).parent()[0];
+						}
 
 						var type = this._get_type(data.o);
 						var name = curProblem.getCommandName(type);
 
-						if (type == 'funcdef') {
-							name = 'func_' + curProblem.numOfFunctions;
-						}
-						else if (type == 'funccall') {
+						if (type == 'funccall') {
 							name = $(data.o).children('.func-header').text();
 						}
 						else if (type == 'func-header') {
 							name = $(data.o).text()
 						}
-						else if(type == 'func-body') {
+						else if (type == 'func-body') {
 							name = $(data.o).prev().prev().text();
 						}
 						if (type != 'funcdef') {
