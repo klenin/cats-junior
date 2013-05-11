@@ -692,8 +692,8 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
-			$(this.node).children('.testFunctionArgument').remove();
-			this.__self.generateArgumentsDom($(this.node), this.arguments, this.problem, true);
+			/*$(this.node).children('.testFunctionArgument').remove();
+			this.__self.generateArgumentsDom($(this.node), this.arguments, this.problem, true);*/
 		},
 
 		setArgumentPossibleValues: function(args) {

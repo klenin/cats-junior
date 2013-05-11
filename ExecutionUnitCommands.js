@@ -30,17 +30,17 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			switch (newState) {
 				case 'START_EXECUTION':
 				case 'START_COMMAND_EXECUTION':
-					$(this.domObject).prop('disabled', true);
+					$(this.domObject).attr('disabled', 'disabled');
 					break;
 				case 'FINISH_EXECUTION':
 				case 'FINISH_COMMAND_EXECUTION':
-					$(this.domObject).prop('disabled', false);
+					$(this.domObject).removeAttr('disabled');
 					break;
 			}
 		},
 
 		setDefault: function(){
-			$(this.domObject).prop('disabled', false);
+			$(this.domObject).removeAttr('disabled');
 		},
 	});
 	
@@ -69,6 +69,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				this.value = value;
 			}
 
+			if ($(this.domObject)) {
+				$(this.domObject).remove();
+			}
 			this.domObject = select;
 			return this.domObject;
 		},
@@ -120,7 +123,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		setDefault: function(){
-			$(this.domObject).prop('disabled', false);
+			$(this.domObject).removeAttr('disabled');
 		},
 		
 		getDomObjectValue: function(object) {
