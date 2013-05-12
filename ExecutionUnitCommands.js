@@ -451,7 +451,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Input isn\'t initialized';
 			}	
-			return this.returnValue($(this.domObject).val());
+
+			return this.returnValue(this.value);
 		},
 		
 		getValue: function(args) {
