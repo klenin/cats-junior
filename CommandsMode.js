@@ -134,7 +134,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		onGenerateDomObjectCallback: function(tree, newNode) {
-			this.__self.onCreateJsTreeItem(tree, newNode, this.getName(), this.problem, true);
+			this.__self.onCreateJsTreeItem(tree, newNode, this.getName(), this.problem, true, undefined, this.arguments);
 			this.node = newNode;
 		},
 
@@ -314,22 +314,24 @@ define('CommandsMode', ['jQuery',
 			return problem.getCommands()[type];
 		},
 
-		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate, args) {
+		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate, args, parameters) {
 			this.__base(tree, node, type, problem, doNotNeedToUpdate);
 
-			var command = this.constructCommand(type, problem);
-			if (command) {
-				var parameters = command.getArguments();
-				this.generateArgumentsDom(node, parameters, problem);
-			}
-			else if (args) {
-				var parameters = [];
-				for (var i = 0; i < args.length; ++i) {
-					parameters.push(new ExecutionUnitCommands.CommandArgumentInput());
+			var doNotCloneArguments = true;
+			if (!parameters) {
+				var command = this.constructCommand(type, problem);
+				if (command) {
+					parameters = command.getArguments();
 				}
-				this.generateArgumentsDom(node, parameters, problem, false);
+				else if (args) {
+					parameters = [];
+					for (var i = 0; i < args.length; ++i) {
+						parameters.push(new ExecutionUnitCommands.CommandArgumentInput());
+					}
+				}
+				doNotCloneArguments = false;
 			}
-			
+			this.generateArgumentsDom(node, parameters, problem, doNotCloneArguments);
 			if (!doNotNeedToUpdate) {
 				problem.updated();
 			}

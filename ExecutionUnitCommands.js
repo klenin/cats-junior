@@ -319,7 +319,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		getDomObjectValue: function(object) {
-			return $(object).val();
+			return $(object).children('.spinExpression').val();
 		},
 
 		setArgumentValues: function(argumentValues) {

@@ -50,9 +50,13 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					new CommandsMode.IfStmt(testName, args, block1, block2, block, node, problem));
 			}
 			else if (type == 'for')		{
-				var cnt = $(node).children('spin').mySpin('getTotalValue');
+				var command = CommandsMode.ForStmt.constructCommand();
+				var argValues = [];
+				for (var j = 0; j < command.arguments.length; ++j) {
+					argValues.push(command.arguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
+				}
 				var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
-				block.pushCommand(new CommandsMode.ForStmt(block1, cnt, block,  node, problem));
+				block.pushCommand(new CommandsMode.ForStmt(block1, argValues, block, node, problem));
 			}
 			else if (type == 'funccall'){
 				var args = [];
@@ -63,11 +67,12 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					$(node).text().split(' ').join(''), args,  block, node, problem));
 			}
 			else{
-				var argValues = [];
-				for (var j = 0; j < $(node).children('spin').length; ++j) {
-					argValues.push($(node).children('spin:eq(' + j + ')').mySpin('getTotalValue'));			
-				}
 				var command = problem.executionUnit.getCommands()[type];
+				var argValues = [];
+				for (var j = 0; j < command.arguments.length; ++j) {
+					argValues.push(command.arguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
+				}
+
 				var cmd = undefined;
 				if (command.hasCounter) {
 					cmd = new CommandsMode.CommandWithCounter(type, 
