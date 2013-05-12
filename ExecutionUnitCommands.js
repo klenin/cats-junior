@@ -261,7 +261,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		findValue: function(value) {
-			if(!isInt(value)  && !isInt(parseInt(value)) || value < this.minValue || value > this.maxValue)
+			if(!checkNumber(value) || value < this.minValue || value > this.maxValue)
 				return undefined;
 			return value;
 		},
@@ -368,11 +368,23 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (this.value == undefined) {
 				this.value = this.getValue(this.argumentValues);
 			}
-			$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
+			if (this.value != undefined) {
+				$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
+			}
+			else {
+				$(this.domObject).children('.spinValue').val(this.getExpressionValueByArgs(this.argumentValues));
+			}
 		},
 
 		getValue: function(args) {
-			return this.value != undefined ? this.value : this.__base(args);
+			var result = this.value;
+			if (result == undefined) {
+				result = this.__base(args);
+			}
+			if (!checkNumber(result)) {
+				return undefined;
+			}
+			return parseInt(result);
 		},
 
 		getCounterValue: function() {
@@ -424,15 +436,22 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			$(this.domObject).val(value);
 		},
 
+		returnValue: function(value) {
+			if (checkNumber(value)) {
+				return parseInt(value);
+			}
+
+			if (checkName(value)) {
+				return value;
+			}
+			return '\"' + value + '\"';
+		},
+
 		getExpression: function() {
 			if (!this.domObject) {
 				throw 'Input isn\'t initialized';
 			}	
-			var value = $(this.domObject).val();
-			if (isInt(value)) {
-				return parseInt(value);
-			}
-			return '\"' + value + '\"';
+			return this.returnValue($(this.domObject).val());
 		},
 		
 		getValue: function(args) {
@@ -443,10 +462,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
-			if (checkNumber(value)) {
-				return parseInt(value);
-			}
-			return '\"' + value + '\"';
+			return this.returnValue(value);
 		},
 	
 		getDomObjectValue: function(object) {
