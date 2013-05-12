@@ -772,6 +772,13 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 		
+		updateArguments: function(funcId, args) {
+			this.blocks[0].updateArguments(funcId, args);
+			if (this.blocks[1]) {
+				this.blocks[1].updateArguments(funcId, args);
+			}
+		},
+
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
 			this.blocks[0].generateVisualCommand(tree, node, 'last');
