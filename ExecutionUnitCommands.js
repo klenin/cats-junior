@@ -45,15 +45,16 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	});
 	
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
-		__constructor : function(options) {
+		__constructor : function(options, expression, problem) {
 			this.options = options.clone();
 			this.__base();
-			this.expression = this.options[0];
+			this.expression = expression != undefined ? this.options[0][0] : expression;
+			this.problem = problem;
 			this.arguments = [];
 		},
 		
 		clone: function() {
-			return new CommandArgumentSelect(this.options);
+			return new CommandArgumentSelect(this.options, this.expression, this.problem);
 		},
 
 		generateDomObject: function(prev, callback, problem, value) {
@@ -63,19 +64,31 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 		
 			this.callback = callback;
-			$(select).change(function(self) {
-				return function() {
-					self.expression = $(this).children('option:selected').val();
-					self.callback();	
-				}
-			}(this));
+			this.problem = problem;
 
+			this.updateCallbacks();
 			if (value) {
 				$(select).val(value);
 			}
 
 			this.domObject = select;
 			return this.domObject;
+		},
+
+		initializeArgumentDomObject: function(command, index) {
+			this.__base(command, index);
+			if (this.domObject.length) {
+				this.expression = $(this.domObject).children('option:selected').val();
+				this.updateCallbacks();
+			}
+		},
+
+		updateCallbacks: function() {
+			var self = this;
+			$(this.domObject).off('change').on('change', function(){
+				self.expression = $(this).children('option:selected').val();
+				self.problem.updated();	
+			});
 		},
 
 		findValue: function(value) {
@@ -107,7 +120,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		checkIntegrity: function() {
 			if ($(this.domObject).children('option:selected').val() != this.expression) {
-				throw 'Integrity error!';
+				//throw 'Integrity error!';
 			}
 		},
 
