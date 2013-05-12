@@ -432,6 +432,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Input isn\'t initialized';
 			}	
+			if (value == '""') {
+				value = '';
+			}
 			this.value = value;
 			$(this.domObject).val(value);
 		},
