@@ -1,7 +1,6 @@
 define('CommandsMode', ['jQuery', 
 	'jQueryUI', 
 	'jQueryInherit',
-	'Spin',
 	'Misc',
 	'Accordion',
 	'ShowMessages',
@@ -207,7 +206,9 @@ define('CommandsMode', ['jQuery',
 				}
 
 				for (var i = 0; i < this.arguments.length; ++i) {
-					this.arguments[i].setValue(argumentValues[i]);
+					if (argumentValues[i] != undefined) {
+						this.arguments[i].setValue(argumentValues[i]);
+					}
 				}
 			}
 			var funcDef = this.getFunction();
@@ -401,7 +402,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isFinished: function() {
-			return this.counter.getValue() <= 0;
+			return this.counter.getCounterValue() <= 0;
 		},
 		
 		isStarted: function() {
@@ -464,7 +465,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isFinished: function() {
-			return this.counter.getValue() <= 0;
+			return this.counter.getCounterValue() <= 0;
 		},
 		
 		isStarted: function() {
@@ -1120,7 +1121,7 @@ define('CommandsMode', ['jQuery',
 				if (cntNumToExecute > 0) {
 					var funcDefArguments = this.funcDef.getArguments();
 					var argsCopy = args ? args.clone() : undefined;
-					args = args ? args : [];
+					args = args ? args : {};
 					for (var i = 0; i < this.arguments.length; ++i) {
 						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
 					}

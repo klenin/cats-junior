@@ -11,11 +11,11 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		updateValueInDomObject: function() {
-			if (!this.domObject || this.value == undefined) {
+			if (!this.domObject || this.expression == undefined) {
 				throw 'Can\'t update values';
 			}
 
-			this.setValue(this.value);
+			this.setValue(this.expression);
 		},
 
 		addArguments: function() {
@@ -48,6 +48,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		__constructor : function(options) {
 			this.options = options.clone();
 			this.__base();
+			this.expression = this.options[0];
+			this.arguments = [];
 		},
 		
 		clone: function() {
@@ -60,23 +62,24 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				$(select).append('<option value="' + this.options[i][0] + '">' + this.options[i][1] + '</option><br>');
 			}
 		
-			$(select).change(function() {
-				callback();
-			});
+			this.callback = callback;
+			$(select).change(function(self) {
+				return function() {
+					self.expression = $(this).children('option:selected').val();
+					self.callback();	
+				}
+			}(this));
 
 			if (value) {
 				$(select).val(value);
-				this.value = value;
 			}
 
-			if ($(this.domObject)) {
-				$(this.domObject).remove();
-			}
 			this.domObject = select;
 			return this.domObject;
 		},
 
 		findValue: function(value) {
+			this.checkIntegrity();
 			for (var i = 0; i < this.options.length; ++i) {
 				if (this.options[i][0] == value || this.options[i][1] == value) {
 					return '\"' + this.options[i][0] + '\"';
@@ -90,12 +93,21 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
+			this.checkIntegrity();
 			if (clear) {
 				$(this.domObject).children(':gt(' + (this.options.length - 1) + ')').remove();
+				this.arguments = [];
 			}
 
 			for (var i = 0; args && i < args.length; ++i) {
 				$(this.domObject).append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
+				this.arguments.push(args[i]);
+			}
+		},
+
+		checkIntegrity: function() {
+			if ($(this.domObject).children('option:selected').val() != this.expression) {
+				throw 'Integrity error!';
 			}
 		},
 
@@ -103,7 +115,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
-			this.value = value;
+			this.checkIntegrity();
 			$(this.domObject).val(value);
 		},
 
@@ -111,14 +123,16 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
-			return $(this.domObject).children('option:selected').val();
+			this.checkIntegrity();
+			return this.expression;
 		},
 		
 		getValue: function(args) {
 			if (!this.domObject) {
 				throw 'Select isn\'t initialized';
 			}	
-			var value = this.getExpression();
+			this.checkIntegrity();
+			var value = this.expression;
 			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
 
@@ -137,6 +151,16 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.minValue = minValue;
 			this.maxValue = maxValue;
 			this.isCounter = false;
+			this.expression = minValue;
+			this.arguments = [];
+			this.argumentValues = {};
+		},
+
+		initializeArgumentDomObject: function(command, index) {
+			this.__base(command, index);
+			if (this.domObject.length) {
+				this.expression = $(this.domObject).children('.spinExpression').val();
+			}
 		},
 
 		clone: function() {
@@ -144,15 +168,76 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},	
 
 		generateDomObject: function(prev, callback, problem, value) {
-			var spin = $('<spin class="testFunctionArgument"></spin>');
-			spin.mySpin('init', $(prev).parent(), [], problem, 'int', this.isCounter, this.minValue, this.maxValue);
-			$(prev).after(spin);
-			if (value != undefined) {
-				this.setValue($(spin), value, true);
-				this.value = value;
-			}
+			var spin = $('<spin class="testFunctionArgument"></spin>').insertAfter($(prev));
 			this.domObject = spin;
+			this.expression = value != undefined ? value : this.minValue;
+			$(spin).append('<input class="spinExpression" value="' + this.expression + '" editable="false"></input>');
+			$(spin).append('<input class="spinValue" value="' + this.expression + '" editable="false"></input>');
+			$(spin).children('.spinValue').hide();
+			$(spin).append('<img src="images/spin-button.png" style="position: relative; top: 4px">');
+			var self = this;
+			$(spin).children('img').bind('click', function(e){
+				var pos = e.pageY - $(this).offset().top;
+				var vector = ($(this).height()/2 > pos ? 1 : -1);
+
+				self.onSpinImgClick(vector);
+			});
+
+			$(spin).children('.spinExpression').change(function() {
+				self.onUpdateTotal();
+			});
+			this.callback = callback;
 			return this.domObject;
+		},
+
+		searchArgument: function(arg) {
+			if (!this.arguments) {
+				return undefined;
+			}
+			for (var i = 0; i < this.arguments.length; ++i) {
+				if (arg == this.arguments[i]) {
+					return i;
+				}
+			}
+			return undefined;
+		},
+
+		calculateNewExpression: function(delta) {
+			var newExpression = undefined;
+			if (checkNumber(this.expression)) {
+				newExpression = parseInt(this.expression) + parseInt(delta);
+			}
+			else {
+				var argIndex = this.searchArgument(this.expression);
+				if (argIndex == undefined) { //we didn't find expression in arguments list, do nothing
+					return undefined;
+				}
+				else {
+					newExpression = argIndex + parseInt(delta);
+				}
+			}
+			return newExpression;
+		},
+
+		onSpinImgClick: function(delta) {
+			var newExpression = this.calculateNewExpression(delta);
+			if (newExpression == undefined) {
+				return;
+			}
+
+			return this.onUpdateTotal(newExpression);
+		},
+
+		onUpdateTotal: function(newExpression) {
+			if (newExpression < this.minValue) {
+				newExpression = this.arguments.length ? this.arguments[Math.min(this.minValue - newExpression, this.arguments.length) - 1] : this.minValue;
+			}
+			else if (newExpression > this.maxValue) {
+				newExpression = this.maxValue;
+			}
+			this.setExpression(newExpression);
+			this.callback();
+			return false;
 		},
 
 		findValue: function(value) {
@@ -162,61 +247,83 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		addArguments: function(args, clear) {
-			$(this.domObject).mySpin('setArguments', args);
+			this.arguments = args.clone();
+		},
+
+		setExpression: function(newExpression) {
+			this.expression = newExpression;
+			$(this.domObject).children('.spinExpression').val(this.expression);
 		},
 
 		setValue: function(value, afterDomCreation) {
-			if (isInt(value) || checkNumber(value)) {
-				$(this.domObject).mySpin('setTotal', isInt(value) ? value : parseInt(value));
-			}
-			else {
-				if (!checkName(value)) {
-					throw 'Некорректный аргумент';
-				}
-				$(this.domObject).mySpin('setTotalWithArgument', value, afterDomCreation); //wa for the case when we've just created new element and haven't set arguments yet
-			}
-			this.value = value;
+			this.setExpression(value);
 		},
 	
 		getExpression: function() {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			return $(this.domObject).mySpin('getTotalValue');
+			return this.expression;
+		},
+
+		getExpressionValueByArgs: function(args) {
+			var value = this.expression;
+			var result = (args == undefined || args[value] == undefined) ? value : args[value];
+			if (checkNumber(result)) {
+				return parseInt(result);
+			}
+			return result;
 		},
 
 		getValue: function(args) {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			var value = $(this.domObject).mySpin('getValue');
-			return (args == undefined || args[value] == undefined) ? value : args[value];
+			return this.getExpressionValueByArgs(args);
+		},
+
+		hideBtn: function(cnt) {
+			$(this.domObject).children('img').hide();
+			$(this.domObject).children('.spinExpression').hide();
+			$(this.domObject).children('.spinValue').show().val(this.getValue(this.argumentValues));
+		},
+
+		showBtn: function() {
+			$(this.domObject).children('img').show();
+			$(this.domObject).children('.spinExpression').show();
+			$(this.domObject).children('.spinValue').hide();
 		},
 
 		setDefault: function(){
-			$(this.domObject).mySpin('setDefault');
-			$(this.domObject).mySpin('showBtn');
+			this.showBtn();
+		},
+
+		startExecution: function(current) {
+			var currentValue = this.getValue(this.argumentValues);
+			if (!isInt(currentValue) || currentValue < 0) {
+				throw 'Некорректный счетчик';
+			}
+
+			this.hideBtn();
+		},
+
+		stopExecution: function() {
+			this.showBtn();
 		},
 
 		updateInterface: function(newState){
 			switch (newState) {
-				case 'START_EXECUTION':
-					$(this.domObject).mySpin('hideBtn');
-					break;
-				case 'FINISH_EXECUTION':
-					$(this.domObject).mySpin('showBtn');
-					break;
 				case 'START_COMMAND_EXECUTION':
-					$(this.domObject).mySpin('startExecution');
+				case 'START_EXECUTION':
+					this.startExecution();
 					break;
 				case 'STOP_COMMAND_EXECUTION':
-					$(this.domObject).mySpin('stopExecution');
+				case 'FINISH_EXECUTION':
+					this.stopExecution();
 					break;
 			}
 		},
 
 		getDomObjectValue: function(object) {
 			return $(object).val();
+		},
+
+		setArgumentValues: function(argumentValues) {
+			this.argumentValues = $.extend(true, {}, argumentValues);
 		}
 	});	
 
@@ -224,14 +331,45 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			__constructor : function(minValue, maxValue) {
 			this.__base(minValue, maxValue);
 			this.isCounter = true;
+			this.value = undefined;
 		},
 
 		clone: function() {
 			return new CommandArgumentSpinCounter(this.minValue, this.maxValue);
 		},
 
+		setDefault: function() {
+			this.__base();
+			this.value = undefined;
+		},
+
+		hideBtn: function(cnt) {
+			this.__base();
+			if (this.value == undefined) {
+				this.value = this.getValue(this.argumentValues);
+			}
+			$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
+		},
+
+		getValue: function(args) {
+			return this.value != undefined ? this.value : this.__base(args);
+		},
+
+		getCounterValue: function() {
+			return this.value;
+		},
+
 		decreaseValue: function() {
-			$(this.domObject).mySpin('decreaseValue');
+			if (this.value == undefined) {
+				this.value = this.getValue(this.argumentValues);
+			}
+
+			if (!isInt(this.value) || this.value < 0) {
+				throw 'Некорректный счетчик';
+			}
+
+			--this.value;
+			$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
 		}
 	});	
 
@@ -285,7 +423,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
-			if (isInt(value)) {
+			if (checkNumber(value)) {
 				return parseInt(value);
 			}
 			return '\"' + value + '\"';
