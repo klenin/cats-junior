@@ -219,7 +219,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					return undefined;
 				}
 				else {
-					newExpression = argIndex + parseInt(delta);
+					newExpression = -argIndex + parseInt(delta);
 				}
 			}
 			return newExpression;
