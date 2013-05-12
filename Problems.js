@@ -591,7 +591,7 @@ function() {
 			if (!this.playing || this.executionUnit.isDead()) {
 				this.setDefault();
 				this.setCounters();
-				this.updateInterface('START_EXECUTION');
+				//this.updateInterface('START_EXECUTION');
 			}
 			//try {
 				this.speed = s;
@@ -607,7 +607,7 @@ function() {
 				this.paused = false;
 				this.stopped = false;
 				this.disableButtons();
-				this.updateInterface('START_EXECUTION');
+				//this.updateInterface('START_EXECUTION');
 
 				this.lastExecutedCmd = undefined;
 				setTimeout(function(problem) {

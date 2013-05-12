@@ -146,25 +146,27 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	});
 	
 	var CommandArgumentSpin = $.inherit(CommandArgument, {
-			__constructor : function(minValue, maxValue) {
+			__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem) {
 			this.__base();
 			this.minValue = minValue;
 			this.maxValue = maxValue;
 			this.isCounter = false;
-			this.expression = minValue;
-			this.arguments = [];
-			this.argumentValues = {};
+			this.expression = expression != undefined ? expression : minValue;
+			this.arguments = arguments ? arguments.clone() : [];
+			this.argumentValues = argumentValues ? argumentValues : {};
+			this.problem = problem;
 		},
 
 		initializeArgumentDomObject: function(command, index) {
 			this.__base(command, index);
 			if (this.domObject.length) {
 				this.expression = $(this.domObject).children('.spinExpression').val();
+				this.updateCallbacks();
 			}
 		},
 
 		clone: function() {
-			return new CommandArgumentSpin(this.minValue, this.maxValue);
+			return new CommandArgumentSpin(this.minValue, this.maxValue, this.expression, this.arguments, this.argumentValues, this.problem);
 		},	
 
 		generateDomObject: function(prev, callback, problem, value) {
@@ -175,19 +177,23 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			$(spin).append('<input class="spinValue" value="' + this.expression + '" editable="false"></input>');
 			$(spin).children('.spinValue').hide();
 			$(spin).append('<img src="images/spin-button.png" style="position: relative; top: 4px">');
+			this.problem = problem;
+			this.updateCallbacks();
+			return this.domObject;
+		},
+
+		updateCallbacks: function() {
 			var self = this;
-			$(spin).children('img').bind('click', function(e){
+			$(this.domObject).children('img').off('click').on('click', function(e){
 				var pos = e.pageY - $(this).offset().top;
 				var vector = ($(this).height()/2 > pos ? 1 : -1);
 
 				self.onSpinImgClick(vector);
 			});
 
-			$(spin).children('.spinExpression').change(function() {
+			$(this.domObject).children('.spinExpression').off('click').on('change', function() {
 				self.onUpdateTotal();
 			});
-			this.callback = callback;
-			return this.domObject;
 		},
 
 		searchArgument: function(arg) {
@@ -236,7 +242,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				newExpression = this.maxValue;
 			}
 			this.setExpression(newExpression);
-			this.callback();
+			this.problem.updated();
 			return false;
 		},
 
@@ -293,10 +299,10 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		startExecution: function(current) {
-			var currentValue = this.getValue(this.argumentValues);
+			/*var currentValue = this.getValue(this.argumentValues);
 			if (!isInt(currentValue) || currentValue < 0) {
 				throw 'Некорректный счетчик';
-			}
+			}*/
 
 			this.hideBtn();
 		},
@@ -328,14 +334,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	});	
 
 	var CommandArgumentSpinCounter = $.inherit(CommandArgumentSpin, {
-			__constructor : function(minValue, maxValue) {
-			this.__base(minValue, maxValue);
+			__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem)  {
+			this.__base(minValue, maxValue, expression, arguments, argumentValues, problem);
 			this.isCounter = true;
 			this.value = undefined;
 		},
 
 		clone: function() {
-			return new CommandArgumentSpinCounter(this.minValue, this.maxValue);
+			return new CommandArgumentSpinCounter(this.minValue, this.maxValue, this.expression, this.arguments, this.argumentValues, this.problem);
 		},
 
 		setDefault: function() {

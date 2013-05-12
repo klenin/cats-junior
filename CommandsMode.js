@@ -196,6 +196,7 @@ define('CommandsMode', ['jQuery',
 
 			for (var i = 0; i < parameters.length; ++i) {
 				this.arguments.push(parameters[i].clone());
+				this.arguments[i].problem = problem;// W/A, needs to be reworked
 			}
 
 			this.initializeArgumentDomObject();
@@ -217,10 +218,21 @@ define('CommandsMode', ['jQuery',
 			}
 			
 		},
+
+		executeOneStep: function(cntNumToExecute, args) {
+			this.setArgumentValues(args);
+			return this.__base(cntNumToExecute, args);
+		},
 		
 		initializeArgumentDomObject: function() {
 			for (var i = 0; i < this.arguments.length; ++i) {
 				this.arguments[i].initializeArgumentDomObject(this.node, i);
+			}
+		},
+
+		setArgumentValues: function(args) {
+			for (var i = 0; i < this.arguments.length; ++i) {
+				this.arguments[i].setArgumentValues(args);
 			}
 		},
 
