@@ -129,6 +129,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				throw 'Select isn\'t initialized';
 			}	
 			this.checkIntegrity();
+			this.expression = value;
 			$(this.domObject).val(value);
 		},
 

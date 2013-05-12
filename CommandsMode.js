@@ -821,8 +821,8 @@ define('CommandsMode', ['jQuery',
 		}
 	},
 	{
-		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate) {
-			this.__base(tree, node, type, problem, type == 'ifelse');
+		onCreateJsTreeItem: function(tree, node, type, problem, doNotNeedToUpdate, args, parameters) {
+			this.__base(tree, node, type, problem, type == 'ifelse', args, parameters);
 			if (type == 'ifelse') {
 				tree.rename_node(node, 'Если');
 				tree.create($(node), "after", false, 
@@ -1134,7 +1134,7 @@ define('CommandsMode', ['jQuery',
 				}
 				if (cntNumToExecute > 0) {
 					var funcDefArguments = this.funcDef.getArguments();
-					var argsCopy = args ? args.clone() : undefined;
+					var argsCopy = args ? $.extend(true, {}, args) : undefined;
 					args = args ? args : {};
 					for (var i = 0; i < this.arguments.length; ++i) {
 						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
@@ -1195,7 +1195,7 @@ define('CommandsMode', ['jQuery',
 		},
 
 		onGenerateDomObjectCallback: function(tree, newNode) {
-			this.__self.onCreateJsTreeItem(tree, newNode, 'funccall', this.problem, true);
+			this.__self.onCreateJsTreeItem(tree, newNode, 'funccall', this.problem, true, undefined, this.arguments);
 			this.node = newNode;
 			tree.rename_node(newNode, this.name);
 		},
