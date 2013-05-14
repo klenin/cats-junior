@@ -68,12 +68,16 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.callback = callback;
 			this.problem = problem;
 
-			this.updateCallbacks();
-			if (value) {
-				$(select).val(value);
-			}
-
 			this.domObject = select;
+			this.updateCallbacks();
+
+			if (this.arguments && this.arguments.length) {
+				this.addArguments(this.arguments, true);
+			}
+			
+			if (value) {
+				$(this.domObject).val(value);
+			}
 			return this.domObject;
 		},
 

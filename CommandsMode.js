@@ -717,18 +717,20 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
-			$(this.node).children('.testFunctionArgument').first().off('change').on('change', function(p){
+			$(this.node).children('.testFunctionArgument').first().off('change').on('change', function(p, self){
 				return function() {
 					var condName = $(this).children('option:selected').val();
-					$(this).parent().children('.testFunctionArgument:gt(1)').remove();
-					CondStmt.generateArgumentsDom($(this).parent(), 
-						p.getConditionProperties(condName).args, 
-						p, 
-						false, 
-						$(this).parent().children('.testFunctionArgument').last());
-					p.updated();
+					if (condName != self.conditionName) {
+						$(this).parent().children('.testFunctionArgument:gt(1)').remove();
+						CondStmt.generateArgumentsDom($(this).parent(), 
+							p.getConditionProperties(condName).args, 
+							p, 
+							false, 
+							$(this).parent().children('.testFunctionArgument').last());
+						p.updated();
+					}
 				};
-			}(this.problem));
+			}(this.problem, this));
 			/*$(this.node).children('.testFunctionArgument').remove();
 			this.__self.generateArgumentsDom($(this.node), this.arguments, this.problem, true);*/
 		},
