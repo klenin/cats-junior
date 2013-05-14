@@ -1042,7 +1042,7 @@ define('CommandsMode', ['jQuery',
 		},
 
 		executeBody: function(cntNumToExecute, args) {
-			this.exec(cntNumToExecute, args, true);
+			return this.exec(cntNumToExecute, args, true);
 		},
 
 		exec: function(cntNumToExecute, args, needToExecuteBody) {
