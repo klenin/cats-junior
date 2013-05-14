@@ -1172,6 +1172,7 @@ define('CommandsMode', ['jQuery',
 
 		updateFunctonNames: function(funcId, oldName, newName) {
 			if (this.getFuncId() ==  funcId) {
+				var funcDef = this.getFuncDef();
 				this.name = newName;
 				this.updateJstreeObject(undefined, funcDef);
 			}
