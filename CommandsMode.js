@@ -578,17 +578,18 @@ define('CommandsMode', ['jQuery',
 			this.updateConditionArguments();
 		},
 		
-		createClone: function (className) {
-			var firstBlock = this.blocks[0].createClone();
-			var secondBlock = undefined;
+		prepareForCloneCreation: function() {
+			dict = {};
+			dict['firstBlock'] = this.blocks[0].createClone();
+			dict['secondBlock'] = undefined;
 			if (this.blocks[1]) {
-				secondBlock = this.blocks[1].createClone();
+				dict['secondBlock'] = this.blocks[1].createClone();
 			}
-			var args = [];
+			dict['args'] = [];
 			for (var i = 0; i < this.arguments.length; ++i) {
-				args.push(this.arguments[i].getExpression())
+				dict['args'].push(this.arguments[i].getExpression())
 			}
-			return new className(this.conditionName, args, firstBlock, secondBlock, this.parent, this.node, this.problem);
+			return dict;
 		},
 
 		setBlocks: function(firstBlock, secondBlock) {
@@ -812,8 +813,9 @@ define('CommandsMode', ['jQuery',
 			this.__base(condName, args, firstBlock, secondBlock, parent, node, problem);
 		},
 			
-		createClone: function() {
-			return this.__base(IfStmt);
+		createClone: function () {
+			var dict = this.prepareForCloneCreation();
+			return new IfStmt(this.conditionName, dict['args'], dict['firstBlock'], dict['secondBlock'], this.parent, this.node, this.problem);
 		},
 
 		getClass: function() {
@@ -862,9 +864,11 @@ define('CommandsMode', ['jQuery',
 			this.__base(condName, args, body, undefined, parent, node, problem);
 		},
 		
-		createClone: function() {
-			return this.__base(WhileStmt);
+		createClone: function () {
+			var dict = this.prepareForCloneCreation();
+			return new WhileStmt(this.conditionName, dict['args'], dict['firstBlock'], this.parent, this.node, this.problem);
 		},
+
 
 		getClass: function() {
 			return 'while';
