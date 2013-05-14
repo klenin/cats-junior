@@ -39,7 +39,7 @@ define('CommandsMode', ['jQuery',
 		executeOneStep: function(cntNumToExecute, args){
 			if (cntNumToExecute > 0 && !this.isFinished()) {
 				if (!this.isStarted()) {
-					this.updateInterface('START_COMMAND_EXECUTION');
+					this.updateInterface('START_EXECUTION');
 				}
 				if (this.problem.needToHighlightCommand(this)) {
 					this.highlightOn();
@@ -85,10 +85,6 @@ define('CommandsMode', ['jQuery',
 				case 'START_EXECUTION':
 					break;
 				case 'FINISH_EXECUTION':
-					break;
-				case 'START_COMMAND_EXECUTION':
-					break;
-				case 'STOP_COMMAND_EXECUTION':
 					break;
 			}
 		},
@@ -444,7 +440,7 @@ define('CommandsMode', ['jQuery',
 			if (!this.isFinished()) {
 				if (!this.isStarted() || this.body.isFinished()) {
 					if (!this.isStarted()) {
-						this.updateInterface('START_COMMAND_EXECUTION');
+						this.updateInterface('START_EXECUTION');
 					}
 					else {
 						this.body.setDefault();
@@ -1131,7 +1127,7 @@ define('CommandsMode', ['jQuery',
 		executeOneStep: function(cntNumToExecute, args){
 			if (cntNumToExecute > 0 && !this.isFinished()) {
 				if (!this.isStarted()) {
-					this.updateInterface('START_COMMAND_EXECUTION');
+					this.updateInterface('START_EXECUTION');
 					if (this.problem.needToHighlightCommand(this)) {
 						this.highlightOn();
 					}

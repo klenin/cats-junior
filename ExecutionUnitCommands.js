@@ -1,9 +1,11 @@
 define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'], function(){
 
 	var CommandArgument = $.inherit({
-		__constructor: function(){
+		__constructor: function(expression, arguments, argumentValues, problem){
 			this.domObject = undefined;
-			this.value = undefined;
+			this.arguments = arguments ? arguments.clone() : [];
+			this.argumentValues = argumentValues ? argumentValues : {};
+			this.problem = problem;
 		},
 
 		initializeArgumentDomObject: function(command, index) {
@@ -29,11 +31,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		updateInterface: function(newState){
 			switch (newState) {
 				case 'START_EXECUTION':
-				case 'START_COMMAND_EXECUTION':
 					$(this.domObject).attr('disabled', 'disabled');
 					break;
 				case 'FINISH_EXECUTION':
-				case 'FINISH_COMMAND_EXECUTION':
 					$(this.domObject).removeAttr('disabled');
 					break;
 			}
@@ -42,19 +42,21 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		setDefault: function(){
 			$(this.domObject).removeAttr('disabled');
 		},
+
+		getExpression: function() {
+			return this.expression;
+		},
 	});
 	
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
-		__constructor : function(options, expression, problem) {
+		__constructor : function(options, expression, arguments, argumentValues, problem) {
 			this.options = options.clone();
-			this.__base();
+			this.__base(expression, arguments, argumentValues, problem);
 			this.expression = expression != undefined ? this.options[0][0] : expression;
-			this.problem = problem;
-			this.arguments = [];
 		},
 		
 		clone: function() {
-			return new CommandArgumentSelect(this.options, this.expression, this.problem);
+			return new CommandArgumentSelect(this.options, this.expression, this.arguments, this.argumentValues, this.problem);
 		},
 
 		generateDomObject: function(prev, callback, problem, value) {
@@ -92,7 +94,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		findValue: function(value) {
-			this.checkIntegrity();
 			for (var i = 0; i < this.options.length; ++i) {
 				if (this.options[i][0] == value || this.options[i][1] == value) {
 					return '\"' + this.options[i][0] + '\"';
@@ -103,10 +104,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		addArguments: function(args, clear) {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			this.checkIntegrity();
 			if (clear) {
 				$(this.domObject).children(':gt(' + (this.options.length - 1) + ')').remove();
 				this.arguments = [];
@@ -118,34 +115,12 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 		},
 
-		checkIntegrity: function() {
-			if ($(this.domObject).children('option:selected').val() != this.expression) {
-				//throw 'Integrity error!';
-			}
-		},
-
 		setValue: function(value, afterDomCreation) {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			this.checkIntegrity();
 			this.expression = value;
 			$(this.domObject).val(value);
 		},
-
-		getExpression: function() {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			this.checkIntegrity();
-			return this.expression;
-		},
-		
+	
 		getValue: function(args) {
-			if (!this.domObject) {
-				throw 'Select isn\'t initialized';
-			}	
-			this.checkIntegrity();
 			var value = this.expression;
 			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
@@ -166,9 +141,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.maxValue = maxValue;
 			this.isCounter = false;
 			this.expression = expression != undefined ? expression : minValue;
-			this.arguments = arguments ? arguments.clone() : [];
-			this.argumentValues = argumentValues ? argumentValues : {};
-			this.problem = problem;
 		},
 
 		initializeArgumentDomObject: function(command, index) {
@@ -278,10 +250,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		setValue: function(value, afterDomCreation) {
 			this.setExpression(value);
 		},
-	
-		getExpression: function() {
-			return this.expression;
-		},
 
 		getExpressionValueByArgs: function(args) {
 			var value = this.expression;
@@ -312,28 +280,13 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.showBtn();
 		},
 
-		startExecution: function(current) {
-			/*var currentValue = this.getValue(this.argumentValues);
-			if (!isInt(currentValue) || currentValue < 0) {
-				throw 'Некорректный счетчик';
-			}*/
-
-			this.hideBtn();
-		},
-
-		stopExecution: function() {
-			this.showBtn();
-		},
-
 		updateInterface: function(newState){
 			switch (newState) {
-				case 'START_COMMAND_EXECUTION':
 				case 'START_EXECUTION':
-					this.startExecution();
+					this.hideBtn();
 					break;
-				case 'STOP_COMMAND_EXECUTION':
 				case 'FINISH_EXECUTION':
-					this.stopExecution();
+					this.showBtn();
 					break;
 			}
 		},
@@ -408,6 +361,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	var CommandArgumentInput = $.inherit(CommandArgument, {
 		__constructor : function() {
 			this.__base();
+			this.value = undefined;
 		},
 		
 		clone: function() {
@@ -429,9 +383,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		setValue: function(value, afterDomCreation) {
-			if (!this.domObject) {
-				throw 'Input isn\'t initialized';
-			}	
 			if (value == '""') {
 				value = '';
 			}
@@ -451,17 +402,10 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		getExpression: function() {
-			if (!this.domObject) {
-				throw 'Input isn\'t initialized';
-			}	
-
 			return this.returnValue(this.value);
 		},
 		
 		getValue: function(args) {
-			if (!this.domObject) {
-				throw 'Input isn\'t initialized';
-			}	
 			var value = $(this.domObject).val();
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
