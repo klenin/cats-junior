@@ -574,7 +574,7 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1] = secondBlock;
 			}
 			this.blockToExecute = undefined;
-			this.setArgumentPossibleValues();
+			this.setArgumentPossibleValues(undefined, args);
 			this.updateConditionArguments();
 		},
 		
@@ -733,7 +733,7 @@ define('CommandsMode', ['jQuery',
 			this.__self.generateArgumentsDom($(this.node), this.arguments, this.problem, true);*/
 		},
 
-		setArgumentPossibleValues: function(args) {
+		setArgumentPossibleValues: function(args, values) {
 			if (!args) {
 				var funcDef = this.getFunction();
 				if (funcDef) {
@@ -743,6 +743,9 @@ define('CommandsMode', ['jQuery',
 			if (args) {
 				for (var i = 2; i < this.arguments.length; ++i) {
 					this.arguments[i].addArguments(args, true);
+					if (values && values[i]) {
+						this.arguments[i].setValue(values[i]);
+					}
 				}
 			}
 		},
