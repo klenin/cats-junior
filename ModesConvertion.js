@@ -260,7 +260,7 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 					if (!conditionProperties) {
 						throw 'Некорректное имя функции сравнения';
 					}
-					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], [dict['testName']].dict['args'], undefined, block, undefined, problem)
+					var whileStmt = new CommandsMode.WhileStmt(dict['testName'], [dict['testName']].concat(dict['args']), undefined, block, undefined, problem)
 					var body = convertTreeToCommands(commands[i].body, whileStmt, problem);
 					if (!body)
 						return undefined;
