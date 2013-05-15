@@ -1,0 +1,522 @@
+[
+{
+"id": 898354,
+"account_id": 898352,
+"login": "team746",
+"name": "Дорофеева Арина",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898357,
+"account_id": 898355,
+"login": "team747",
+"name": "Красильников Денис",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898360,
+"account_id": 898358,
+"login": "team748",
+"name": "Ефремова Ульяна",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898363,
+"account_id": 898361,
+"login": "team749",
+"name": "Левин Дмитрий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898525,
+"account_id": 898523,
+"login": "team796",
+"name": "Горикова Снежана",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898366,
+"account_id": 898364,
+"login": "team750",
+"name": "Симененко Лёня",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898369,
+"account_id": 898367,
+"login": "team751",
+"name": "Соловьёва Тоня",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898372,
+"account_id": 898370,
+"login": "team752",
+"name": "Шибалова Ксения",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898375,
+"account_id": 898373,
+"login": "team753",
+"name": "Журавлёв Максим",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898378,
+"account_id": 898376,
+"login": "team754",
+"name": "Чугуевская Вика",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898381,
+"account_id": 898379,
+"login": "team755",
+"name": "Алдашина Дарья",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898384,
+"account_id": 898382,
+"login": "team756",
+"name": "Быканов Владислав",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898387,
+"account_id": 898385,
+"login": "team757",
+"name": "Меренков Костя",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898390,
+"account_id": 898388,
+"login": "team758",
+"name": "Рыбалко Дарья",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898393,
+"account_id": 898391,
+"login": "team759",
+"name": "Серов Василий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898396,
+"account_id": 898394,
+"login": "team760",
+"name": "Федосов Григлрий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898399,
+"account_id": 898397,
+"login": "team761",
+"name": "Таран Тимофей",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898402,
+"account_id": 898400,
+"login": "team762",
+"name": "Чешко Илья",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898405,
+"account_id": 898403,
+"login": "team763",
+"name": "Дравгелис Виталий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898522,
+"account_id": 898520,
+"login": "team795",
+"name": "Владыко Иван",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898528,
+"account_id": 898526,
+"login": "team797",
+"name": "Манахова Марина",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898465,
+"account_id": 898463,
+"login": "team783",
+"name": "Борисенко Павел",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898408,
+"account_id": 898406,
+"login": "team764",
+"name": "Роговой Влад",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898411,
+"account_id": 898409,
+"login": "team765",
+"name": "Таранов Данил",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898414,
+"account_id": 898412,
+"login": "team766",
+"name": "Дзюба Александр",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898417,
+"account_id": 898415,
+"login": "team767",
+"name": "Лесогоров Михаил",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898420,
+"account_id": 898418,
+"login": "team768",
+"name": "Лещишин Кирилл",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898423,
+"account_id": 898421,
+"login": "team769",
+"name": "Рабученков Ярослав",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898426,
+"account_id": 898424,
+"login": "team770",
+"name": "Шарунов Александр",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898429,
+"account_id": 898427,
+"login": "team771",
+"name": "Завражин Дмитрий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898432,
+"account_id": 898430,
+"login": "team772",
+"name": "Степашкин Кирилл",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898435,
+"account_id": 898433,
+"login": "team773",
+"name": "Чмырь Александр",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898438,
+"account_id": 898436,
+"login": "team774",
+"name": "Сидорова Дарья",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898441,
+"account_id": 898439,
+"login": "team775",
+"name": "Белов Алесей",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898444,
+"account_id": 898442,
+"login": "team776",
+"name": "Кирпа Даниил",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898447,
+"account_id": 898445,
+"login": "team777",
+"name": "Трухин Егор",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898450,
+"account_id": 898448,
+"login": "team778",
+"name": "Фадеев Илья",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898453,
+"account_id": 898451,
+"login": "team779",
+"name": "ЧунаевДмитри",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898456,
+"account_id": 898454,
+"login": "team780",
+"name": "Кабанов Иван",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898459,
+"account_id": 898457,
+"login": "team781",
+"name": "Кустов Анатолий",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898462,
+"account_id": 898460,
+"login": "team782",
+"name": "Толмачёв Даниил",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898468,
+"account_id": 898466,
+"login": "team784",
+"name": "Диканов Семен",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898471,
+"account_id": 898469,
+"login": "team785",
+"name": "Обухов Владислав",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898474,
+"account_id": 898472,
+"login": "team786",
+"name": "Якимов Роман",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898477,
+"account_id": 898475,
+"login": "team787",
+"name": "Аникин Владислав",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898480,
+"account_id": 898478,
+"login": "team788",
+"name": "Геращенко Александр",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898483,
+"account_id": 898481,
+"login": "team789",
+"name": "Гершук Владислав",
+"ooc": 1,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898486,
+"account_id": 898484,
+"login": "team790",
+"name": "Гурьянов Андрей",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898489,
+"account_id": 898487,
+"login": "team791",
+"name": "Козырь Денис",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898492,
+"account_id": 898490,
+"login": "team792",
+"name": "Колганов Владимир",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898495,
+"account_id": 898493,
+"login": "team793",
+"name": "Кравченко Михаил",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+},
+{
+"id": 898498,
+"account_id": 898496,
+"login": "team794",
+"name": "Дзема Артем",
+"ooc": 0,
+"remote": 0,
+"virtual": 0,
+"jury": 0
+}
+]

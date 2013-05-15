@@ -1,0 +1,52 @@
+{
+
+"contests": [
+
+{
+    "id": 897578,
+    "name": "Весенний турнир 2013, основы алгоритмизации ",
+    "start_date": "26.04.2013 13:30",
+    "finish_date": "26.04.2013 16:30",
+    "registration": "none",
+    "is_official": 0
+}
+,
+{
+    "id": 852805,
+    "name": "Весенний турнир 2012, основы алгоритмизации",
+    "start_date": "05.05.2012 10:00",
+    "finish_date": "05.05.2012 18:00",
+    "registration": "none",
+    "is_official": 1
+}
+,
+{
+    "id": 794651,
+    "name": "Весенний турнир 2011, основы алгоритмизации",
+    "start_date": "14.05.2011 12:15",
+    "finish_date": "14.05.2011 15:40",
+    "registration": "none",
+    "is_official": 1
+}
+,
+{
+    "id": 791725,
+    "name": "Обучение",
+    "start_date": "22.04.2011 16:24",
+    "finish_date": "22.05.2011 16:24",
+    "registration": "none",
+    "is_official": 0
+}
+,
+{
+    "id": 791634,
+    "name": "Test",
+    "start_date": "22.04.2011 09:50",
+    "finish_date": "15.05.2013 00:00",
+    "registration": "none",
+    "is_official": 0
+}
+
+]
+
+}

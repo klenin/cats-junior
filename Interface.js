@@ -484,8 +484,8 @@ define('Interface', ['jQuery',
 		$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
 		$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
 		$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-			'<iframe id = "results" src = "' + resultsUrl + currentServer.getCid() + ';" class = "results"></iframe></td></tr></table>');
-		$('#refreshTable').click(function() {$('#results').prop('src', resultsUrl + currentServer.getCid())});
+			'<iframe id = "results" src = "' + currentServer.getResultsUrl()+  '" class = "results"></iframe></td></tr></table>');
+		$('#refreshTable').click(function() {$('#results').prop('src', currentServer.getResultsUrl())});
 			$('#tabs').tabs('select', 0);
 		for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
 		  while($('#ui-tabs-' + i).length){

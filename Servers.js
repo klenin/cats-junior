@@ -197,14 +197,102 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 					},
 					'text');
 			}
+		},
+
+		getResultsUrl: function() {
+			result = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/cats/main.pl?f=rank_table_content;cid=';
+			result += this.getCid();
+			if (this.getSid()) {
+				result += ';sid=' + this.getSid();
+			}
 		}
 	});
 
+	var LocalServer = $.inherit(Server, {
+		__constructor: function() {
+			this.url = 'localServer.php';
+			this.dataType = 'json';
+			this.defaultPass = '12345';
+			this.defaultCid = 791634;
+		},
+
+		submit: function(submitStr, problem_id, badSidCallback) {
+			CallServer.callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', submitStr, function(data){
+				alert(data.message ? data.message : 'Решение отослано на проверку');
+			});  
+		},
+
+		sendRequest: function(url, data, callback) {
+			$.ajax({
+				async: false,
+				url: url,
+				data: data,
+				dataType: 'json',
+				success: function(data){
+					//data = data.replace(new RegExp( "\t", "g" ), ' ');
+					//var d = $.evalJSON(data);
+					callback(data);
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					if(url.search('rank_table_content') == -1){
+						alert('Ошибка подключения к серверу');
+					}
+					console.error(jqXHR, textStatus, errorThrown);
+				}
+			});
+		},
+
+		login: function(userLogin, userPass, callback) {
+			this.sendRequest(this.url, '&action=login', function(data){
+			});
+		},
+
+		logout: function(callback) {
+			this.sendRequest(this.url, '&action=logout', function(data){
+			});
+		},
+
+		getUsersList: function(callback) {
+			this.sendRequest(this.url, '&action=getUsersList', function(data){
+				callback(data);
+			});
+		},
+
+		getContestsList: function(callback) {
+			this.sendRequest(this.url, '&action=getContestsList', function(data){
+				callback(data);
+			});
+		},
+
+		getProblems: function(callback) {
+			this.sendRequest(this.url, '&action=getProblems', function(data){
+				callback(data);
+			});
+		},
+
+		getConsoleContent: function(callback){
+			this.sendRequest(this.url, '&action=getConsoleContent', function(data){
+				callback(data);
+			});
+		},
+
+		getCode: function(rid, callback) {
+			this.sendRequest(this.url, '&action=getCode', function(data){
+				callback(data);
+			});
+		},
+
+		getResultsUrl: function() {
+			return 'results.html';
+		}
+	});
+	
 	return {
 		User: User,
 		Session: Session,
 		Server: Server,
-		CATS: CATS
+		CATS: CATS,
+		LocalServer: LocalServer
 	};
 });
 

@@ -2,7 +2,6 @@ var curProblem;
 var problems = [];
 var users = [];
 var cmdId; // current number for added command(generated for dynamic creating of sortable elements)
-var resultsUrl = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/cats/main.pl?f=rank_table_content;cid=';
 var	currentServer = undefined;
 var visited = []; // if tab have already been visited -- for proper tabs displaying
 var contests;
