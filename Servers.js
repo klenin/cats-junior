@@ -205,6 +205,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			if (this.getSid()) {
 				result += ';sid=' + this.getSid();
 			}
+			return result;
 		}
 	});
 

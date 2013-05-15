@@ -439,13 +439,11 @@ define('CommandsMode', ['jQuery',
 		executeOneStep: function(cntNumToExecute, args) {
 			if (!this.isFinished()) {
 				if (!this.isStarted() || this.body.isFinished()) {
-					if (!this.isStarted()) {
-						this.updateInterface('START_EXECUTION');
-					}
-					else {
+					if (this.isStarted()) {
 						this.body.setDefault();
-						this.updateInterface('START_EXECUTION');
 					}
+					this.setArgumentValues(args);
+					this.updateInterface('START_EXECUTION');
 					--cntNumToExecute;
 					this.started = true;
 					if (this.problem.needToHighlightCommand(this)) {
@@ -524,7 +522,10 @@ define('CommandsMode', ['jQuery',
 		},
 	
 		setArguments: function(args) {
-			
+			this.__base(args);
+			if (this.body) {
+				this.body.setArguments(args);
+			}
 		},
 		
 		updateFunctonNames: function(funcId, oldName, newName) {
