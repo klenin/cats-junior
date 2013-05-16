@@ -449,28 +449,17 @@ define('Pourer',
 					if (!checkNumber(src) || !checkNumber(dest)) {
 						throw 'Некорректный аргумент';
 					}
-					try {
-						
-						if (src == dest) { //is it an error?
-							return;
-						}
-						
-						if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
-							return;
-						}
-
-						var delta = Math.min(this.vessels[dest].capacity - this.vessels[dest].filled, this.vessels[src].filled);
-						this.vessels[src].pourTo(delta);
-						this.vessels[dest].pourFrom(delta);
-
-						/*if (this.problem.speed) {
-							this.vessels[src].draw();
-							this.vessels[dest].draw();
-						}*/
+					if (src == dest) { //is it an error?
+						return;
 					}
-					catch (err) {
-						throw 'Некорректная команда';
+					
+					if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
+						return;
 					}
+
+					var delta = Math.min(this.vessels[dest].capacity - this.vessels[dest].filled, this.vessels[src].filled);
+					this.vessels[src].pourTo(delta);
+					this.vessels[dest].pourFrom(delta);
 				},
 
 				pourOut: function(args) {
@@ -478,13 +467,8 @@ define('Pourer',
 					if (!checkNumber(vessel)) {
 						throw 'Некорректный аргумент';
 					}
-					try {
 						
-						this.vessels[vessel].pourOut();
-					}
-					catch (err) {
-						throw 'Некорректная команда';
-					}
+					this.vessels[vessel].pourOut();
 					
 				},
 
@@ -494,13 +478,7 @@ define('Pourer',
 						throw 'Некорректный аргумент';
 					}
 
-					try {
-
-						this.vessels[vessel].fill();
-					}
-					catch (err) {
-						throw 'Некорректная команда';
-					}
+					this.vessels[vessel].fill();
 				},
 
 				gameOver: function() {
