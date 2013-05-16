@@ -181,8 +181,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				self.onSpinImgClick(vector);
 			});
 
-			$(this.domObject).children('.spinExpression').off('click').on('change', function() {
-				self.onUpdateTotal();
+			$(this.domObject).children('.spinExpression').off('input').on('input', function() {
+				var newValue = $(this).val();
+				if (checkNumber(newValue)) {
+					self.onUpdateTotal(parseInt($(this).val()));
+				}
+				else {
+					self.onUpdateTotal($(this).val());
+				}
 			});
 		},
 
