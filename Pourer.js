@@ -126,7 +126,7 @@ define('Pourer',
 		}
 
 		function compare(args){
-			if (args.length != 4) {
+			if (args.length != 4 || !checkNumber(args[1]) || !checkNumber(args[3])) {
 				throw 'Некорректный список аргументов';
 			}
 
@@ -163,6 +163,10 @@ define('Pourer',
 		}
 
 		function compare_handler(vessel, comparator, value){
+			if (!checkNumber(vessel) || !checkNumber(value)) {
+				throw 'Некорректный аргумент';
+			}
+
 			vessel -= 1;
 			comparator = comparator.v;
 
@@ -187,7 +191,7 @@ define('Pourer',
 		}
 
 		function checkFilled(args){
-			if (args.length != 4) {
+			if (args.length != 4 || !checkNumber(args[1]) || !checkNumber(args[3])) {
 				throw 'Некорректный список аргументов';
 			}
 
@@ -226,6 +230,9 @@ define('Pourer',
 		}
 
 		function checkFilledHandler(first, comparator, second){
+			if (!checkNumber(first) || !checkNumber(second)) {
+				throw 'Некорректный аргумент';
+			}
 			first -= 1;
 			comparator = comparator.v;
 			second -= 1;
@@ -439,8 +446,11 @@ define('Pourer',
 				pour: function(args) {
 					var src = args[0] - 1;
 					var dest = args[1] - 1;
-
+					if (!checkNumber(src) || !checkNumber(dest)) {
+						throw 'Некорректный аргумент';
+					}
 					try {
+						
 						if (src == dest) { //is it an error?
 							return;
 						}
@@ -465,7 +475,11 @@ define('Pourer',
 
 				pourOut: function(args) {
 					var vessel = args[0] - 1;
+					if (!checkNumber(vessel)) {
+						throw 'Некорректный аргумент';
+					}
 					try {
+						
 						this.vessels[vessel].pourOut();
 					}
 					catch (err) {
@@ -476,7 +490,12 @@ define('Pourer',
 
 				fill: function(args) {
 					var vessel = args[0] - 1;
+					if (!checkNumber(vessel)) {
+						throw 'Некорректный аргумент';
+					}
+
 					try {
+
 						this.vessels[vessel].fill();
 					}
 					catch (err) {
