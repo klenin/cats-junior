@@ -34,20 +34,24 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 						conditionArguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + (j + 2) + ')')));
 				}	
 
-				var block1 = commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
+				var testName = conditionProperties.name;
+				var newCommand = type == 'while' ? 
+					new CommandsMode.WhileStmt(testName, args, undefined, block, node, problem) : 
+					new CommandsMode.IfStmt(testName, args, undefined, undefined, block, node, problem)
+
+				var block1 = commands[i].children ? (convert(commands[i].children, newCommand, problem)) : new CommandsMode.Block([], newCommand, problem);
 				var block2 = undefined;
 				if (type == 'ifelse'){
 					if (commands[++i].children){
-						block2 = convert(commands[i].children, block, problem);
+						block2 = convert(commands[i].children, newCommand, problem);
 					}
 					else{
-						block2 = new CommandsMode.Block([], block, problem);
+						block2 = new CommandsMode.Block([], newCommand, problem);
 					}
 				}
-				var testName = conditionProperties.name;
-				block.pushCommand(type == 'while' ? 
-					new CommandsMode.WhileStmt(testName, args, block1, block, node, problem) : 
-					new CommandsMode.IfStmt(testName, args, block1, block2, block, node, problem));
+				
+				newCommand.setBlocks(block1, block2);
+				block.pushCommand(newCommand);
 			}
 			else if (type == 'for')		{
 				var command = CommandsMode.ForStmt.constructCommand();
@@ -55,8 +59,10 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				for (var j = 0; j < command.arguments.length; ++j) {
 					argValues.push(command.arguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
 				}
-				var block1 =  commands[i].children ? (convert(commands[i].children, block, problem)) : new CommandsMode.Block([], block, problem);
-				block.pushCommand(new CommandsMode.ForStmt(block1, argValues, block, node, problem));
+				var newCommand = new CommandsMode.ForStmt(undefined, argValues, block, node, problem)
+				var block1 =  commands[i].children ? (convert(commands[i].children, newCommand, problem)) : new CommandsMode.Block([], newCommand, problem);
+				newCommand.setBody(block1);
+				block.pushCommand(newCommand);
 			}
 			else if (type == 'funccall'){
 				var args = [];

@@ -580,7 +580,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		prepareForCloneCreation: function() {
-			dict = {};
+			var dict = {};
 			dict['firstBlock'] = this.blocks[0].createClone();
 			dict['secondBlock'] = undefined;
 			if (this.blocks[1]) {
