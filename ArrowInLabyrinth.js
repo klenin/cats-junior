@@ -536,38 +536,18 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				this.commands['wait'] = new ExecutionUnitCommands.ExecutionUnitCommand('wait', wait, args);
 			},
 
-			generateCommands: function(div) {
-				for (var i = 0; i < this.data.commands.length; ++i) {
-					if (!this.__self.cmdClassToName[this.data.commands[i]]) {
-						throw 'Команда ' + this.data.commands[i] + ' не поддерживается';
-					}
-					var divclass = this.data.commands[i];
-					var j = this.problem.tabIndex;
-					$(div).append('<td>' + 
-									'<div id="' + divclass + j + '" class="' + divclass + '  jstree-draggable" type = "' + 
-										divclass + '" rel = "' + divclass + '" title = "' + this.__self.cmdClassToName[divclass] + '">' + 
-									'</div>' + 
-								'</td>');
-
-					$('#' + divclass + j).bind('dblclick', function(dclass, dname, problem){
-						return function() {
-							if ($(this).prop('ifLi')) {
-								return;
-							}
-							$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
-									{'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname}, function(newNode){
-									InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
-								}, dclass != 'funcdef'); 
-							problem.updated();
-						}
-					}(divclass, this.__self.cmdClassToName[divclass], this.problem));
-				}
-			},
-
 			getCommandName: function(command) {
 				return this.__self.cmdClassToName[command];
 			},
 			
+			getAllowedCommands: function() {
+				return this.data.commands;
+			},
+
+			getCommandNames: function() {
+				return this.__self.cmdClassToName;
+			},
+
 			initLabyrinth: function() {
 				this.life = this.data.startLife;
 				this.points = this.data.startPoints;

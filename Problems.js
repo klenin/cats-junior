@@ -67,6 +67,28 @@ function() {
 			this.executionUnit.onTabSelect();
 		},
 
+		generateCommand: function(className, commandName, container) {
+			$(container).append('<td>' +
+				'<div id="' + className + this.tabIndex + '" class="' + className + '  jstree-draggable" type = "' + className + 
+					'" rel = "' + className + '" title = "' + commandName + '">' + '</div>' + '</td>');
+
+			var self = this;
+
+			$('#' + className + this.tabIndex).bind('dblclick', function(dclass, dname, problem) {
+				return function() {
+					if ($(this).prop('ifLi')) {
+						return;
+					}
+					$("#jstree-container" + problem.tabIndex).jstree("create", false, "last", {
+						'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname
+					}, function(newNode) {
+						InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
+					}, dclass != 'funcdef');
+					problem.updated();
+				}
+			}(className, commandName, self));
+		},
+
 		generateCommands: function() {
 			//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
 
@@ -82,30 +104,14 @@ function() {
 					}
 				}
 
-				var divclass = classes[i];
-				$(tr).append('<td>' +
-					'<div id="' + divclass + this.tabIndex + '" class="' + divclass + '  jstree-draggable" type = "' + divclass + '" rel = "' + divclass + '" title = "' + cmdClassToName[divclass] + '">' +
-					'</div>' +
-					'</td>');
-
-				var self = this;
-
-				$('#' + divclass + this.tabIndex).bind('dblclick', function(dclass, dname, problem) {
-					return function() {
-						if ($(this).prop('ifLi')) {
-							return;
-						}
-						$("#jstree-container" + problem.tabIndex).jstree("create", false, "last", {
-							'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname
-						}, function(newNode) {
-							InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
-						}, dclass != 'funcdef');
-						problem.updated();
-					}
-				}(divclass, cmdClassToName[divclass], self));
+				this.generateCommand(classes[i], cmdClassToName[classes[i]], tr);				
 			}
 
-			this.executionUnit.generateCommands(tr);
+			var executionUnitCommands = this.executionUnit.getCommandsToBeGenerated();
+			for (var i = 0; i < executionUnitCommands.length; ++i) {
+				var command = executionUnitCommands[i];
+				this.generateCommand(command.commandClass, command.commandName, tr);
+			}
 		},
 
 		getCommandName: function(command) {
@@ -271,7 +277,6 @@ function() {
 
 					}
 				}++this.executedCommandsNum;
-				//this.executionUnit.draw();
 				if (CodeMode.getCurBlock() >= 0) {
 					var b = CodeMode.getCurBlock();
 					while (CodeMode.getScope().blocks[b].funcdef)++b;
@@ -422,8 +427,6 @@ function() {
 			for (var i = 0; i < btns.length; ++i)
 			$('#btn_' + btns[i] + this.tabIndex).button('disable');
 			$('#btn_stop' + this.tabIndex).button('enable');
-			//$('#jstree-container' + this.tabIndex).sortable('enable');
-			if (!this.speed) this.notSpeed();
 			this.playing = false;
 			this.hideFocus();
 		},
@@ -431,15 +434,6 @@ function() {
 		nextCmd: function() {
 			if (this.speed) this.changeProgressBar();
 			return true;
-		},
-
-		notSpeed: function() { //check! looks like outdated
-			this.speed = 100;
-			this.setCounters(0, true);
-			var lastCmd = (this.divI() >= this.list().length) ? $('#jstree-container' + this.tabIndex + ' > li:last').prop('id') : this.divN();
-			if (!isCmdHighlighted(lastCmd)) lastCmd.highlightOn();
-			this.executionUnit.draw();
-			this.changeProgressBar();
 		},
 
 		nextStep: function(cnt, i) {

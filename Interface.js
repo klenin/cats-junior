@@ -268,7 +268,6 @@ define('Interface', ['jQuery',
 		else {
 			$.unblockUI();
 			problem.updated();
-			problem.executionUnit.draw();
 		}
 	}
 

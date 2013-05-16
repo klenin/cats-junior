@@ -342,32 +342,12 @@ define('Pourer',
 					this.dead = false;
 				},
 
-				generateCommands: function(div) {
-					for (var i = 0; i < this.data.commands.length; ++i) {
-						if (!this.__self.cmdClassToName[this.data.commands[i]]) {
-							throw 'Команда ' + this.data.commands[i] + ' не поддерживается';
-						}
-						var divclass = this.data.commands[i];
-						var j = this.problem.tabIndex;
-						$(div).append('<td>' + 
-										'<div id="' + divclass + j + '" class="' + divclass + '  jstree-draggable" type = "' + 
-											divclass + '" rel = "' + divclass + '" title = "' + this.__self.cmdClassToName[divclass] + '">' + 
-										'</div>' + 
-									'</td>');
+				getAllowedCommands: function() {
+					return this.data.commands;
+				},
 
-						$('#' + divclass + j).bind('dblclick', function(dclass, dname, problem){
-							return function() {
-								if ($(this).prop('ifLi')) {
-									return;
-								}
-								$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
-										{'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname}, function(newNode){
-										InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
-									}, dclass != 'funcdef'); 
-								problem.updated();
-							}
-						}(divclass, this.__self.cmdClassToName[divclass], this.problem));
-					}
+				getCommandNames: function() {
+					return this.__self.cmdClassToName;
 				},
 
 				onTabSelect: function() {

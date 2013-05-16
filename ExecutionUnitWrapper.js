@@ -16,25 +16,34 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 	return {
 		ExecutionUnitWrapper: $.inherit({
-			__constructor: function(problem, problemData, div, executionUnitName) {
-				this.executionUnit = new executionUnits[executionUnitName](problem, problemData, div);
+			__constructor: function(problem, problemData, container, executionUnitName) {
+				this.executionUnit = new executionUnits[executionUnitName](problem, problemData, container);
 				this.checkExecutionUnit();
-			},
-
-			generateCommands: function(div) {
-				this.checkExecutionUnit();
-				this.executionUnit.generateCommands(div);
-			},
-
-			getCommandName: function(command) {
-				this.checkExecutionUnit();
-				return this.executionUnit.getCommandName(command);
 			},
 
 			checkExecutionUnit: function() {
 				if (!this.executionUnit) {
 					throw "Простейший исполнитель не определен";
 				}
+			},
+
+			getCommandsToBeGenerated: function() {
+				this.checkExecutionUnit();
+				var commands = [];
+				for (className in this.executionUnit.getCommandNames()) {
+					if (!(this.executionUnit.getAllowedCommands() && this.executionUnit.getAllowedCommands().indexOf(className) == -1)) {
+						commands.push({
+							'commandClass': className,
+							'commandName': this.executionUnit.getCommandName(className)
+						});
+					}
+				}
+				return commands;
+			},
+
+			getCommandName: function(command) {
+				this.checkExecutionUnit();
+				return this.executionUnit.getCommandName(command);
 			},
 
 			setDefault: function(dontDraw) {
