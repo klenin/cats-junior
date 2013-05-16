@@ -1,7 +1,6 @@
-define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', 'InterfaceJSTree'], function(){
+define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', function(){
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
-	var InterfaceJSTree = require('InterfaceJSTree');
 	
 	var Message = ShowMessages.Message;
 	

@@ -4,12 +4,11 @@ define('Interface', ['jQuery',
 	'jQueryCookie',
 	'CodeMirrorModule',
 	'Servers',
-	'CallServer',
 	'Problems',
-	'CodeMode',
 	'jQueryTmpl',
 	'ModesConvertion',
-	'Declaration'], function(){
+	'Declaration',
+	'CommandsMode'], function(){
 	var Problems = require('Problems');
 	var ModesConvertion = require('ModesConvertion');
 	var Servers = require('Servers');

@@ -108,20 +108,14 @@ require.config({
 
 	//QUnit.config.autostart = false;
 
-requirejs(['require', 
+requirejs([ 
 	'jQuery', 
 	'jQueryUI', 
+	'jQueryCookie',
 	'Servers', 
 	'Interface', 
-	'CommandsMode',//
 	'InterfaceJSTree', 
-	'jQueryCookie',
-	'CodeMode',
-	'Accordion',
-	'SkMiscEval',
-	'Declaration', 
-	'Accordion',
-	'jQueryTmpl'
+	'Declaration'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');

@@ -2,9 +2,7 @@ define('CommandsMode', ['jQuery',
 	'jQueryUI', 
 	'jQueryInherit',
 	'Misc',
-	'Accordion',
 	'ShowMessages',
-	'Misc',
 	'Exceptions',
 	'ExecutionUnitCommands'], function(){
 	var ShowMessages = require('ShowMessages');
