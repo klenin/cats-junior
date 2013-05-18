@@ -8,13 +8,12 @@ define('Interface', ['jQuery',
 	'jQueryTmpl',
 	'ModesConvertion',
 	'Declaration',
-	'CommandsMode'], function(){
+	'CommandsMode',
+	'Accordion'], function(){
 	var Problems = require('Problems');
 	var ModesConvertion = require('ModesConvertion');
 	var Servers = require('Servers');
 	var CommandsMode = require('CommandsMode');
-	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
-
 
 	function login(callback, firstTrying){
 		currentServer.setSid(undefined);
@@ -60,22 +59,14 @@ define('Interface', ['jQuery',
 
 	function chooseUser(){
 		currentServer.setSid(undefined);
-		//logined = false;
-		var user = $('#userListDiv > input:checked');
-		name = user[0].defaultValue;
-		for (var i = 0; i < users.length; ++i){
-			if (name == users[i].name){
-				var curUser = new Servers.User(users[i].login, '', users[i].jury, users[i].name, users[i].id);
-				if ($.cookie('passwd')) {
-					curUser.passwd = $.cookie('passwd');
-				}
-				currentServer.setUser(curUser);
-				login(showNewUser, true);
-				break;
+		currentServer.setUserByName($('#userListDiv > input:checked').first()[0].defaultValue, function(newUser){
+			if ($.cookie('passwd')) {
+				newUser.passwd = $.cookie('passwd');
 			}
-		}
-		$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
-		$.cookie('userId', user.prop('id'));
+			login(showNewUser, true);
+			$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
+			$.cookie('userId', $('#userListDiv > input:checked').prop('id'));
+		});
 	}
 
 	function changeUser(){
@@ -91,22 +82,11 @@ define('Interface', ['jQuery',
 		$.cookie('userId', undefined);
 		$.cookie('passwd', undefined);
 
-		currentServer.getUsersList(function(data) {
+		currentServer.usersListRequest(function(data) {
 			if (!data)
 				return;
 			currentServer.setUser(undefined);
-			users = [];
-			for (var i = 0; i < data.length; ++i){
-				if (data[i].ooc == 1)
-					continue;
-				users.push({
-					'login': data[i].login, 
-					'name': data[i].name, 
-					'jury': data[i].jury, 
-					'passwd': currentServer.defaultPass,
-					'id': data[i].account_id,
-				}); 
-			}
+			var users = currentServer.getUsers();
 			$('#userListDiv').empty();
 			if (users.length > 0){
 				$('#userListDiv').append('<p>Выберите свое имя из списка</p>');
@@ -127,7 +107,9 @@ define('Interface', ['jQuery',
 
 	function submit(submitStr, problem_id){
 		currentServer.submit(submitStr, problem_id, function(){
-			login(function() {submit(submitStr, problem_id)}, true);
+			login(function() {
+				submit(submitStr, problem_id);
+			}, true);
 		})
 	}
 
@@ -199,21 +181,20 @@ define('Interface', ['jQuery',
 			$(div).dialog('open');
 			return true;
 		});
-	}
+	};
 
 	function getContests(){
-		currentServer.getContestsList(function(data) { ////
+		currentServer.contestsListRequest(function(data) { ////
 			if (!data)
 				return;
-			contests = data.contests;
+			var contests = currentServer.getContests();
 			for (var i = 0; i < contests.length; ++i){
 					$('#contestsList').append(
-					'<input type="radio" name="contest_name" id="contest_name_' + i + '" value="' + contests[i].name + '" ' + 
+					'<input type="radio" name="contest_name" id="contest_name_' + i + '" value="' + contests[i].getName() + '" ' + 
 					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="contest_name_' + i + '">' 
-					+ contests[i].name + '</label><br>');
+					+ contests[i].getName()  + '</label><br>');
 			}
-			currentServer.setCid(contests[0].id);
-			document.title = contests[0].name;
+			document.title = currentServer.getContest().getName();
 		});
 	}
 
@@ -228,16 +209,11 @@ define('Interface', ['jQuery',
 		var contest = $('#contestsList > input:checked');
 		name = contest[0].defaultValue;
 		document.title = name;
-		for (var i = 0; i < contests.length; ++i){
-			if (name == contests[i].name){
-				//if (cid != contests[i].id){
-					currentServer.setCid(contests[i].id);
-					fillTabs();
-				//}
-				break;
-			}
-		}
-		$.cookie('contestId', contest.prop('id'));
+		currentServer.setContestByName(name, function(contest){
+			$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
+			fillTabs();
+		});
+		
 	}
 
 	function onAddWatchClick()
@@ -610,6 +586,10 @@ define('Interface', ['jQuery',
 	    }
 	 
 	}
+
+	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
+	var btnTitles = ['ÐŸÑ€Ð¾Ð¸Ð³Ñ€Ð°Ñ‚ÑŒ', 'ÐŸÐ°ÑƒÐ·Ð°', 'Ð¡Ñ‚Ð¾Ð¿', 'ÐŸÑ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð¡Ð»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð’ ÐºÐ¾Ð½ÐµÑ†'];
+	var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
 
 	return {
 		login: login, 

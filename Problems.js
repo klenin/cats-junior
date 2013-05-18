@@ -8,7 +8,8 @@ define('Problems', ['jQuery',
 	'CodeMode',
 	'ShowMessages',
 	'Declaration',
-	'ExecutionUnitCommands'],
+	'ExecutionUnitCommands',
+	'Accordion'],
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
@@ -131,8 +132,9 @@ function() {
 		},
 
 		setDefault: function(f) {
-			for (var i = 0; i < btns.length; ++i)
-			$('#btn_' + btns[i] + this.tabIndex).button('enable');
+			for (var i = 0; i < btns.length; ++i){
+				$('#btn_' + btns[i] + this.tabIndex).button('enable');
+			}
 			//$('#jstree-container' + this.tabIndex).sortable('enable');
 			/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 			 */
@@ -847,6 +849,19 @@ function() {
 			return this.executionUnit.getConditionProperties(condName);
 		}
 	});
+
+	var cmdClassToName = {
+		'block': 'Block',
+		'if': 'Ð•ÑÐ»Ð¸',
+		'ifelse': 'Ð•ÑÐ»Ð¸...Ð˜Ð½Ð°Ñ‡Ðµ',
+		'while': 'ÐŸÐ¾ÐºÐ°',
+		'for': 'ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€',
+		'funcdef': 'Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ'
+	};
+	var classes = ['block', 'if', 'ifelse', 'while', 'for', 'funcdef'];
+	var btnsPlay = ['play', 'next', 'prev'];
+	var MAX_VALUE = 999999999999999;
+	var MAX_STEP_VALUE = 10000;
 
 	return {
 		Problem: Problem

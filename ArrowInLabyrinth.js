@@ -1,4 +1,4 @@
-define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', function(){
+define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration'], function(){
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 	

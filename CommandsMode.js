@@ -4,7 +4,8 @@ define('CommandsMode', ['jQuery',
 	'Misc',
 	'ShowMessages',
 	'Exceptions',
-	'ExecutionUnitCommands'], function(){
+	'ExecutionUnitCommands',
+	'Accordion'], function(){
 	var ShowMessages = require('ShowMessages');
 	var Exceptions = require('Exceptions');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');

@@ -1,5 +1,7 @@
-define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], function(){
+define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode', 'Accordion'], function(){
 	var CommandsMode = require ('CommandsMode');
+
+	var elseStmt = undefined;
 
 	function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				
 		var conditionPropertiesId = $(select).val();

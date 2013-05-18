@@ -115,7 +115,8 @@ requirejs([
 	'Servers', 
 	'Interface', 
 	'InterfaceJSTree', 
-	'Declaration'
+	'Declaration',
+	'Accordion'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
@@ -168,20 +169,6 @@ requirejs([
 			if (problem.visited)
 				return;
 			problem.visited = 1;
-			/*for (var k = 0; k < classes.length; ++k){
-				$('#' + classes[k] + problem.tabIndex).bind('dblclick', function(j){
-					return function() {
-						if ($(this).prop('ifLi')) {
-							return;
-						}
-						$("#jstree-container" + problem.tabIndex).jstree("create", false,  "last", 
-								{'data': (classes[j] == 'funcdef') ? ('func_' + problem.numOfFunctions) : cmdClassToName[classes[j]]}, function(newNode){
-								onCreateItem(this, newNode, $('#' + classes[j] + problem.tabIndex).attr('rel'), problem);
-							}, classes[j] != 'funcdef'); 
-						problem.updated();
-					}
-				}(k));
-			}*/
 			$('#resizable' + problem.tabIndex).resizable({
 				ghost: true,
 				minHeight: 300,
@@ -286,7 +273,7 @@ requirejs([
 		});
 		$('#tabs').tabs();
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
-		if ($.cookie('contestId') == undefined && tabIndex){
+		if ($.cookie('contestId') == undefined && parseInt(tabIndex)){
 			Interface.fillTabs();
 			$('#tabs').tabs("select" , tabIndex);
 			//sometimes this event is fired earlier than current labyrinth cell width is calculated

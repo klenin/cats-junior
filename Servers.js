@@ -13,21 +13,56 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		setPasswd: function(pass) {
 			this.passwd = pass;
+		},
+
+		getId: function() {
+			return this.id;
+		},
+
+		getName: function() {
+			return this.name;
+		}
+	});
+
+	var Contest = $.inherit({
+		__constructor: function(name, cid) {
+			this.name = name;
+			this.cid = cid;
+		},
+
+		getName: function() {
+			return this.name;
+		},
+
+		getCid: function() {
+			return this.cid;
 		}
 	});
 
 	var Session = $.inherit({
-		__constructor: function(sid, cid) {
-			this.sid = undefined;
-			this.cid = undefined;
+		__constructor: function(sid, contest) {
+			this.sid = sid;
+			this.contest = contest;
 		},
 
-		setCid: function(cid) {
-			this.cid = cid;
+		setContest: function(contest) {
+			this.contest = contest;
+		},
+
+		getContest: function() {
+			return this.contest;
 		},
 
 		setSid: function(sid) {
 			this.sid = sid;
+		},
+
+		getCid: function() {
+			return this.contest.getCid();
+		},
+
+		getSid: function() {
+			return this.sid;
 		}
 	});
 
@@ -45,12 +80,16 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			this.user = user;
 		},
 
-		setCid: function(cid) {
-			this.session.setCid(cid);
+		setContest: function(contest) {
+			this.session.setContest(contest);
+		},
+
+		getContest: function() {
+			return this.session.getContest();
 		},
 
 		getCid: function() {
-			return this.session.cid;
+			return this.session.getCid();
 		},
 
 		setSid: function(sid) {
@@ -58,11 +97,11 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		getSid: function() {
-			return this.session.sid;
+			return this.session.getSid();
 		},
 
 		getUserId: function() {
-			return this.user.id;
+			return this.user.getId();
 		},
 
 		getUser: function() {
@@ -79,10 +118,11 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		logout: function() {
 		},
 
-		getUsersList: function() {
+		usersListRequest: function() {
+
 		},
 
-		getContestsList: function() {
+		contestsListRequest: function() {
 		},
 
 		getProblems: function() {
@@ -97,6 +137,54 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		getCode: function(rid) {
 
+		},
+
+		onUsersListRequest: function(data) {
+			this.users = [];
+			for (var i = 0; i < data.length; ++i){
+				if (data[i].ooc == 1)
+					continue;
+				this.users.push(new User(data[i].login, this.defaultPass, data[i].jury, data[i].name, data[i].account_id));
+			}
+		},
+
+		getUsers: function() {
+			return this.users;
+		},
+
+		setUserByName: function(name, callback) {
+			this.setSid(undefined);
+			for (var i = 0; i < this.users.length; ++i) {
+				if (name == this.users[i].getName()){
+					currentServer.setUser(this.users[i]);
+					callback(this.getUser());
+					return true;
+				}
+			}
+			return false;
+		},
+
+		onContestsListRequest: function(data) {
+			this.contests = [];
+			for (var i = 0; i < data.contests.length; ++i) {
+				this.contests.push(new Contest(data.contests[i].name, data.contests[i].id));
+			}
+			this.setContest(this.contests[0]);
+		},
+
+		getContests: function() {
+			return this.contests;
+		},
+
+		setContestByName: function(name, callback) {
+			for (var i = 0; i < this.contests.length; ++i){
+				if (name == this.contests[i].name){
+					this.setContest(this.contests[i]);
+					callback(this.contest);
+					return true;
+				}
+			}
+			return false;
 		}
 	});
 
@@ -152,17 +240,21 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 				this.dataType);
 		},
 
-		getUsersList: function(callback) {
+		usersListRequest: function(callback) {
+			var self = this;
 			CallServer.callScript(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=1;sort_dir=0;', 
 				function(data) {
+					self.onUsersListRequest(data);
 					callback(data);
 				}, 
 				this.dataType);
 		},
 
-		getContestsList: function(callback) {
+		contestsListRequest: function(callback) {
+			var self = this;
 			CallServer.callScript(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', 
 				function(data) {
+					self.onContestsListRequest(data);
 					callback(data);
 				}, 
 				this.dataType);
@@ -253,14 +345,14 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			});
 		},
 
-		getUsersList: function(callback) {
-			this.sendRequest(this.url, '&action=getUsersList', function(data){
+		usersListRequest: function(callback) {
+			this.sendRequest(this.url, '&action=usersListRequest', function(data){
 				callback(data);
 			});
 		},
 
-		getContestsList: function(callback) {
-			this.sendRequest(this.url, '&action=getContestsList', function(data){
+		contestsListRequest: function(callback) {
+			this.sendRequest(this.url, '&action=contestsListRequest', function(data){
 				callback(data);
 			});
 		},
