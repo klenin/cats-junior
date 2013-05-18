@@ -273,8 +273,23 @@ requirejs([
 		});
 		$('#tabs').tabs();
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
-		if ($.cookie('contestId') == undefined && parseInt(tabIndex)){
+		if ($.cookie('contestId') != undefined) {
+			$('#' + $.cookie('contestId')).prop('checked', true);
+			Interface.changeContest();
+			if ($.cookie('userId') != undefined){
+				var userId = $.cookie('userId');
+				var passwd = $.cookie('passwd');
+				$('#' + userId).prop('checked', true);
+				$.cookie('passwd', passwd);
+				Interface.chooseUser();	
+			}
+		}
+		else {
 			Interface.fillTabs();
+		}
+			
+
+		if (parseInt(tabIndex)) {
 			$('#tabs').tabs("select" , tabIndex);
 			//sometimes this event is fired earlier than current labyrinth cell width is calculated
 			//it happens only on loading of the last loaded tab
@@ -283,25 +298,7 @@ requirejs([
 				curProblem.onTabSelect();
 			}, 200);
 		}
-		else if ($.cookie('contestId') != undefined && $.cookie('userId') == undefined){
-			$('#' + $.cookie('contestId')).prop('checked', true);
-				Interface.changeContest();
-			if (tabIndex != undefined)
-				$('#tabs').tabs( "select" , tabIndex );
-		}
-		else if ($.cookie('userId') != undefined){
-			$('#' + $.cookie('contestId')).prop('checked', true);
-			var userId = $.cookie('userId');
-			var passwd = $.cookie('passwd');
-			Interface.changeContest();
-			$('#' + userId).prop('checked', true);
-			$.cookie('passwd', passwd);
-			Interface.chooseUser();	
-			if (tabIndex != undefined)
-				$('#tabs').tabs( "select" , tabIndex );
-		}
-		else 
-			Interface.fillTabs();
+
 		cmdId = problems.length;
 
 		/*$('#startTests').button().click(function(){
