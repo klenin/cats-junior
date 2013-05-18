@@ -91,7 +91,17 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			getConditionProperties: function(name) {
 				this.checkExecutionUnit();
-				return this.executionUnit.getConditionProperties(name);
+				
+				var conditionProperties = this.executionUnit.getConditionProperties();
+				if (!name) {
+					return conditionProperties;
+				}
+				for (var i = 0; i < conditionProperties.length; ++i) {
+					if (conditionProperties[i].name == name) {
+						return conditionProperties[i];
+					}
+				}
+				return undefined;
 			},
 
 			getCommands: function() {

@@ -925,17 +925,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			},
 
 			getConditionProperties: function(name) {
-				if (name == undefined) {
-					return this.__self.testFunction;
-				}
-
-				for (var i = 0; i < this.__self.testFunction.length; ++i) {
-					if (this.__self.testFunction[i].name == name) {
-						return this.__self.testFunction[i];
-					}
-				}
-
-				return undefined;
+				return this.__self.testFunction;
 			},
 
 			getCommands: function() {

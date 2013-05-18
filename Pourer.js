@@ -471,17 +471,7 @@ define('Pourer',
 				},
 
 				getConditionProperties: function(name) {
-					if (name == undefined) {
-						return this.testFunction;
-					}
-
-					for (var i = 0; i < this.testFunction.length; ++i) {
-						if (this.testFunction[i].name == name) {
-							return this.testFunction[i];
-						}
-					}
-
-					return undefined;
+					return this.testFunction;
 				},
 
 				getCommands: function() {
