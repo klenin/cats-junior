@@ -4,8 +4,7 @@ define('CommandsMode', ['jQuery',
 	'Misc',
 	'ShowMessages',
 	'Exceptions',
-	'ExecutionUnitCommands',
-	'Accordion'], function(){
+	'ExecutionUnitCommands'], function(){
 	var ShowMessages = require('ShowMessages');
 	var Exceptions = require('Exceptions');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
@@ -37,8 +36,11 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 
-		executeOneStep: function(cntNumToExecute, args){
-			if (cntNumToExecute > 0 && !this.isFinished()) {
+		executeOneStep: function(cmdNumToExecute, args){
+			if (!this.problem.needToContinueExecution()) {
+				return cmdNumToExecute;
+			}
+			if (cmdNumToExecute > 0 && !this.isFinished()) {
 				if (!this.isStarted()) {
 					this.updateInterface('START_EXECUTION');
 				}
@@ -50,14 +52,14 @@ define('CommandsMode', ['jQuery',
 				this.problem.checkLimit();
 				this.problem.setLastExecutedCommand(this);
 			}
-			return Math.max(0, cntNumToExecute - 1);
+			return Math.max(0, cmdNumToExecute - 1);
 		},
 
-		exec: function(cntNumToExecute, args) {
-			cntNumToExecute = this.executeOneStep(cntNumToExecute, args);	
+		exec: function(cmdNumToExecute, args) {
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);	
 			this.finished = true;
 		
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 		
 		getClass: function() {
@@ -216,9 +218,9 @@ define('CommandsMode', ['jQuery',
 			
 		},
 
-		executeOneStep: function(cntNumToExecute, args) {
+		executeOneStep: function(cmdNumToExecute, args) {
 			this.setArgumentValues(args);
-			return this.__base(cntNumToExecute, args);
+			return this.__base(cmdNumToExecute, args);
 		},
 		
 		initializeArgumentDomObject: function() {
@@ -386,21 +388,21 @@ define('CommandsMode', ['jQuery',
 			return new CommandWithCounter(this.name, this.arguments, this.createArgumentsClone(), this.parent, this.node, this.problem);
 		},
 
-		executeOneStep: function(cntNumToExecute, args) {
-			var prevCnt = cntNumToExecute;
-			cntNumToExecute = this.__base(cntNumToExecute, args);
-			if (prevCnt > cntNumToExecute) {
+		executeOneStep: function(cmdNumToExecute, args) {
+			var prevCnt = cmdNumToExecute;
+			cmdNumToExecute = this.__base(cmdNumToExecute, args);
+			if (prevCnt > cmdNumToExecute) {
 				this.started = true;
 			}
 			this.counter.decreaseValue();
-			return Math.max(0, cntNumToExecute);
+			return Math.max(0, cmdNumToExecute);
 		},
 		
-		exec: function(cntNumToExecute, args) {
-			while (cntNumToExecute > 0 && !this.isFinished()) {
-				cntNumToExecute = this.executeOneStep(cntNumToExecute, args);
+		exec: function(cmdNumToExecute, args) {
+			while (cmdNumToExecute > 0 && !this.isFinished()) {
+				cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 		
 		setDefault: function() {
@@ -422,9 +424,9 @@ define('CommandsMode', ['jQuery',
 	});
 
 	var ForStmt = $.inherit(CommandWithCounter, {
-		__constructor: function(body, cntNumToExecute, parent, node, problem) {
+		__constructor: function(body, cmdNumToExecute, parent, node, problem) {
 			parameters = [new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
-			this.__base(undefined, parameters, [cntNumToExecute], parent, node, problem);
+			this.__base(undefined, parameters, [cmdNumToExecute], parent, node, problem);
 			this.body = body;
 		},
 		
@@ -437,7 +439,10 @@ define('CommandsMode', ['jQuery',
 			return new ForStmt(body, this.arguments[0].getExpression(), this.parent, this.node, this.problem);
 		},
 		
-		executeOneStep: function(cntNumToExecute, args) {
+		executeOneStep: function(cmdNumToExecute, args) {
+			if (!this.problem.needToContinueExecution()) {
+				return cmdNumToExecute;
+			}
 			if (!this.isFinished()) {
 				if (!this.isStarted() || this.body.isFinished()) {
 					if (this.isStarted()) {
@@ -445,22 +450,22 @@ define('CommandsMode', ['jQuery',
 					}
 					this.setArgumentValues(args);
 					this.updateInterface('START_EXECUTION');
-					--cntNumToExecute;
+					--cmdNumToExecute;
 					this.started = true;
 					if (this.problem.needToHighlightCommand(this)) {
 						this.highlightOn();
 					}
 				}
 				
-				if (cntNumToExecute > 0) {
-					cntNumToExecute = this.body.exec(cntNumToExecute, args);
+				if (cmdNumToExecute > 0) {
+					cmdNumToExecute = this.body.exec(cmdNumToExecute, args);
 					if (this.body.isFinished()) {
 						this.counter.decreaseValue();
 						//this.body.setDefault();
 					}
 				}
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 
 		getClass: function() {
@@ -614,26 +619,29 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 
-		executeOneStep: function(cntNumToExecute, args) {
+		executeOneStep: function(cmdNumToExecute, args) {
+			if (!this.problem.needToContinueExecution()) {
+				return cmdNumToExecute;
+			}
 			if (!this.isFinished()){
 				if (!this.isStarted()) {
 					var testResult = this.testCondition(args);
 					this.blockToExecute = testResult ? 0 : 1;
-					--cntNumToExecute;
+					--cmdNumToExecute;
 					this.blocks[0].setDefault();
 					this.updateInterface('START_EXECUTION');
 					if (this.problem.needToHighlightCommand(this)) {
 						this.highlightOn();
 					}
 				}
-				if (cntNumToExecute > 0 && this.blocks[this.blockToExecute]) {
-					cntNumToExecute = this.blocks[this.blockToExecute].exec(cntNumToExecute, args);
+				if (cmdNumToExecute > 0 && this.blocks[this.blockToExecute]) {
+					cmdNumToExecute = this.blocks[this.blockToExecute].exec(cmdNumToExecute, args);
 					if (this.blocks[this.blockToExecute].isFinished()) {
 						this.onBlockExecution();
 					}
 				}
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 
 		isStarted: function() {
@@ -921,14 +929,14 @@ define('CommandsMode', ['jQuery',
 			this.commands.push(command);
 		},
 
-		exec: function(cntNumToExecute, args) {
-			while (cntNumToExecute && this.commandIndex < this.commands.length) {
-				cntNumToExecute = this.commands[this.commandIndex].exec(cntNumToExecute, args);
+		exec: function(cmdNumToExecute, args) {
+			while (cmdNumToExecute && this.commandIndex < this.commands.length) {
+				cmdNumToExecute = this.commands[this.commandIndex].exec(cmdNumToExecute, args);
 				if (this.commands[this.commandIndex].isFinished() || this.commands[this.commandIndex].getClass() == 'funcdef') {
 					++this.commandIndex;
 				}
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 		
 		getClass: function() {
@@ -1052,15 +1060,15 @@ define('CommandsMode', ['jQuery',
 			this.commands = commands;
 		},
 
-		executeBody: function(cntNumToExecute, args) {
-			return this.exec(cntNumToExecute, args, true);
+		executeBody: function(cmdNumToExecute, args) {
+			return this.exec(cmdNumToExecute, args, true);
 		},
 
-		exec: function(cntNumToExecute, args, needToExecuteBody) {
+		exec: function(cmdNumToExecute, args, needToExecuteBody) {
 			if (needToExecuteBody) {
-				return this.__base(cntNumToExecute, args);
+				return this.__base(cmdNumToExecute, args);
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 
 		generatePythonCode: function(tabsNum) {
@@ -1135,37 +1143,40 @@ define('CommandsMode', ['jQuery',
 			this.funcDef = undefined;
 		},
 
-		executeOneStep: function(cntNumToExecute, args){
-			if (cntNumToExecute > 0 && !this.isFinished()) {
+		executeOneStep: function(cmdNumToExecute, args){
+			if (!this.problem.needToContinueExecution()) {
+				return cmdNumToExecute;
+			}
+			if (cmdNumToExecute > 0 && !this.isFinished()) {
 				if (!this.isStarted()) {
 					this.updateInterface('START_EXECUTION');
 					if (this.problem.needToHighlightCommand(this)) {
 						this.highlightOn();
 					}
 					this.funcDef = this.getFuncDef().createClone();
-					--cntNumToExecute;
+					--cmdNumToExecute;
 					this.problem.setLastExecutedCommand(this);
 				}
-				if (cntNumToExecute > 0) {
+				if (cmdNumToExecute > 0) {
 					var funcDefArguments = this.funcDef.getArguments();
 					var argsCopy = args ? $.extend(true, {}, args) : undefined;
 					args = args ? args : {};
 					for (var i = 0; i < this.arguments.length; ++i) {
 						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
 					}
-					cntNumToExecute = this.funcDef.executeBody(cntNumToExecute, args);
+					cmdNumToExecute = this.funcDef.executeBody(cmdNumToExecute, args);
 				}
 			}
-			return Math.max(0, cntNumToExecute);
+			return Math.max(0, cmdNumToExecute);
 		},
 
-		exec: function(cntNumToExecute, args) {
-			cntNumToExecute = this.executeOneStep(cntNumToExecute, args);	
+		exec: function(cmdNumToExecute, args) {
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);	
 			if (this.funcDef.isFinished()) {
 				this.funcDef = undefined;
 				this.finished = true;
 			}
-			return cntNumToExecute;
+			return cmdNumToExecute;
 		},
 		
 		

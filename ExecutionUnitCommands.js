@@ -142,7 +142,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	});
 	
 	var CommandArgumentSpin = $.inherit(CommandArgument, {
-			__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem) {
+		__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem) {
 			this.__base();
 			this.minValue = minValue;
 			this.maxValue = maxValue;

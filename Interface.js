@@ -8,8 +8,7 @@ define('Interface', ['jQuery',
 	'jQueryTmpl',
 	'ModesConvertion',
 	'Declaration',
-	'CommandsMode',
-	'Accordion'], function(){
+	'CommandsMode'], function(){
 	var Problems = require('Problems');
 	var ModesConvertion = require('ModesConvertion');
 	var Servers = require('Servers');
@@ -17,7 +16,7 @@ define('Interface', ['jQuery',
 
 	function login(callback, firstTrying){
 		currentServer.setSid(undefined);
-		currentServer.login(currentServer.user.login, currentServer.user.passwd, function(data) {
+		currentServer.loginRequest(currentServer.user.login, currentServer.user.passwd, function(data) {
 			if (data.status == 'ok') {
 				currentServer.setSid(data.sid);
 			}
@@ -73,7 +72,7 @@ define('Interface', ['jQuery',
 		for (var i = 0; i < problems.length; ++i)
 			$('#forJury' + i).hide();
 		try{ //temporary wa
-			currentServer.logout(function(data){
+			currentServer.logoutRequest(function(data){
 			});
 		}catch(e){
 			console.error(e);
@@ -106,7 +105,7 @@ define('Interface', ['jQuery',
 	}
 
 	function submit(submitStr, problem_id){
-		currentServer.submit(submitStr, problem_id, function(){
+		currentServer.submitRequest(submitStr, problem_id, function(){
 			login(function() {
 				submit(submitStr, problem_id);
 			}, true);
@@ -125,7 +124,7 @@ define('Interface', ['jQuery',
 	}
 
 	function loadCode(rid){
-		currentServer.getCode(rid, function(data){
+		currentServer.codeRequest(rid, function(data){
 			var i = curProblem.tabIndex;
 			codeareas[i].setValue(data);
 			codeareas[i].refresh();
@@ -148,7 +147,7 @@ define('Interface', ['jQuery',
 			return false;
 		}
 
-		currentServer.getConsoleContent(function(data){
+		currentServer.consoleContentRequest(function(data){
 			var div = $('<div></div>');
 			for (var i = 0; i < data.length; ++i) {
 				if (data[i].type == 'submit' && data[i].problem_title == curProblem.title) {
@@ -339,7 +338,7 @@ define('Interface', ['jQuery',
 		changeUser();
 		problems = [];
 		codeareas = [];
-		currentServer.getProblems(function(data){
+		currentServer.problemsListRequest(function(data){
 			for (var i = 0; i < data.length; ++i){
 				problems[i] = new Problems.Problem(data[i], i);
 				if ($('#ui-tabs-' + (i + 1)).length){

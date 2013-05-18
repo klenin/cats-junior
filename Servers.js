@@ -108,34 +108,30 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			return this.user;
 		},
 
-		submit: function() {
+		submitRequest: function() {
 		},
 
-		login: function(userLogin, userPass) {
+		loginRequest: function(userLogin, userPass) {
 			
 		},
 
-		logout: function() {
+		logoutRequest: function() {
 		},
 
 		usersListRequest: function() {
-
 		},
 
 		contestsListRequest: function() {
 		},
 
-		getProblems: function() {
+		problemsListRequest: function() {
 		},
 
-		getResults: function() {
-		},
-
-		getConsoleContent: function() {
+		consoleContentRequest: function() {
 
 		},
 
-		getCode: function(rid) {
+		codeRequest: function(rid) {
 
 		},
 
@@ -196,7 +192,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			this.defaultCid = 791634;
 		},
 
-		submit: function(submitStr, problem_id, badSidCallback) {
+		submitRequest: function(submitStr, problem_id, badSidCallback) {
 			var self = this;
 			CallServer.callScript(this.url + 'f=contests;filter=json;sid=' + self.getSid() + ';json=1;', function(data){
 				if (data.error == 'bad sid'){
@@ -215,7 +211,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 				        formData.append('problem_id', problem_id);//
 				        formData.append('de_id',772264);
 				        formData.append('source_text', submitStr);
-				        formData.append('submit', 'Send');
+				        formData.append('submitRequest', 'Send');
 						CallServer.callSubmit(self.url + 'f=problems;sid=' + self.getSid() + ';cid=' + self.getCid()+ ';json=1;', formData, function(data){
 							alert(data.message ? data.message :'Решение отослано на проверку');
 						});
@@ -224,7 +220,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			});
 		},
 
-		login: function(userLogin, userPass, callback) {
+		loginRequest: function(userLogin, userPass, callback) {
 			CallServer.callScript(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;', 
 				function(data) {
 					callback(data);
@@ -232,7 +228,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 				this.dataType);
 		},
 
-		logout: function(callback) {
+		logoutRequest: function(callback) {
 			CallServer.callScript(this.url +'f=logout;sid=' + this.getSid() + ';json=1;', 
 				function(data) {
 					callback(data);
@@ -260,7 +256,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 				this.dataType);
 		},
 
-		getProblems: function(callback) {
+		problemsListRequest: function(callback) {
 			CallServer.callScript(this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1',
 				function(data) {
 					callback(data);
@@ -268,7 +264,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 				this.dataType);
 		},
 
-		getConsoleContent: function(callback){
+		consoleContentRequest: function(callback){
 			if (this.getCid() && this.getSid()){
 				CallServer.callScript(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() + 
 					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
@@ -280,7 +276,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			}
 		},
 
-		getCode: function(rid, callback) {
+		codeRequest: function(rid, callback) {
 			if (this.getCid() && this.getSid()){
 				CallServer.callScript(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() + 
 					';rid=' + rid, 
@@ -309,7 +305,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			this.defaultCid = 791634;
 		},
 
-		submit: function(submitStr, problem_id, badSidCallback) {
+		submitRequest: function(submitStr, problem_id, badSidCallback) {
 			CallServer.callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', submitStr, function(data){
 				alert(data.message ? data.message : 'Решение отослано на проверку');
 			});  
@@ -335,13 +331,13 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			});
 		},
 
-		login: function(userLogin, userPass, callback) {
-			this.sendRequest(this.url, '&action=login', function(data){
+		loginRequest: function(userLogin, userPass, callback) {
+			this.sendRequest(this.url, '&action=loginRequest', function(data){
 			});
 		},
 
-		logout: function(callback) {
-			this.sendRequest(this.url, '&action=logout', function(data){
+		logoutRequest: function(callback) {
+			this.sendRequest(this.url, '&action=logoutRequest', function(data){
 			});
 		},
 
@@ -361,20 +357,20 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			});
 		},
 
-		getProblems: function(callback) {
-			this.sendRequest(this.url, '&action=getProblems', function(data){
+		problemsListRequest: function(callback) {
+			this.sendRequest(this.url, '&action=problemsListRequest', function(data){
 				callback(data);
 			});
 		},
 
-		getConsoleContent: function(callback){
-			this.sendRequest(this.url, '&action=getConsoleContent', function(data){
+		consoleContentRequest: function(callback){
+			this.sendRequest(this.url, '&action=consoleContentRequest', function(data){
 				callback(data);
 			});
 		},
 
-		getCode: function(rid, callback) {
-			this.sendRequest(this.url, '&action=getCode', function(data){
+		codeRequest: function(rid, callback) {
+			this.sendRequest(this.url, '&action=codeRequest', function(data){
 				callback(data);
 			});
 		},

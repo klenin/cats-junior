@@ -8,8 +8,7 @@ define('Problems', ['jQuery',
 	'CodeMode',
 	'ShowMessages',
 	'Declaration',
-	'ExecutionUnitCommands',
-	'Accordion'],
+	'ExecutionUnitCommands'],
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
@@ -23,19 +22,15 @@ function() {
 	var Problem = $.inherit({
 		__constructor: function(problem, tabIndex) {
 			$.extend(true, this, problem, problem.data);
-			this.cmdIndex = 0;
 			this.divIndex = 0;
 			this.step = 0;
-			this.divName = '';
 			this.speed = 1000;
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
-			this.cmdListEnded = false;
 			this.cmdList = new CommandsMode.Block([], undefined, this);
 			this.executedCommandsNum = 0;
 			this.lastExecutedCmd = undefined;
-			this.prevCmd = undefined;
 			this.tabIndex = tabIndex;
 			if (this.maxCmdNum) this.maxStep = 0;
 			//this.map = jQuery.extend(true, [], this.defaultLabirint);
@@ -143,12 +138,8 @@ function() {
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
-			this.cmdListEnded = false;
-			this.cmdIndex = 0;
 			this.divIndex = 0;
 			this.step = 0;
-			this.divName = this.cmdList.length ? this.cmdList[0].name : "";
-			this.prevCmd = undefined;
 			this.lastExecutedCmd = undefined;
 			this.executedCommandsNum = 0;
 			this.curCounter = 0;
@@ -314,31 +305,8 @@ function() {
 			return this.divIndex;
 		},
 
-		divN: function() {
-			return this.divName;
-		},
-
 		list: function() {
 			return this.cmdList;
-		},
-
-		setCounters_: function(el, j, dontReload) {
-			while (j) {
-				el = el.next();
-				j--;
-			}
-			while (el.length > 0) {
-				var numId = el.prop('numId');
-				var val = $('#spin' + numId).prop('value');
-				var newVal = dontReload ? $('#spinCnt' + numId).prop('cnt') : val;
-				$('#spinCnt' + numId).prop('cnt', newVal);
-				$('#spinCnt' + numId).prop('value', newVal + '/' + val);
-				el = el.next();
-			}
-		},
-
-		setCounters: function(j, dontReload) {
-			this.setCounters_($('#jstree-container' + this.tabIndex).children(), j, dontReload);
 		},
 
 		checkIntegrity: function() {
@@ -446,7 +414,6 @@ function() {
 					this.setDefault();
 					this.cmdHighlightOff();
 					this.updateInterface('FINISH_EXECUTION');
-					this.setCounters();
 					return;
 				}
 				this.playing = false;
@@ -574,19 +541,12 @@ function() {
 			return result;
 		},
 
-		exportCommands: function() {
-			$('#export' + this.tabIndex).html(this.convertCommandsToCode());
-			$('#export' + this.tabIndex).dialog('open');
-			return false;
-		},
-
 		callPlay: function(s) {
 			if (!this.checkLimit()) {
 				return;
 			}
 			if (!this.playing || this.executionUnit.isGameOver()) {
 				this.setDefault();
-				this.setCounters();
 				//this.updateInterface('START_EXECUTION');
 			}
 			//try {
@@ -628,7 +588,6 @@ function() {
 			this.setDefault();
 			this.playing = false;
 			this.cmdHighlightOff();
-			this.setCounters();
 			this.compileCode()
 			this.updateWatchList();
 			if (!dontHighlight && nextline[problem] != undefined) {
@@ -666,7 +625,6 @@ function() {
 			this.setDefault();
 			this.cmdHighlightOff();
 			this.updateInterface('FINISH_EXECUTION')
-			this.setCounters();
 			this.playing = false;
 			this.enableButtons();
 		},
@@ -706,7 +664,6 @@ function() {
 					if (!this.playing || this.changed) {
 
 						if (!this.playing) {
-							this.setCounters();
 							var needReturn = this.cmdList.isFinished();
 							this.setDefault();	
 							if (needReturn) return;		
@@ -752,7 +709,6 @@ function() {
 					}
 					this.playing = false;
 					this.updateInterface('FINISH_EXECUTION');
-					this.setCounters();
 					return;
 				}++c;
 				--t;
@@ -852,11 +808,11 @@ function() {
 
 	var cmdClassToName = {
 		'block': 'Block',
-		'if': 'Ð•ÑÐ»Ð¸',
-		'ifelse': 'Ð•ÑÐ»Ð¸...Ð˜Ð½Ð°Ñ‡Ðµ',
-		'while': 'ÐŸÐ¾ÐºÐ°',
-		'for': 'ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€',
-		'funcdef': 'Ð¤ÑƒÐ½ÐºÑ†Ð¸Ñ'
+		'if': 'Если',
+		'ifelse': 'Если...Иначе',
+		'while': 'Пока',
+		'for': 'Повтор',
+		'funcdef': 'Функция'
 	};
 	var classes = ['block', 'if', 'ifelse', 'while', 'for', 'funcdef'];
 	var btnsPlay = ['play', 'next', 'prev'];

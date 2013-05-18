@@ -1,4 +1,4 @@
-define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode', 'Accordion'], function(){
+define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], function(){
 	var CommandsMode = require ('CommandsMode');
 
 	var elseStmt = undefined;

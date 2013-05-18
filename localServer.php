@@ -10,15 +10,15 @@
 
 	{
 
-		case "login":
+		case "loginRequest":
 
-		case "logout":
+		case "logoutRequest":
 
-		case "submit":
+		case "submitRequest":
 
-		case "getConsoleContent":
+		case "consoleContentRequest":
 
-		case "getCode":
+		case "codeRequest":
 
 			echo '{}';
 			break;
@@ -35,13 +35,13 @@
 
 			break;
 
-		case "getProblems":
+		case "problemsListRequest":
 
 			readfile('problems.json');
 
 			break;
 
-		case "getResults": 
+		case "resultsRequest": 
 
 			echo "Здесь должны быть результаты";
 

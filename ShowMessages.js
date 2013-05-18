@@ -28,7 +28,7 @@ define('ShowMessages', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Declaration'], f
 
 		MessageDead: $.inherit(Message, {
 			__constructor: function() {
-				this.__base(['Вас съели. Попробуйте снова \n']);
+				this.__base(['Вы проиграли. Попробуйте снова \n']);
 			}
 		}),
 
