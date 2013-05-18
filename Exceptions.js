@@ -3,27 +3,36 @@ define('Exceptions', ['jQuery', 'jQueryInherit'], function(){
 		__constructor: function(name, message) {
 			this.message = message;
 			this.name = name ? name : 'MyException';
+		},
+
+		toString: function() {
+			return 'Exception ' + this.name + ', message: ' + this.message;
 		}
 	});
 
-	var IncorrectProblemDataException = $.inherit(MyException, {
+	var IncorrectProblemData = $.inherit(MyException, {
 		__constructor: function(message) {
-			this.__base('IncorrectProblemDataException', message);
+			this.__base('IncorrectProblemData', message);
 		}
 	});
 
-	var IncorrectCommandFormat = $.inherit(MyException, {
+	var IncorrectInput = $.inherit(MyException, {
 		__constructor: function(message) {
-			this.__base('IncorrectCommandFormat');
+			this.__base('IncorrectInput', message);
 		}
+	});
 
+	var InternalError = $.inherit({
+		__constructor: function(message) {
+			this.__base('InternalError', 'Something went wrong, please provide reproduce sequence and this message to the author. ' + message);
+		}
 	});
 
 	return {
-		IncorrectProblemDataException: IncorrectProblemDataException,
-		IncorrectCommandFormat: IncorrectCommandFormat
+		IncorrectProblemData: IncorrectProblemData,
+		IncorrectInput: IncorrectInput,
+		InternalError: InternalError
 	}
-
 });
 
 

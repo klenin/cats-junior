@@ -9,6 +9,10 @@ define('ExecutionUnitWrapper', ['jQuery',
 	var ArrowInLabyrinth = ArrowInLabyrinthModule.ArrowInLabyrinth;
 	var Pourer = PourerModule.Pourer;
 	
+	var Exceptions = require('Exceptions');
+	var IncorrectInput = Exceptions.IncorrectInput;
+	var InternalError = Exceptions.InternalError;
+
 	var executionUnits = {
 		'ArrowInLabyrinth': ArrowInLabyrinth,
 		'Pourer': Pourer
@@ -23,7 +27,7 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			checkExecutionUnit: function() {
 				if (!this.executionUnit) {
-					throw "Простейший исполнитель не определен";
+					throw new InternalError('Execution unit is undefined');
 				}
 			},
 

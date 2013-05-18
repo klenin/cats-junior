@@ -346,13 +346,17 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		usersListRequest: function(callback) {
+			var self = this;
 			this.sendRequest(this.url, '&action=usersListRequest', function(data){
+				self.onUsersListRequest(data);
 				callback(data);
 			});
 		},
 
 		contestsListRequest: function(callback) {
+			var self = this;
 			this.sendRequest(this.url, '&action=contestsListRequest', function(data){
+				self.onContestsListRequest(data);
 				callback(data);
 			});
 		},

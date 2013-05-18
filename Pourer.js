@@ -6,12 +6,15 @@ define('Pourer',
 		var CylinderModule = require('Cylinder');
 		var Declaration = require('Declaration');
 
+		var Exceptions = require('Exceptions');
+		var IncorrectInput = Exceptions.IncorrectInput;
+		var InternalError = Exceptions.InternalError;
+
 		var Vessel = $.inherit({
-			__constructor: function(capacity, initFilled, isEndless, div, maxCapacity) {
+			__constructor: function(capacity, initFilled, div, maxCapacity) {
 				this.capacity = capacity;
 				this.initFilled = initFilled;
 				this.filled = initFilled;
-				this.isEndless = isEndless;
 				this.div = div;
 				this.maxCapacity = maxCapacity;
 				this.init();
@@ -60,9 +63,7 @@ define('Pourer',
 			},
 
 			pourTo: function(delta) { //we pour from this vessel to another
-				if (!this.isEndless) {
-					this.filled -= delta;
-				}
+				this.filled -= delta;
 			},
 
 			pourFrom: function(delta) {//we fill current vessel
@@ -70,9 +71,6 @@ define('Pourer',
 			},
 
 			pourOut: function() {
-				if (this.isEndless) {
-					throw 'Нельзя вылить содержимое бесконечного сосуда';
-				}
 				this.filled = 0;
 			},
 
@@ -127,7 +125,7 @@ define('Pourer',
 
 		function compare(args){
 			if (args.length != 4 || !checkNumber(args[1]) || !checkNumber(args[3])) {
-				throw 'Некорректный список аргументов';
+				throw new IncorrectInput('Некорректный список аргументов');
 			}
 
 			var vessel = args[1] - 1;
@@ -164,7 +162,7 @@ define('Pourer',
 
 		function compare_handler(vessel, comparator, value){
 			if (!checkNumber(vessel) || !checkNumber(value)) {
-				throw 'Некорректный аргумент';
+				throw new IncorrectInput('Некорректный аргумент');
 			}
 
 			vessel -= 1;
@@ -192,7 +190,7 @@ define('Pourer',
 
 		function checkFilled(args){
 			if (args.length != 4 || !checkNumber(args[1]) || !checkNumber(args[3])) {
-				throw 'Некорректный список аргументов';
+				throw new IncorrectInput('Некорректный список аргументов');
 			}
 
 			var first = args[1] - 1;
@@ -231,7 +229,7 @@ define('Pourer',
 
 		function checkFilledHandler(first, comparator, second){
 			if (!checkNumber(first) || !checkNumber(second)) {
-				throw 'Некорректный аргумент';
+				throw new IncorrectInput('Некорректный аргумент');
 			}
 			first -= 1;
 			comparator = comparator.v;
@@ -331,7 +329,6 @@ define('Pourer',
 						var cell = $('<td valign="bottom"></td>').appendTo($(this.row));
 						this.vessels.push(new Vessel(this.data.vessels[i].capacity, 
 							this.data.vessels[i].initFilled, 
-							this.data.vessels[i].isEndless,
 							cell,
 							maxCapacity )
 						);			
@@ -391,7 +388,7 @@ define('Pourer',
 
 				executeCommand: function(command, args) {
 					if (this.data.commands.indexOf(command) === -1) {
-						throw 'Команда ' + command + ' не поддерживается';
+						throw new IncorrectInput('Команда ' + command + ' не поддерживается');
 					}
 
 					switch (command) {
@@ -405,7 +402,7 @@ define('Pourer',
 							this.fill(args);
 							break;
 						default:
-							throw 'Команда ' + command + ' не поддерживается';
+							throw new IncorrectInput('Команда ' + command + ' не поддерживается');
 					}
 
 					if (this.data.stepsFine){
@@ -427,7 +424,7 @@ define('Pourer',
 					var src = args[0] - 1;
 					var dest = args[1] - 1;
 					if (!checkNumber(src) || !checkNumber(dest)) {
-						throw 'Некорректный аргумент';
+						throw new IncorrectInput('Некорректный аргумент');
 					}
 					if (src == dest) { //is it an error?
 						return;
@@ -445,7 +442,7 @@ define('Pourer',
 				pourOut: function(args) {
 					var vessel = args[0] - 1;
 					if (!checkNumber(vessel)) {
-						throw 'Некорректный аргумент';
+						throw new IncorrectInput('Некорректный аргумент');
 					}
 						
 					this.vessels[vessel].pourOut();
@@ -455,7 +452,7 @@ define('Pourer',
 				fill: function(args) {
 					var vessel = args[0] - 1;
 					if (!checkNumber(vessel)) {
-						throw 'Некорректный аргумент';
+						throw new IncorrectInput('Некорректный аргумент');
 					}
 
 					this.vessels[vessel].fill();

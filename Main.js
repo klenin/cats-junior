@@ -130,7 +130,7 @@ requirejs([
 			return;
 		}
 
-		currentServer = new Servers.CATS();
+		currentServer = new Servers.LocalServer();
 		currentServer.setSession(new Servers.Session(undefined, currentServer.defaultCid));
 
 		$('#funcName').hide();

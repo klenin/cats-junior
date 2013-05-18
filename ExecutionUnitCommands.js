@@ -1,4 +1,7 @@
 define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'], function(){
+	var Exceptions = require('Exceptions');
+	var IncorrectInput = Exceptions.IncorrectInput;
+	var InternalError = Exceptions.InternalError;
 
 	var CommandArgument = $.inherit({
 		__constructor: function(expression, arguments, argumentValues, problem){
@@ -14,7 +17,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		updateValueInDomObject: function() {
 			if (!this.domObject || this.expression == undefined) {
-				throw 'Can\'t update values';
+				throw new InternalError('updateValueInDomObject: Can\'t update values');
 			}
 
 			this.setValue(this.expression);
@@ -360,7 +363,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 
 			if (!isInt(this.value) || this.value < 0) {
-				throw 'Некорректный счетчик';
+				throw new IncorrectInput('Некорректный счетчик');
 			}
 
 			--this.value;

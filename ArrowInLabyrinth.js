@@ -1,7 +1,10 @@
-define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration'], function(){
+define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', 'Exceptions'], function(){
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
-	
+	var Exceptions = require('Exceptions');
+	var IncorrectInput = Exceptions.IncorrectInput;
+	var InternalError = Exceptions.InternalError;
+
 	var Message = ShowMessages.Message;
 	
 	var Coord = $.inherit({
@@ -352,7 +355,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 	function objectPosition(args){
 		if (args.length != 3) {
-			throw 'Некорректное число аргументов';
+			throw new IncorrectInput('objectPosition: Некорректное число аргументов: ' + args.length + ' вместо 3');
 		}
 		var condition = args[0];
 		var object = args[1];
@@ -713,7 +716,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			executeCommand: function(command, args) {
 				if (this.data.commands.indexOf(command) === -1) {
-					throw 'Команда ' + command + ' не поддерживается';
+					throw new IncorrectInput('Команда ' + command + ' не поддерживается');
 				}
 				this.oneStep(command, 1);
 			},

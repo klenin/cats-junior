@@ -3,32 +3,6 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode', 'Acco
 
 	var elseStmt = undefined;
 
-	function generateArgumentsForConditionFunction(problem, select, node, inputArgs) {				
-		var conditionPropertiesId = $(select).val();
-		var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId)
-
-		$(node).children('.testFunctionArgument').remove();
-
-		var args = conditionProperties['args'];
-		if (!args || !$.isArray(args)) {
-			throw 'Некорректный аргумент в описании функции сравнения';
-		}
-
-		var prev = $(node).children('.testFunctionName');
-		
-		for (var i = 0; i < args.length; ++i) {
-			prev = args[i].generateDomObject($(prev), 
-				function(p) {
-					return function() {
-						p.updated();
-					}
-				}(problem), 
-				inputArgs && inputArgs.length ? inputArgs[i + 1] : undefined,
-				problem);
-		}
-
-	}
-
 	function onCreateItem(tree, newNode, type, problem, funcId, inputConditionPropertiesId, inputArgs, dontNeedToUpdate){
 		if (type == 'func-header' || type == 'func-body') {
 			type = 'funccall';

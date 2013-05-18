@@ -9,6 +9,8 @@ define('CommandsMode', ['jQuery',
 	var ShowMessages = require('ShowMessages');
 	var Exceptions = require('Exceptions');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
+	var IncorrectInput = Exceptions.IncorrectInput;
+	var InternalError = Exceptions.InternalError;
 
 	var CommandBase = $.inherit({
 		__constructor: function(name, parent, node, problem) {
@@ -110,7 +112,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 			
 			if (!self.problem.isCommandSupported(self.getName()) && self.getClass() != 'funccall') {
-				throw 'Команда ' + self.getName() + ' запрещена в данной задаче';
+				throw new IncorrectInput('Команда ' + self.getName() + ' запрещена в данной задаче');
 			}
 			
 			self.problem.newCommandGenerationStarted();
@@ -163,7 +165,7 @@ define('CommandsMode', ['jQuery',
 
 		checkIntegrity: function(parent) {
 			if (this.parent.timestamp !== parent.timestamp) {
-				throw this.getName() + ' ' + this.parent.timestamp + '!==' + parent.timestamp;
+				throw new InternalError(this.getName() + ' ' + this.parent.timestamp + '!==' + parent.timestamp);
 			}
 		}
 	},
@@ -198,7 +200,7 @@ define('CommandsMode', ['jQuery',
 
 			if (argumentValues && argumentValues.length) {
 				if (argumentValues.length != this.arguments.length) {
-					throw new Exceptions.IncorrectCommandFormat('Количество переданных аргументов не соответсвует ожидаемому');
+					throw new IncorrectInput('Количество переданных аргументов не соответсвует ожидаемому');
 				}
 
 				for (var i = 0; i < this.arguments.length; ++i) {
@@ -372,7 +374,7 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.arguments.length; ++i) {
 				if (this.arguments[i].isCounter) {
 					if (this.counter != undefined) {
-						throw new IncorrectCommandFormat('Command can\'t have several counters');
+						throw new IncorrectInput('У команды не может быть несколько счетчиков');
 					}
 					this.counter = this.arguments[i];
 				}
@@ -691,7 +693,7 @@ define('CommandsMode', ['jQuery',
 		generatePythonCode: function(tabsNum) {
 			str = generateTabs(tabsNum)  + this.getOperatorName() + ' ';
 			if (this.conditionName != this.conditionProperties.name || this.arguments.length - 2 != this.conditionProperties.args.length) {
-				throw 'Invalid function\'s name or number of arguments';
+				throw new IncorrectInput('Некорректное имя функции или количество аргументов');
 			} 
 			if (this.arguments[1].getExpression() == 'not') {
 				str += 'not ';
@@ -1078,7 +1080,7 @@ define('CommandsMode', ['jQuery',
 			var self = this;
 
 			if (!self.problem.isCommandSupported(this.getClass())) {
-				throw 'Объявление функций не поддерживается';
+				throw new IncorrectInput('Объявление функций не поддерживается');
 			}
 
 			self.problem.newCommandGenerationStarted();
