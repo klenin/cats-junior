@@ -296,14 +296,14 @@ function() {
 				if (CodeMode.getCurBlock() < 0) {
 					if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
 					//$('#cons' + problem).append('\nfinished\n');
-					this.executionUnit.cmdListFinished();
+					this.executionUnit.executionFinished();
 					this.playing = false;
 					return 0;
 				}
 			} else {
 				if (nextline[problem] != undefined) codeareas[problem].setLineClass(nextline[problem], null);
 				//$('#cons' + problem).append('\nfinished\n');
-			this.executionUnit.cmdListFinished();
+			this.executionUnit.executionFinished();
 				this.playing = false;
 				return 0;
 			}
@@ -412,7 +412,7 @@ function() {
 					if (this.cmdList.isFinished()) {
 						this.playing = false;
 						this.enableButtons();
-						this.executionUnit.cmdListFinished();
+						this.executionUnit.executionFinished();
 						return;
 					}
 				}
@@ -730,7 +730,7 @@ function() {
 					this.executionUnit.draw();
 					if (this.cmdList.isFinished()) {
 						this.playing = false;
-						this.executionUnit.cmdListFinished();
+						this.executionUnit.executionFinished();
 					} 
 					this.speed = s;
 				} catch (e) {

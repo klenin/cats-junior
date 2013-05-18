@@ -413,7 +413,7 @@ define('Pourer',
 					this.draw();
 				},
 
-				cmdListFinished: function(){
+				executionFinished: function(){
 					if (this.isFinished()) {
 						this.points += this.data.pointsWon;
 						var mes = new MessageWon(this.problem.step, this.points);

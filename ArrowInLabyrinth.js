@@ -963,7 +963,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				}
 			},
 
-			cmdListFinished: function() {
+			executionFinished: function() {
 				return;
 			},
 
