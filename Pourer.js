@@ -414,7 +414,7 @@ define('Pourer',
 				},
 
 				executionFinished: function(){
-					if (this.isFinished()) {
+					if (this.isSolved()) {
 						this.points += this.data.pointsWon;
 						var mes = new MessageWon(this.problem.step, this.points);
 					}
@@ -516,13 +516,14 @@ define('Pourer',
 					return this.vessels[first].filled > this.vessels[second].filled;
 				},
 				
-				isFinished: function() {
-					var finished = true;
+				isSolved: function() {
 					for (var i = 0; i < this.data.finishState.length; ++i) {
 						var vessel = this.data.finishState[i].vessel;
-						finished = finished && (this.vessels[vessel].filled == this.data.finishState[i].filled);
+						if (this.vessels[vessel].filled != this.data.finishState[i].filled) {
+							return false;
+						}
 					}
-					return finished;
+					return true;
 				},
 
 				onTabSelected: function(problemId) {
@@ -553,7 +554,7 @@ define('Pourer',
 					for (var i = 0; i < this.vessels.length; ++i){
 						results.push(this.vessels[i].filled);
 					}
-					result.isFinished = this.isFinished();
+					result.isSolved = this.isSolved();
 					result.points = this.points;
 
 					return result;
