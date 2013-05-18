@@ -60,9 +60,9 @@ define('ExecutionUnitWrapper', ['jQuery',
 				this.executionUnit.draw();	
 			},
 
-			isDead: function() {
+			isGameOver: function() {
 				this.checkExecutionUnit();
-				return this.executionUnit.isDead();	
+				return this.executionUnit.isGameOver();	
 			},
 
 			executeCommand: function(command, args) {

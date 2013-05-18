@@ -382,7 +382,7 @@ define('Pourer',
 					}
 				},
 
-				isDead: function() {
+				isGameOver: function() {
 					return this.dead; // can user loose?
 				},
 

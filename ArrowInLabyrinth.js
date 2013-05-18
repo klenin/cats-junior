@@ -899,7 +899,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
 			},
 			
-			isDead: function() {
+			isGameOver: function() {
 				return this.arrow.dead;
 			},
 

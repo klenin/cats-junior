@@ -439,8 +439,8 @@ function() {
 		},
 
 		nextStep: function(cnt, i) {
-			if (this.executionUnit.isDead() || this.stopped) {
-				if (this.executionUnit.isDead()) //check it!!!
+			if (this.executionUnit.isGameOver() || this.stopped) {
+				if (this.executionUnit.isGameOver()) //check it!!!
 				this.heroIsDead();
 				if (this.stopped) {
 					this.setDefault();
@@ -584,7 +584,7 @@ function() {
 			if (!this.checkLimit()) {
 				return;
 			}
-			if (!this.playing || this.executionUnit.isDead()) {
+			if (!this.playing || this.executionUnit.isGameOver()) {
 				this.setDefault();
 				this.setCounters();
 				//this.updateInterface('START_EXECUTION');
@@ -802,7 +802,7 @@ function() {
 		},
 		
 		needToContinueExecution: function() {
-			return !(this.stopped || this.paused || this.executionUnit.isDead());
+			return !(this.stopped || this.paused || this.executionUnit.isGameOver());
 		},
 		
 		recalculatePenalty: function(command) {
