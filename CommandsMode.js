@@ -1101,7 +1101,6 @@ define('CommandsMode', ['jQuery',
 				}
 				self.problem.newCommandGenerated();
 				++cmdId;
-				self.problem.updated();
 			});
 			require('InterfaceJSTree').createJsTreeForFunction('#funcDef-' + c, this.problem, true); // Circular Dependency!! But I don't know how we can avoid it :-(
 		},

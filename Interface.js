@@ -241,6 +241,7 @@ define('Interface', ['jQuery',
 		}
 		else {
 			$.unblockUI();
+			problem.setCurrentStage('IDLE');
 			problem.updated();
 		}
 	}
@@ -260,7 +261,7 @@ define('Interface', ['jQuery',
 			
 			if (block) {
 				//problems[j].cmdList = block;//??
-
+				problem.setCurrentStage('CONVERTION_TO_COMMANDS');
 				problem.loadedCnt = 1;
 				startWaitForCommandsGeneration(problem);
 				block.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
@@ -272,12 +273,14 @@ define('Interface', ['jQuery',
 			else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
 				$("#commandsMode" + j).prop('checked', false);
 				$("#codeMode" + j).prop('checked', true);
+				problem.setCurrentStage('IDLE');
 				problem.updated();
 				return;
 			}
 		}
 		catch(e){
 			console.error(e);
+			problem.setCurrentStage('IDLE');
 			$.unblockUI();
 			++cmdId;
 			if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
@@ -286,6 +289,7 @@ define('Interface', ['jQuery',
 				return;
 			}
 			problem.updated();
+			return;
 		}
 		$('#ulCommands' + j).show();
 		$('#jstree-container' + j).show();

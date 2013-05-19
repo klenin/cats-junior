@@ -51,6 +51,7 @@ function() {
 			this.functions = {};
 			this.functionsWithId = [];
 			this.numOfFunctions = 0;
+			this.setCurrentStage('IDLE');
 		},
 
 		initExecutor: function(data) {
@@ -173,6 +174,15 @@ function() {
 			for (var i = 0; i < codeareas[problem].lineCount(); ++i)
 			codeareas[problem].setLineClass(i, null);
 			this.updateWatchList();
+			this.setCurrentStage('IDLE');
+		},
+
+		setCurrentStage: function(stage) {
+			this.stage = stage;
+		},
+
+		getCurrentStage: function() {
+			return this.stage;
 		},
 
 		hideFocus: function() {
@@ -313,6 +323,9 @@ function() {
 		},
 
 		updated: function() {
+			if (this.getCurrentStage() == 'CONVERTION_TO_COMMANDS') {
+				return;
+			}
 			this.functions = {};
 			this.functionsWithId = [];
 			this.numOfFunctions = 0;
