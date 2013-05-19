@@ -35,20 +35,27 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			switch (newState) {
 				case 'START_EXECUTION':
 					$(this.domObject).attr('disabled', 'disabled');
+					$(this.domObject).children().attr('disabled', 'disabled');
 					break;
 				case 'FINISH_EXECUTION':
 					$(this.domObject).removeAttr('disabled');
+					$(this.domObject).children().removeAttr('disabled');
 					break;
 			}
 		},
 
 		setDefault: function(){
 			$(this.domObject).removeAttr('disabled');
+			$(this.domObject).children().removeAttr('disabled');
 		},
 
 		getExpression: function() {
 			return this.expression;
 		},
+
+		setArgumentValues: function(argumentValues) {
+			this.argumentValues = $.extend(true, {}, argumentValues);
+		}
 	});
 	
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
@@ -63,15 +70,20 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		generateDomObject: function(prev, callback, problem, value) {
-			var select = $('<select class="testFunctionArgument"></select>').insertAfter(prev);
+			var container = $('<span class = "testFunctionArgument"></span>').insertAfter(prev);
+			var select = $('<select class = "selectExpression"></select>').appendTo(container);
+
 			for (var i = 0; i < this.options.length; ++i) {
 				$(select).append('<option value="' + this.options[i][0] + '">' + this.options[i][1] + '</option><br>');
 			}
+
+			var valueInput = $('<input class = "selectValue"></input>').appendTo(container);
+			$(valueInput).hide();
 		
 			this.callback = callback;
 			this.problem = problem;
 
-			this.domObject = select;
+			this.domObject = container;
 			this.updateCallbacks();
 
 			if (this.arguments && this.arguments.length) {
@@ -79,7 +91,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 			
 			if (value) {
-				$(this.domObject).val(value);
+				this.setValue(value);
 			}
 			return this.domObject;
 		},
@@ -87,17 +99,39 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		initializeArgumentDomObject: function(command, index) {
 			this.__base(command, index);
 			if (this.domObject.length) {
-				this.expression = $(this.domObject).children('option:selected').val();
+				this.expression = $(this.domObject).children('select').children('option:selected').val();
 				this.updateCallbacks();
 			}
 		},
 
 		updateCallbacks: function() {
 			var self = this;
-			$(this.domObject).off('change').on('change', function(){
-				self.expression = $(this).children('option:selected').val();
+			$(this.domObject).children('select').off('change').on('change', function(){
+				self.expression = $(this).children('select').children('option:selected').val();
 				self.problem.updated();	
 			});
+		},
+
+		updateInterface: function(newState){
+			this.__base(newState);
+			switch (newState) {
+				case 'START_EXECUTION':
+					$(this.domObject).children('select').hide();
+					var value = this.getValue(this.argumentValues);
+					for (var i = 0; i < this.options.length; ++i) {
+						if (this.options[i][0] == value || this.options[i][1] == value) {
+							value = this.options[i][1];
+							break;
+						}
+					}
+					$(this.domObject).children('input').val(value);
+					$(this.domObject).children('input').show();
+					break;
+				case 'FINISH_EXECUTION':
+					$(this.domObject).children('input').hide();
+					$(this.domObject).children('select').show();
+					break;
+			}
 		},
 
 		findValue: function(value) {
@@ -112,19 +146,19 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		addArguments: function(args, clear) {
 			if (clear) {
-				$(this.domObject).children(':gt(' + (this.options.length - 1) + ')').remove();
+				$(this.domObject).children('select').children(':gt(' + (this.options.length - 1) + ')').remove();
 				this.arguments = [];
 			}
 
 			for (var i = 0; args && i < args.length; ++i) {
-				$(this.domObject).append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
+				$(this.domObject).children('select').append('<option value="' + args[i] + '">' + args[i] + '</option><br>');
 				this.arguments.push(args[i]);
 			}
 		},
 
 		setValue: function(value, afterDomCreation) {
 			this.expression = value;
-			$(this.domObject).val(value);
+			$(this.domObject).children('select').val(value);
 		},
 	
 		getValue: function(args) {
@@ -132,12 +166,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
 
-		setDefault: function(){
-			$(this.domObject).removeAttr('disabled');
-		},
-		
 		getDomObjectValue: function(object) {
-			return $(object).children('option:selected').val();
+			return $(object).children('select').children('option:selected').val();
 		}
 	});
 	
@@ -294,6 +324,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		updateInterface: function(newState){
+			this.__base(newState);
 			switch (newState) {
 				case 'START_EXECUTION':
 					this.hideBtn();
@@ -306,10 +337,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		getDomObjectValue: function(object) {
 			return $(object).children('.spinExpression').val();
-		},
-
-		setArgumentValues: function(argumentValues) {
-			this.argumentValues = $.extend(true, {}, argumentValues);
 		}
 	});	
 
@@ -382,14 +409,17 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		generateDomObject: function(prev, callback, problem, value) {
-			var input = $('<input class="testFunctionArgument"></input>').insertAfter(prev);
-		
-			this.domObject = input;
+			var container = $('<span class="testFunctionArgument"></span>').insertAfter(prev);
+			var input = $('<input class = "inputExpression"></input>').appendTo(container);
+			var inputValue = $('<input class = "inputValue"></input>').appendTo(container);
+			$(inputValue).hide();
+
+			this.domObject = container;
 			
 			if (value) {
 				this.setValue(value);
 			}
-			$(input).change(function() {
+			$(container).children('.inputExpression').change(function() {
 				callback();
 			});
 			
@@ -398,7 +428,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		setValue: function(value, afterDomCreation) {
 			this.value = value;
-			$(this.domObject).val(value);
+			$(this.domObject).children('.inputExpression').val(value);
 		},
 
 		returnValue: function(value) {
@@ -421,15 +451,31 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 		
 		getValue: function(args) {
-			var value = $(this.domObject).val();
+			var value = $(this.domObject).children('.inputExpression').val();
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
 			return this.returnValue(value);
 		},
 	
+		updateInterface: function(newState){
+			this.__base(newState);
+			switch (newState) {
+				case 'START_EXECUTION':
+					$(this.domObject).children('.inputExpression').hide();
+					var value = this.getValue(this.argumentValues);
+					$(this.domObject).children('.inputValue').val(value);
+					$(this.domObject).children('.inputValue').show();
+					break;
+				case 'FINISH_EXECUTION':
+				$(this.domObject).children('.inputValue').hide();
+					$(this.domObject).children('.inputExpression').show();
+					break;
+			}
+		},
+
 		getDomObjectValue: function(object) {
-			return $(object).val();
+			return $(object).children('.inputExpression').val();
 		}
 	});
 

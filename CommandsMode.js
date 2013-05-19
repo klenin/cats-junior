@@ -633,6 +633,10 @@ define('CommandsMode', ['jQuery',
 					this.blockToExecute = testResult ? 0 : 1;
 					--cmdNumToExecute;
 					this.blocks[0].setDefault();
+					if (this.blocks[1]) {
+						this.blocks[1].setDefault();
+					}
+					this.setArgumentValues(args);
 					this.updateInterface('START_EXECUTION');
 					if (this.problem.needToHighlightCommand(this)) {
 						this.highlightOn();
@@ -646,6 +650,17 @@ define('CommandsMode', ['jQuery',
 				}
 			}
 			return cmdNumToExecute;
+		},
+
+		setArguments: function(args) {
+			this.__base(args);
+			if (this.blocks) {
+				for (var i = 0; i < this.blocks.length; ++i) {
+					if (this.blocks[i]) {
+						this.blocks[i].setArguments(args);
+					}
+				}
+			}
 		},
 
 		isStarted: function() {
@@ -1032,6 +1047,12 @@ define('CommandsMode', ['jQuery',
 		updateArguments: function(funcId, args) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateArguments(funcId, args);
+			}
+		},
+
+		setArgumentValues: function(args) {
+			for (var i = 0; i < this.commands.length; ++i) {
+				this.commands[i].setArgumentValues(args);
 			}
 		}
 	});

@@ -1,6 +1,7 @@
-define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
+define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitCommands'], function(){
 	var CommandsMode = require('CommandsMode');
-	
+	var ExecutionUnitCommands = require('ExecutionUnitCommands');
+
 	var Exceptions = require('Exceptions');
 	var IncorrectInput = Exceptions.IncorrectInput;
 	var InternalError = Exceptions.InternalError;
@@ -27,10 +28,13 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 			if (type == 'block' && commands[i].children)		{
 				block.pushCommand(convert(commands[i].children, block, problem));
 			}
-			else if (type == 'if' || type == 'ifelse' || type == 'while')		{
-				var args = [$(node).children('.testFunctionArgument:eq(0)').children('option:selected').val(), 
-					$(node).children('.testFunctionArgument:eq(1)').children('option:selected').val()];
-				var conditionPropertiesId = $(node).children('.testFunctionArgument:eq(0)').children('option:selected').val();
+			else if (type == 'if' || type == 'ifelse' || type == 'while') {
+				var argument = new ExecutionUnitCommands.CommandArgumentSelect([]);
+				var args = [];
+				for (var j = 0; j < 2; ++j) {
+					args.push(argument.getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
+				}
+				var conditionPropertiesId = args[0];
 				var conditionProperties = problem.executionUnit.getConditionProperties(conditionPropertiesId);
 				var conditionArguments = conditionProperties.args;
 				for (var j = 0; j < conditionArguments.length; ++j) {
@@ -69,9 +73,10 @@ define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode'], function(){
 				block.pushCommand(newCommand);
 			}
 			else if (type == 'funccall'){
+				var argument = new ExecutionUnitCommands.CommandArgumentInput();
 				var args = [];
-				for (var j = 0; j < $(node).children('input').length; ++j) {
-					args.push($(node).children('input:eq(' + j + ')').val());
+				for (var j = 0; j < $(node).children('.testFunctionArgument').length; ++j) {
+					args.push(argument.getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
 				}
 				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data : 
 					$(node).text().split(' ').join(''), args,  block, node, problem));

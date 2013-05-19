@@ -146,7 +146,7 @@ div.recycle-bin{
 	border-radius: 6px;
 
 }
-input.spinExpression, input.spinValue{
+input.spinExpression, input.spinValue, input.selectValue, input.inputExpression, input.inputValue{
 	font-family:Verdana;
 	font-size: 0.85em;
 	width: 60px; height: 21px; 
