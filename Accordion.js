@@ -124,7 +124,10 @@ define('Accordion', ['jQuery', 'jQueryUI', 'Declaration'], function(){
 			},
 
 			clearDiv: function(div) {
-				$(this).data('arguments')[$(div).index()] = [];
+				if ($(div).index() >= 0) { //WA. this function is called twice for some reason. 
+					//The second time it's called for already removed div, it's idnex is -1 => we remove the last argument in the list
+					$(this).data('arguments').splice($(div).index(), 1);
+				}
 			},
 
 			showFunctionNameInput: function(div) {

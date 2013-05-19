@@ -361,11 +361,8 @@ function() {
 		},
 
 		removeFunctionCall: function(funcId) {
-			this.updated();
-			//if (!this.functions[name]){
 			this.cmdList.removeFunctionCall(funcId);
-			//}
-			this.highlightWrongNames();
+			this.updated();
 		},
 
 		updateArguments: function(funcId, args) {
