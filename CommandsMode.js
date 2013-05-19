@@ -278,7 +278,11 @@ define('CommandsMode', ['jQuery',
 				if (i > 0) {
 					str += ', ';
 				}
-				str += this.arguments[i].getExpression();
+				var arg = this.arguments[i].findValue(this.arguments[i].getExpression());
+				if (!arg) {
+					arg = this.arguments[i].getExpression();
+				}
+				str += arg;
 			}
 			str += ')\n';
 			return str;

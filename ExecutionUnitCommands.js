@@ -384,21 +384,19 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		generateDomObject: function(prev, callback, problem, value) {
 			var input = $('<input class="testFunctionArgument"></input>').insertAfter(prev);
 		
+			this.domObject = input;
+			
 			if (value) {
-				$(input).val(value);
+				this.setValue(value);
 			}
 			$(input).change(function() {
 				callback();
 			});
-
-			this.domObject = input;
+			
 			return this.domObject;
 		},
 
 		setValue: function(value, afterDomCreation) {
-			if (value == '""') {
-				value = '';
-			}
 			this.value = value;
 			$(this.domObject).val(value);
 		},
@@ -408,10 +406,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				return parseInt(value);
 			}
 
-			if (checkName(value)) {
-				return value;
+			return value;
+		},
+
+		findValue: function() {
+			if (checkNumber(this.value) || checkName(this.value)) {
+				return this.value;
 			}
-			return '\"' + value + '\"';
+			return '\"' + this.value + '\"';
 		},
 
 		getExpression: function() {
