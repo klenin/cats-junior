@@ -380,7 +380,10 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return parseInt(result);
 		},
 
-		getCounterValue: function() {
+		getCounterValue: function(args) {
+			if (this.value == undefined) {
+				this.value = this.getValue(args);
+			}
 			return this.value;
 		},
 

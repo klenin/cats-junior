@@ -40,7 +40,7 @@ define('CommandsMode', ['jQuery',
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
 			}
-			if (cmdNumToExecute > 0 && !this.isFinished()) {
+			if (cmdNumToExecute > 0 && !this.isFinished(args)) {
 				if (!this.isStarted()) {
 					this.updateInterface('START_EXECUTION');
 				}
@@ -75,7 +75,7 @@ define('CommandsMode', ['jQuery',
 			this.highlightOff();
 		},
 		
-		isFinished: function() {
+		isFinished: function(args) {
 			return this.finished;
 		},
 		
@@ -403,7 +403,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		exec: function(cmdNumToExecute, args) {
-			while (cmdNumToExecute > 0 && !this.isFinished()) {
+			while (cmdNumToExecute > 0 && !this.isFinished(args)) { //we need to check the correctness of the counter expression
 				cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);
 			}
 			return cmdNumToExecute;
@@ -418,8 +418,8 @@ define('CommandsMode', ['jQuery',
 			return 'CommandWithCounter';
 		},
 		
-		isFinished: function() {
-			var counterValue = this.counter.getCounterValue();
+		isFinished: function(args) {
+			var counterValue = this.counter.getCounterValue(args);
 			if (counterValue == undefined) {
 				throw new IncorrectInput('Некорректный счетчик');
 			}
@@ -451,8 +451,8 @@ define('CommandsMode', ['jQuery',
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
 			}
-			if (!this.isFinished()) {
-				if (!this.isStarted() || this.body.isFinished()) {
+			if (!this.isFinished(args)) {
+				if (!this.isStarted() || this.body.isFinished(args)) {
 					if (this.isStarted()) {
 						this.body.setDefault();
 					}
@@ -467,7 +467,7 @@ define('CommandsMode', ['jQuery',
 				
 				if (cmdNumToExecute > 0) {
 					cmdNumToExecute = this.body.exec(cmdNumToExecute, args);
-					if (this.body.isFinished()) {
+					if (this.body.isFinished(args)) {
 						this.counter.decreaseValue();
 						//this.body.setDefault();
 					}
@@ -623,7 +623,7 @@ define('CommandsMode', ['jQuery',
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
 			}
-			if (!this.isFinished()){
+			if (!this.isFinished(args)){
 				if (!this.isStarted()) {
 					var testResult = this.testCondition(args);
 					this.blockToExecute = testResult ? 0 : 1;
@@ -640,7 +640,7 @@ define('CommandsMode', ['jQuery',
 				}
 				if (cmdNumToExecute > 0 && this.blocks[this.blockToExecute]) {
 					cmdNumToExecute = this.blocks[this.blockToExecute].exec(cmdNumToExecute, args);
-					if (this.blocks[this.blockToExecute].isFinished()) {
+					if (this.blocks[this.blockToExecute].isFinished(args)) {
 						this.onBlockExecution();
 					}
 				}
@@ -851,8 +851,8 @@ define('CommandsMode', ['jQuery',
 			return 'if'
 		},
 
-		isFinished: function() {
-			return this.isStarted() && (this.blocks[this.blockToExecute] == undefined || this.blocks[this.blockToExecute].isFinished());
+		isFinished: function(args) {
+			return this.isStarted() && (this.blocks[this.blockToExecute] == undefined || this.blocks[this.blockToExecute].isFinished(args));
 		}
 	},
 	{
@@ -903,7 +903,7 @@ define('CommandsMode', ['jQuery',
 			return 'while'
 		},
 
-		isFinished: function() {
+		isFinished: function(args) {
 			return this.isStarted() && this.blocks[this.blockToExecute] == undefined;
 		},
 
@@ -947,7 +947,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cmdNumToExecute, args) {
 			while (cmdNumToExecute && this.commandIndex < this.commands.length) {
 				cmdNumToExecute = this.commands[this.commandIndex].exec(cmdNumToExecute, args);
-				if (this.commands[this.commandIndex].isFinished() || this.commands[this.commandIndex].getClass() == 'funcdef') {
+				if (this.commands[this.commandIndex].isFinished(args) || this.commands[this.commandIndex].getClass() == 'funcdef') {
 					++this.commandIndex;
 				}
 			}
@@ -965,9 +965,9 @@ define('CommandsMode', ['jQuery',
 			this.commandIndex = 0;
 		},
 		
-		isFinished: function() {
+		isFinished: function(args) {
 			return (this.commandIndex >= this.commands.length) || 
-				(this.commandIndex == this.commands.length - 1 && this.commands[this.commandIndex].isFinished());
+				(this.commandIndex == this.commands.length - 1 && this.commands[this.commandIndex].isFinished(args));
 		},
 		
 		isStarted: function() {
@@ -1167,7 +1167,7 @@ define('CommandsMode', ['jQuery',
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
 			}
-			if (cmdNumToExecute > 0 && !this.isFinished()) {
+			if (cmdNumToExecute > 0 && !this.isFinished(args)) {
 				if (!this.isStarted()) {
 					this.updateInterface('START_EXECUTION');
 					if (this.problem.needToHighlightCommand(this)) {
@@ -1192,7 +1192,7 @@ define('CommandsMode', ['jQuery',
 
 		exec: function(cmdNumToExecute, args) {
 			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);	
-			if (this.funcDef.isFinished()) {
+			if (this.funcDef.isFinished(args)) {
 				this.funcDef = undefined;
 				this.finished = true;
 			}
