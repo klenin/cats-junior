@@ -398,7 +398,7 @@ function() {
 				}
 			} catch (e) {
 				console.error(e);
-				$('#cons' + this.tabIndex).append(e);
+				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
 			}
 		},
 

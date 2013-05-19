@@ -419,7 +419,11 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		isFinished: function() {
-			return this.counter.getCounterValue() <= 0;
+			var counterValue = this.counter.getCounterValue();
+			if (counterValue == undefined) {
+				throw new IncorrectInput('Некорректный счетчик');
+			}
+			return counterValue <= 0;
 		},
 		
 		isStarted: function() {
@@ -481,15 +485,7 @@ define('CommandsMode', ['jQuery',
 			this.body.setDefault();
 			this.started = false;
 		},
-		
-		isFinished: function() {
-			return this.counter.getCounterValue() <= 0;
-		},
-		
-		isStarted: function() {
-			return this.started;
-		},
-		
+			
 		updateInterface: function(newState) {
 			this.__base(newState);
 			this.body.updateInterface(newState)
