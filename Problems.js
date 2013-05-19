@@ -558,7 +558,7 @@ function() {
 				this.setDefault();
 				//this.updateInterface('START_EXECUTION');
 			}
-			//try {
+			try {
 				this.speed = s;
 				if (!this.playing) {
 					if (!$('#codeMode' + this.tabIndex).prop('checked')) {
@@ -580,16 +580,15 @@ function() {
 						problem.play(MAX_VALUE);
 					}
 				}(this), s);
-			/*} catch (e) {
-				//console.error(e);
-				this.playing = false;
-				if (e.tp$name == "ParseError" && e.args.v[0].v == "bad input on line") {
-					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + (e.args.v[1].v - 1) + ' строке');
+			} catch (e) {
+				this.playing = false;	
+				if (e.getErrorLine) {
+					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке');
 				}
 				else {
 					$('#cons' + this.tabIndex).html('Некорректный код');
 				}
-			}*/
+			}
 		},
 
 		prepareForExecuting: function(dontHighlight) {

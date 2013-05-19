@@ -37,6 +37,14 @@ Sk.builtin.Exception.prototype.toString = function()
     return this.tp$str().v;
 }
 
+Sk.builtin.Exception.prototype.getErrorLine = function()
+{
+    if (this.args.v.length > 2) {
+        return this.args.v[2];
+    }
+    return undefined;
+}
+
 /**
  * @constructor
  * @extends Sk.builtin.Exception

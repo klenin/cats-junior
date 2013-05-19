@@ -289,7 +289,6 @@ define('Interface', ['jQuery',
 				return;
 			}
 			problem.updated();
-			return;
 		}
 		$('#ulCommands' + j).show();
 		$('#jstree-container' + j).show();
