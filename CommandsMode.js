@@ -743,16 +743,16 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
-			$(this.node).children('.testFunctionArgument').first().off('change').on('change', function(p, self){
+			$(this.node).children('.testFunctionArgument').children('select').first().off('change').on('change', function(p, self){
 				return function() {
 					var condName = $(this).children('option:selected').val();
 					if (condName != self.conditionName) {
-						$(this).parent().children('.testFunctionArgument:gt(1)').remove();
-						CondStmt.generateArgumentsDom($(this).parent(), 
+						$(this).parent().parent().children('.testFunctionArgument:gt(1)').remove();
+						CondStmt.generateArgumentsDom($(this).parent().parent(), 
 							p.getConditionProperties(condName).args, 
 							p, 
 							false, 
-							$(this).parent().children('.testFunctionArgument').last());
+							$(this).parent().parent().children('.testFunctionArgument').last());
 						p.updated();
 					}
 				};
@@ -1000,6 +1000,9 @@ define('CommandsMode', ['jQuery',
 		
 		generatePythonCode: function(tabsNum) {
 			str = '';
+			if (!this.commands.length && this.needToGeneratePassStmt()) {
+				str += generateTabs(tabsNum + 1) + 'pass\n';
+			}
 			for (var i = 0; i < this.commands.length; ++i) {
 				str += this.commands[i].generatePythonCode(tabsNum);
 			}
@@ -1050,6 +1053,12 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].setArgumentValues(args);
 			}
+		},
+
+		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to decide whether 
+		//we should generate pass statement when block is empty or not
+		//we shouldn't generate only if the parent is Block (we're in main body)
+			return this.parent && this.parent.getClass() != 'Block';
 		}
 	});
 
@@ -1128,6 +1137,12 @@ define('CommandsMode', ['jQuery',
 
 		getArguments: function() {
 			return this.argumentsList;
+		},
+
+		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to parent field to decide whether 
+		//we should generate pass statement when block is empty or not
+		//we shouldn't generate only if the parent is Block (we're in main body)
+			return true;
 		}
 	});
 
