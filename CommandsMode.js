@@ -1178,6 +1178,16 @@ define('CommandsMode', ['jQuery',
 			this.funcDef = undefined;
 		},
 
+		generateArgValues: function(args) {
+			var funcDefArguments = this.getFuncDef().getArguments();
+			var argsCopy = args ? $.extend(true, {}, args) : undefined;
+			args = args ? args : {};
+			for (var i = 0; i < this.arguments.length; ++i) {
+				args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
+			}
+			return args;
+		},
+
 		executeOneStep: function(cmdNumToExecute, args){
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
@@ -1193,28 +1203,21 @@ define('CommandsMode', ['jQuery',
 					this.problem.setLastExecutedCommand(this);
 				}
 				if (cmdNumToExecute > 0) {
-					var funcDefArguments = this.funcDef.getArguments();
-					var argsCopy = args ? $.extend(true, {}, args) : undefined;
-					args = args ? args : {};
-					for (var i = 0; i < this.arguments.length; ++i) {
-						args[funcDefArguments[i]] = this.arguments[i].getValue(argsCopy);
-					}
-					cmdNumToExecute = this.funcDef.executeBody(cmdNumToExecute, args);
+					cmdNumToExecute = this.funcDef.executeBody(cmdNumToExecute, this.generateArgValues(args));
 				}
 			}
 			return Math.max(0, cmdNumToExecute);
 		},
 
 		exec: function(cmdNumToExecute, args) {
-			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);	
-			if (this.funcDef.isFinished(args)) {
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, this.generateArgValues(args));	
+			if (this.funcDef.isFinished(this.generateArgValues(args))) {
 				this.funcDef = undefined;
 				this.finished = true;
 			}
 			return cmdNumToExecute;
 		},
-		
-		
+				
 		getClass: function() {
 			return 'funccall';
 		},
