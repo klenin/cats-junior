@@ -34,5 +34,3 @@ define('Exceptions', ['jQuery', 'jQueryInherit'], function(){
 		InternalError: InternalError
 	}
 });
-
-

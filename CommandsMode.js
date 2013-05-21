@@ -947,7 +947,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cmdNumToExecute, args) {
 			while (cmdNumToExecute && this.commandIndex < this.commands.length) {
 				cmdNumToExecute = this.commands[this.commandIndex].exec(cmdNumToExecute, args);
-				if (this.commands[this.commandIndex].isFinished(args) || this.commands[this.commandIndex].getClass() == 'funcdef') {
+				if (this.commands[this.commandIndex].getClass() == 'funcdef' || this.commands[this.commandIndex].isFinished(args)) {
 					++this.commandIndex;
 				}
 			}
