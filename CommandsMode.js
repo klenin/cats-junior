@@ -455,6 +455,9 @@ define('CommandsMode', ['jQuery',
 				if (!this.isStarted() || this.body.isFinished(args)) {
 					if (this.isStarted()) {
 						this.body.setDefault();
+						if (this.body.isFinished(args)) { //WA for the case of empty body
+							this.counter.decreaseValue();
+						}
 					}
 					this.setArgumentValues(args);
 					this.updateInterface('START_EXECUTION');
