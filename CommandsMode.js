@@ -18,6 +18,7 @@ define('CommandsMode', ['jQuery',
 			this.node = node;
 			this.problem = problem;
 			this.finished = false;
+			this.timestamp = new Date().getTime();
 		},
 		
 		createClone: function () {
@@ -30,10 +31,6 @@ define('CommandsMode', ['jQuery',
 		
 		prepareArgumentsListForExecution: function(args) {
 			return [];
-		},
-
-		prepareArgumentsForExecution: function() {
-			return;
 		},
 
 		executeOneStep: function(cmdNumToExecute, args){
