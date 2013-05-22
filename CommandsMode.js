@@ -430,7 +430,7 @@ define('CommandsMode', ['jQuery',
 
 	var ForStmt = $.inherit(CommandWithCounter, {
 		__constructor: function(body, cmdNumToExecute, parent, node, problem) {
-			parameters = [new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
+			var parameters = [new ExecutionUnitCommands.CommandArgumentSpinCounter(1, undefined)];
 			this.__base(undefined, parameters, [cmdNumToExecute], parent, node, problem);
 			this.body = body;
 		},
@@ -743,16 +743,16 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
-			$(this.node).children('.testFunctionArgument').children('select').first().off('change').on('change', function(p, self){
+			this.__self.getConditionTypeSelect().off('change').on('change', function(p, self){
 				return function() {
 					var condName = $(this).children('option:selected').val();
 					if (condName != self.conditionName) {
-						$(this).parent().parent().children('.testFunctionArgument:gt(1)').remove();
-						CondStmt.generateArgumentsDom($(this).parent().parent(), 
+						$(self.node).children('.testFunctionArgument:gt(1)').remove();
+						CondStmt.generateArgumentsDom($(self.node), 
 							p.getConditionProperties(condName).args, 
 							p, 
 							false, 
-							$(this).parent().parent().children('.testFunctionArgument').last());
+							$(self.node).children('.testFunctionArgument').last());
 						p.updated();
 					}
 				};
@@ -830,6 +830,10 @@ define('CommandsMode', ['jQuery',
 				args.push(conditionProperty.args[i].clone());
 			}
 			return args;
+		},
+
+		getConditionTypeSelect: function() {
+			return $(this.node).children('.testFunctionArgument').children('select').first();
 		}
 	});
 
