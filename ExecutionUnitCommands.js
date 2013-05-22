@@ -56,6 +56,11 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		setArgumentValues: function(argumentValues) {
 			this.argumentValues = $.extend(true, {}, argumentValues);
 		}
+	},
+	{
+		getDomObjectValue: function(object) {
+			return undefined;
+		}
 	});
 	
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
@@ -164,8 +169,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		getValue: function(args) {
 			var value = this.expression;
 			return (args == undefined || args[value] == undefined) ? value : args[value];
-		},
-
+		}
+	}, 
+	{
 		getDomObjectValue: function(object) {
 			return $(object).children('select').children('option:selected').val();
 		}
@@ -333,8 +339,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					this.showBtn();
 					break;
 			}
-		},
-
+		}
+	}, 
+	{
 		getDomObjectValue: function(object) {
 			return $(object).children('.spinExpression').val();
 		}
@@ -475,8 +482,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 					$(this.domObject).children('.inputExpression').show();
 					break;
 			}
-		},
-
+		}
+	}, 
+	{
 		getDomObjectValue: function(object) {
 			return $(object).children('.inputExpression').val();
 		}
