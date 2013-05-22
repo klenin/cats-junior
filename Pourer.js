@@ -11,31 +11,30 @@ define('Pourer',
 		var InternalError = Exceptions.InternalError;
 
 		var Vessel = $.inherit({
-			__constructor: function(capacity, initFilled, div, maxCapacity) {
+			__constructor: function(capacity, initFilled, div, maxCapacity, index) {
 				this.capacity = capacity;
 				this.initFilled = initFilled;
 				this.filled = initFilled;
 				this.div = div;
 				this.maxCapacity = maxCapacity;
-				this.init();
+				this.init(index);
 			},
 
 			getCell: function(row) {
 				return $(this.vesselBg);
 			},
 
-			init: function() {
+			init: function(index) {
 				var table = $('<table></table>').appendTo(this.div);
 				var tr = $('<tr></tr>').appendTo(table);
 				var td = $('<td></td>').appendTo(tr);
-				this.vesselDiv = $('<div style="width:150px; height:' + 
-					(300 * (this.capacity + 0.0)/ this.maxCapacity) + '"></div>').appendTo(td);
+				this.vesselDiv = $('<div></div>').appendTo(td);				
 
-				tr = $('<tr></tr>').appendTo(table);
-				td = $('<td></td>').appendTo(tr);
+				$(table).append('<tr><td align="center">' + this.initFilled + '/' + this.maxCapacity + '</td></tr>');
+				this.state = $(table).children('tbody').children('tr').last().children(td);
 
-				this.title = $('<div></div>').appendTo(td);
-				
+				$(table).append('<tr><td align="center">' + (index + 1) + '</td></tr>');
+
 				$(this.vesselDiv).cylinder({
 					  colors: {
 					    container: {
@@ -58,7 +57,7 @@ define('Pourer',
 
 			draw: function() {
 				$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
-				$(this.title).html(this.filled + '/' + this.capacity);			
+				$(this.state).html(this.filled + '/' + this.capacity);			
 			},
 
 			pourTo: function(delta) { //we pour from this vessel to another
@@ -297,7 +296,8 @@ define('Pourer',
 						this.vessels.push(new Vessel(this.data.vessels[i].capacity, 
 							this.data.vessels[i].initFilled, 
 							cell,
-							maxCapacity )
+							maxCapacity, 
+							i)
 						);			
 					}
 
