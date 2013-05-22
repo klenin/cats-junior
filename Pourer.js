@@ -25,11 +25,16 @@ define('Pourer',
 			},
 
 			init: function() {
-				this.title = $('<div style="position: absolute;"></div>').appendTo(this.div);
+				var table = $('<table></table>').appendTo(this.div);
+				var tr = $('<tr></tr>').appendTo(table);
+				var td = $('<td></td>').appendTo(tr);
 				this.vesselDiv = $('<div style="width:150px; height:' + 
-					(300 * (this.capacity + 0.0)/ this.maxCapacity) + ';position: absolute"></div>').appendTo($('body'));
+					(300 * (this.capacity + 0.0)/ this.maxCapacity) + '"></div>').appendTo(td);
 
-				$(this.vesselDiv).css({'top': $(this.div).position().top})
+				tr = $('<tr></tr>').appendTo(table);
+				td = $('<td></td>').appendTo(tr);
+
+				this.title = $('<div></div>').appendTo(td);
 				
 				$(this.vesselDiv).cylinder({
 					  colors: {
@@ -45,7 +50,6 @@ define('Pourer',
 					  height: 300 * (this.capacity + 0.0)/ this.maxCapacity,
 					  value: (this.initFilled + 0.0) / this.maxCapacity
 				});
-				$(this.vesselDiv).hide();
 			},
 
 			setDefault: function(dontDraw) {
@@ -53,13 +57,8 @@ define('Pourer',
 			},
 
 			draw: function() {
-				$(this.vesselDiv).show();
 				$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
-
-				$(this.title).css({'top': $(this.vesselDiv).position().top + $(this.vesselDiv).height() + 15,
-					'left': $(this.vesselDiv).position().left});
-				$(this.title).html(this.filled + '/' + this.capacity);
-				
+				$(this.title).html(this.filled + '/' + this.capacity);			
 			},
 
 			pourTo: function(delta) { //we pour from this vessel to another
@@ -76,38 +75,6 @@ define('Pourer',
 
 			fill: function() {
 				this.filled = this.capacity;
-			},
-
-			getBottom: function() {
-				return this.getTop() + $(this.vesselDiv).height() + 10;
-			},
-
-			getTop: function() {
-				return $(this.div).position().top;
-			},
-
-			setBottom: function(bottom) {
-				$(this.vesselDiv).css('top', bottom - $(this.vesselDiv).height());
-			},
-			
-			setLeft: function(left) {
-				$(this.vesselDiv).css('left', left + 10);
-			},
-
-			getDivLeft: function() {
-				return $(this.div).position().left;
-			},
-
-			getWidth: function() {
-				return $(this.vesselDiv).width(); 
-			},
-
-			hide: function() {
-				$(this.vesselDiv).hide();
-			},
-
-			show: function() {
-				this.draw();
 			}
 		});
 
@@ -347,10 +314,6 @@ define('Pourer',
 					return this.__self.cmdClassToName;
 				},
 
-				onTabSelect: function() {
-					this.draw();
-				},
-
 				getCommandName: function(command) {
 					return this.__self.cmdClassToName[command];
 				},
@@ -369,15 +332,8 @@ define('Pourer',
 					}
 				},
 
-				draw: function() {
-					var maxBottom = 0;
-					for (var i = 0; i < this.vessels.length; ++i){
-						maxBottom = Math.max(maxBottom, this.vessels[i].getBottom());
-					}
-					
+				draw: function() {				
 					for (var i = 0; i < this.vessels.length; ++i) {
-						this.vessels[i].setLeft(this.vessels[i].getDivLeft() + i * this.vessels[i].getWidth());
-						this.vessels[i].setBottom(maxBottom);
 						this.vessels[i].draw();
 					}
 				},
@@ -515,27 +471,6 @@ define('Pourer',
 					}
 					return true;
 				},
-
-				onTabSelected: function(problemId) {
-					if (problemId != this.problem.tabIndex) {
-						this.hide();
-					}
-					else {
-						this.show();
-					}
-				},
-
-				hide: function() {
-					for (var i = 0; i < this.vessels.length; ++i) {
-						this.vessels[i].hide();
-					}
-				},
-
-				show: function() {
-					for (var i = 0; i < this.vessels.length; ++i) {
-						this.vessels[i].show();
-					}
-				},
 				
 				getState: function() {
 					var result = {};
@@ -548,6 +483,10 @@ define('Pourer',
 					result.points = this.points;
 
 					return result;
+				},
+
+				onTabSelect: function() {
+					return;
 				}
 			},
 			{

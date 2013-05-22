@@ -959,10 +959,6 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 			onTabSelect: function() {
 				this.updateSizes();
-			},
-
-			onTabSelected: function() {
-				this.updateSizes();
 			}
 		}, 
 		{ //static methods and properties

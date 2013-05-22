@@ -755,12 +755,6 @@ function() {
 			return 'func' + index;
 		},
 
-		onTabSelected: function(problemId) {
-			if (this.executionUnit) {
-				this.executionUnit.onTabSelected(problemId);
-			}
-		},
-
 		getState: function() {
 			return this.executionUnit.getState();
 		},

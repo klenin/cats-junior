@@ -132,11 +132,6 @@ define('ExecutionUnitWrapper', ['jQuery',
 				this.executionUnit.points += delta;
 			},
 
-			onTabSelected: function(problemId) {
-				this.checkExecutionUnit();
-				this.executionUnit.onTabSelected(problemId);
-			},
-
 			getState: function() {
 				this.checkExecutionUnit();
 				this.executionUnit.getState();
