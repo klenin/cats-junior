@@ -649,7 +649,9 @@ define('CommandsMode', ['jQuery',
 		},
 
 		setArguments: function(args) {
-			this.__base(args);
+			for (var i = 2; i < this.arguments.length; ++i) {
+				this.arguments[i].setArgumentValues(args);
+			}
 			if (this.blocks) {
 				for (var i = 0; i < this.blocks.length; ++i) {
 					if (this.blocks[i]) {

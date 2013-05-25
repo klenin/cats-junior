@@ -294,7 +294,9 @@ requirejs([
 			//it happens only on loading of the last loaded tab
 			//wait for 200ms to correctly update height of the cells -- WA!!!!!!!!
 			setTimeout(function(){
-				curProblem.onTabSelect();
+				if (curProblem) {
+					curProblem.onTabSelect();
+				}
 			}, 200);
 		}
 
