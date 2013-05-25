@@ -450,63 +450,25 @@ define('Interface', ['jQuery',
 				lastWatchedIndex.push(0);
 				watchList.push({});
 			}
-			
-		});
-		if ($('#ui-tabs-' + (problems.length + 1)).length){
-			$('#ui-tabs-' + (problems.length + 1)).empty();
-			$('#tabs').tabs('remove', (problems.length + 1));
-		}
-		$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты', (problems.length + 1));
-		$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
-		$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
-		$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
-			'<iframe id = "results" src = "' + currentServer.getResultsUrl()+  '" class = "results"></iframe></td></tr></table>');
-		$('#refreshTable').click(function() {$('#results').prop('src', currentServer.getResultsUrl())});
-			$('#tabs').tabs('select', 0);
-		for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
-		  while($('#ui-tabs-' + i).length){
-				$('#ui-tabs-' + i).empty();
-				$('#tabs').tabs('remove', i);
+			if ($('#ui-tabs-' + (problems.length + 1)).length){
+				$('#ui-tabs-' + (problems.length + 1)).empty();
+				$('#tabs').tabs('remove', (problems.length + 1));
 			}
-		}
-		/*$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 2), 'test code mirror', (problems.length + 2));
-		$('#ui-tabs-' + (problems.length + 2)).append('<div id = "pythonForm"></div>');
-		$('#pythonForm').append('<textarea id = "code" name = "code"></textarea>');
-		$('#pythonForm').append('<select id = "selectTest" name = "selectTest" onchange = "testChanged()"></select>');
-		for(var i = 0; i < TESTS_NUM; i++)
-		{
-			$('#selectTest').append('<option id = "test' + i + '" value = "' + i + '">' + (i + 1) + '</option>');
-		}
-		$('#code').append(tests[0]);
-		codeareas[problems.length + 1] = CodeMirror.fromTextArea($('#code')[0], {
-			lineNumbers: true,
-			onGutterClick: function(cm, n) {
-				var info = cm.lineInfo(n);
-					if (info.markerText)
-						cm.clearMarker(n);
-					else
-					cm.setMarker(n, "<span style=\"color: #900\">●</span> %N%");
-			},
-		    mode: {name: "python",
-	           version: 2,
-	           singleLineStringErrors: false},
-	        indentUnit: 4,
-	        tabMode: "shift",
-	        matchBrackets: true
+			$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты', (problems.length + 1));
+			$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
+			$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
+			$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
+				'<iframe id = "results" src = "' + currentServer.getResultsUrl()+  '" class = "results"></iframe></td></tr></table>');
+			$('#refreshTable').click(function() {$('#results').prop('src', currentServer.getResultsUrl())});
+				$('#tabs').tabs('select', 0);
+			for(var i = $('#tabs').tabs('length') - 1; i > problems.length + 1; --i){
+			  while($('#ui-tabs-' + i).length){
+					$('#ui-tabs-' + i).empty();
+					$('#tabs').tabs('remove', i);
+				}
+			}
+			cmdId = problems.length;
 		});
-		$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPython">Post python code</button>');
-		$('#ui-tabs-' + (problems.length + 2)).append('<button id = "btnPythonNext">next</button>');
-		$('#ui-tabs-' + (problems.length + 2)).append('<button id = "addWatch' + (problems.length + 1) + '">Add watch</button>');
-		$('#pythonForm').append('<pre id = "cons' + (problems.length + 1) + '"></pre>');
-		$('#pythonForm').append('<input type = "checkbox" onchange = "showHideCode()" id = "showHide">Show/hide code</input>');
-		$('#pythonForm').append('<pre id = "codeRes1"></pre>');
-		$('#pythonForm').append('<div id = "watchDiv"><table id = "watchTable' + (problems.length + 1) + '"></table></div>');
-		$('#addWatch' + (problems.length + 1)).button().click(onAddWatchClick);
-		$('#btnPython').button();
-		$('#btnPython').click(tryCode);
-		$('#btnPythonNext').button();
-		$('#btnPythonNext').click(tryNextStep_);*/
-		cmdId = problems.length;
 	}
 
 	function setSpin(problem){
