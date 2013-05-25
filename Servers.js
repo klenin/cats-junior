@@ -238,7 +238,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		usersListRequest: function(callback) {
 			var self = this;
-			CallServer.callScript(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=1;sort_dir=0;', 
+			CallServer.callScript(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;', 
 				function(data) {
 					self.onUsersListRequest(data);
 					callback(data);
