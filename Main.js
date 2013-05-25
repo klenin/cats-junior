@@ -112,6 +112,7 @@ requirejs([
 	'jQuery', 
 	'jQueryUI', 
 	'jQueryCookie',
+	'Config',
 	'Servers', 
 	'Interface', 
 	'InterfaceJSTree', 
@@ -120,6 +121,7 @@ requirejs([
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
+		var Config = require('Config');
 		var Interface = require('Interface');
 		var InterfaceJSTree = require('InterfaceJSTree');
 		//var Tests = require('Tests');
@@ -130,7 +132,7 @@ requirejs([
 			return;
 		}
 
-		currentServer = new Servers.LocalServer();
+		currentServer = new Servers[Config.ServerName]();
 		currentServer.setSession(new Servers.Session(undefined, currentServer.defaultCid));
 
 		$('#funcName').hide();

@@ -299,27 +299,25 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 	var LocalServer = $.inherit(Server, {
 		__constructor: function() {
-			this.url = 'localServer.php';
 			this.dataType = 'json';
 			this.defaultPass = '12345';
 			this.defaultCid = 791634;
+			var args = parseArgs();
+			this.usersFile = (args['users'] ? args['users'] : 'users') + '.json';
+			this.contestsFile = (args['contests'] ? args['contests'] : 'contests') + '.json';
+			this.problemsFile = (args['problems'] ? args['problems'] : 'problems') + '.json';
 		},
 
 		submitRequest: function(submitStr, problem_id, badSidCallback) {
-			CallServer.callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', submitStr, function(data){
-				alert(data.message ? data.message : 'Решение отослано на проверку');
-			});  
+			console.log('submitting for local server is unsupported');
+			alert(data.message ? data.message : 'Решение отослано на проверку');
 		},
 
-		sendRequest: function(url, data, callback) {
+		sendRequest: function(url, callback) {
 			$.ajax({
-				async: false,
 				url: url,
-				data: data,
 				dataType: 'json',
 				success: function(data){
-					//data = data.replace(new RegExp( "\t", "g" ), ' ');
-					//var d = $.evalJSON(data);
 					callback(data);
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
@@ -332,18 +330,16 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		loginRequest: function(userLogin, userPass, callback) {
-			this.sendRequest(this.url, '&action=loginRequest', function(data){
-			});
+			console.log('login for local server is unsupported');
 		},
 
 		logoutRequest: function(callback) {
-			this.sendRequest(this.url, '&action=logoutRequest', function(data){
-			});
+			console.log('logout for local server is unsupported');
 		},
 
 		usersListRequest: function(callback) {
 			var self = this;
-			this.sendRequest(this.url, '&action=usersListRequest', function(data){
+			this.sendRequest(this.usersFile, function(data){
 				self.onUsersListRequest(data);
 				callback(data);
 			});
@@ -351,28 +347,24 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		contestsListRequest: function(callback) {
 			var self = this;
-			this.sendRequest(this.url, '&action=contestsListRequest', function(data){
+			this.sendRequest(this.contestsFile, function(data){
 				self.onContestsListRequest(data);
 				callback(data);
 			});
 		},
 
 		problemsListRequest: function(callback) {
-			this.sendRequest(this.url, '&action=problemsListRequest', function(data){
+			this.sendRequest(this.problemsFile, function(data){
 				callback(data);
 			});
 		},
 
 		consoleContentRequest: function(callback){
-			this.sendRequest(this.url, '&action=consoleContentRequest', function(data){
-				callback(data);
-			});
+			console.log('getting content of console for local server is unsupported');
 		},
 
 		codeRequest: function(rid, callback) {
-			this.sendRequest(this.url, '&action=codeRequest', function(data){
-				callback(data);
-			});
+			console.log('getting code for local server is unsupported');
 		},
 
 		getResultsUrl: function() {
