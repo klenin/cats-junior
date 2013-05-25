@@ -743,7 +743,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		updateConditionArguments: function() {
-			this.__self.getConditionTypeSelect().off('change').on('change', function(p, self){
+			this.getConditionTypeSelect().off('change').on('change', function(p, self){
 				return function() {
 					var condName = $(this).children('option:selected').val();
 					if (condName != self.conditionName) {
@@ -813,6 +813,10 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1].generateVisualCommand(tree, $(node).next(), 'last');
 			}
 			$(this.arguments[0].domObject).change();
+		},
+
+		getConditionTypeSelect: function() {
+			return $(this.node).children('.testFunctionArgument').children('select').first();
 		}
 	},
 	{
@@ -830,10 +834,6 @@ define('CommandsMode', ['jQuery',
 				args.push(conditionProperty.args[i].clone());
 			}
 			return args;
-		},
-
-		getConditionTypeSelect: function() {
-			return $(this.node).children('.testFunctionArgument').children('select').first();
 		}
 	});
 
