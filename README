@@ -1,1 +1,4 @@
-Browser application for programming training of students
+Browser application that is developed to train students in programming based on execution units.
+Online version -- http://imcs.dvgu.ru/cats/ev/CourseWork/index.html
+
+To launch it on local PC, please change ServerName in Config.js to 'LocalServer'
