@@ -1,6 +1,6 @@
 define('Problems', ['jQuery',
 	'jQueryInherit',
-	'ModesConvertion',
+	'ModesConversion',
 	'ExecutionUnitWrapper',
 	'CommandsMode',
 	'InterfaceJSTree',
@@ -13,7 +13,7 @@ function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
 	var InterfaceJSTree = require('InterfaceJSTree');
 	var CommandsMode = require('CommandsMode');
-	var ModesConvertion = require('ModesConvertion');
+	var ModesConversion = require('ModesConversion');
 	var CodeMode = require('CodeMode');
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
@@ -323,7 +323,7 @@ function() {
 		},
 
 		updated: function() {
-			if (this.getCurrentStage() == 'CONVERTION_TO_COMMANDS') {
+			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
 			}
 			this.functions = {};
@@ -337,11 +337,11 @@ function() {
 				var id = $(div).attr('id');
 				var funcId = $(div).attr('funcId');
 				var argumentsList = accordion.myAccordion('getArguments', div);
-				var code = ModesConvertion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, div, argumentsList, funcId);
+				var code = ModesConversion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, div, argumentsList, funcId);
 				newCmdList.pushCommand(code);
 			}
 
-			var code = ModesConvertion.convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
+			var code = ModesConversion.convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
 			if (newCmdList) {
 				newCmdList.pushCommand(code);
 			} else {
@@ -603,7 +603,7 @@ function() {
 			}
 		},
 
-		prepareForConvertionFromCode: function() {
+		prepareForConversionFromCode: function() {
 			this.functions = {};
 		},
 

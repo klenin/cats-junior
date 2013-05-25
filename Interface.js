@@ -6,11 +6,11 @@ define('Interface', ['jQuery',
 	'Servers',
 	'Problems',
 	'jQueryTmpl',
-	'ModesConvertion',
+	'ModesConversion',
 	'Declaration',
 	'CommandsMode'], function(){
 	var Problems = require('Problems');
-	var ModesConvertion = require('ModesConvertion');
+	var ModesConversion = require('ModesConversion');
 	var Servers = require('Servers');
 	var CommandsMode = require('CommandsMode');
 
@@ -251,9 +251,9 @@ define('Interface', ['jQuery',
 		var l = codeareas[j].getValue().length;
 		try {
 			problem.prepareForExecuting();
-			problem.prepareForConvertionFromCode();
+			problem.prepareForConversionFromCode();
 			var block = finalcode[j] ?
-				ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
+				ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
 				new CommandsMode.Block([], undefined, problem);
 
 			$('#jstree-container' + j).empty();	
@@ -261,7 +261,7 @@ define('Interface', ['jQuery',
 			
 			if (block) {
 				//problems[j].cmdList = block;//??
-				problem.setCurrentStage('CONVERTION_TO_COMMANDS');
+				problem.setCurrentStage('CONVERSION_TO_COMMANDS');
 				problem.loadedCnt = 1;
 				startWaitForCommandsGeneration(problem);
 				block.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));

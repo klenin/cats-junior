@@ -1,8 +1,8 @@
 define('Tests',
-	['jQuery', 'jQueryUI', 'jQueryInherit', 'InterfaceJSTree', 'ModesConvertion', 'CommandsMode', 'Interface'],
+	['jQuery', 'jQueryUI', 'jQueryInherit', 'InterfaceJSTree', 'ModesConversion', 'CommandsMode', 'Interface'],
 	function(){
 		var InterfaceJSTree = require('InterfaceJSTree');
-		var ModesConvertion = require('ModesConvertion');
+		var ModesConversion = require('ModesConversion');
 		var CommandsMode = require('CommandsMode');
 		var Interface = require('Interface');
 
@@ -30,7 +30,7 @@ define('Tests',
 			problem.prepareForExecuting();
 			var j = problem.tabIndex;
 			var block = finalcode[j] ?
-				ModesConvertion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true):
+				ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true):
 				new CommandsMode.Block([], undefined, problems[j]);
 			return block;
 		}

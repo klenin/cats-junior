@@ -1,4 +1,4 @@
-define('ModesConvertion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitCommands'], function(){
+define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitCommands'], function(){
 	var CommandsMode = require('CommandsMode');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 
