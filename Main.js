@@ -141,12 +141,19 @@ requirejs([
 				curProblemIndex = ui.index - 1;
 				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
+					curProblem.onTabSelect();
 				}
 				/*if (ui.index == (problems.length + 2))
 				{
 					setTimeout("codeareas[" + (problems.length + 1) + "].refresh()", 100);
 				}*/
 				$.cookie('tabIndex', ui.index);
+			},
+
+			show: function() {
+				if (curProblem) {
+					curProblem.onTabSelect();
+				}
 			}
 		});
 		$('#changeContest').hide();
