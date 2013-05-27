@@ -141,7 +141,9 @@ requirejs([
 				curProblemIndex = ui.index - 1;
 				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
-					curProblem.onTabSelect();
+					if (curProblem) {
+						curProblem.onTabSelect();
+					}
 				}
 				/*if (ui.index == (problems.length + 2))
 				{
