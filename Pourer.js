@@ -30,7 +30,7 @@ define('Pourer',
 				var td = $('<td></td>').appendTo(tr);
 				this.vesselDiv = $('<div></div>').appendTo(td);				
 
-				$(table).append('<tr><td align="center">' + this.initFilled + '/' + this.maxCapacity + '</td></tr>');
+				$(table).append('<tr><td align="center">' + this.initFilled + '/' + this.capacity + '</td></tr>');
 				this.state = $(table).children('tbody').children('tr').last().children(td);
 
 				$(table).append('<tr><td align="center">' + (index + 1) + '</td></tr>');
