@@ -1292,6 +1292,68 @@ define('CommandsMode', ['jQuery',
 		}
 	});
 	
+	var Scope = $.inherit({
+		__constructor: function(block, args) {
+			this.block = block;
+			this.args = args;
+		},
+		
+		isFinished: function() {
+			return this.block.isFinished();
+		},
+		
+		exec: function(cntNumToExecute) {
+			cntNumToExecute = this.block.exec(cntNumToExecute);
+		},
+		
+		findArgValue: function(argName) {
+			return this.args[argName];
+		}
+	});
+	
+	var CallStack = $.inherit({
+		__constructor: function() {
+			this.stack = [];
+		},
+		
+		push: function(cmdList, args) {
+			this.stack.push(new Scope(cmdList, args));
+		},
+		
+		pop: function() {
+			this.stack.pop();
+		},
+
+		clear: function() {
+			this.stack = [];
+		},
+		
+		getFirst: function() {
+			return this.stack[this.stack.length - 1];
+		},
+		
+		exec: function(cntNumToExecute) {
+			cntNumToExecute = this.getFirst().exec(cntNumToExecute);
+			if (this.getFirst().isFinished()) {
+				this.pop();
+			}
+			return cntNumToExecute;
+		},
+		
+		isFinished: function() {
+			return this.stack.length == 0;
+		},
+
+		findArgValue: function(argName) {
+			for (var i = this.stack.length - 1; i >= 0;  --i) {
+				var result = this.stack[i].findArgValue(argName);
+				if (result != undefined) {
+					return result;
+				}
+			}
+		}
+	});
+
 	return {
 		CommandBase: CommandBase,
 		Command: Command,
@@ -1301,7 +1363,9 @@ define('CommandsMode', ['jQuery',
 		WhileStmt: WhileStmt,
 		Block: Block, 
 		FuncDef: FuncDef,
-		FuncCall: FuncCall
+		FuncCall: FuncCall,
+		Scope: Scope,
+		CallStack: CallStack
 	}
 });
 

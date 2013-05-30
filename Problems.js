@@ -28,6 +28,7 @@ function() {
 			this.stopped = false;
 			this.playing = false;
 			this.cmdList = new CommandsMode.Block([], undefined, this);
+			this.callStack = new CommandsMode.CallStack();
 			this.executedCommandsNum = 0;
 			this.lastExecutedCmd = undefined;
 			this.tabIndex = tabIndex;
@@ -162,6 +163,8 @@ function() {
 			}
 			$("#cons" + this.tabIndex).empty();
 			this.cmdList.setDefault();
+			this.callStack.clear();
+			this.callStack.push(this.cmdList);
 
 			this.enableButtons();
 
@@ -352,6 +355,8 @@ function() {
 			this.setDefault();
 			this.updateInterface('FINISH_EXECUTION');
 			this.highlightWrongNames();
+			this.callStack = new CommandsMode.CallStack();
+			this.callStack.push(this.cmdList);
 		},
 
 		updateFunctonNames: function(funcId, oldName, newName) {
@@ -384,9 +389,9 @@ function() {
 				if ($('#codeMode' + this.tabIndex).prop('checked')) {
 					continueExecution = this.tryNextStep();
 				} else {
-					if (!this.cmdList.exec(1))++this.executedCommandsNum;
+					if (!this.callStack.exec(1))++this.executedCommandsNum;
 					this.changeProgressBar();
-					if (this.cmdList.isFinished()) {
+					if (this.callStack.isFinished()) {
 						this.playing = false;
 						this.enableButtons();
 						this.executionUnit.executionFinished();
@@ -461,12 +466,12 @@ function() {
 						}
 					} else {
 						var c = cnt == MAX_VALUE ? maxStep : cnt;
-						var executed = this.cmdList.exec(c);
+						var executed = this.callStack.exec(c);
 						this.executedCommandsNum += c - executed;
 						if (cnt == MAX_VALUE && !executed && !this.paused) {
 							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
 						}
-						if (this.cmdList.isFinished()) this.playing = false;
+						if (this.callStack.isFinished()) this.playing = false;
 					}
 					this.changeProgressBar();
 					this.executionUnit.draw();
@@ -672,7 +677,7 @@ function() {
 					if (!this.playing || this.changed) {
 
 						if (!this.playing) {
-							var needReturn = this.cmdList.isFinished();
+							var needReturn = this.callStack.isFinished();
 							this.setDefault();	
 							if (needReturn) return;		
 						}
@@ -688,12 +693,12 @@ function() {
 					}
 					this.lastExecutedCmd = undefined;
 					this.cmdHighlightOff();
-					this.cmdList.exec(1);
+					this.callStack.exec(1);
 					this.changeProgressBar();
 					++this.executedCommandsNum;
 					this.highlightLast();
 					this.executionUnit.draw();
-					if (this.cmdList.isFinished()) {
+					if (this.callStack.isFinished()) {
 						this.playing = false;
 						this.executionUnit.executionFinished();
 					} 
