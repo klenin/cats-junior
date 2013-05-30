@@ -1179,6 +1179,10 @@ define('CommandsMode', ['jQuery',
 			return this.funcDef != undefined;
 		},
 
+		isFinished: function() {
+			return this.funcDef != undefined;
+		},
+
 		setDefault: function() {
 			this.__base();
 			this.funcDef = undefined;
@@ -1205,22 +1209,20 @@ define('CommandsMode', ['jQuery',
 						this.highlightOn();
 					}
 					this.funcDef = this.getFuncDef().createClone();
+					this.problem.callStack.push(this.funcDef, this.generateArgValues(args));
 					--cmdNumToExecute;
 					this.problem.setLastExecutedCommand(this);
-				}
-				if (cmdNumToExecute > 0) {
-					cmdNumToExecute = this.funcDef.executeBody(cmdNumToExecute, this.generateArgValues(args));
 				}
 			}
 			return Math.max(0, cmdNumToExecute);
 		},
 
 		exec: function(cmdNumToExecute, args) {
-			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, this.generateArgValues(args));	
-			if (this.funcDef.isFinished(this.generateArgValues(args))) {
-				this.funcDef = undefined;
-				this.finished = true;
+			if (this.isFinished()) {
+				this.setDefault();
+				return cmdNumToExecute;
 			}
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, this.generateArgValues(args));	
 			return cmdNumToExecute;
 		},
 				
@@ -1303,12 +1305,15 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		exec: function(cntNumToExecute) {
-			cntNumToExecute = this.block.exec(cntNumToExecute);
+			cntNumToExecute = this.block.getClass() == 'funcdef' ? this.block.executeBody(cntNumToExecute) : this.block.exec(cntNumToExecute);
 		},
 		
 		findArgValue: function(argName) {
 			return this.args[argName];
-		}
+		},
+		 isFunction: function() {
+		 	return this.block.getClass() == 'funcdef';
+		 }
 	});
 	
 	var CallStack = $.inherit({
@@ -1333,8 +1338,10 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		exec: function(cntNumToExecute) {
-			cntNumToExecute = this.getFirst().exec(cntNumToExecute);
-			if (this.getFirst().isFinished()) {
+			var scope = this.getFirst();
+			var stackLength = this.stack.length;
+			cntNumToExecute = scope.exec(cntNumToExecute);
+			if (scope.isFinished() && stackLength == this.stack.length) {
 				this.pop();
 			}
 			return cntNumToExecute;
