@@ -810,6 +810,10 @@ function() {
 
 		getConditionProperties: function(condName) {
 			return this.executionUnit.getConditionProperties(condName);
+		},
+
+		findArgValue: function(argName) {
+			return this.callStack.findArgValue(argName);
 		}
 	});
 
