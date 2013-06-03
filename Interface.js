@@ -552,7 +552,7 @@ define('Interface', ['jQuery',
 	}
 
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
-	var btnTitles = ['ÐŸÑ€Ð¾Ð¸Ð³Ñ€Ð°Ñ‚ÑŒ', 'ÐŸÐ°ÑƒÐ·Ð°', 'Ð¡Ñ‚Ð¾Ð¿', 'ÐŸÑ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð¡Ð»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð’ ÐºÐ¾Ð½ÐµÑ†'];
+	var btnTitles = ['Проиграть', 'Пауза', 'Стоп', 'Предыдущий шаг', 'Следующий шаг', 'В конец'];
 	var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
 
 	return {
