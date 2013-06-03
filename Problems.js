@@ -544,9 +544,6 @@ function() {
 			} else {
 				result = this.convertCommandsToCode();
 			}
-			if (atHome) {
-				return 'source=' + result + '&problem_id=' + this.id + '&de_id=772264';
-			} 
 			return result;
 		},
 

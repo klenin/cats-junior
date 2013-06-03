@@ -99,8 +99,6 @@ require.config({
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
-		'AtHome': [],
-		'Declaration': ['AtHome'],
 		'Raphael': ['jQuery'],
 		'Cylinder': ['Raphael']
     }

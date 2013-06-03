@@ -1,5 +1,5 @@
 define('Config', [], function(){
 	return {
-		'ServerName': 'CATS'
+		'ServerName': 'LocalServerConnectedToCats'
 	}
 });
