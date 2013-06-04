@@ -1272,7 +1272,7 @@ define('CommandsMode', ['jQuery',
 		}
 	});
 	
-	var Scope = $.inherit({
+	var StackFrame = $.inherit({
 		__constructor: function(block, args) {
 			this.block = block;
 			this.args = args;
@@ -1300,7 +1300,7 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		push: function(cmdList, args) {
-			this.stack.push(new Scope(cmdList, args));
+			this.stack.push(new StackFrame(cmdList, args));
 		},
 		
 		pop: function() {
@@ -1316,10 +1316,10 @@ define('CommandsMode', ['jQuery',
 		},
 		
 		exec: function(cntNumToExecute) {
-			var scope = this.getFirst();
+			var stackFrame = this.getFirst();
 			var stackLength = this.stack.length;
 			cntNumToExecute = scope.exec(cntNumToExecute);
-			if (scope.isFinished() && stackLength == this.stack.length) {
+			if (stackFrame.isFinished() && stackLength == this.stack.length) {
 				this.pop();
 			}
 			return cntNumToExecute;
@@ -1349,7 +1349,7 @@ define('CommandsMode', ['jQuery',
 		Block: Block, 
 		FuncDef: FuncDef,
 		FuncCall: FuncCall,
-		Scope: Scope,
+		StackFrame: StackFrame,
 		CallStack: CallStack
 	}
 });
