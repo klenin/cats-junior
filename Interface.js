@@ -63,7 +63,7 @@ define('Interface', ['jQuery',
 				newUser.passwd = $.cookie('passwd');
 			}
 			login(showNewUser, true);
-			$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
+			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
 			$.cookie('userId', $('#userListDiv > input:checked').prop('id'));
 		});
 	}
@@ -189,8 +189,8 @@ define('Interface', ['jQuery',
 			var contests = currentServer.getContests();
 			for (var i = 0; i < contests.length; ++i){
 					$('#contestsList').append(
-					'<input type="radio" name="contest_name" id="contest_name_' + i + '" value="' + contests[i].getName() + '" ' + 
-					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="contest_name_' + i + '">' 
+					'<input type="radio" name="contest_name" id="contest_' + contests[i].getCid() + '" value="' + contests[i].getName() + '" ' + 
+					(i == 0 ? 'checked': '') + ' class="radioinput" cid="' + contests[i].getCid() + '"/><label for="contest_name_' + i + '">' 
 					+ contests[i].getName()  + '</label><br>');
 			}
 			document.title = currentServer.getContest().getName();
@@ -209,7 +209,7 @@ define('Interface', ['jQuery',
 		name = contest[0].defaultValue;
 		document.title = name;
 		currentServer.setContestByName(name, function(contest){
-			$.cookie('contestId', $('#contestsList > input:checked').prop('id'));
+			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
 			fillTabs();
 		});
 		
@@ -552,7 +552,7 @@ define('Interface', ['jQuery',
 	}
 
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
-	var btnTitles = ['ÐŸÑ€Ð¾Ð¸Ð³Ñ€Ð°Ñ‚ÑŒ', 'ÐŸÐ°ÑƒÐ·Ð°', 'Ð¡Ñ‚Ð¾Ð¿', 'ÐŸÑ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð¡Ð»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑˆÐ°Ð³', 'Ð’ ÐºÐ¾Ð½ÐµÑ†'];
+	var btnTitles = ['Проиграть', 'Пауза', 'Стоп', 'Предыдущий шаг', 'Следующий шаг', 'В конец'];
 	var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
 
 	return {

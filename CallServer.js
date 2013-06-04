@@ -1,43 +1,42 @@
-define('CallServer', ['jQuery', 'AtHome'], function(){
-	function callScript(url, callback, dtype){
-		if (atHome){
-			$.ajax({
-				async: false,
-				url: 'script.php',
-				data: 'url='+ url,
-				dataType: dtype,
-				success: function(data){
-					//data = data.replace(new RegExp( "\t", "g" ), ' ');
-					//var d = $.evalJSON(data);
-					callback(data);
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					if(url.search('rank_table_content') == -1){
-						alert('Ошибка подключения к серверу');
-					}
-					console.error(jqXHR, textStatus, errorThrown);
+define('CallServer', ['jQuery'], function(){
+	function callScriptLocally(url, callback, dtype, scriptPath) {
+		$.ajax({
+			async: false,
+			url: scriptPath,
+			data: 'url='+ url,
+			dataType: dtype,
+			success: function(data){
+				//data = data.replace(new RegExp( "\t", "g" ), ' ');
+				//var d = $.evalJSON(data);
+				callback(data);
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+				if(url.search('rank_table_content') == -1){
+					alert('Ошибка подключения к серверу');
 				}
-			});
-		} 
-		else{
-			$.ajax({
-				async: false,
-				dataType : dtype,
-				url: url,
-				success: callback,
-				error: function(jqXHR, textStatus, errorThrown) {
-					if(url.search('rank_table_content') == -1){
-						alert('Ошибка подключения к серверу');
-					}			
-				}
-			});
-		}
+				console.error(jqXHR, textStatus, errorThrown);
+			}
+		});
 	}
 
-	function callSubmit_(serv, path, submitData, callback){
+	function callScript(url, callback, dtype){
+		$.ajax({
+			async: false,
+			dataType : dtype,
+			url: url,
+			success: callback,
+			error: function(jqXHR, textStatus, errorThrown) {
+				if(url.search('rank_table_content') == -1){
+					alert('Ошибка подключения к серверу');
+				}			
+			}
+		});
+	}
+
+	function callSubmitLocally(serv, path, submitData, callback, scriptPath){
 		$.ajax({  
 			async: false,
-			url: 'submit.php',
+			url: scriptPath,
 			type: 'POST',
 			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
 			success: function(data){
@@ -50,8 +49,6 @@ define('CallServer', ['jQuery', 'AtHome'], function(){
 	}
 
 	function callSubmit(url, formData, callback){
-        if (atHome)
-            return;
         $.ajax({
                 async: false,
                 url: url,
@@ -68,8 +65,9 @@ define('CallServer', ['jQuery', 'AtHome'], function(){
 
 	return {
 		callScript: callScript,
-		callSubmit_: callSubmit_,
-		callSubmit: callSubmit
+		callSubmitLocally: callSubmitLocally,
+		callSubmit: callSubmit,
+		callScriptLocally: callScriptLocally
 	}
 });
 

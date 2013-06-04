@@ -1,7 +1,6 @@
-define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(){
+define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 	var CallServer = require('CallServer');
-	
-	
+
 	var User = $.inherit({
 		__constructor: function(login, pass, jury, name, id) {
 			this.login = login;
@@ -50,8 +49,10 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		getContest: function() {
+
 			return this.contest;
 		},
+
 
 		setSid: function(sid) {
 			this.sid = sid;
@@ -59,17 +60,20 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		getCid: function() {
 			return this.contest.getCid();
+
 		},
 
 		getSid: function() {
+
 			return this.sid;
 		}
+
 	});
 
 
 	var Server = $.inherit({
 		__constructor: function() {
-			
+
 		},
 
 		setSession: function(session) {
@@ -109,22 +113,27 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		submitRequest: function() {
+
 		},
 
-		loginRequest: function(userLogin, userPass) {
-			
+		loginRequest: function(userLogin, userPass) {	
+
 		},
 
 		logoutRequest: function() {
+
 		},
 
 		usersListRequest: function() {
+
 		},
 
 		contestsListRequest: function() {
+
 		},
 
 		problemsListRequest: function() {
+
 		},
 
 		consoleContentRequest: function() {
@@ -186,42 +195,43 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 	var CATS = $.inherit(Server, {
 		__constructor: function() {
-			this.url = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?' : '/cats/main.pl?';
+			this.url = '/cats/main.pl?';
 			this.dataType = 'json';
 			this.defaultPass = '12345';
 			this.defaultCid = 791634;
 		},
 
+		_submitRequest: function(submitStr, problem_id) {
+			var formData = new FormData();
+			formData.append('search', '');
+			formData.append('rows', 20);
+			formData.append('problem_id', problem_id);//
+			formData.append('de_id',772264);
+			formData.append('source_text', submitStr);
+			formData.append('submitRequest', 'Send');
+			CallServer.callSubmit(self.url + 'f=problems;sid=' + self.getSid() + ';cid=' + self.getCid()+ ';json=1;', formData, function(data){
+				alert(data.message ? data.message :'Решение отослано на проверку');
+			});
+		},
+
+		sendServerRequest: function(url, callback, dtype) {
+			CallServer.callScript(url, callback, dtype);
+		},
+
 		submitRequest: function(submitStr, problem_id, badSidCallback) {
 			var self = this;
-			CallServer.callScript(this.url + 'f=contests;filter=json;sid=' + self.getSid() + ';json=1;', function(data){
+			this.sendServerRequest(this.url + 'f=contests;filter=json;sid=' + self.getSid() + ';json=1;', function(data){
 				if (data.error == 'bad sid'){
 					badSidCallback();
 				} 
 				else {
-					if (atHome){
-						CallServer.callSubmit_('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', submitStr, function(data){
-							alert(data.message ? data.message : 'Решение отослано на проверку');
-						});  
-					}
-					else {
-						var formData = new FormData();
-				        formData.append('search', '');
-				        formData.append('rows', 20);
-				        formData.append('problem_id', problem_id);//
-				        formData.append('de_id',772264);
-				        formData.append('source_text', submitStr);
-				        formData.append('submitRequest', 'Send');
-						CallServer.callSubmit(self.url + 'f=problems;sid=' + self.getSid() + ';cid=' + self.getCid()+ ';json=1;', formData, function(data){
-							alert(data.message ? data.message :'Решение отослано на проверку');
-						});
-					}
+					this._submitRequest(submitStr, problem_id);
 				}
 			});
 		},
 
 		loginRequest: function(userLogin, userPass, callback) {
-			CallServer.callScript(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;', 
+			this.sendServerRequest(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;', 
 				function(data) {
 					callback(data);
 				}, 
@@ -229,7 +239,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		logoutRequest: function(callback) {
-			CallServer.callScript(this.url +'f=logout;sid=' + this.getSid() + ';json=1;', 
+			this.sendServerRequest(this.url +'f=logout;sid=' + this.getSid() + ';json=1;', 
 				function(data) {
 					callback(data);
 				}, 
@@ -238,7 +248,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		usersListRequest: function(callback) {
 			var self = this;
-			CallServer.callScript(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;', 
+			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;', 
 				function(data) {
 					self.onUsersListRequest(data);
 					callback(data);
@@ -248,7 +258,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		contestsListRequest: function(callback) {
 			var self = this;
-			CallServer.callScript(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', 
+			this.sendServerRequest(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', 
 				function(data) {
 					self.onContestsListRequest(data);
 					callback(data);
@@ -257,7 +267,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		},
 
 		problemsListRequest: function(callback) {
-			CallServer.callScript(this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1',
+			this.sendServerRequest(this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1',
 				function(data) {
 					callback(data);
 				},
@@ -266,7 +276,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		consoleContentRequest: function(callback){
 			if (this.getCid() && this.getSid()){
-				CallServer.callScript(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() + 
+				this.sendServerRequestt(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() + 
 					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
 					function(data) {
 						callback(data);
@@ -278,7 +288,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		codeRequest: function(rid, callback) {
 			if (this.getCid() && this.getSid()){
-				CallServer.callScript(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() + 
+				this.sendServerRequest(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() + 
 					';rid=' + rid, 
 					function(data){
 							callback(data);
@@ -287,13 +297,39 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			}
 		},
 
+		_getResultsUrl: function() {
+			return '/cats/main.pl?f=rank_table_content;cid=';
+		},
+
 		getResultsUrl: function() {
-			result = atHome ? 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=' : '/cats/main.pl?f=rank_table_content;cid=';
+			result = this._getResultsUrl();
 			result += this.getCid();
 			if (this.getSid()) {
 				result += ';sid=' + this.getSid();
 			}
 			return result;
+		}
+	});
+
+	var LocalServerConnectedToCats = $.inherit(CATS, {
+		__constructor: function() {
+			this.__base();
+			this.url = 'http://imcs.dvgu.ru/cats/main.pl?';
+		},
+
+		sendServerRequest: function(url, callback, dtype) {
+				CallServer.callScriptLocally(url, callback, dtype, 'LocalServerFiles/script.php');
+		},
+
+		_submitRequest: function(submitStr, problem_id) {
+			CallServer.callSubmitLocally('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', 'source=' + submitStr + '&problem_id=' + this.id + '&de_id=772264', function(data){
+				alert(data.message ? data.message : 'Решение отослано на проверку');
+			},
+			'LocalServerFiles/submit.php'); 
+		},
+
+		_getResultsUrl: function() {
+			return 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=';
 		}
 	});
 
@@ -303,9 +339,9 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 			this.defaultPass = '12345';
 			this.defaultCid = 791634;
 			var args = parseArgs();
-			this.usersFile = (args['users'] ? args['users'] : 'users') + '.json';
-			this.contestsFile = (args['contests'] ? args['contests'] : 'contests') + '.json';
-			this.problemsFile = (args['problems'] ? args['problems'] : 'problems') + '.json';
+			this.usersFile = (args['users'] ? args['users'] : 'LocalServerFiles/users') + '.json';
+			this.contestsFile = (args['contests'] ? args['contests'] : 'LocalServerFiles/contests') + '.json';
+			this.problemsFile = (args['problems'] ? args['problems'] : 'LocalServerFiles/problems') + '.json';
 		},
 
 		submitRequest: function(submitStr, problem_id, badSidCallback) {
@@ -316,9 +352,11 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 		sendRequest: function(url, callback) {
 			$.ajax({
 				url: url,
+
 				dataType: 'json',
 				success: function(data){
 					callback(data);
+
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					if(url.search('rank_table_content') == -1){
@@ -331,6 +369,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		loginRequest: function(userLogin, userPass, callback) {
 			console.log('login for local server is unsupported');
+			alert('login for local server is unsupported');
 		},
 
 		logoutRequest: function(callback) {
@@ -361,23 +400,25 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer', 'AtHome'], function(
 
 		consoleContentRequest: function(callback){
 			console.log('getting content of console for local server is unsupported');
+			alert('getting content of console for local server is unsupported');
 		},
 
 		codeRequest: function(rid, callback) {
 			console.log('getting code for local server is unsupported');
+			alert('getting code for local server is unsupported');
 		},
 
 		getResultsUrl: function() {
-			return 'results.html';
+			return 'LocalServerFiles/results.html';
 		}
 	});
-	
+
 	return {
 		User: User,
 		Session: Session,
 		Server: Server,
 		CATS: CATS,
-		LocalServer: LocalServer
+		LocalServer: LocalServer,
+		LocalServerConnectedToCats: LocalServerConnectedToCats
 	};
 });
-

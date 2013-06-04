@@ -99,8 +99,6 @@ require.config({
 		'SkCompile': ['Env'],
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
-		'AtHome': [],
-		'Declaration': ['AtHome'],
 		'Raphael': ['jQuery'],
 		'Cylinder': ['Raphael']
     }
@@ -275,8 +273,8 @@ requirejs([
 		});
 		$('#tabs').tabs();
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
-		if ($.cookie('contestId') != undefined) {
-			$('#' + $.cookie('contestId')).prop('checked', true);
+		if ($.cookie('contestId') != undefined && checkNumber($.cookie('contestId'))) {
+			$('#contest_' + $.cookie('contestId')).prop('checked', true);
 			Interface.changeContest();
 			if ($.cookie('userId') != undefined){
 				var userId = $.cookie('userId');
