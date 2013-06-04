@@ -731,7 +731,9 @@ function() {
 				var s = this.speed;
 				this.speed = 0;
 				this.playing = true;
-				this.play(t);
+				for(var i = 0; i < t && this.needToContinueExecution(); ++i) {
+					this.play(1);
+				}
 			} catch (e) {
 				console.error(e);
 				$('#cons' + this.tabIndex).append(e);

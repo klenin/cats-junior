@@ -1191,6 +1191,7 @@ define('CommandsMode', ['jQuery',
 					--cmdNumToExecute;
 					this.problem.setLastExecutedCommand(this);
 				}
+
 			}
 			return Math.max(0, cmdNumToExecute);
 		},
@@ -1284,6 +1285,7 @@ define('CommandsMode', ['jQuery',
 		
 		exec: function(cntNumToExecute) {
 			cntNumToExecute = this.block.getClass() == 'funcdef' ? this.block.executeBody(cntNumToExecute) : this.block.exec(cntNumToExecute);
+			return cntNumToExecute;
 		},
 		
 		findArgValue: function(argName) {
@@ -1318,7 +1320,7 @@ define('CommandsMode', ['jQuery',
 		exec: function(cntNumToExecute) {
 			var stackFrame = this.getFirst();
 			var stackLength = this.stack.length;
-			cntNumToExecute = scope.exec(cntNumToExecute);
+			cntNumToExecute = stackFrame.exec(cntNumToExecute);
 			if (stackFrame.isFinished() && stackLength == this.stack.length) {
 				this.pop();
 			}
