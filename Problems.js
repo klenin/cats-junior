@@ -819,6 +819,7 @@ function() {
 	var MAX_STEP_VALUE = 10000;
 
 	return {
-		Problem: Problem
+		Problem: Problem,
+		classes: classes
 	}
 });

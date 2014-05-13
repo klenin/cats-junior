@@ -1,7 +1,7 @@
 require.config({
-	baseUrl: '',
-	paths: {
-		'jQuery': 'import/jquery/jquery-1.8.2.min',
+    baseUrl: '',
+    paths: {
+        'jQuery': 'import/jquery/jquery-1.8.2.min',
 		'jQueryUI': 'import/jquery/jquery-ui-1.8.24.custom.min',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
 		'jQueryInherit': 'import/jquery/jquery.inherit-1.3.2.M.min',
@@ -51,11 +51,17 @@ require.config({
 		//'Svg': 'import/jquery/jquery.svg',
 		'Cylinder': 'import/jquery/cylinder.min',
 		'Raphael': 'import/jquery/raphael.min',
-		'QUnit': 'import/jquery/qunit-1.11.0.min'
-	},
-	shim: {
-		'jQuery': [],
-		'jQueryCookie': ['jQuery'],
+		'QUnit': 'import/jquery/qunit-1.11.0.min',
+		// NOTE: load this extra Blockly instance is for global usage of static methods
+		'BlocklyBlockly': 'import/blockly/blockly_compressed',
+		'BlocklyBlocks': 'import/blockly/blocks_compressed',
+		'BlocklyMsg': 'import/blockly/msg/js/ru'
+    },
+    shim: {
+    	'BlocklyBlocks': ['BlocklyBlockly'],
+    	'BlocklyMsg': ['BlocklyBlockly'],
+    	'jQuery': [],
+    	'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
@@ -100,8 +106,8 @@ require.config({
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
 		'Raphael': ['jQuery'],
-		'Cylinder': ['Raphael']
-	}
+		'Cylinder': ['Raphael'],
+    }
   });
 
 	//QUnit.config.autostart = false;
@@ -114,6 +120,7 @@ requirejs([
 	'Servers',
 	'Interface',
 	'InterfaceJSTree',
+	'InterfaceBlockly',
 	'Declaration',
 	'Accordion'
 	/*'Tests'*/],
@@ -122,9 +129,10 @@ requirejs([
 		var Config = require('Config');
 		var Interface = require('Interface');
 		var InterfaceJSTree = require('InterfaceJSTree');
+		var InterfaceBlockly = require('InterfaceBlockly');
 		//var Tests = require('Tests');
 
-		$(document).ready(function(){
+	    $(document).ready(function(){
 		if ($.browser.msie){
 			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 			return;
@@ -181,6 +189,7 @@ requirejs([
 			});
 
 			InterfaceJSTree.createJsTreeForFunction('#jstree-container' + problem.tabIndex, problem, false);
+			InterfaceBlockly.injectBlockly(problem)
 
 			$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 				/*$('#accordion' + problem.tabIndex).accordion();
@@ -273,6 +282,7 @@ requirejs([
 		});
 		$('#tabs').tabs();
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
+		Interface.fillTabs();  // Quick fix. Sometimes tabs don't exist at this point and Interface.changeContest() raises error.
 		if ($.cookie('contestId') != undefined && checkNumber($.cookie('contestId'))) {
 			$('#contest_' + $.cookie('contestId')).prop('checked', true);
 			Interface.changeContest();

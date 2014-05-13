@@ -17,6 +17,10 @@
 		.CodeMirror {
 			border: 1px solid #aaa;
 		}
+		.blockly-container {
+		    width: 100%;
+		    height: 500px;
+		}
 	</style>
 
 <script id = "commandsListTemplate" type="text/x-jquery-tmpl">
@@ -59,6 +63,11 @@
 									<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель
 									<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python
 								</form>
+							</td>
+						</tr>
+						<tr>
+							<td id = "tdblockly${tab}" colspan="2">
+								<iframe class="blockly-container" id="blockly-container-${tab}" src="blockly.html?${tab}"></iframe>
 							</td>
 						</tr>
 						<tr>
