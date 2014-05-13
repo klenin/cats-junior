@@ -326,27 +326,11 @@ function() {
 			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
 			}
-			this.functions = {};
-			this.functionsWithId = [];
-			this.numOfFunctions = 0;
-			var accordion = $('#accordion' + this.tabIndex);
-			var newCmdList = new CommandsMode.Block([], undefined, this);
-			for (var i = 0; i < accordion.children('.funccall').length; ++i) {
-				var div = accordion.children('.funccall:eq(' + i + ')');
-				var name = accordion.myAccordion('getFunctionName', div);
-				var id = $(div).attr('id');
-				var funcId = $(div).attr('funcId');
-				var argumentsList = accordion.myAccordion('getArguments', div);
-				var code = ModesConversion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, div, argumentsList, funcId);
-				newCmdList.pushCommand(code);
-			}
+			// this.functions = {};
+			// this.functionsWithId = [];
+			// this.numOfFunctions = 0;
+			var newCmdList = ModesConversion.blocksToCommands(this);
 
-			var code = ModesConversion.convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
-			if (newCmdList) {
-				newCmdList.pushCommand(code);
-			} else {
-				newCmdList = code;
-			}
 			this.changed = true;
 			this.cmdList = newCmdList;
 			this.setDefault();

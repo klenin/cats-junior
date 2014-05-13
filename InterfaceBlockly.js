@@ -83,13 +83,13 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             });
 
             // Create and render block for main function.
-            var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'funcdefmain');
+            var block = problem.mainBlock = Blockly.Block.obtain(Blockly.mainWorkspace, 'funcdefmain');
             block.initSvg();
             block.render();
 
             // initMenu(problem, Blockly);
 
-            // Bind 'onchange' event to problem.updated
+            // //Bind 'onchange' event to problem.updated
             // bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
             //     'blocklyWorkspaceChange', problem, problem.updated);
 
