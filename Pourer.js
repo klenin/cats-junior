@@ -1,4 +1,4 @@
-define('Pourer', 
+define('Pourer',
 	function(require){
 		var ExecutionUnitCommands = require('ExecutionUnitCommands');
 		var ShowMessages = require('ShowMessages');
@@ -28,7 +28,7 @@ define('Pourer',
 				var table = $('<table></table>').appendTo(this.div);
 				var tr = $('<tr></tr>').appendTo(table);
 				var td = $('<td></td>').appendTo(tr);
-				this.vesselDiv = $('<div></div>').appendTo(td);				
+				this.vesselDiv = $('<div></div>').appendTo(td);
 
 				$(table).append('<tr><td align="center">' + this.initFilled + '/' + this.capacity + '</td></tr>');
 				this.state = $(table).children('tbody').children('tr').last().children(td);
@@ -45,7 +45,7 @@ define('Pourer',
 					      fill: '#0051A6',
 					      stroke: '#003974'
 					    },
-					  }, 
+					  },
 					  height: 300 * (this.capacity + 0.0)/ this.maxCapacity,
 					  value: (this.initFilled + 0.0) / this.maxCapacity
 				});
@@ -57,7 +57,7 @@ define('Pourer',
 
 			draw: function() {
 				$(this.vesselDiv).cylinder('value', (this.filled + 0.0) / this.maxCapacity);
-				$(this.state).html(this.filled + '/' + this.capacity);			
+				$(this.state).html(this.filled + '/' + this.capacity);
 			},
 
 			pourTo: function(delta) { //we pour from this vessel to another
@@ -116,7 +116,7 @@ define('Pourer',
 					result = curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 					break;
 				case '!=':
-					result = !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);			
+					result = !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 					break;
 			}
 
@@ -140,15 +140,15 @@ define('Pourer',
 				case '>':
 					return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
 				case '<=':
-					return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || 
+					return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) ||
 						curProblem.getExecutionUnit().isEqual(vessel, value);
 				case '>=':
-					return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || 
+					return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) ||
 						curProblem.getExecutionUnit().isEqual(vessel, value);
 				case '==':
 					return curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 				case '!=':
-					return !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);			
+					return !curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 			}
 
 			return false;
@@ -172,18 +172,18 @@ define('Pourer',
 					result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second);
 					break;
 				case '<=':
-					result = curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) || 
+					result = curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) ||
 						curProblem.getExecutionUnit().isEqualVessel(first, second);
 					break;
 				case '>=':
-					result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) || 
+					result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) ||
 						curProblem.getExecutionUnit().isEqualVessel(first, second);
 					break;
 				case '==':
 					result = curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 					break;
 				case '!=':
-					result = !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);			
+					result = !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 					break;
 			}
 
@@ -207,15 +207,15 @@ define('Pourer',
 				case '>':
 					return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second);
 				case '<=':
-					return curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) || 
+					return curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) ||
 						curProblem.getExecutionUnit().isEqualVessel(first, second);
 				case '>=':
-					return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) || 
+					return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) ||
 						curProblem.getExecutionUnit().isEqualVessel(first, second);
 				case '==':
 					return curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 				case '!=':
-					return !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);			
+					return !curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 			}
 
 			return false;
@@ -226,7 +226,7 @@ define('Pourer',
 				this.__base(['Шаг ', step + 1, ': Вы выполнили задание! Количество очков: ', points, '\n' ]);
 			}
 		});
-		
+
 		return {
 			Pourer: $.inherit({
 				__constructor: function(problem, problemData, div) {
@@ -246,9 +246,9 @@ define('Pourer',
 						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false),
 						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)];
 					this.commands['pour'] = new ExecutionUnitCommands.ExecutionUnitCommand('pour', pour, args);
-					this.commands['pourOut'] = new ExecutionUnitCommands.ExecutionUnitCommand('pourOut', pourOut, 
+					this.commands['pourOut'] = new ExecutionUnitCommands.ExecutionUnitCommand('pourOut', pourOut,
 						[new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)]);
-					this.commands['fill'] = new ExecutionUnitCommands.ExecutionUnitCommand('fill', fill, 
+					this.commands['fill'] = new ExecutionUnitCommands.ExecutionUnitCommand('fill', fill,
 						[new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)]);
 
 					var vesselsList = [];
@@ -285,20 +285,20 @@ define('Pourer',
 					$(this.div).append('<table><tr></tr></table>');
 					this.row = $(this.div).children('table').children('tbody').children('tr');
 
-					var maxCapacity = 0; 
+					var maxCapacity = 0;
 
 					for (var i = 0; i < this.data.vessels.length; ++i) {
 						maxCapacity = Math.max(this.data.vessels[i].capacity, maxCapacity);
 					}
-					
+
 					for (var i = 0; i < this.data.vessels.length; ++i) {
 						var cell = $('<td valign="bottom"></td>').appendTo($(this.row));
-						this.vessels.push(new Vessel(this.data.vessels[i].capacity, 
-							this.data.vessels[i].initFilled, 
+						this.vessels.push(new Vessel(this.data.vessels[i].capacity,
+							this.data.vessels[i].initFilled,
 							cell,
-							maxCapacity, 
+							maxCapacity,
 							i)
-						);			
+						);
 					}
 
 					this.life = this.data.startLife;
@@ -332,7 +332,7 @@ define('Pourer',
 					}
 				},
 
-				draw: function() {				
+				draw: function() {
 					for (var i = 0; i < this.vessels.length; ++i) {
 						this.vessels[i].draw();
 					}
@@ -351,7 +351,7 @@ define('Pourer',
 						case 'pour':
 							this.pour(args);
 							break;
-						case 'pourOut': 
+						case 'pourOut':
 							this.pourOut(args);
 							break;
 						case 'fill':
@@ -385,7 +385,7 @@ define('Pourer',
 					if (src == dest) { //is it an error?
 						return;
 					}
-					
+
 					if (this.vessels[src].filled == 0 || this.vessels[dest].capacity == this.vessels[dest].filled) {
 						return;
 					}
@@ -400,9 +400,9 @@ define('Pourer',
 					if (!checkNumber(vessel)) {
 						throw new IncorrectInput('Некорректный аргумент');
 					}
-						
+
 					this.vessels[vessel].pourOut();
-					
+
 				},
 
 				fill: function(args) {
@@ -461,7 +461,7 @@ define('Pourer',
 				isGreaterVessel: function(first, second) {
 					return this.vessels[first].filled > this.vessels[second].filled;
 				},
-				
+
 				isSolved: function() {
 					for (var i = 0; i < this.data.finishState.length; ++i) {
 						var vessel = this.data.finishState[i].vessel;
@@ -471,7 +471,7 @@ define('Pourer',
 					}
 					return true;
 				},
-				
+
 				getState: function() {
 					var result = {};
 					result.vessels = [];

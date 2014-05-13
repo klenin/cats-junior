@@ -1,7 +1,7 @@
 require.config({
-    baseUrl: '',
-    paths: {
-        'jQuery': 'import/jquery/jquery-1.8.2.min',
+	baseUrl: '',
+	paths: {
+		'jQuery': 'import/jquery/jquery-1.8.2.min',
 		'jQueryUI': 'import/jquery/jquery-ui-1.8.24.custom.min',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
 		'jQueryInherit': 'import/jquery/jquery.inherit-1.3.2.M.min',
@@ -50,12 +50,12 @@ require.config({
 		'SkFunc': 'import/skulpt/src/function.min',
 		//'Svg': 'import/jquery/jquery.svg',
 		'Cylinder': 'import/jquery/cylinder.min',
-		'Raphael': 'import/jquery/raphael.min', 
+		'Raphael': 'import/jquery/raphael.min',
 		'QUnit': 'import/jquery/qunit-1.11.0.min'
-    },
-    shim: {
-    	'jQuery': [],
-    	'jQueryCookie': ['jQuery'],
+	},
+	shim: {
+		'jQuery': [],
+		'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
@@ -101,19 +101,19 @@ require.config({
 		'SkBuiltinDict': ['SkStr'],
 		'Raphael': ['jQuery'],
 		'Cylinder': ['Raphael']
-    }
+	}
   });
 
 	//QUnit.config.autostart = false;
 
-requirejs([ 
-	'jQuery', 
-	'jQueryUI', 
+requirejs([
+	'jQuery',
+	'jQueryUI',
 	'jQueryCookie',
 	'Config',
-	'Servers', 
-	'Interface', 
-	'InterfaceJSTree', 
+	'Servers',
+	'Interface',
+	'InterfaceJSTree',
 	'Declaration',
 	'Accordion'
 	/*'Tests'*/],
@@ -124,7 +124,7 @@ requirejs([
 		var InterfaceJSTree = require('InterfaceJSTree');
 		//var Tests = require('Tests');
 
-	    $(document).ready(function(){
+		$(document).ready(function(){
 		if ($.browser.msie){
 			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 			return;
@@ -179,9 +179,9 @@ requirejs([
 					codeareas[problem.tabIndex].refresh();
 				}
 			});
-			
+
 			InterfaceJSTree.createJsTreeForFunction('#jstree-container' + problem.tabIndex, problem, false);
-			
+
 			$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 				/*$('#accordion' + problem.tabIndex).accordion();
 				$('#accordion' + problem.tabIndex).accordion( "enable" );
@@ -205,32 +205,32 @@ requirejs([
 				Ok: function() {
 					currentServer.user.setPasswd($('#password').prop('value')) ;
 					Interface.login();
-					$('#enterPassword').dialog('close');					
+					$('#enterPassword').dialog('close');
 				},
 				Cancel: function(){
 					$.cookie('userId', undefined);
 					$.cookie('passwd', undefined);
-					$('#enterPassword').dialog('close');	
+					$('#enterPassword').dialog('close');
 				}
-			}, 
+			},
 			autoOpen: false,
 			close: function(){this.title = 'Введите пароль';}
 		});
 		$('#enterPassword').live('keyup', function(e){
 		  if (e.keyCode == 13) {
-		    $(this).dialog( "option", "buttons" )['Ok']();
+			$(this).dialog( "option", "buttons" )['Ok']();
 		  }});
 		$('#changeContest').dialog({
 			modal: true,
 			buttons: {
 				Ok: function() {
 					Interface.changeContest();
-					$(this).dialog('close');					
+					$(this).dialog('close');
 				},
 				Cancel: function(){
-					$(this).dialog('close');	
+					$(this).dialog('close');
 				}
-			}, 
+			},
 			autoOpen: false
 		});
 		for (var i = 0; i < problems.length; ++i){
@@ -246,10 +246,10 @@ requirejs([
 					var problem = $('#tabs').tabs('option', 'selected') - 1;
 					$( '#watchTable' + problem).append( '<tr id = watchTr_' + problem + '_' + lastWatchedIndex[problem] + ' style = "border: 1px">' +
 						'<td style = "border: 1px solid white; width: 20px"><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '"></button></td>' +
-						'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' + 
-						'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' + 
-							calculateValue($('#watchName').val()) + '</td>' + 
-						'</tr>' ); 
+						'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' +
+						'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' +
+							calculateValue($('#watchName').val()) + '</td>' +
+						'</tr>' );
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).prop('varId', lastWatchedIndex[problem]);
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button({ text: false, icons: {primary:'ui-icon-close'}}).bind('click', function(){
 						delete watchList[problem][$(this).prop('varId')];
@@ -281,13 +281,13 @@ requirejs([
 				var passwd = $.cookie('passwd');
 				$('#' + userId).prop('checked', true);
 				$.cookie('passwd', passwd);
-				Interface.chooseUser();	
+				Interface.chooseUser();
 			}
 		}
 		else {
 			Interface.fillTabs();
 		}
-			
+
 
 		if (parseInt(tabIndex)) {
 			$('#tabs').tabs("select" , tabIndex);
@@ -311,4 +311,4 @@ requirejs([
 		//QUnit.start(); //Tests loaded, run tests
 		//Tests.RunTests();
 	});
-});	
+});

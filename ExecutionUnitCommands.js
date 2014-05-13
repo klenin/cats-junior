@@ -61,14 +61,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return undefined;
 		}
 	});
-	
+
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
 		__constructor : function(options, expression, arguments, argumentValues, problem) {
 			this.options = options.clone();
 			this.__base(expression, arguments, argumentValues, problem);
 			this.expression = expression != undefined ? this.options[0][0] : expression;
 		},
-		
+
 		clone: function() {
 			return new CommandArgumentSelect(this.options, this.expression, this.arguments, this.argumentValues, this.problem);
 		},
@@ -83,7 +83,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 			var valueInput = $('<input class = "selectValue"></input>').appendTo(container);
 			$(valueInput).hide();
-		
+
 			this.callback = callback;
 			this.problem = problem;
 
@@ -93,7 +93,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			if (this.arguments && this.arguments.length) {
 				this.addArguments(this.arguments, true);
 			}
-			
+
 			if (value) {
 				this.setValue(value);
 			}
@@ -112,7 +112,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			var self = this;
 			$(this.domObject).children('select').off('change').on('change', function(){
 				self.expression = $(this).children('select').children('option:selected').val();
-				self.problem.updated();	
+				self.problem.updated();
 			});
 		},
 
@@ -164,7 +164,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.expression = value;
 			$(this.domObject).children('select').val(value);
 		},
-	
+
 		getValue: function(args) {
 			var value = this.expression;
 			return (args == undefined || args[value] == undefined) ? value : args[value];
@@ -174,7 +174,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return $(object).children('select').children('option:selected').val();
 		}
 	});
-	
+
 	var CommandArgumentSpin = $.inherit(CommandArgument, {
 		__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem) {
 			this.__base();
@@ -194,7 +194,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		clone: function() {
 			return new CommandArgumentSpin(this.minValue, this.maxValue, this.expression, this.arguments, this.argumentValues, this.problem);
-		},	
+		},
 
 		generateDomObject: function(prev, callback, problem, value) {
 			var spin = $('<spin class="testFunctionArgument"></spin>').insertAfter($(prev));
@@ -342,7 +342,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		getDomObjectValue: function(object) {
 			return $(object).children('.spinExpression').val();
 		}
-	});	
+	});
 
 	var CommandArgumentSpinCounter = $.inherit(CommandArgumentSpin, {
 			__constructor : function(minValue, maxValue, expression, arguments, argumentValues, problem)  {
@@ -403,14 +403,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			--this.value;
 			$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
 		}
-	});	
+	});
 
 	var CommandArgumentInput = $.inherit(CommandArgument, {
 		__constructor : function() {
 			this.__base();
 			this.value = undefined;
 		},
-		
+
 		clone: function() {
 			return new CommandArgumentInput();
 		},
@@ -422,14 +422,14 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			$(inputValue).hide();
 
 			this.domObject = container;
-			
+
 			if (value) {
 				this.setValue(value);
 			}
 			$(container).children('.inputExpression').change(function() {
 				callback();
 			});
-			
+
 			return this.domObject;
 		},
 
@@ -456,7 +456,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		getExpression: function() {
 			return this.returnValue(this.value);
 		},
-		
+
 		getValue: function(args) {
 			var value = $(this.domObject).children('.inputExpression').val();
 			if (args != undefined && args[value] != undefined) {
@@ -464,7 +464,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 			return this.returnValue(value);
 		},
-	
+
 		updateInterface: function(newState){
 			this.__base(newState);
 			switch (newState) {
@@ -500,7 +500,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				}
 			}
 		},
-		
+
 		getArguments: function() {
 			return this.arguments;
 		}

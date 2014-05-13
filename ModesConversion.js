@@ -40,11 +40,11 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 				for (var j = 0; j < conditionArguments.length; ++j) {
 					args.push(
 						conditionArguments[j].getDomObjectValue($(node).children('.testFunctionArgument:eq(' + (j + 2) + ')')));
-				}	
+				}
 
 				var testName = conditionProperties.name;
-				var newCommand = type == 'while' ? 
-					new CommandsMode.WhileStmt(testName, args, undefined, block, node, problem) : 
+				var newCommand = type == 'while' ?
+					new CommandsMode.WhileStmt(testName, args, undefined, block, node, problem) :
 					new CommandsMode.IfStmt(testName, args, undefined, undefined, block, node, problem)
 
 				var block1 = commands[i].children ? (convert(commands[i].children, newCommand, problem)) : new CommandsMode.Block([], newCommand, problem);
@@ -57,7 +57,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 						block2 = new CommandsMode.Block([], newCommand, problem);
 					}
 				}
-				
+
 				newCommand.setBlocks(block1, block2);
 				block.pushCommand(newCommand);
 			}
@@ -78,7 +78,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 				for (var j = 0; j < $(node).children('.testFunctionArgument').length; ++j) {
 					args.push(argument.getDomObjectValue($(node).children('.testFunctionArgument:eq(' + j + ')')));
 				}
-				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data : 
+				block.pushCommand(new CommandsMode.FuncCall(commands[i].data ? commands[i].data :
 					$(node).text().split(' ').join(''), args,  block, node, problem));
 			}
 			else{
@@ -90,18 +90,18 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 
 				var cmd = undefined;
 				if (command.hasCounter) {
-					cmd = new CommandsMode.CommandWithCounter(type, 
-						problem.executionUnit.getCommands()[type].getArguments(), 
+					cmd = new CommandsMode.CommandWithCounter(type,
+						problem.executionUnit.getCommands()[type].getArguments(),
 						argValues,
-						block, 
+						block,
 						node,
 						problem);
 				}
 				else {
-					cmd = new CommandsMode.Command(type, 
-						problem.executionUnit.getCommands()[type].getArguments(), 
+					cmd = new CommandsMode.Command(type,
+						problem.executionUnit.getCommands()[type].getArguments(),
 						argValues,
-						block, 
+						block,
 						node,
 						problem);
 				}
@@ -190,7 +190,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 				default:
 					throw new IncorrectInput('Неподдерживаемый тип аргумента');
 			}
-		}	
+		}
 		return argValues;
 	}
 
@@ -201,7 +201,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 		{
 			switch(commands[i]._astname) {
 				case 'Expr':
-					if (commands[i].value._astname != 'Call' || 
+					if (commands[i].value._astname != 'Call' ||
 						commands[i].value.func._astname != 'Name')
 						return undefined;
 
@@ -216,7 +216,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 							throw new IncorrectInput('Неверное число аргументов');
 						}
 
-						block.pushCommand(new CommandsMode.Command(commands[i].value.func.id.v, 
+						block.pushCommand(new CommandsMode.Command(commands[i].value.func.id.v,
 							execCommand.getArguments(),
 							getArgumentValues(commands[i]),
 							block, undefined, problem));
@@ -227,7 +227,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 					break;
 				case 'For':
 					//__constructor : function(body, cnt, parent, id)
-					if (!commands[i].iter || commands[i].iter._astname != 'Call' ||  
+					if (!commands[i].iter || commands[i].iter._astname != 'Call' ||
 						commands[i].iter.func._astname != 'Name' || commands[i].iter.func.id.v != 'range' ||
 						commands[i].iter.args.length != 1 || (commands[i].iter.args[0]._astname != 'Num' && commands[i].iter.args[0]._astname != 'Name')) //
 						return undefined;
@@ -241,7 +241,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 							cnt = commands[i].iter.args[0].id.v;
 							break;
 					}
-					
+
 					var forStmt = new CommandsMode.ForStmt(undefined, cnt, block, undefined, problem);
 					var body = convertTreeToCommands(commands[i].body, forStmt, problem);
 					if (!body)
@@ -258,7 +258,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 					if (!conditionProperties) {
 						throw new IncorrectInput('Некорректное имя функции сравнения');
 					}
-					var ifStmt = new CommandsMode.IfStmt(dict['testName'], [dict['testName']].concat(dict['args']), undefined, undefined, block, undefined, problem);			
+					var ifStmt = new CommandsMode.IfStmt(dict['testName'], [dict['testName']].concat(dict['args']), undefined, undefined, block, undefined, problem);
 					var body1 = convertTreeToCommands(commands[i].body, ifStmt, problem);
 					var body2;
 					if (commands[i].orelse.length)
@@ -294,17 +294,17 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 					if (problem.functions[commands[i].name.v][args.length] != undefined) {
 						throw new IncorrectInput('Несколько функций с одним и тем же именем не поддерживаются в визуальном режиме');
 					}
-					
+
 					var funcDef = new CommandsMode.FuncDef(commands[i].name.v, args, undefined, block, undefined, problem);
 					problem.functions[commands[i].name.v][args.length] = funcDef;
 					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 					funcDef.setCommands(body.commands);
 					block.pushCommand(funcDef);
 
-					break;	
+					break;
 				case 'Pass':
 					break;
-				default: 
+				default:
 					return undefined;
 			}
 		}
@@ -312,7 +312,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 	}
 
 	return {
-		convert: convert, 
+		convert: convert,
 		convertTreeToCommands: convertTreeToCommands
 	}
 });

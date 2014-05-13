@@ -65,7 +65,7 @@ function() {
 
 		generateCommand: function(className, commandName, container) {
 			$(container).append('<td>' +
-				'<div id="' + className + this.tabIndex + '" class="' + className + '  jstree-draggable" type = "' + className + 
+				'<div id="' + className + this.tabIndex + '" class="' + className + '  jstree-draggable" type = "' + className +
 					'" rel = "' + className + '" title = "' + commandName + '">' + '</div>' + '</td>');
 
 			var self = this;
@@ -100,7 +100,7 @@ function() {
 					}
 				}
 
-				this.generateCommand(classes[i], cmdClassToName[classes[i]], tr);				
+				this.generateCommand(classes[i], cmdClassToName[classes[i]], tr);
 			}
 
 			var executionUnitCommands = this.executionUnit.getCommandsToBeGenerated();
@@ -232,7 +232,7 @@ function() {
 			$('#divcontainer' + this.tabIndex).block({
 				message: null,
 				fadeIn: 0,
-				overlayCSS: { 
+				overlayCSS: {
 					backgroundColor: '#ffffff',
 					opacity: 0,
 					cursor: 'default'
@@ -242,7 +242,7 @@ function() {
 			/*$('#resizable' + this.tabIndex).block({
 				message: null,
 				fadeIn: 0,
-				overlayCSS: { 
+				overlayCSS: {
 					backgroundColor: '#ffffff',
 					opacity: 0,
 					cursor: 'default'
@@ -578,7 +578,7 @@ function() {
 					}
 				}(this), s);
 			} catch (e) {
-				this.playing = false;	
+				this.playing = false;
 				if (e.getErrorLine) {
 					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке');
 				}
@@ -670,8 +670,8 @@ function() {
 
 						if (!this.playing) {
 							var needReturn = this.cmdList.isFinished();
-							this.setDefault();	
-							if (needReturn) return;		
+							this.setDefault();
+							if (needReturn) return;
 						}
 						codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
 						if (!this.playing) {
@@ -693,7 +693,7 @@ function() {
 					if (this.cmdList.isFinished()) {
 						this.playing = false;
 						this.executionUnit.executionFinished();
-					} 
+					}
 					this.speed = s;
 				} catch (e) {
 					console.error(e);
@@ -755,11 +755,11 @@ function() {
 		getState: function() {
 			return this.executionUnit.getState();
 		},
-		
+
 		needToContinueExecution: function() {
 			return !(this.stopped || this.paused || this.executionUnit.isGameOver());
 		},
-		
+
 		recalculatePenalty: function(command) {
 			if (!this.usedCommands[command.getId()]){
 				++this.divIndex;
@@ -770,15 +770,15 @@ function() {
 				}
 			}
 		},
-		
+
 		setLastExecutedCommand: function(command) {
 			this.lastExecutedCmd = command;
 		},
-		
+
 		newCommandGenerationStarted: function() {
 			++this.loadedCnt;
 		},
-		
+
 		newCommandGenerated: function() {
 			--this.loadedCnt;
 		},

@@ -116,7 +116,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		},
 
-		loginRequest: function(userLogin, userPass) {	
+		loginRequest: function(userLogin, userPass) {
 
 		},
 
@@ -223,7 +223,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			this.sendServerRequest(this.url + 'f=contests;filter=json;sid=' + self.getSid() + ';json=1;', function(data){
 				if (data.error == 'bad sid'){
 					badSidCallback();
-				} 
+				}
 				else {
 					this._submitRequest(submitStr, problem_id);
 				}
@@ -231,38 +231,38 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		loginRequest: function(userLogin, userPass, callback) {
-			this.sendServerRequest(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;', 
+			this.sendServerRequest(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;',
 				function(data) {
 					callback(data);
-				}, 
+				},
 				this.dataType);
 		},
 
 		logoutRequest: function(callback) {
-			this.sendServerRequest(this.url +'f=logout;sid=' + this.getSid() + ';json=1;', 
+			this.sendServerRequest(this.url +'f=logout;sid=' + this.getSid() + ';json=1;',
 				function(data) {
 					callback(data);
-				}, 
+				},
 				this.dataType);
 		},
 
 		usersListRequest: function(callback) {
 			var self = this;
-			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;', 
+			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;',
 				function(data) {
 					self.onUsersListRequest(data);
 					callback(data);
-				}, 
+				},
 				this.dataType);
 		},
 
 		contestsListRequest: function(callback) {
 			var self = this;
-			this.sendServerRequest(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;', 
+			this.sendServerRequest(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;',
 				function(data) {
 					self.onContestsListRequest(data);
 					callback(data);
-				}, 
+				},
 				this.dataType);
 		},
 
@@ -276,7 +276,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		consoleContentRequest: function(callback){
 			if (this.getCid() && this.getSid()){
-				this.sendServerRequestt(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() + 
+				this.sendServerRequestt(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() +
 					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
 					function(data) {
 						callback(data);
@@ -288,8 +288,8 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		codeRequest: function(rid, callback) {
 			if (this.getCid() && this.getSid()){
-				this.sendServerRequest(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() + 
-					';rid=' + rid, 
+				this.sendServerRequest(this.url + 'f=download_source;cid=' + this.getCid() + ';sid=' + this.getSid() +
+					';rid=' + rid,
 					function(data){
 							callback(data);
 					},
@@ -325,7 +325,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			CallServer.callSubmitLocally('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', 'source=' + submitStr + '&problem_id=' + this.id + '&de_id=772264', function(data){
 				alert(data.message ? data.message : 'Решение отослано на проверку');
 			},
-			'LocalServerFiles/submit.php'); 
+			'LocalServerFiles/submit.php');
 		},
 
 		_getResultsUrl: function() {

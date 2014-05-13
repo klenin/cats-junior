@@ -34,16 +34,16 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 				case 'while':
 					CommandsMode.WhileStmt.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate);
 					break;
-				case 'funccall': 
+				case 'funccall':
 					CommandsMode.FuncCall.onCreateJsTreeItem(tree, newNode, type, problem, dontNeedToUpdate, inputArgs);
 					break;
 			}
-			
+
 		}
 	}
-		
+
 	function isBlock(type){
-		return type == false || type == 'block' || type == 'if' || type == 'ifelse' || 
+		return type == false || type == 'block' || type == 'if' || type == 'ifelse' ||
 			type == 'while' || type == 'for' || type == 'else' || type == 'funcdef';
 	}
 	function getNextNode(tree, node)
@@ -68,64 +68,64 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 
 	function createJsTreeForFunction(id, problem, isFunction) {
 		//return function(p) {
-			return $(id).jstree({ 
+			return $(id).jstree({
 				"types" : {
 					"max_depth" : -2,
 			        "max_children" : -2,
 					"types" : {
 						"block" : {
-							"icon" : { 
-								"image" : "images/block_small.png" 
+							"icon" : {
+								"image" : "images/block_small.png"
 							}
 						},
 						"if" : {
-							"icon" : { 
-								"image" : "images/if_small.png" 
+							"icon" : {
+								"image" : "images/if_small.png"
 							}
 						},
 						"ifelse" : {
-							"icon" : { 
-								"image" : "images/if_else_small.png" 
+							"icon" : {
+								"image" : "images/if_else_small.png"
 							}
 						},
 						"else" : {
-							"icon" : { 
-								"image" : "images/block_small.png" 
+							"icon" : {
+								"image" : "images/block_small.png"
 							}
 						},
 						"while" : {
-							"icon" : { 
-								"image" : "images/loop_small.png" 
+							"icon" : {
+								"image" : "images/loop_small.png"
 							}
 						},
 						"for" : {
-							"icon" : { 
-								"image" : "images/loop_small.png" 
+							"icon" : {
+								"image" : "images/loop_small.png"
 							}
 						},
 						"funccall" : {
 							"valid_children" : "none",
-							"icon" : { 
-								"image" : "images/block_small.png" 
+							"icon" : {
+								"image" : "images/block_small.png"
 							}
 						},
 						"func-header" : {
 							"valid_children" : "none",
-							"icon" : { 
-								"image" : "images/block_small.png" 
+							"icon" : {
+								"image" : "images/block_small.png"
 							}
 						},
 						"func-body" : {
 							"valid_children" : "none",
-							"icon" : { 
-								"image" : "images/block_small.png" 
+							"icon" : {
+								"image" : "images/block_small.png"
 							}
 						}
 					}
 				},
 				"crrm":{
 					"move" : {
-						"default_position" : "inside", 
+						"default_position" : "inside",
 						"check_move" : function (data) {
 							var node = data.o;
 							var type = this._get_type(node);
@@ -156,10 +156,10 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 					},
 				"dnd" : {
 					"drag_check" : function (data) {
-						result = { 
-							after : true, 
-							before : true, 
-							inside : true 
+						result = {
+							after : true,
+							before : true,
+							inside : true
 						};
 						if (this._get_type(data.r) == 'ifelse'){
 							result['after'] = false;
@@ -175,7 +175,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 						}
 						return result;
 					},
-					"drag_finish" : function (data) { 
+					"drag_finish" : function (data) {
 						var node = data.r;
 						//; //=(
 						var pos = data.p;
@@ -200,15 +200,15 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 						}
 						if (type != 'funcdef') {
 							$(id).jstree(
-								"create", node, pos, 
-								{'data': name}, 
+								"create", node, pos,
+								{'data': name},
 								function(newNode){
 									var args = [];
 									if (type == 'funccall' || type == 'func-header' || type == 'func-body') {
 										args = $( '#accordion' + curProblem.tabIndex ).myAccordion('getArguments', $(data.o).parent());
 									}
 									onCreateItem(this, newNode, $(data.o).attr('rel'), curProblem, $(data.o).parent().attr('funcId'), undefined, args);
-								}, type != 'funcdef'); 
+								}, type != 'funcdef');
 						}
 						else if (!isFunction){
 							$( '#accordion' + curProblem.tabIndex ).myAccordion( 'push', curProblem.getAvaliableFunctionName() );
@@ -245,7 +245,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 							this.remove(data.o);
 							if (next)
 								this.remove(next);
-							curProblem.updated();				
+							curProblem.updated();
 						}
 						return true;
 					}
@@ -255,7 +255,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 					"select_limit" : 1
 				},
 				"core" : { "initially_open" : [ "phtml_1" ] },
-				"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]			
+				"plugins" : [ "themes", "html_data", "dnd", "crrm", "ui", "types", "json_data" ]
 			})
 			.bind("move_node.jstree", function(event, data){
 				var node = data.args[0].o;
@@ -269,11 +269,11 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 			}).bind("rename.jstree", function(event, data) {
 				if (!checkName(data.rslt.new_name)) {
 					alert('Invalid function name!!!');
-					setTimeout(function(tree, node, name) { 
+					setTimeout(function(tree, node, name) {
 						return function() {
 							$(tree).jstree('rename', node, name);
 						} }(this, data.rslt.obj, data.rslt.old_name), 500);
-					
+
 					return false;
 				}
 				curProblem.updated();

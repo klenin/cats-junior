@@ -15,11 +15,11 @@ define('Tests',
 				$('#accordion' + problem.tabIndex).myAccordion('push', problem.getAvaliableFunctionName());
 			}
 			else {
-				tree.jstree("create", false,  "last", 
+				tree.jstree("create", false,  "last",
 						{'data' : type}, function(newNode){
 						InterfaceJSTree.onCreateItem(this, newNode, $('#' + type + problem.tabIndex).attr('rel'), problem);
-				}, true); 
-			} 
+				}, true);
+			}
 		}
 
 		function convertCommandsToCode(problem) {

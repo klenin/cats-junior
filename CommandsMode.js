@@ -1,5 +1,5 @@
-define('CommandsMode', ['jQuery', 
-	'jQueryUI', 
+define('CommandsMode', ['jQuery',
+	'jQueryUI',
 	'jQueryInherit',
 	'Misc',
 	'ShowMessages',
@@ -20,15 +20,15 @@ define('CommandsMode', ['jQuery',
 			this.finished = false;
 			this.timestamp = new Date().getTime();
 		},
-		
+
 		createClone: function () {
 			return new CommandBase(this.name, this.parent, this.node, this.problem);
 		},
-		
+
 		getId: function() {
 			return $(this.node).attr('id');
 		},
-		
+
 		prepareArgumentsListForExecution: function(args) {
 			return [];
 		},
@@ -44,7 +44,7 @@ define('CommandsMode', ['jQuery',
 				if (this.problem.needToHighlightCommand(this)) {
 					this.highlightOn();
 				}
-				this.problem.oneStep(this.name, 1, this.prepareArgumentsListForExecution(args)); 
+				this.problem.oneStep(this.name, 1, this.prepareArgumentsListForExecution(args));
 				this.problem.recalculatePenalty(this);
 				this.problem.checkLimit();
 				this.problem.setLastExecutedCommand(this);
@@ -53,29 +53,29 @@ define('CommandsMode', ['jQuery',
 		},
 
 		exec: function(cmdNumToExecute, args) {
-			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);	
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);
 			this.finished = true;
-		
+
 			return cmdNumToExecute;
 		},
-		
+
 		getClass: function() {
 			return 'CommandBase';
 		},
-		
+
 		getName: function() {
 			return this.name ? this.name : this.getClass();
 		},
-		
+
 		setDefault: function() {
 			this.finished = false;
 			this.highlightOff();
 		},
-		
+
 		isFinished: function(args) {
 			return this.finished;
 		},
-		
+
 		isStarted: function() {
 			return this.finished;
 		},
@@ -88,7 +88,7 @@ define('CommandsMode', ['jQuery',
 					break;
 			}
 		},
-		
+
 		hideHighlighting: function() {
 			$(this.node).addClass('hiddenHighlighting');
 		},
@@ -97,26 +97,26 @@ define('CommandsMode', ['jQuery',
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).removeClass('highlighted');
 		},
-		
+
 		highlightOn: function(){
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).addClass('highlighted');
 		},
-		
+
 		generatePythonCode: function(tabsNum) {
 			return generateTabs(tabsNum) + this.name + '()\n';
 		},
-		
+
 		generateVisualCommand: function(tree, node, position) {
 			var self = this;
-			
+
 			if (!self.problem.isCommandSupported(self.getName()) && self.getClass() != 'funccall') {
 				throw new IncorrectInput('Команда ' + self.getName() + ' запрещена в данной задаче');
 			}
-			
+
 			self.problem.newCommandGenerationStarted();
-			tree.create(node, 
-				position ? position : 'after', 
+			tree.create(node,
+				position ? position : 'after',
 				{
 					'data': self.problem.getCommandName(self.getName()),
 				},
@@ -128,7 +128,7 @@ define('CommandsMode', ['jQuery',
 			);
 
 		},
-		
+
 		onGenerateDomObjectCallback: function(tree, newNode) {
 			this.__self.onCreateJsTreeItem(tree, newNode, this.getName(), this.problem, true, undefined, this.arguments);
 			this.node = newNode;
@@ -137,27 +137,27 @@ define('CommandsMode', ['jQuery',
 		setArguments: function(args) {
 			return;
 		},
-		
+
 		updateFunctonNames: function(funcId, oldName, newName) {
 			return;
 		},
-		
+
 		removeFunctionCall: function(funcId) {
 			return;
 		},
-		
+
 		highlightWrongNames: function() {
 			return;
 		},
-		
-		getFunction: function() { 
+
+		getFunction: function() {
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
-		
+
 		updateArguments: function(funcId, args) {
 			return;
 		},
-		
+
 		getArguments: function() {
 			return;
 		},
@@ -183,11 +183,11 @@ define('CommandsMode', ['jQuery',
 	});
 
 	var Command = $.inherit(CommandBase, {
-		__constructor: function(name, parameters, argumentValues, parent, node, problem) { 
-			//parameters is an array with the description of command parameters got from executive unit 
+		__constructor: function(name, parameters, argumentValues, parent, node, problem) {
+			//parameters is an array with the description of command parameters got from executive unit
 			//argumentValues -- array of corresponding values
 			this.__base(name, parent, node, problem);
-			
+
 			this.arguments = [];
 
 			for (var i = 0; i < parameters.length; ++i) {
@@ -212,14 +212,14 @@ define('CommandsMode', ['jQuery',
 			if (funcDef) {
 				this.setArguments(funcDef.getArguments());
 			}
-			
+
 		},
 
 		executeOneStep: function(cmdNumToExecute, args) {
 			this.setArgumentValues(args);
 			return this.__base(cmdNumToExecute, args);
 		},
-		
+
 		initializeArgumentDomObject: function() {
 			for (var i = 0; i < this.arguments.length; ++i) {
 				this.arguments[i].initializeArgumentDomObject(this.node, i);
@@ -243,7 +243,7 @@ define('CommandsMode', ['jQuery',
 		createClone: function () {
 			return new Command(this.name, this.arguments, this.createArgumentsClone(), this.parent, this.node, this.problem);
 		},
-		
+
 		prepareArgumentsListForExecution: function(args) {
 			var argumentValues = [];
 			for (var i = 0; i < this.arguments.length; ++i) {
@@ -251,11 +251,11 @@ define('CommandsMode', ['jQuery',
 			}
 			return argumentValues;
 		},
-			
+
 		getClass: function() {
 			return 'Command';
 		},
-		
+
 		setDefault: function() {
 			this.__base();
 			for (var i = 0; i < this.arguments.length; ++i) {
@@ -268,7 +268,7 @@ define('CommandsMode', ['jQuery',
 				this.arguments[i].updateInterface(newState);
 			}
 		},
-	
+
 		generatePythonCode: function(tabsNum) {
 			var	str = generateTabs(tabsNum) + this.name + '(';
 			for (var i = 0; i < this.arguments.length; ++i) {
@@ -284,7 +284,7 @@ define('CommandsMode', ['jQuery',
 			str += ')\n';
 			return str;
 		},
-		
+
 		updateArgumentValueInDomObject: function() {
 			for (var i = 0; i < this.arguments.length; ++i){
 				this.arguments[i].updateValueInDomObject();
@@ -296,13 +296,13 @@ define('CommandsMode', ['jQuery',
 			this.initializeArgumentDomObject();
 			this.updateArgumentValueInDomObject();
 		},
-		
+
 		setArguments: function(args) {
 			for (var i = 0; i < this.arguments.length; ++i) {
 				this.arguments[i].addArguments(args, true);
 			}
 		},
-		
+
 		updateArguments: function(funcId, args) {
 			var func = this.getFunction();
 			if (func && func.funcId == funcId) {
@@ -312,7 +312,7 @@ define('CommandsMode', ['jQuery',
 			}
 			return;
 		},
-		
+
 		getArguments: function() {
 			return this.arguments;
 		},
@@ -359,13 +359,13 @@ define('CommandsMode', ['jQuery',
 
 		generateArgumentDom: function(parameter, prev, problem, doNotCloneArguments, value) {
 			return parameter.generateDomObject(
-				$(prev), 
+				$(prev),
 				function(p) {
 					return function() {
 						p.updated();
 					}
 				}(problem),
-				problem, 
+				problem,
 				value != undefined ? value : doNotCloneArguments ? parameter.getExpression() : undefined);
 		}
 	});
@@ -384,7 +384,7 @@ define('CommandsMode', ['jQuery',
 			}
 			this.started = false;
 		},
-		
+
 		createClone: function() {
 			return new CommandWithCounter(this.name, this.arguments, this.createArgumentsClone(), this.parent, this.node, this.problem);
 		},
@@ -398,14 +398,14 @@ define('CommandsMode', ['jQuery',
 			this.counter.decreaseValue();
 			return Math.max(0, cmdNumToExecute);
 		},
-		
+
 		exec: function(cmdNumToExecute, args) {
 			while (cmdNumToExecute > 0 && !this.isFinished(args)) { //we need to check the correctness of the counter expression
 				cmdNumToExecute = this.executeOneStep(cmdNumToExecute, args);
 			}
 			return cmdNumToExecute;
 		},
-		
+
 		setDefault: function() {
 			this.__base();
 			this.started = false;
@@ -414,7 +414,7 @@ define('CommandsMode', ['jQuery',
 		getClass: function() {
 			return 'CommandWithCounter';
 		},
-		
+
 		isFinished: function(args) {
 			var counterValue = this.counter.getCounterValue(args);
 			if (counterValue == undefined) {
@@ -422,7 +422,7 @@ define('CommandsMode', ['jQuery',
 			}
 			return counterValue <= 0;
 		},
-		
+
 		isStarted: function() {
 			return this.started;
 		}
@@ -434,16 +434,16 @@ define('CommandsMode', ['jQuery',
 			this.__base(undefined, parameters, [cmdNumToExecute], parent, node, problem);
 			this.body = body;
 		},
-		
+
 		setBody: function(body) {
 			this.body = body;
 		},
-		
+
 		createClone: function () {
 			var body = this.body.createClone();
 			return new ForStmt(body, this.arguments[0].getExpression(), this.parent, this.node, this.problem);
 		},
-		
+
 		executeOneStep: function(cmdNumToExecute, args) {
 			if (!this.problem.needToContinueExecution()) {
 				return cmdNumToExecute;
@@ -464,7 +464,7 @@ define('CommandsMode', ['jQuery',
 						this.highlightOn();
 					}
 				}
-				
+
 				if (cmdNumToExecute > 0) {
 					cmdNumToExecute = this.body.exec(cmdNumToExecute, args);
 					if (this.body.isFinished(args)) {
@@ -479,40 +479,40 @@ define('CommandsMode', ['jQuery',
 		getClass: function() {
 			return 'for';
 		},
-		
+
 		setDefault: function() {
 			this.__base();
 			this.body.setDefault();
 			this.started = false;
 		},
-			
+
 		updateInterface: function(newState) {
 			this.__base(newState);
 			this.body.updateInterface(newState)
 		},
-		
+
 		hideHighlighting: function() {
 			$(this.node).addClass('hiddenHighlighting');
 			this.body.hideHighlighting();
 		},
-		
+
 		highlightOff: function() {
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).removeClass('highlighted');
 			this.body.highlightOff();
 		},
-		
+
 		highlightOn: function() {
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).addClass('highlighted');
 			this.body.hideHighlighting();
 		},
-		
+
 		generatePythonCode: function(tabsNum) {
 			var curCnt = this.problem.curCounter;
 			var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] +
-				(this.problem.counters[curCnt]['cnt'] ? 
-				this.problem.counters[curCnt]['cnt'] : 
+				(this.problem.counters[curCnt]['cnt'] ?
+				this.problem.counters[curCnt]['cnt'] :
 				'') + ' in range(' + this.counter.getExpression() + '):\n';
 			++this.problem.counters[curCnt]['cnt'];
 			this.problem.curCounter = (this.problem.curCounter + 1) % 3;
@@ -521,27 +521,27 @@ define('CommandsMode', ['jQuery',
 			this.problem.curCounter = curCnt;
 			return str;
 		},
-		
+
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
 			this.body.generateVisualCommand(tree, node, 'last');
 		},
-	
+
 		setArguments: function(args) {
 			this.__base(args);
 			if (this.body) {
 				this.body.setArguments(args);
 			}
 		},
-		
+
 		updateFunctonNames: function(funcId, oldName, newName) {
 			return this.body.updateFunctonNames(funcId, oldName, newName)
 		},
-		
+
 		removeFunctionCall: function(funcId) {
 			return this.body.removeFunctionCall(funcId)
 		},
-		
+
 		highlightWrongNames: function() {
 			return this.body.highlightWrongNames();
 		}
@@ -584,7 +584,7 @@ define('CommandsMode', ['jQuery',
 			this.setArgumentPossibleValues(undefined, args);
 			this.updateConditionArguments();
 		},
-		
+
 		prepareForCloneCreation: function() {
 			var dict = {};
 			dict['firstBlock'] = this.blocks[0].createClone();
@@ -664,7 +664,7 @@ define('CommandsMode', ['jQuery',
 		isStarted: function() {
 			return this.blockToExecute =! undefined;
 		},
-		
+
 		hideHighlighting: function() {
 			$(this.node).addClass('hiddenHighlighting');
 			this.blocks[0].hideHighlighting();
@@ -672,7 +672,7 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1].hideHighlighting();
 			}
 		},
-		
+
 		highlightOff: function() {
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).removeClass('highlighted');
@@ -681,7 +681,7 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1].highlightOff();
 			}
 		},
-		
+
 		highlightOn: function() {
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).addClass('highlighted');
@@ -706,11 +706,11 @@ define('CommandsMode', ['jQuery',
 			}
 			return this.conditionProperties.jsFunc(conditionArguments);
 		},
-			
+
 		getClass: function() {
 			return 'CondStmt';
 		},
-		
+
 		isStarted: function() {
 			return this.blockToExecute != undefined;
 		},
@@ -719,7 +719,7 @@ define('CommandsMode', ['jQuery',
 			str = generateTabs(tabsNum)  + this.getOperatorName() + ' ';
 			if (this.conditionName != this.conditionProperties.name || this.arguments.length - 2 != this.conditionProperties.args.length) {
 				throw new IncorrectInput('Некорректное имя функции или количество аргументов');
-			} 
+			}
 			if (this.arguments[1].getExpression() == 'not') {
 				str += 'not ';
 			}
@@ -743,17 +743,17 @@ define('CommandsMode', ['jQuery',
 			}
 			return str;
 		},
-		
+
 		updateConditionArguments: function() {
 			this.getConditionTypeSelect().off('change').on('change', function(p, self){
 				return function() {
 					var condName = $(this).children('option:selected').val();
 					if (condName != self.conditionName) {
 						$(self.node).children('.testFunctionArgument:gt(1)').remove();
-						CondStmt.generateArgumentsDom($(self.node), 
-							p.getConditionProperties(condName).args, 
-							p, 
-							false, 
+						CondStmt.generateArgumentsDom($(self.node),
+							p.getConditionProperties(condName).args,
+							p,
+							false,
 							$(self.node).children('.testFunctionArgument').last());
 						p.updated();
 					}
@@ -786,21 +786,21 @@ define('CommandsMode', ['jQuery',
 				this.blocks[1].updateFunctonNames(funcId, oldName, newName);
 			}
 		},
-		
+
 		removeFunctionCall: function(funcId) {
 			this.blocks[0].removeFunctionCall(funcId);
 			if (this.blocks[1]) {
 				this.blocks[1].removeFunctionCall(funcId);
 			}
 		},
-		
+
 		highlightWrongNames: function() {
 			this.blocks[0].highlightWrongNames();
 			if (this.blocks[1]) {
 				this.blocks[1].highlightWrongNames();
 			}
 		},
-		
+
 		updateArguments: function(funcId, args) {
 			this.blocks[0].updateArguments(funcId, args);
 			if (this.blocks[1]) {
@@ -843,7 +843,7 @@ define('CommandsMode', ['jQuery',
 		__constructor: function(condName, args, firstBlock, secondBlock, parent, node, problem) {
 			this.__base(condName, args, firstBlock, secondBlock, parent, node, problem);
 		},
-			
+
 		createClone: function () {
 			var dict = this.prepareForCloneCreation();
 			return new IfStmt(this.conditionName, dict['args'], dict['firstBlock'], dict['secondBlock'], this.parent, this.node, this.problem);
@@ -852,7 +852,7 @@ define('CommandsMode', ['jQuery',
 		getClass: function() {
 			return this.blocks[1] ? 'ifelse' : 'if';
 		},
-		
+
 		getOperatorName: function() {
 			return 'if'
 		},
@@ -866,19 +866,19 @@ define('CommandsMode', ['jQuery',
 			this.__base(tree, node, type, problem, type == 'ifelse', args, parameters);
 			if (type == 'ifelse') {
 				tree.rename_node(node, 'Если');
-				tree.create($(node), "after", false, 
+				tree.create($(node), "after", false,
 					function(elseNode){
 						tree.set_type('else', elseNode);
 						tree.rename_node(elseNode, 'Иначе');
 						$(elseNode).prop({
-							'numId': cmdId, 
+							'numId': cmdId,
 							'ifLi': 1,
 							'type': 'else',
 							'id': 'else' + cmdId
 						});
 						$(elseNode).addClass('else');
-					}, 
-					true); 
+					},
+					true);
 			}
 			if (!doNotNeedToUpdate) {
 				problem.updated();
@@ -894,7 +894,7 @@ define('CommandsMode', ['jQuery',
 		__constructor: function(condName, args, body, parent, node, problem) {
 			this.__base(condName, args, body, undefined, parent, node, problem);
 		},
-		
+
 		createClone: function () {
 			var dict = this.prepareForCloneCreation();
 			return new WhileStmt(this.conditionName, dict['args'], dict['firstBlock'], this.parent, this.node, this.problem);
@@ -929,7 +929,7 @@ define('CommandsMode', ['jQuery',
 			this.commands = commands;
 			this.commandIndex = 0;
 		},
-		
+
 		createCommandsClone: function() {
 			var commands = [];
 			for (var i = 0; i < this.commands.length; ++i) {
@@ -941,7 +941,7 @@ define('CommandsMode', ['jQuery',
 		createClone: function () {
 			return new Block(this.createCommandsClone(), this.parent, this.problem);
 		},
-		
+
 		insertCommand : function(command, pos) {
 			this.commands.splice(pos, command);
 		},
@@ -959,23 +959,23 @@ define('CommandsMode', ['jQuery',
 			}
 			return cmdNumToExecute;
 		},
-		
+
 		getClass: function() {
 			return 'Block';
 		},
-		
+
 		setDefault: function() {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].setDefault();
 			}
 			this.commandIndex = 0;
 		},
-		
+
 		isFinished: function(args) {
-			return (this.commandIndex >= this.commands.length) || 
+			return (this.commandIndex >= this.commands.length) ||
 				(this.commandIndex == this.commands.length - 1 && this.commands[this.commandIndex].isFinished(args));
 		},
-		
+
 		isStarted: function() {
 			return this.commandIndex > 0 || this.commands[this.commandIndex].isStarted();
 		},
@@ -985,25 +985,25 @@ define('CommandsMode', ['jQuery',
 				this.commands[i].updateInterface(newState);
 			}
 		},
-		
+
 		hideHighlighting: function() {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].hideHighlighting();
 			}
 		},
-		
+
 		highlightOff: function() {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].highlightOff();
 			}
 		},
-		
+
 		highlightOn: function() {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].highlightOn();
 			}
 		},
-		
+
 		generatePythonCode: function(tabsNum) {
 			str = '';
 			if (!this.commands.length && this.needToGeneratePassStmt()) {
@@ -1014,41 +1014,41 @@ define('CommandsMode', ['jQuery',
 			}
 			return str;
 		},
-		
+
 		generateVisualCommand: function(tree, node, position) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].generateVisualCommand(tree, node ? node : 0, position);
 			}
 		},
-		
+
 		setArguments: function(args) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].setArguments(args);
 			}
 		},
-		
+
 		updateFunctonNames: function(funcId, oldName, newName) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateFunctonNames(funcId, oldName, newName);
 			}
 		},
-		
+
 		removeFunctionCall: function(funcId) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].removeFunctionCall(funcId);
 			}
 		},
-		
+
 		highlightWrongNames: function() {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].highlightWrongNames();
 			}
 		},
-		
-		getFunction: function() { 
+
+		getFunction: function() {
 			return this.parent ? this.parent.getFunction() : undefined;
 		},
-		
+
 		updateArguments: function(funcId, args) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateArguments(funcId, args);
@@ -1061,7 +1061,7 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to decide whether 
+		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to decide whether
 		//we should generate pass statement when block is empty or not
 		//we shouldn't generate only if the parent is Block (we're in main body)
 			return this.parent && this.parent.getClass() != 'Block';
@@ -1075,15 +1075,15 @@ define('CommandsMode', ['jQuery',
 			this.name = name;
 			this.argumentsList = argumentsList.clone();
 		},
-		
+
 		createClone: function () {
 			return new FuncDef(this.name, this.argumentsList, this.createCommandsClone(), this.parent, this.node, this.problem);
 		},
-		
+
 		getClass: function() {
 			return 'funcdef';
 		},
-		
+
 		getFuncId: function() {
 			return $(this.node).attr('funcId');
 		},
@@ -1119,7 +1119,7 @@ define('CommandsMode', ['jQuery',
 			str += this.__base(tabsNum + 1);
 			return str;
 		},
-		
+
 		generateVisualCommand: function(tree, node, position) {
 			var self = this;
 
@@ -1131,7 +1131,7 @@ define('CommandsMode', ['jQuery',
 			var c = ++cmdId;
 			$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, $(this.node).prop('funcId'));
 			this.node = $('#funcDef-' + c);
-			$('#funcDef-' + c).bind('loaded.jstree', function(){	
+			$('#funcDef-' + c).bind('loaded.jstree', function(){
 				for (var i = 0; i < self.commands.length; ++i) {
 					self.commands[i].generateVisualCommand(jQuery.jstree._reference('funcDef-' + c), node ? node : 0, position)
 				}
@@ -1145,7 +1145,7 @@ define('CommandsMode', ['jQuery',
 			return this.argumentsList;
 		},
 
-		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to parent field to decide whether 
+		needToGeneratePassStmt: function() { //this function will be called in Block.generatePythonCode to parent field to decide whether
 		//we should generate pass statement when block is empty or not
 		//we shouldn't generate only if the parent is Block (we're in main body)
 			return true;
@@ -1161,11 +1161,11 @@ define('CommandsMode', ['jQuery',
 			this.__base(name, parameters, argumentValues, parent, node, problem);
 			this.funcDef = undefined;
 		},
-		
+
 		createClone: function () {
 			return new FuncCall(this.name, this.createArgumentsClone(), this.parent, this.node, this.problem)
 		},
-		
+
 		getFuncDef: function() {
 			try {
 				return this.problem.functions[this.name][this.arguments.length];
@@ -1216,18 +1216,18 @@ define('CommandsMode', ['jQuery',
 		},
 
 		exec: function(cmdNumToExecute, args) {
-			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, this.generateArgValues(args));	
+			cmdNumToExecute = this.executeOneStep(cmdNumToExecute, this.generateArgValues(args));
 			if (this.funcDef.isFinished(this.generateArgValues(args))) {
 				this.funcDef = undefined;
 				this.finished = true;
 			}
 			return cmdNumToExecute;
 		},
-				
+
 		getClass: function() {
 			return 'funccall';
 		},
-			
+
 		getFuncId: function(){
 			var funcDef = this.getFuncDef();
 			if (funcDef) {
@@ -1243,7 +1243,7 @@ define('CommandsMode', ['jQuery',
 				this.updateJstreeObject(undefined, funcDef);
 			}
 		},
-		
+
 		updateJstreeObject: function(args, funcDef){
 			$(this.node).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 			args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
@@ -1275,7 +1275,7 @@ define('CommandsMode', ['jQuery',
 				$(this.node).remove();
 			}
 		},
-		
+
 		highlightWrongNames: function() {
 			if (!this.problem.functions[this.name] || !this.problem.functions[this.name][this.arguments.length]|| !checkName(this.name)) {
 				$(this.node).children('a').addClass('wrongName');
@@ -1284,14 +1284,14 @@ define('CommandsMode', ['jQuery',
 				$(this.node).children('a').removeClass('wrongName');
 			}
 		},
-		
+
 		updateArguments: function(funcId, args) {
 			if (this.getFuncId() == funcId) {
 				this.updateJstreeObject(args);
 			}
 		}
 	});
-	
+
 	return {
 		CommandBase: CommandBase,
 		Command: Command,
@@ -1299,7 +1299,7 @@ define('CommandsMode', ['jQuery',
 		ForStmt: ForStmt,
 		IfStmt: IfStmt,
 		WhileStmt: WhileStmt,
-		Block: Block, 
+		Block: Block,
 		FuncDef: FuncDef,
 		FuncCall: FuncCall
 	}

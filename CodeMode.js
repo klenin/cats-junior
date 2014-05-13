@@ -36,11 +36,11 @@ define('CodeMode', ['SkulptModule'], function(){
 			if ($scope[problem] != undefined && $loc[problem] != undefined)
 			{
 				var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
-				var t_scope = $scope[problem], 
-					t_scopename = $scopename[problem], 
+				var t_scope = $scope[problem],
+					t_scopename = $scopename[problem],
 					t_scopestack = $scopestack[problem];
 				var name = expression.id.v;
-				//find name 
+				//find name
 				while(eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) == undefined
 					&& eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].parentStack") != undefined)
 				{
