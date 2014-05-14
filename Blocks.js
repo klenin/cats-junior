@@ -305,8 +305,9 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
             */
             init: function() {
                 this.setColour(290);
-                var name = Blockly.Procedures.findLegalName('Функция', this);
+                var name = Blockly.Procedures.findLegalName('Func1', this);
                 this.appendDummyInput()
+                    .appendField('Функция')
                     .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME')
                     .appendField('', 'PARAMS');
                 this.appendStatementInput('DO')
