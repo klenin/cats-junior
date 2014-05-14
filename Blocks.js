@@ -117,7 +117,6 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
 
                 // Define types of conditions.
                 var conditionProperties = this.problem.executionUnit.getConditionProperties()
-                this.cond
                 var condTypes = []
                 for (var i = 0, func; func = conditionProperties[i]; ++i) {
                     condTypes.push([func.title, func.name])
@@ -137,12 +136,13 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                     this.conditionProperties_[func.name] = func;
                 }
                 this.rebuildArgumentFields_(this.inputCondition_, conditionProperties[0].args, 2);
+                this.currentCondType_ = this.getFieldValue('arg0');
             },
 
             mutationToDom: function() {
                 // console.log('mutationToDom')
-                var typeCondition = this.getFieldValue('arg0');
-                if (typeCondition != this.typeCurrentCondition_) {
+                var condType = this.getFieldValue('arg0');
+                if (condType != this.currentCondType_) {
                     var args = this.conditionProperties_[typeCondition].args;
                     this.rebuildArgumentFields_(this.inputCondition_, args, 2);
                 }

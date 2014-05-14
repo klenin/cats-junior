@@ -89,9 +89,9 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
 
             // initMenu(problem, Blockly);
 
-            // //Bind 'onchange' event to problem.updated
-            // bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
-            //     'blocklyWorkspaceChange', problem, problem.updated);
+            //Bind 'onchange' event to problem.updated
+            bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
+                'blocklyWorkspaceChange', problem, problem.updated);
 
         },
     };
