@@ -12,11 +12,11 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
     // // Custom menu
     // var initMenu = function(problem, Blockly) {
     //     // init list of allowed commands
-    //     var allowed_commands = ('controlCommands' in problem ? problem.controlCommands : Problems.classes);
+    //     var allowedCommands = ('controlCommands' in problem ? problem.controlCommands : Problems.classes);
     //     var executionUnitCommands = problem.executionUnit.getCommandsToBeGenerated();
-    //     allowed_commands.splice(allowed_commands.indexOf("block"), 1);
+    //     allowedCommands.splice(allowedCommands.indexOf("block"), 1);
     //     for (var i = 0; i < executionUnitCommands.length; ++i) {
-    //         allowed_commands.push(executionUnitCommands[i].commandClass)
+    //         allowedCommands.push(executionUnitCommands[i].commandClass)
     //     }
 
     //     //
@@ -27,7 +27,7 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
 
     //     // init blocks
     //     var blocks = []
-    //     for (var i = 0, cmd; cmd = allowed_commands[i]; i++) {
+    //     for (var i = 0, cmd; cmd = allowedCommands[i]; i++) {
     //         block = Blockly.Block.obtain(Blockly.mainWorkspace, cmd);
     //         blocks.push(block);
     //     }
@@ -54,16 +54,18 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             problem.Blockly = Blockly;
 
             // Make list of allowed commands.
-            var allowed_commands = ('controlCommands' in problem ? problem.controlCommands : Problems.classes);
+            var allowedCommands = ('controlCommands' in problem ?
+                problem.controlCommands :
+                ['if', 'ifelse', 'while', 'for', 'funcdef']);
             var executionUnitCommands = problem.executionUnit.getCommandsToBeGenerated();
-            allowed_commands.splice(allowed_commands.indexOf("block"), 1);
+            allowedCommands.splice(allowedCommands.indexOf("block"), 1);
             for (var i = 0; i < executionUnitCommands.length; ++i) {
-                allowed_commands.push(executionUnitCommands[i].commandClass)
+                allowedCommands.push(executionUnitCommands[i].commandClass)
             }
 
             // Define toolbox.
             var toolbox = $('<xml/>', {id: 'toolbox', style: 'display: none'})
-            for (var i = 0, cmd; cmd = allowed_commands[i]; i++) {
+            for (var i = 0, cmd; cmd = allowedCommands[i]; i++) {
                 if (cmd == "funcdefmain") {
                     continue
                 }
@@ -71,7 +73,9 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             }
 
             // Generate blocks.
-            var blocks = Blocks.generate(problem);
+            var reqBlocks = allowedCommands.slice()
+            reqBlocks.push('funcdefmain')
+            var blocks = Blocks.generate(problem, reqBlocks);
             $.extend(Blockly.Blocks, blocks);
 
             Blockly.inject($container[0].contentDocument.body, {
@@ -90,7 +94,7 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             // initMenu(problem, Blockly);
 
             //Bind 'onchange' event to problem.updated
-            bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
+            var bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
                 'blocklyWorkspaceChange', problem, problem.updated);
 
         },

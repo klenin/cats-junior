@@ -7,7 +7,7 @@
 define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', 'CommandsMode'], function() {
     var CommandsMode = require('CommandsMode');
 
-    function generate(problem) {
+    function generate(problem, requiredBlocks) {
         /**
         *  Generate blocks for problem.
         */
@@ -466,8 +466,9 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
         // Generate
         var genBlocks = {};
         for (var name in Blocks) {
-            // TODO: generate only necessary blocks.
-            genBlocks[name] = new Blocks[name](problem)
+            if (requiredBlocks.indexOf(name) != -1) {
+                genBlocks[name] = new Blocks[name](problem)
+            }
         }
 
         return genBlocks;
