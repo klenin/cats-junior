@@ -321,10 +321,14 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
 
             toCommand: function(parent) {
                 var name = this.getFieldValue('NAME');
-                var args = this.getArgValues();
+                var args = [];
+                // this.arguments_ doesnt have patched prototype from Misc.js somewhy.
+                for (var i = 0, a; a = this.arguments_[i]; ++i)
+                    args.push(a);
                 var cmFunc = new CommandsMode.FuncDef(name, args, [], parent, this, problem);
                 var cmBlock = this.inputToCMBlock_('DO', cmFunc);
                 cmFunc.body = cmBlock;
+                cmFunc.setCommands(cmBlock.commands);
                 return cmFunc;
             }
         }));
