@@ -245,50 +245,54 @@ define('Interface', ['jQuery',
 			problem.updated();
 		}
 	}
+   function goToCommandsMode(problem) {
+        var j = problem.tabIndex;
+        var l = codeareas[j].getValue().length;
+        try {
+            problem.prepareForExecuting();
+            problem.prepareForConversionFromCode();
+            var cmBlock = finalcode[j] ?
+                ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
+                new CommandsMode.Block([], undefined, problem);
 
-	function goToCommandsMode(problem) {
-		var j = problem.tabIndex;
-		var l = codeareas[j].getValue().length;
-		try {
-			problem.prepareForExecuting();
-			problem.prepareForConversionFromCode();
-			var block = finalcode[j] ?
-				ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
-				new CommandsMode.Block([], undefined, problem);
+            $('#jstree-container' + j).empty();
+            $('#accordion' + j).myAccordion( 'clear' );
+            problem.resetWorkspace();
 
-			$('#jstree-container' + j).empty();
-			$('#accordion' + j).myAccordion( 'clear' );
-
-			if (block) {
-				//problems[j].cmdList = block;//??
-				problem.setCurrentStage('CONVERSION_TO_COMMANDS');
-				problem.loadedCnt = 1;
-				startWaitForCommandsGeneration(problem);
-				block.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
-				--problem.loadedCnt;
-
-				//setTimeout(function() {problems[j].updated()}, 20000);
-				//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-			}
-			else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-				$("#commandsMode" + j).prop('checked', false);
-				$("#codeMode" + j).prop('checked', true);
-				problem.setCurrentStage('IDLE');
-				problem.updated();
-				return;
-			}
-		}
-		catch(e){
-			console.error(e);
-			problem.setCurrentStage('IDLE');
-			$.unblockUI();
-			++cmdId;
-			if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-				$("#commandsMode" + j).prop('checked', false);
-				$("#codeMode" + j).prop('checked', true);
-				return;
-			}
-			problem.updated();
+            if (cmBlock) {
+                problem.setCurrentStage('CONVERSION_TO_COMMANDS');
+                $.blockUI({
+                    message: '',
+                    fadeIn: 0,
+                    overlayCSS: {
+                        backgroundColor: '#ffffff',
+                        opacity: 0,
+                        cursor: 'progress'
+                    }
+                });
+                cmBlock.generateVisualCommand();
+                $.unblockUI();
+                problem.setCurrentStage('IDLE');
+                problem.updated();
+            }
+            else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+                $("#commandsMode" + j).prop('checked', false);
+                $("#codeMode" + j).prop('checked', true);
+                problem.setCurrentStage('IDLE');
+                problem.updated();
+                return;
+            }
+        } catch(e) {
+            console.error(e);
+            problem.setCurrentStage('IDLE');
+            $.unblockUI();
+            ++cmdId;
+            if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+                $("#commandsMode" + j).prop('checked', false);
+                $("#codeMode" + j).prop('checked', true);
+                return;
+            }
+            problem.updated();
 		}
 		$('#ulCommands' + j).show();
 		$('#jstree-container' + j).show();

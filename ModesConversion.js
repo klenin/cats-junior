@@ -208,6 +208,7 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'CommandsMode', 'ExecutionUnitC
 					problem.functions[commands[i].name.v][args.length] = funcDef;
 					var body = convertTreeToCommands(commands[i].body, funcDef, problem);
 					funcDef.setCommands(body.commands);
+					funcDef.body = body;
 					block.pushCommand(funcDef);
 
 					break;

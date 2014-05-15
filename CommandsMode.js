@@ -107,26 +107,25 @@ define('CommandsMode', ['jQuery',
 			return generateTabs(tabsNum) + this.name + '()\n';
 		},
 
-		generateVisualCommand: function(tree, node, position) {
-			var self = this;
+		initBlock_: function(typeName, connection) {
+			var Blockly = this.problem.Blockly
+			var block = Blockly.Block.obtain(Blockly.mainWorkspace, typeName);
+            block.initSvg();
+            block.render();
+            if (connection && block.previousConnection) {
+            	connection.connect(block.previousConnection);
+            }
+            return block
+		},
 
-			if (!self.problem.isCommandSupported(self.getName()) && self.getClass() != 'funccall') {
-				throw new IncorrectInput('Команда ' + self.getName() + ' запрещена в данной задаче');
+		generateVisualCommand: function(connection) {
+			if (!this.problem.isCommandSupported(this.getName())) {
+				throw new IncorrectInput('Команда ' + this.getName() + ' отсутствует в данной задаче');
 			}
 
-			self.problem.newCommandGenerationStarted();
-			tree.create(node,
-				position ? position : 'after',
-				{
-					'data': self.problem.getCommandName(self.getName()),
-				},
-				function(newNode){
-					self.onGenerateDomObjectCallback(tree, newNode);
-					self.problem.newCommandGenerated();
-				},
-				true
-			);
-
+			var block = this.initBlock_(this.getName(), connection);
+			block.rebuildArgumentFields_(block.input_, this.arguments, 0);
+            return block
 		},
 
 		onGenerateDomObjectCallback: function(tree, newNode) {
@@ -138,13 +137,6 @@ define('CommandsMode', ['jQuery',
 			return;
 		},
 
-		updateFunctonNames: function(funcId, oldName, newName) {
-			return;
-		},
-
-		removeFunctionCall: function(funcId) {
-			return;
-		},
 
 		highlightWrongNames: function() {
 			return;
@@ -152,10 +144,6 @@ define('CommandsMode', ['jQuery',
 
 		getFunction: function() {
 			return this.parent ? this.parent.getFunction() : undefined;
-		},
-
-		updateArguments: function(funcId, args) {
-			return;
 		},
 
 		getArguments: function() {
@@ -301,16 +289,6 @@ define('CommandsMode', ['jQuery',
 			for (var i = 0; i < this.arguments.length; ++i) {
 				this.arguments[i].addArguments(args, true);
 			}
-		},
-
-		updateArguments: function(funcId, args) {
-			var func = this.getFunction();
-			if (func && func.funcId == funcId) {
-				for (var i = 0; i < this.arguments.length; ++i) {
-					this.arguments[i].addArguments(args, true);
-				}
-			}
-			return;
 		},
 
 		getArguments: function() {
@@ -522,6 +500,16 @@ define('CommandsMode', ['jQuery',
 			return str;
 		},
 
+		generateVisualCommand: function(connection) {
+			if (!this.problem.isCommandSupported(this.getClass())) {
+				throw new IncorrectInput('Команда ' + this.getClass() + ' отсутствует в данной задаче');
+			}
+
+			var block = this.initBlock_(this.getClass(), connection);
+			block.rebuildArgumentFields_(block.input_, this.arguments, 0);
+            return block
+		},
+
 		onGenerateDomObjectCallback: function(tree, node) {
 			this.__base(tree, node);
 			this.body.generateVisualCommand(tree, node, 'last');
@@ -532,14 +520,6 @@ define('CommandsMode', ['jQuery',
 			if (this.body) {
 				this.body.setArguments(args);
 			}
-		},
-
-		updateFunctonNames: function(funcId, oldName, newName) {
-			return this.body.updateFunctonNames(funcId, oldName, newName)
-		},
-
-		removeFunctionCall: function(funcId) {
-			return this.body.removeFunctionCall(funcId)
 		},
 
 		highlightWrongNames: function() {
@@ -683,6 +663,7 @@ define('CommandsMode', ['jQuery',
 		},
 
 		highlightOn: function() {
+			//TODO: remove
 			$(this.node).removeClass('hiddenHighlighting');
 			$(this.node).addClass('highlighted');
 			this.blocks[0].hideHighlighting();
@@ -744,6 +725,26 @@ define('CommandsMode', ['jQuery',
 			return str;
 		},
 
+
+		generateVisualCommand: function(connection) {
+			if (!this.problem.isCommandSupported(this.getClass())) {
+				throw new IncorrectInput('Комманда ' + this.name + ' не поддерживается');
+			}
+
+			var block = this.initBlock_(this.getClass(), connection);
+			block.rebuildArgumentFields_(block.inputCondition_, this.arguments, 0);
+
+			if (this.blocks[0]) {
+				var input = block.getInput('DO');
+				this.blocks[0].generateVisualCommand(input.connection);
+			}
+			if (this.blocks[1]) {
+				var input = block.getInput('ELSE');
+				this.blocks[1].generateVisualCommand(input.connection);
+			}
+			return block
+		},
+
 		updateConditionArguments: function() {
 			this.getConditionTypeSelect().off('change').on('change', function(p, self){
 				return function() {
@@ -780,31 +781,10 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		updateFunctonNames: function(funcId, oldName, newName) {
-			this.blocks[0].updateFunctonNames(funcId, oldName, newName);
-			if (this.blocks[1]) {
-				this.blocks[1].updateFunctonNames(funcId, oldName, newName);
-			}
-		},
-
-		removeFunctionCall: function(funcId) {
-			this.blocks[0].removeFunctionCall(funcId);
-			if (this.blocks[1]) {
-				this.blocks[1].removeFunctionCall(funcId);
-			}
-		},
-
 		highlightWrongNames: function() {
 			this.blocks[0].highlightWrongNames();
 			if (this.blocks[1]) {
 				this.blocks[1].highlightWrongNames();
-			}
-		},
-
-		updateArguments: function(funcId, args) {
-			this.blocks[0].updateArguments(funcId, args);
-			if (this.blocks[1]) {
-				this.blocks[1].updateArguments(funcId, args);
 			}
 		},
 
@@ -1015,27 +995,19 @@ define('CommandsMode', ['jQuery',
 			return str;
 		},
 
-		generateVisualCommand: function(tree, node, position) {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].generateVisualCommand(tree, node ? node : 0, position);
+		generateVisualCommand: function(connection) {
+			var nextConnection = connection ? connection :
+			    this.problem.mainBlock.getInput('DO').connection;
+			for (var i = 0, cmd; cmd = this.commands[i]; ++i) {
+				var newBlock = cmd.generateVisualCommand(nextConnection);
+				if (cmd.getClass() != 'funcdef')
+					nextConnection = newBlock.nextConnection;
 			}
 		},
 
 		setArguments: function(args) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].setArguments(args);
-			}
-		},
-
-		updateFunctonNames: function(funcId, oldName, newName) {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].updateFunctonNames(funcId, oldName, newName);
-			}
-		},
-
-		removeFunctionCall: function(funcId) {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].removeFunctionCall(funcId);
 			}
 		},
 
@@ -1047,12 +1019,6 @@ define('CommandsMode', ['jQuery',
 
 		getFunction: function() {
 			return this.parent ? this.parent.getFunction() : undefined;
-		},
-
-		updateArguments: function(funcId, args) {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].updateArguments(funcId, args);
-			}
 		},
 
 		setArgumentValues: function(args) {
@@ -1074,6 +1040,7 @@ define('CommandsMode', ['jQuery',
 			this.node = node;
 			this.name = name;
 			this.argumentsList = argumentsList.clone();
+			this.body = new Block(commands, this, problem);
 		},
 
 		createClone: function () {
@@ -1120,25 +1087,24 @@ define('CommandsMode', ['jQuery',
 			return str;
 		},
 
-		generateVisualCommand: function(tree, node, position) {
-			var self = this;
-
-			if (!self.problem.isCommandSupported(this.getClass())) {
+		generateVisualCommand: function(connection) {
+			if (!this.problem.isCommandSupported(this.getClass())) {
 				throw new IncorrectInput('Объявление функций не поддерживается');
 			}
 
-			self.problem.newCommandGenerationStarted();
-			var c = ++cmdId;
-			$('#accordion' + this.problem.tabIndex).myAccordion('push', this.name, this.argumentsList, $(this.node).prop('funcId'));
-			this.node = $('#funcDef-' + c);
-			$('#funcDef-' + c).bind('loaded.jstree', function(){
-				for (var i = 0; i < self.commands.length; ++i) {
-					self.commands[i].generateVisualCommand(jQuery.jstree._reference('funcDef-' + c), node ? node : 0, position)
-				}
-				self.problem.newCommandGenerated();
-				++cmdId;
-			});
-			require('InterfaceJSTree').createJsTreeForFunction('#funcDef-' + c, this.problem, true); // Circular Dependency!! But I don't know how we can avoid it :-(
+			var block = this.initBlock_(this.getClass(), connection);
+			block.setFieldValue(this.name, 'NAME');
+
+            var xmlMutation = document.createElement('mutation');
+            for (var i = 0, argName; argName = this.argumentsList[i]; ++i) {
+                var xmlArg = document.createElement('arg');
+                xmlArg.setAttribute('name', argName);
+                xmlMutation.appendChild(xmlArg);
+            }
+            block.domToMutation(xmlMutation)
+
+			this.body.generateVisualCommand(block.getInput('DO').connection);
+			// no return for funcdef
 		},
 
 		getArguments: function() {
@@ -1236,14 +1202,6 @@ define('CommandsMode', ['jQuery',
 			this.highlightWrongNames();
 		},
 
-		updateFunctonNames: function(funcId, oldName, newName) {
-			if (this.getFuncId() ==  funcId) {
-				var funcDef = this.getFuncDef();
-				this.name = newName;
-				this.updateJstreeObject(undefined, funcDef);
-			}
-		},
-
 		updateJstreeObject: function(args, funcDef){
 			$(this.node).children('a').html('<ins class="jstree-icon"> </ins>' + this.name);
 			args = args ? args : (funcDef ? funcDef.getArguments() : this.getFuncDef().getArguments());
@@ -1264,16 +1222,29 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		onGenerateDomObjectCallback: function(tree, newNode) {
-			this.__self.onCreateJsTreeItem(tree, newNode, 'funccall', this.problem, true, undefined, this.arguments);
-			this.node = newNode;
-			tree.rename_node(newNode, this.name);
-		},
-
-		removeFunctionCall: function(funcId) {
-			if (!this.getFuncDef() || this.getFuncId() == funcId) {
-				$(this.node).remove();
+		generateVisualCommand: function(connection) {
+			if (!this.name in this.problem.functions) {
+				throw new IncorrectInput('Для функции' + this.name + ' нет объявления.');
 			}
+
+			var funcDef = this.getFuncDef();
+			var block = this.initBlock_(this.getClass(), connection);
+			block.setFieldValue(this.name, 'NAME');
+
+            var xmlMutation = document.createElement('mutation');
+            xmlMutation.setAttribute('name', this.name)
+            for (var i = 0, argName; argName = funcDef.argumentsList[i]; ++i) {
+                var xmlArg = document.createElement('arg');
+                xmlArg.setAttribute('name', argName);
+                xmlMutation.appendChild(xmlArg);
+            }
+            block.domToMutation(xmlMutation);
+
+            block.setProcedureParameters(funcDef.argumentsList);
+            for (var i = 0, argName; argName = funcDef.argumentsList[i]; ++i) {
+				block.setFieldValue(this.arguments[i].value.toString(), argName);
+            }
+            return block
 		},
 
 		highlightWrongNames: function() {
@@ -1284,12 +1255,6 @@ define('CommandsMode', ['jQuery',
 				$(this.node).children('a').removeClass('wrongName');
 			}
 		},
-
-		updateArguments: function(funcId, args) {
-			if (this.getFuncId() == funcId) {
-				this.updateJstreeObject(args);
-			}
-		}
 	});
 
 	return {

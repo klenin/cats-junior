@@ -48,10 +48,9 @@ function() {
 			this.usedCommands = [];
 			this.commandsFine = this.commandsFine ? this.commandsFine : 0;
 			this.stepsFine = this.stepsFine ? this.stepsFine : 0;
-			this.functions = {};
-			this.functionsWithId = [];
-			this.numOfFunctions = 0;
 			this.setCurrentStage('IDLE');
+
+			this.functions = {};
 		},
 
 		initExecutor: function(data) {
@@ -64,50 +63,11 @@ function() {
 		},
 
 		generateCommand: function(className, commandName, container) {
-			$(container).append('<td>' +
-				'<div id="' + className + this.tabIndex + '" class="' + className + '  jstree-draggable" type = "' + className +
-					'" rel = "' + className + '" title = "' + commandName + '">' + '</div>' + '</td>');
-
-			var self = this;
-
-			$('#' + className + this.tabIndex).bind('dblclick', function(dclass, dname, problem) {
-				return function() {
-					if ($(this).prop('ifLi')) {
-						return;
-					}
-					$("#jstree-container" + problem.tabIndex).jstree("create", false, "last", {
-						'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname
-					}, function(newNode) {
-						InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
-					}, dclass != 'funcdef');
-					problem.updated();
-				}
-			}(className, commandName, self));
+			console.log('generateCommand is deprecated. TODO: remove');
 		},
 
 		generateCommands: function() {
-			//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
-
-			var tr = $('#ulCommands' + this.tabIndex).children('table').children('tbody').children('tr');
-			for (var i = 0; i < classes.length; ++i) {
-				if (classes[i] === 'block') {
-					continue;
-				}
-
-				if (this.controlCommands) {
-					if (this.controlCommands.indexOf(classes[i]) === -1) { //this control command isn't accepted in this problem
-						continue;
-					}
-				}
-
-				this.generateCommand(classes[i], cmdClassToName[classes[i]], tr);
-			}
-
-			var executionUnitCommands = this.executionUnit.getCommandsToBeGenerated();
-			for (var i = 0; i < executionUnitCommands.length; ++i) {
-				var command = executionUnitCommands[i];
-				this.generateCommand(command.commandClass, command.commandName, tr);
-			}
+			console.log('generateCommands is deprecated. TODO: remove');
 		},
 
 		getCommandName: function(command) {
@@ -172,7 +132,7 @@ function() {
 			$loc[problem] = $gbl[problem];
 			nextline[problem] = undefined;
 			for (var i = 0; i < codeareas[problem].lineCount(); ++i)
-			codeareas[problem].setLineClass(i, null);
+				codeareas[problem].setLineClass(i, null);
 			this.updateWatchList();
 			this.setCurrentStage('IDLE');
 		},
@@ -192,8 +152,15 @@ function() {
 		},
 
 		cmdHighlightOff: function() {
-			if (this.cmdList) {
-				this.cmdList.highlightOff();
+			var Blockly = this.Blockly;
+			if (!Blockly)
+				return
+			blocks = Blockly.mainWorkspace.getAllBlocks();
+			for (var i = 0, block; block = blocks[i]; ++i) {
+				// block.unselect();
+				if (block.svg_) {
+					block.svg_.removeSelect();
+				}
 			}
 		},
 
@@ -214,7 +181,7 @@ function() {
 		enableButtons: function() {
 			//$('#jstree-container' + this.tabIndex).sortable('enable');
 			for (var i = 0; i < btnsPlay.length; ++i)
-			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
+				$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 			$('#tabs').tabs("option", "disabled", []);
 			$('#divcontainer' + this.tabIndex).unblock();
 			$('#resizable' + this.tabIndex).unblock();
@@ -264,7 +231,8 @@ function() {
 				return undefined;
 			}
 			if (CodeMode.getCurBlock() >= 0) {
-				if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
+				if (nextline[problem] != undefined && !dontHiglight)
+					codeareas[problem].setLineClass(nextline[problem], null);
 				var e = 1;
 				while (CodeMode.getCurBlock() >= 0 && (e || $expr[problem])) {
 					$expr[problem] = 0;
@@ -281,12 +249,14 @@ function() {
 				}++this.executedCommandsNum;
 				if (CodeMode.getCurBlock() >= 0) {
 					var b = CodeMode.getCurBlock();
-					while (CodeMode.getScope().blocks[b].funcdef)++b;
+					while (CodeMode.getScope().blocks[b].funcdef)
+						++b;
 					nextline[problem] = CodeMode.getScope().blocks[b].lineno;
 				}
 
 				if (nextline[problem] != undefined) {
-					if (!dontHiglight) codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+					if (!dontHiglight)
+						codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
 					if (codeareas[problem].lineInfo(nextline[problem]).markerText) {
 						this.paused = true;
 						//curProblem.playing = false;
@@ -294,16 +264,18 @@ function() {
 					}
 				}
 				if (CodeMode.getCurBlock() < 0) {
-					if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
+					if (nextline[problem] != undefined && !dontHiglight)
+						codeareas[problem].setLineClass(nextline[problem], null);
 					//$('#cons' + problem).append('\nfinished\n');
 					this.executionUnit.executionFinished();
 					this.playing = false;
 					return 0;
 				}
 			} else {
-				if (nextline[problem] != undefined) codeareas[problem].setLineClass(nextline[problem], null);
+				if (nextline[problem] != undefined)
+					codeareas[problem].setLineClass(nextline[problem], null);
 				//$('#cons' + problem).append('\nfinished\n');
-			this.executionUnit.executionFinished();
+				this.executionUnit.executionFinished();
 				this.playing = false;
 				return 0;
 			}
@@ -326,9 +298,7 @@ function() {
 			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
 			}
-			// this.functions = {};
-			// this.functionsWithId = [];
-			// this.numOfFunctions = 0;
+			this.functions = {};
 			var newCmdList = ModesConversion.blocksToCommands(this);
 
 			this.changed = true;
@@ -336,29 +306,21 @@ function() {
 			this.setDefault();
 			this.updateInterface('FINISH_EXECUTION');
 			this.highlightWrongNames();
-		},
 
-		updateFunctonNames: function(funcId, oldName, newName) {
-			//if (!this.functions[oldName]) {
-			this.cmdList.updateFunctonNames(funcId, oldName, newName);
-			//}
-		},
-
-		removeFunctionCall: function(funcId) {
-			this.cmdList.removeFunctionCall(funcId);
-			this.updated();
-		},
-
-		updateArguments: function(funcId, args) {
-			this.cmdList.updateArguments(funcId, args);
+			// // DEBUG: conv to jstree for debugging
+			// var j = this.tabIndex;
+			// $('#jstree-container' + j).empty();
+			// $('#accordion' + j).myAccordion( 'clear' );
+			// this.setCurrentStage('CONVERSION_TO_COMMANDS');
+			// this.loadedCnt = 1;
+			// // startWaitForCommandsGeneration(this);
+			// newCmdList.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
+			// this.setCurrentStage('IDLE');
+			// --this.loadedCnt;
 		},
 
 		highlightWrongNames: function() {
 			this.cmdList.highlightWrongNames();
-		},
-
-		funcCallUpdated: function() {
-			this.cmdList.funcCallUpdated();
 		},
 
 		loop: function(cnt, i) {
@@ -368,7 +330,8 @@ function() {
 				if ($('#codeMode' + this.tabIndex).prop('checked')) {
 					continueExecution = this.tryNextStep();
 				} else {
-					if (!this.cmdList.exec(1))++this.executedCommandsNum;
+					if (!this.cmdList.exec(1))
+						++this.executedCommandsNum;
 					this.changeProgressBar();
 					if (this.cmdList.isFinished()) {
 						this.playing = false;
@@ -388,21 +351,22 @@ function() {
 
 		heroIsDead: function() {
 			for (var i = 0; i < btns.length; ++i)
-			$('#btn_' + btns[i] + this.tabIndex).button('disable');
+				$('#btn_' + btns[i] + this.tabIndex).button('disable');
 			$('#btn_stop' + this.tabIndex).button('enable');
 			this.playing = false;
 			this.hideFocus();
 		},
 
 		nextCmd: function() {
-			if (this.speed) this.changeProgressBar();
+			if (this.speed)
+				this.changeProgressBar();
 			return true;
 		},
 
 		nextStep: function(cnt, i) {
 			if (this.executionUnit.isGameOver() || this.stopped) {
 				if (this.executionUnit.isGameOver()) //check it!!!
-				this.heroIsDead();
+					this.heroIsDead();
 				if (this.stopped) {
 					this.setDefault();
 					this.cmdHighlightOff();
@@ -519,6 +483,16 @@ function() {
 
 		updateInterface: function(newState) {
 			this.cmdList.updateInterface(newState);
+			// switch (newState) {
+			// 	case 'START_EXECUTION':
+			// 		this.xmlWorkspace_ = this.Blockly.Xml.workspaceToDom(
+			// 			this.Blockly.mainWorkspace);
+			// 		break;
+			// 	case 'FINISH_EXECUTION':
+			// 		this.Blockly.mainWorkspace = this.Blockly.Xml.domToWorkspace(
+			// 			this.xmlWorkspace_);
+			// 		break;
+			// }
 		},
 
 		getSubmitStr: function() {
@@ -759,14 +733,6 @@ function() {
 			this.lastExecutedCmd = command;
 		},
 
-		newCommandGenerationStarted: function() {
-			++this.loadedCnt;
-		},
-
-		newCommandGenerated: function() {
-			--this.loadedCnt;
-		},
-
 		getCommands: function() {
 			return this.executionUnit.getCommands();
 		},
@@ -786,6 +752,13 @@ function() {
 
 		getConditionProperties: function(condName) {
 			return this.executionUnit.getConditionProperties(condName);
+		},
+
+		resetWorkspace: function() {
+			this.Blockly.mainWorkspace.clear();
+			this.mainBlock = Blockly.Block.obtain(this.Blockly.mainWorkspace, 'funcdefmain');
+			this.mainBlock.initSvg();
+			this.mainBlock.render();
 		}
 	});
 

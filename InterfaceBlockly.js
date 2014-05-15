@@ -43,7 +43,6 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
     return {
         // Array of Blockly instances. One for each problem.
         arrBlockly: arrBlockly,
-
         injectBlockly: function(problem) {
             /**
             * Inject Blockly into 'iframe' container.
@@ -58,7 +57,10 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
                 problem.controlCommands :
                 ['if', 'ifelse', 'while', 'for', 'funcdef']);
             var executionUnitCommands = problem.executionUnit.getCommandsToBeGenerated();
-            allowedCommands.splice(allowedCommands.indexOf("block"), 1);
+            var idxBlock = allowedCommands.indexOf("block");
+            if (idxBlock != -1)
+                allowedCommands.splice(idxBlock, 1);
+
             for (var i = 0; i < executionUnitCommands.length; ++i) {
                 allowedCommands.push(executionUnitCommands[i].commandClass)
             }
@@ -74,7 +76,9 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
 
             // Generate blocks.
             var reqBlocks = allowedCommands.slice()
-            reqBlocks.push('funcdefmain')
+            reqBlocks.push('funcdefmain');
+            if (reqBlocks.indexOf('funcdef') != -1)
+                reqBlocks.push('funccall');
             var blocks = Blocks.generate(problem, reqBlocks);
             $.extend(Blockly.Blocks, blocks);
 
@@ -87,6 +91,7 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             });
 
             // Create and render block for main function.
+
             var block = problem.mainBlock = Blockly.Block.obtain(Blockly.mainWorkspace, 'funcdefmain');
             block.initSvg();
             block.render();

@@ -37,7 +37,7 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                     if (arg.options) {
                         // CommandArgumentSelect
                         var opts = arg.options.map(function(opt) {
-                            return opt.reverse().map(function(a) {
+                            return opt.slice().reverse().map(function(a) {
                                 return a.toString();
                             });
                         })
@@ -46,6 +46,9 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                         // CommandArgumentSpin
                         var field = new Blockly.FieldTextInput('0', Blockly.FieldTextInput.numberValidator);
                     }
+                    var value = arg.getValue()
+                    if (value)
+                        field.setValue(value.toString());
                     input.appendField(field, 'arg' + (nSkip + i));
                 }
             },
@@ -103,7 +106,7 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 if (!this.workspace) {
                     return;
                 }
-                var dom = Blockly.Xml.workspaceToDom(this.workspace);
+                var dom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
                 var text = Blockly.Xml.domToPrettyText(dom);
                 $('#cons' + problem.tabIndex).text(text);
             }
@@ -130,7 +133,7 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 // - logical negation
                 var fNegation = new Blockly.FieldDropdown([['', ''], ['не', 'not']]);
                 this.inputCondition_.appendField(fNegation, 'arg1');
-                // - custom fields for all types
+                // - fields for each type
                 this.conditionProperties_ = {}
                 for (var i = 0, func; func = conditionProperties[i]; ++i) {
                     this.conditionProperties_[func.name] = func;
@@ -143,7 +146,8 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 // console.log('mutationToDom')
                 var condType = this.getFieldValue('arg0');
                 if (condType != this.currentCondType_) {
-                    var args = this.conditionProperties_[typeCondition].args;
+                    this.currentCondType_ = condType;
+                    var args = this.conditionProperties_[condType].args;
                     this.rebuildArgumentFields_(this.inputCondition_, args, 2);
                 }
 
@@ -280,14 +284,20 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
             */
             init: function() {
                 this.setColour(120);
-                this.appendDummyInput()
+                this.input_ = this.appendDummyInput()
                     .appendField('Повторить')
                     .appendField(new Blockly.FieldTextInput('10',
                         Blockly.FieldTextInput.nonnegativeIntegerValidator), 'arg0')
-                    .appendField('раз');
+                    .appendField('раз', 'TIMES');
                 this.appendStatementInput('DO')
                 this.setPreviousStatement(true);
                 this.setNextStatement(true);
+            },
+
+            rebuildArgumentFields_: function(input, args, nSkip) {
+                this.__base(input, args, nSkip);
+                this.input_.removeField('TIMES');
+                this.input_.appendField('раз', 'TIMES');
             },
 
             toCommand: function(parent) {
@@ -329,6 +339,10 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 var cmBlock = this.inputToCMBlock_('DO', cmFunc);
                 cmFunc.body = cmBlock;
                 cmFunc.setCommands(cmBlock.commands);
+
+                if (!problem.functions[name])
+                    problem.functions[name] = [];
+                problem.functions[name][args.length] = cmFunc;
                 return cmFunc;
             }
         }));
@@ -344,15 +358,28 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 this.setInputsInline(true);
                 // Tooltip is set in domToMutation.
                 this.arguments_ = [];
-                this.quarkConnections_ = null;
-                this.quarkArguments_ = null;
+                this.savedValues = {};
+            },
+
+            getArgsDict_: function() {
+                var argsDict = {};
+                var input = this.getInput('ARG')
+                if (!input)
+                    return argsDict;
+
+                for (var i = 0, field; field = input.fieldRow[i]; i += 2) {
+                    var argName = field.getValue();
+                    var inputValue = input.fieldRow[i + 1];
+                    if (inputValue) {
+                        argsDict[argName] = inputValue.getValue();
+                    }
+                }
+                return argsDict
             },
 
             setProcedureParameters: function(paramNames, paramIds) {
-                if (!paramIds)
-                    return;
-
-                if (paramIds.length != paramNames.length) {
+                if (paramIds && paramIds.length != paramNames.length)
+                {
                     throw 'Error: paramNames and paramIds must be the same length.';
                 }
 
@@ -362,6 +389,8 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
 
                 // Rebuild the block's arguments.
                 var input = this.getInput('ARG');
+                this.savedValues = $.extend(this.savedValues, this.getArgsDict_());
+
                 if (input)
                     this.removeInput('ARG');
 
@@ -369,14 +398,32 @@ define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', '
                 var input = this.appendDummyInput('ARG')
                     .setAlign(Blockly.ALIGN_RIGHT)
                 for (var i = 0; i < this.arguments_.length; i++) {
-                    input.appendField(this.arguments_[i]);
-                    input.appendField(new Blockly.FieldTextInput('0', Blockly.FieldTextInput.numberValidator), 'arg' + i)
+                    var argName = this.arguments_[i];
+                    input.appendField(argName);
+
+                    var argValue = this.savedValues[argName]
+                    if (!argValue)
+                        argValue = '0';
+                    input.appendField(new Blockly.FieldTextInput(argValue, Blockly.FieldTextInput.numberValidator), this.arguments_[i])
                 }
                 // Restore rendering and show the changes.
                 this.rendered = savedRendered;
                 if (this.rendered) {
                     this.render();
                 }
+            },
+
+            getArgValues: function() {
+                var l = [];
+                var input = this.getInput('ARG')
+                if (!input)
+                    return l;
+
+                for (var i = 1, field; field = input.fieldRow[i]; i += 2) {
+                    var value = field.getValue();
+                    l.push(value);
+                }
+                return l;
             },
 
             toCommand: function(parent) {

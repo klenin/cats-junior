@@ -141,7 +141,11 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		findValue: function(value) {
 			for (var i = 0; i < this.options.length; ++i) {
 				if (this.options[i][0] == value || this.options[i][1] == value) {
-					return '\"' + this.options[i][0] + '\"';
+					var value = this.options[i][0];
+					if (checkNumber(value))
+						return value.toString()
+					else
+						return '\"' + value + '\"';
 				}
 			}
 

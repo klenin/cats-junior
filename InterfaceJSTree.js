@@ -217,37 +217,7 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 						}
 					},
 					"drop_finish": function(data){
-						var node = data.o;
-
-						if ($(node).hasClass('jstree-draggable') && $(node).parent().hasClass('funccall')) {
-							node = $(node).parent();
-							$( '#accordion' + curProblem.tabIndex ).myAccordion('clearDiv', node);
-							$(node).remove();
-							curProblem.removeFunctionCall($(node).attr('funcId'));
-							return true;
-						}
-
-						/*if ($(node).parent().hasClass('jstree-draggable') && $(node).parent().hasClass('funccall'))
-						{
-							$(node).parent().remove();
-							curProblem.removeFunctionCall($(node).parent().children('.func-header').html());
-							return true;
-						}*/
-
-						if (node) {
-							var type = this._get_type(node);
-							if (type == 'else')
-								return false;
-							var next = undefined;
-							if (type == 'ifelse'){
-								next = getNextNode(this, node);
-							}
-							this.remove(data.o);
-							if (next)
-								this.remove(next);
-							curProblem.updated();
-						}
-						return true;
+						console.log('drop_finish deprecated. TODO: remove')
 					}
 				},
 				"ui" : {
@@ -281,13 +251,6 @@ define('InterfaceJSTree', ['jQuery', 'jQueryUI', 'JsTree', 'CommandsMode'], func
 			}).bind('refresh.jstree', function(event, data) {
 				curProblem.updated();
 			}).bind("dblclick.jstree", function (e, data) {
-		        /*var node = $(e.target).closest("li");
-		        var type = $.jstree._reference(this)._get_type(node);
-				if (type == 'funccall') {
-					$.jstree._reference(this).rename(node);
-					curProblem.funcCallUpdated();
-				}*/
-				//TODO:
 			}).bind("loaded.jstree", function (e, data) {
 		    	curProblem.executionUnit.addTypesInTree(jQuery.jstree._reference(id));
 			});
