@@ -91,7 +91,6 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             });
 
             // Create and render block for main function.
-
             var block = problem.mainBlock = Blockly.Block.obtain(Blockly.mainWorkspace, 'funcdefmain');
             block.initSvg();
             block.render();

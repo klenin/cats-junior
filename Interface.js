@@ -248,6 +248,7 @@ define('Interface', ['jQuery',
    function goToCommandsMode(problem) {
         var j = problem.tabIndex;
         var l = codeareas[j].getValue().length;
+        var xmlWSBackup;
         try {
             problem.prepareForExecuting();
             problem.prepareForConversionFromCode();
@@ -257,7 +258,6 @@ define('Interface', ['jQuery',
 
             $('#jstree-container' + j).empty();
             $('#accordion' + j).myAccordion( 'clear' );
-            problem.resetWorkspace();
 
             if (cmBlock) {
                 problem.setCurrentStage('CONVERSION_TO_COMMANDS');
@@ -270,6 +270,7 @@ define('Interface', ['jQuery',
                         cursor: 'progress'
                     }
                 });
+	            xmlWSBackup = problem.resetWorkspace();
                 cmBlock.generateVisualCommand();
                 $.unblockUI();
                 problem.setCurrentStage('IDLE');
@@ -291,6 +292,9 @@ define('Interface', ['jQuery',
                 $("#commandsMode" + j).prop('checked', false);
                 $("#codeMode" + j).prop('checked', true);
                 return;
+            }
+            if (xmlWSBackup) {
+                problem.restoreWorkspace(xmlWSBackup);
             }
             problem.updated();
 		}

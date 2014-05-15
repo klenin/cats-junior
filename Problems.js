@@ -755,10 +755,18 @@ function() {
 		},
 
 		resetWorkspace: function() {
-			this.Blockly.mainWorkspace.clear();
-			this.mainBlock = Blockly.Block.obtain(this.Blockly.mainWorkspace, 'funcdefmain');
+			var mainWorkspace = this.Blockly.mainWorkspace;
+			var xmlWorkspace = this.Blockly.Xml.workspaceToDom(mainWorkspace);
+			mainWorkspace.clear();
+			this.mainBlock = Blockly.Block.obtain(mainWorkspace, 'funcdefmain');
 			this.mainBlock.initSvg();
 			this.mainBlock.render();
+			return xmlWorkspace;
+		},
+
+		restoreWorkspace: function(xmlWorkspace) {
+			mainWorkspace = this.Blockly.mainWorkspace;
+			this.Blockly.Xml.domToWorkspace(mainWorkspace, xmlWorkspace);
 		}
 	});
 
