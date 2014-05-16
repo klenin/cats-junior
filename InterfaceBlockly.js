@@ -48,6 +48,9 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             * Inject Blockly into 'iframe' container.
             */
             var $container = $('#blockly-container-' + problem.tabIndex);
+            for (var timeout = 2000; timeout > 0 && !$container[0].contentWindow.Blockly; timeout -= 50)
+                // wait for Blockly to load in iframe
+                sleep(50);
             var Blockly = arrBlockly[problem.tabIndex] = $container[0].contentWindow.Blockly;
             Blockly.problem = problem;
             problem.Blockly = Blockly;

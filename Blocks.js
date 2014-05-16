@@ -4,14 +4,14 @@
 'use strict';
 
 
-define('Blocks', ['Problems', 'BlocklyBlockly', 'BlocklyBlocks', 'BlocklyMsg', 'CommandsMode'], function() {
+define('Blocks', ['Problems', 'CommandsMode'], function() {
     var CommandsMode = require('CommandsMode');
 
     function generate(problem, requiredBlocks) {
         /**
         *  Generate blocks for problem.
         */
-        Blockly = problem.Blockly;
+        var Blockly = problem.Blockly;
 
         var SimpleBlock = $.inherit({
             __constructor: function(problem) {

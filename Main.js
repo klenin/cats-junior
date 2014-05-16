@@ -2,10 +2,11 @@ require.config({
     waitSeconds: 180,
     baseUrl: '',
     paths: {
-        'jQuery': 'import/jquery/jquery-1.8.2.min',
-		'jQueryUI': 'import/jquery/jquery-ui-1.8.24.custom.min',
+        'jQuery': 'import/jquery/jquery-1.11.1.min',
+		'jQueryUI': 'import/jquery/jquery-ui-1.9.2.min',
+		'jQueryUITabsPaging': 'import/jquery/ui.tabs.paging',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
-		'jQueryInherit': 'import/jquery/jquery.inherit-1.3.2.M.min',
+		'jQueryInherit': 'import/jquery/jquery.inherit.min',
 		'JsTree': 'import/jquery/jquery.jstree.min',
 		'Env': 'import/skulpt/src/env.min',
 		'BlockUI': 'import/jquery/jquery.blockUI.min',
@@ -52,18 +53,14 @@ require.config({
 		//'Svg': 'import/jquery/jquery.svg',
 		'Cylinder': 'import/jquery/cylinder.min',
 		'Raphael': 'import/jquery/raphael.min',
-		'QUnit': 'import/jquery/qunit-1.11.0.min',
+		'QUnit': 'import/jquery/qunit-1.11.0.min'
 		// NOTE: load this extra Blockly instance is for global usage of static methods
-		'BlocklyBlockly': 'import/blockly/blockly_compressed',
-		'BlocklyBlocks': 'import/blockly/blocks_compressed',
-		'BlocklyMsg': 'import/blockly/msg/js/ru'
-    },
+	},
     shim: {
-    	'BlocklyBlocks': ['BlocklyBlockly'],
-    	'BlocklyMsg': ['BlocklyBlockly'],
     	'jQuery': [],
     	'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
+		'jQueryUITabsPaging': ['jQueryUI'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
 		'JsTree': ['jQuery'],
@@ -107,7 +104,7 @@ require.config({
 		'SkImport': ['SkDict'],
 		'SkBuiltinDict': ['SkStr'],
 		'Raphael': ['jQuery'],
-		'Cylinder': ['Raphael'],
+		'Cylinder': ['Raphael']
     }
   });
 
@@ -116,6 +113,7 @@ require.config({
 requirejs([
 	'jQuery',
 	'jQueryUI',
+	'jQueryUITabsPaging',
 	'jQueryCookie',
 	'Config',
 	'Servers',
@@ -134,7 +132,7 @@ requirejs([
 		//var Tests = require('Tests');
 
 	    $(document).ready(function(){
-		if ($.browser.msie){
+		if (getInternetExplorerVersion()){
 			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 			return;
 		}
@@ -145,7 +143,7 @@ requirejs([
 		$('#funcName').hide();
 		$('#tabs').tabs({
 			select: function(event, ui) {
-				curProblemIndex = ui.index - 1;
+				curProblemIndex = ui.index - 2;
 				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
 					if (curProblem) {
@@ -226,7 +224,7 @@ requirejs([
 			autoOpen: false,
 			close: function(){this.title = 'Введите пароль';}
 		});
-		$('#enterPassword').live('keyup', function(e){
+		$('#enterPassword').on('keyup', function(e){
 		  if (e.keyCode == 13) {
 			$(this).dialog( "option", "buttons" )['Ok']();
 		  }});

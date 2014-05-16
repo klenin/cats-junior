@@ -206,6 +206,9 @@ define('Interface', ['jQuery',
 
 	function changeContest(){
 		var contest = $('#contestsList > input:checked');
+		// if (!contest[0])
+		// 	return
+
 		name = contest[0].defaultValue;
 		document.title = name;
 		currentServer.setContestByName(name, function(contest){
@@ -285,6 +288,7 @@ define('Interface', ['jQuery',
             }
         } catch(e) {
             console.error(e);
+            console.log(e.stack)
             problem.setCurrentStage('IDLE');
             $.unblockUI();
             ++cmdId;

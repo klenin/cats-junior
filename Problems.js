@@ -655,6 +655,7 @@ function() {
 					this.speed = s;
 				} catch (e) {
 					console.error(e);
+					console.log(e.stack);
 					$('#cons' + this.tabIndex).append(e);
 				}
 
@@ -758,7 +759,7 @@ function() {
 			var mainWorkspace = this.Blockly.mainWorkspace;
 			var xmlWorkspace = this.Blockly.Xml.workspaceToDom(mainWorkspace);
 			mainWorkspace.clear();
-			this.mainBlock = Blockly.Block.obtain(mainWorkspace, 'funcdefmain');
+			this.mainBlock = this.Blockly.Block.obtain(mainWorkspace, 'funcdefmain');
 			this.mainBlock.initSvg();
 			this.mainBlock.render();
 			return xmlWorkspace;
