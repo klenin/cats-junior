@@ -101,14 +101,23 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return cmBlock;
             }
 
-            // DEBUG: workspaceToDom pprint
+            // DEBUG: Pretty print xml representation of workspace.
             , onchange: function () {
                 if (!this.workspace) {
                     return;
                 }
+
+                // create node if doesn't exist
+                var $table = $('#cons' + problem.tabIndex).parent().closest('table');
+                var $output = $table.find('.pprint')
+                if (!$output.length) {
+                    $output = $('<tr><td><pre class="pprint cons"></pre></td></tr>').appendTo($table).find('.pprint');
+                }
+
+                // workspaceToDom pprint
                 var dom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
                 var text = Blockly.Xml.domToPrettyText(dom);
-                $('#cons' + problem.tabIndex).text(text);
+                $output.text(text);
             }
         });
 

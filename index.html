@@ -66,11 +66,6 @@
 							</td>
 						</tr>
 						<tr>
-							<td id = "tdblockly${tab}" colspan="2">
-								<iframe class="blockly-container" id="blockly-container-${tab}" src="blockly.html"></iframe>
-							</td>
-						</tr>
-						<tr>
 							<td id = "tdcommands${tab}">
 								<div class = "ul_commands" id = "ulCommands${tab}">
 									<table>
@@ -87,29 +82,7 @@
 						</tr>
 						<tr>
 							<td id = "tdcontainer${tab}">
-								<div id = "divcontainer${tab}" style="position: static">
-									<table width = "100%">
-										<tr>
-											<td>
-												<div id = "accordion${tab}" style="display:inline-block; width: 100%">
-												</div>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<div id = "jstree-container${tab}" class = "sortable-func">
-												</div>
-											</td>
-
-										</tr>
-										<tr>
-											<td>
-												<div class = "jstree-drop recycle-bin">
-												</div>
-											</td>
-										</tr>
-									</table>
-								</div>
+								<iframe class="blockly-container" id="blockly-container-${tab}" src="blockly.html"></iframe>
 							</td>
 							<td>
 								<button id = "addWatch${tab}">Добавить наблюдение</button><br>

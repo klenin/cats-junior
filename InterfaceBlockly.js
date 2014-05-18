@@ -48,9 +48,12 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             * Inject Blockly into 'iframe' container.
             */
             var $container = $('#blockly-container-' + problem.tabIndex);
-            for (var timeout = 2000; timeout > 0 && !$container[0].contentWindow.Blockly; timeout -= 50)
+            if (!$container[0].contentWindow.Blockly) {
                 // wait for Blockly to load in iframe
-                sleep(50);
+                setTimeout(injectBlockly, 50);
+                return
+            }
+
             var Blockly = arrBlockly[problem.tabIndex] = $container[0].contentWindow.Blockly;
             Blockly.problem = problem;
             problem.Blockly = Blockly;
@@ -104,6 +107,27 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             var bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
                 'blocklyWorkspaceChange', problem, problem.updated);
 
+            // adjust height
+            var $svg = $container.contents().find('.blocklySvg');
+            var lastHeight, lastWidth;
+            function checkForChanges() {
+                var flyoutHeight = Blockly.mainWorkspace.flyout_.getMetrics_()['contentHeight'];
+                var workspaceHeight = Blockly.mainWorkspace.getCanvas().getBBox().height;
+                var newHeight = Math.max(flyoutHeight, workspaceHeight) + 20;
+                var newWidth = $svg[0].getBBox().width + 20;
+                if (newHeight != lastHeight) {
+                    $container.height(newHeight);
+                    $container.animate({height: lastHeight}, 0);
+                    lastHeight = newHeight;
+                }
+                if (newWidth != lastWidth) {
+                    $container.width(newWidth);
+                    $container.animate({width: lastWidth}, 0);
+                    lastWidth = newWidth;
+                }
+                setTimeout(checkForChanges, 50);
+            }
+            checkForChanges();
         },
     };
 });
