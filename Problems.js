@@ -151,15 +151,17 @@ function() {
 			}
 		},
 
-		cmdHighlightOff: function() {
+		cmdHighlightOff: function(removeSelection) {
 			var Blockly = this.Blockly;
 			if (!Blockly)
 				return
 			blocks = Blockly.mainWorkspace.getAllBlocks();
 			for (var i = 0, block; block = blocks[i]; ++i) {
-				// block.unselect();
 				if (block.svg_) {
-					block.svg_.removeSelect();
+					Blockly.removeClass_(block.svg_.svgGroup_, "blocklyCurrentCommand");
+					if (removeSelection) {
+						block.svg_.removeSelect();
+					}
 				}
 			}
 		},
@@ -550,7 +552,7 @@ function() {
 			var problem = this.tabIndex;
 			this.setDefault();
 			this.playing = false;
-			this.cmdHighlightOff();
+			this.cmdHighlightOff(true);
 			this.compileCode()
 			this.updateWatchList();
 			if (!dontHighlight && nextline[problem] != undefined) {

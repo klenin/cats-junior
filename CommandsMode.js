@@ -89,18 +89,22 @@ define('CommandsMode', ['jQuery',
 			}
 		},
 
-		hideHighlighting: function() {
-			$(this.node).addClass('hiddenHighlighting');
-		},
-
 		highlightOff: function() {
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).removeClass('highlighted');
+			if (!this.node)
+				return
+			var svg = this.node.getSvgRoot();
+			if (!svg)
+				return
+			this.problem.Blockly.removeClass_(svg, "blocklyCurrentCommand");
 		},
 
 		highlightOn: function(){
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).addClass('highlighted');
+			if (!this.node)
+				return
+			var svg = this.node.getSvgRoot();
+			if (!svg)
+				return
+			this.problem.Blockly.addClass_(svg, "blocklyCurrentCommand");
 		},
 
 		generatePythonCode: function(tabsNum) {
@@ -469,23 +473,6 @@ define('CommandsMode', ['jQuery',
 			this.body.updateInterface(newState)
 		},
 
-		hideHighlighting: function() {
-			$(this.node).addClass('hiddenHighlighting');
-			this.body.hideHighlighting();
-		},
-
-		highlightOff: function() {
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).removeClass('highlighted');
-			this.body.highlightOff();
-		},
-
-		highlightOn: function() {
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).addClass('highlighted');
-			this.body.hideHighlighting();
-		},
-
 		generatePythonCode: function(tabsNum) {
 			var curCnt = this.problem.curCounter;
 			var str = generateTabs(tabsNum) + 'for ' + this.problem.counters[curCnt]['name'] +
@@ -643,33 +630,6 @@ define('CommandsMode', ['jQuery',
 
 		isStarted: function() {
 			return this.blockToExecute =! undefined;
-		},
-
-		hideHighlighting: function() {
-			$(this.node).addClass('hiddenHighlighting');
-			this.blocks[0].hideHighlighting();
-			if (this.blocks[1]) {
-				this.blocks[1].hideHighlighting();
-			}
-		},
-
-		highlightOff: function() {
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).removeClass('highlighted');
-			this.blocks[0].highlightOff();
-			if (this.blocks[1]) {
-				this.blocks[1].highlightOff();
-			}
-		},
-
-		highlightOn: function() {
-			//TODO: remove
-			$(this.node).removeClass('hiddenHighlighting');
-			$(this.node).addClass('highlighted');
-			this.blocks[0].hideHighlighting();
-			if (this.blocks[1]) {
-				this.blocks[1].hideHighlighting();
-			}
 		},
 
 		updateInterface: function(newState) {
@@ -963,24 +923,6 @@ define('CommandsMode', ['jQuery',
 		updateInterface: function(newState) {
 			for (var i = 0; i < this.commands.length; ++i) {
 				this.commands[i].updateInterface(newState);
-			}
-		},
-
-		hideHighlighting: function() {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].hideHighlighting();
-			}
-		},
-
-		highlightOff: function() {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].highlightOff();
-			}
-		},
-
-		highlightOn: function() {
-			for (var i = 0; i < this.commands.length; ++i) {
-				this.commands[i].highlightOn();
 			}
 		},
 
