@@ -1,13 +1,11 @@
 /**
  * Blockly interface between user and JSTree.
  */
-'use strict';
 
 
 define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function() {
     var Problems = require('Problems');
     var Blocks = require('Blocks');
-    var arrBlockly = [];  // one blockly instance for each problem
 
     // // Custom menu
     // var initMenu = function(problem, Blockly) {
@@ -39,24 +37,71 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
     //     }
 
     // };
+    function patchBlockly_(Blockly) {
+        /**
+        * Extend Blockly's interface with helper functions.
+        */
+
+        Blockly.Field.prototype.saveOriginalValue = function(value) {
+            /**
+            * This method is used to save original value of the field prior to
+            * executing commands. Value can be modified during execution. After
+            * execution is completed, this value should be restored.
+            */
+            if (this.originalValue__) {
+                return
+            }
+            if (value === undefined) {
+                value = this.getValue();
+            }
+            this.originalValue__ = value;
+        };
+
+        Blockly.Field.prototype.restoreOriginalValue = function() {
+            if (this.originalValue__ === undefined) {
+                return
+            }
+            this.setValue(this.originalValue__);
+            delete this.originalValue__;
+        };
+
+        Blockly.Field.prototype.setRawText = function(text) {
+            /**
+            * Set unchanged text (ignore validator).
+            */
+            // Blockly.Field.prototype.setText.call(this, text)
+            // set text
+            if (text === null || text === this.text_) {
+                return;
+            }
+            this.text_ = text.toString();
+            this.updateTextNode_();
+
+            // render
+            if (this.sourceBlock_ && this.sourceBlock_.rendered) {
+                this.sourceBlock_.render();
+                this.sourceBlock_.bumpNeighbours_();
+            }
+        }
+    }
 
     return {
-        // Array of Blockly instances. One for each problem.
-        arrBlockly: arrBlockly,
         injectBlockly: function(problem) {
             /**
             * Inject Blockly into 'iframe' container.
             */
             var $container = $('#blockly-container-' + problem.tabIndex);
             if (!$container[0].contentWindow.Blockly) {
-                // wait for Blockly to load in iframe
-                setTimeout(injectBlockly, 50);
+                // Dirty fix. Wait for Blockly to load in iframe.
+                var injectBlockly = arguments.callee;
+                setTimeout(function() {injectBlockly(problem)}, 50);
                 return
             }
 
-            var Blockly = arrBlockly[problem.tabIndex] = $container[0].contentWindow.Blockly;
+            var Blockly = $container[0].contentWindow.Blockly;
             Blockly.problem = problem;
             problem.Blockly = Blockly;
+            patchBlockly_(Blockly);
 
             // Make list of allowed commands.
             var allowedCommands = ('controlCommands' in problem ?

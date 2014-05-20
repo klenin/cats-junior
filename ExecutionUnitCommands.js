@@ -4,7 +4,7 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 	var InternalError = Exceptions.InternalError;
 
 	var CommandArgument = $.inherit({
-		__constructor: function(expression, arguments, argumentValues, problem){
+		__constructor: function(expression, arguments, argumentValues, problem) {
 			this.domObject = undefined;
 			this.arguments = arguments ? arguments.clone() : [];
 			this.argumentValues = argumentValues ? argumentValues : {};
@@ -31,22 +31,21 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return;
 		},
 
-		updateInterface: function(newState){
+		updateInterface: function(newState, blocklyField){
 			switch (newState) {
 				case 'START_EXECUTION':
-					$(this.domObject).attr('disabled', 'disabled');
-					$(this.domObject).children().attr('disabled', 'disabled');
+					blocklyField.saveOriginalValue();
+					this.field_ = blocklyField;
 					break;
 				case 'FINISH_EXECUTION':
-					$(this.domObject).removeAttr('disabled');
-					$(this.domObject).children().removeAttr('disabled');
+					blocklyField.restoreOriginalValue();
 					break;
 			}
 		},
 
 		setDefault: function(){
-			$(this.domObject).removeAttr('disabled');
-			$(this.domObject).children().removeAttr('disabled');
+			// $(this.domObject).removeAttr('disabled');
+			// $(this.domObject).children().removeAttr('disabled');
 		},
 
 		getExpression: function() {
@@ -56,10 +55,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		setArgumentValues: function(argumentValues) {
 			this.argumentValues = $.extend(true, {}, argumentValues);
 		},
-
-		getDomObjectValue: function(object) {
-			return undefined;
-		}
 	});
 
 	var CommandArgumentSelect = $.inherit(CommandArgument, {
@@ -100,27 +95,26 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return this.domObject;
 		},
 
-		initializeArgumentDomObject: function(command, index) {
-			this.__base(command, index);
-			if (this.domObject.length) {
-				this.expression = $(this.domObject).children('select').children('option:selected').val();
-				this.updateCallbacks();
-			}
-		},
+		// initializeArgumentDomObject: function(command, index) {
+		// 	this.__base(command, index);
+		// 	if (this.domObject.length) {
+		// 		this.expression = $(this.domObject).children('select').children('option:selected').val();
+		// 		this.updateCallbacks();
+		// 	}
+		// },
 
-		updateCallbacks: function() {
-			var self = this;
-			$(this.domObject).children('select').off('change').on('change', function(){
-				self.expression = $(this).children('select').children('option:selected').val();
-				self.problem.updated();
-			});
-		},
+		// updateCallbacks: function() {
+		// 	var self = this;
+		// 	$(this.domObject).children('select').off('change').on('change', function(){
+		// 		self.expression = $(this).children('select').children('option:selected').val();
+		// 		self.problem.updated();
+		// 	});
+		// },
 
-		updateInterface: function(newState){
-			this.__base(newState);
+		updateInterface: function(newState, blocklyField){
+			this.__base(newState, blocklyField);
 			switch (newState) {
 				case 'START_EXECUTION':
-					$(this.domObject).children('select').hide();
 					var value = this.getValue(this.argumentValues);
 					for (var i = 0; i < this.options.length; ++i) {
 						if (this.options[i][0] == value || this.options[i][1] == value) {
@@ -128,12 +122,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 							break;
 						}
 					}
-					$(this.domObject).children('input').val(value);
-					$(this.domObject).children('input').show();
+					this.field_.setRawText(value.toString());
 					break;
 				case 'FINISH_EXECUTION':
-					$(this.domObject).children('input').hide();
-					$(this.domObject).children('select').show();
 					break;
 			}
 		},
@@ -166,17 +157,15 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		setValue: function(value, afterDomCreation) {
 			this.expression = value;
-			$(this.domObject).children('select').val(value);
+			// $(this.domObject).children('select').val(value);
+			if (this.field_)
+				this.field_.setRawText(value);
 		},
 
 		getValue: function(args) {
 			var value = this.expression;
 			return (args == undefined || args[value] == undefined) ? value : args[value];
 		},
-
-		getDomObjectValue: function(object) {
-			return $(object).children('select').children('option:selected').val();
-		}
 	});
 
 	var CommandArgumentSpin = $.inherit(CommandArgument, {
@@ -188,13 +177,13 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.expression = expression != undefined ? expression : minValue;
 		},
 
-		initializeArgumentDomObject: function(command, index) {
-			this.__base(command, index);
-			if (this.domObject.length) {
-				this.expression = $(this.domObject).children('.spinExpression').val();
-				this.updateCallbacks();
-			}
-		},
+		// initializeArgumentDomObject: function(command, index) {
+		// 	this.__base(command, index);
+		// 	if (this.domObject.length) {
+		// 		this.expression = $(this.domObject).children('.spinExpression').val();
+		// 		this.updateCallbacks();
+		// 	}
+		// },
 
 		clone: function() {
 			return new CommandArgumentSpin(this.minValue, this.maxValue, this.expression, this.arguments, this.argumentValues, this.problem);
@@ -213,25 +202,25 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return this.domObject;
 		},
 
-		updateCallbacks: function() {
-			var self = this;
-			$(this.domObject).children('img').off('click').on('click', function(e){
-				var pos = e.pageY - $(this).offset().top;
-				var vector = ($(this).height()/2 > pos ? 1 : -1);
+		// updateCallbacks: function() {
+		// 	var self = this;
+		// 	$(this.domObject).children('img').off('click').on('click', function(e){
+		// 		var pos = e.pageY - $(this).offset().top;
+		// 		var vector = ($(this).height()/2 > pos ? 1 : -1);
 
-				self.onSpinImgClick(vector);
-			});
+		// 		self.onSpinImgClick(vector);
+		// 	});
 
-			$(this.domObject).children('.spinExpression').off('input').on('input', function() {
-				var newValue = $(this).val();
-				if (checkNumber(newValue)) {
-					self.onUpdateTotal(parseInt($(this).val()));
-				}
-				else {
-					self.onUpdateTotal($(this).val());
-				}
-			});
-		},
+		// 	$(this.domObject).children('.spinExpression').off('input').on('input', function() {
+		// 		var newValue = $(this).val();
+		// 		if (checkNumber(newValue)) {
+		// 			self.onUpdateTotal(parseInt($(this).val()));
+		// 		}
+		// 		else {
+		// 			self.onUpdateTotal($(this).val());
+		// 		}
+		// 	});
+		// },
 
 		searchArgument: function(arg) {
 			if (!this.arguments) {
@@ -295,7 +284,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		setExpression: function(newExpression) {
 			this.expression = newExpression;
-			$(this.domObject).children('.spinExpression').val(this.expression);
+			if (this.field_)
+				this.field_.setRawText(this.expression);
 		},
 
 		setValue: function(value, afterDomCreation) {
@@ -315,37 +305,32 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			return this.getExpressionValueByArgs(args);
 		},
 
-		hideBtn: function(cnt) {
-			$(this.domObject).children('img').hide();
-			$(this.domObject).children('.spinExpression').hide();
-			$(this.domObject).children('.spinValue').show().val(this.getValue(this.argumentValues));
-		},
+		// hideBtn: function(cnt) {
+		// 	$(this.domObject).children('img').hide();
+		// 	$(this.domObject).children('.spinExpression').hide();
+		// 	$(this.domObject).children('.spinValue').show().val(this.getValue(this.argumentValues));
+		// },
 
-		showBtn: function() {
-			$(this.domObject).children('img').show();
-			$(this.domObject).children('.spinExpression').show();
-			$(this.domObject).children('.spinValue').hide();
-		},
+		// showBtn: function() {
+		// 	$(this.domObject).children('img').show();
+		// 	$(this.domObject).children('.spinExpression').show();
+		// 	$(this.domObject).children('.spinValue').hide();
+		// },
 
 		setDefault: function(){
-			this.showBtn();
+			// this.showBtn();
 		},
 
-		updateInterface: function(newState){
-			this.__base(newState);
+		updateInterface: function(newState, blocklyField){
+			this.__base(newState, blocklyField);
 			switch (newState) {
 				case 'START_EXECUTION':
-					this.hideBtn();
+					this.field_.setRawText(this.getValue(this.argumentValues).toString());
 					break;
 				case 'FINISH_EXECUTION':
-					this.showBtn();
 					break;
 			}
 		},
-
-		getDomObjectValue: function(object) {
-			return $(object).children('.spinExpression').val();
-		}
 	});
 
 	var CommandArgumentSpinCounter = $.inherit(CommandArgumentSpin, {
@@ -364,18 +349,6 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			this.value = undefined;
 		},
 
-		hideBtn: function(cnt) {
-			this.__base();
-			if (this.value == undefined) {
-				this.value = this.getValue(this.argumentValues);
-			}
-			if (this.value != undefined) {
-				$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
-			}
-			else {
-				$(this.domObject).children('.spinValue').val(this.getExpressionValueByArgs(this.argumentValues));
-			}
-		},
 
 		getValue: function(args) {
 			var result = this.value;
@@ -386,6 +359,25 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 				return undefined;
 			}
 			return parseInt(result);
+		},
+
+		updateInterface: function(newState, blocklyField){
+			this.__base(newState, blocklyField);
+			switch (newState) {
+				case 'START_EXECUTION':
+					if (this.value == undefined) {
+						this.value = this.getValue(this.argumentValues);
+					}
+					if (this.value != undefined) {
+						this.field_.setRawText(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
+					}
+					else {
+						this.field_.setRawText(this.getExpressionValueByArgs(this.argumentValues));
+					}
+					break;
+				case 'FINISH_EXECUTION':
+					break;
+			}
 		},
 
 		getCounterValue: function(args) {
@@ -405,7 +397,9 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 			}
 
 			--this.value;
-			$(this.domObject).children('.spinValue').val(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
+			if (this.field_)
+				// this.field_.setValue(this.value.toString());
+				this.field_.setRawText(this.value + '/' + this.getExpressionValueByArgs(this.argumentValues));
 		}
 	});
 
@@ -439,7 +433,8 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 
 		setValue: function(value, afterDomCreation) {
 			this.value = value;
-			$(this.domObject).children('.inputExpression').val(value);
+			if (this.field_)
+				this.field_.setRawText(value);
 		},
 
 		returnValue: function(value) {
@@ -462,32 +457,24 @@ define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'],
 		},
 
 		getValue: function(args) {
-			var value = $(this.domObject).children('.inputExpression').val();
+			var value = this.field_.getValue();
 			if (args != undefined && args[value] != undefined) {
 				return args[value];
 			}
 			return this.returnValue(value);
 		},
 
-		updateInterface: function(newState){
-			this.__base(newState);
+		updateInterface: function(newState, blocklyField){
+			this.__base(newState, blocklyField);
 			switch (newState) {
 				case 'START_EXECUTION':
-					$(this.domObject).children('.inputExpression').hide();
 					var value = this.getValue(this.argumentValues);
-					$(this.domObject).children('.inputValue').val(value);
-					$(this.domObject).children('.inputValue').show();
+					this.field_.setRawText(value);
 					break;
 				case 'FINISH_EXECUTION':
-				$(this.domObject).children('.inputValue').hide();
-					$(this.domObject).children('.inputExpression').show();
 					break;
 			}
 		},
-
-		getDomObjectValue: function(object) {
-			return $(object).children('.inputExpression').val();
-		}
 	});
 
 	var ExecutionUnitCommand = $.inherit({

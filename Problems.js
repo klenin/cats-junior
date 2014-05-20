@@ -627,9 +627,7 @@ function() {
 					var s = this.speed;
 					this.speed = 1000;
 					this.paused = false;
-					this.updateInterface('START_EXECUTION');
 					if (!this.playing || this.changed) {
-
 						if (!this.playing) {
 							var needReturn = this.cmdList.isFinished();
 							this.setDefault();
@@ -643,8 +641,8 @@ function() {
 							this.compileCode();
 						}
 						this.playing = true;
-
 					}
+					this.updateInterface('START_EXECUTION');
 					this.lastExecutedCmd = undefined;
 					this.cmdHighlightOff();
 					this.cmdList.exec(1);

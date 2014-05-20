@@ -113,7 +113,7 @@ define('CommandsMode', ['jQuery',
 
 		initBlock_: function(typeName, connection) {
 			var Blockly = this.problem.Blockly
-			var block = Blockly.Block.obtain(Blockly.mainWorkspace, typeName);
+			var block = this.node = Blockly.Block.obtain(Blockly.mainWorkspace, typeName);
             block.initSvg();
             block.render();
             if (connection && block.previousConnection) {
@@ -257,7 +257,8 @@ define('CommandsMode', ['jQuery',
 
 		updateInterface: function(newState) {
 			for (var i = 0; i < this.arguments.length; ++i) {
-				this.arguments[i].updateInterface(newState);
+				var blocklyField = this.node.getArgField(i)
+				this.arguments[i].updateInterface(newState, blocklyField);
 			}
 		},
 
@@ -470,7 +471,8 @@ define('CommandsMode', ['jQuery',
 
 		updateInterface: function(newState) {
 			this.__base(newState);
-			this.body.updateInterface(newState)
+			var blocklyField = this.node.getArgField(0)
+			this.body.updateInterface(newState, blocklyField)
 		},
 
 		generatePythonCode: function(tabsNum) {
@@ -494,6 +496,7 @@ define('CommandsMode', ['jQuery',
 
 			var block = this.initBlock_(this.getClass(), connection);
 			block.rebuildArgumentFields_(block.input_, this.arguments, 0);
+			this.body.generateVisualCommand(block.getInput('DO').connection);
             return block
 		},
 

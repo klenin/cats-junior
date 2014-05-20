@@ -69,6 +69,18 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return l;
             },
 
+            getArgField: function(index) {
+                /**
+                * Return block's field which corresponds to argument's index number.
+                */
+                for (var i = 0, n = 0, input; input = this.inputList[i]; ++i)
+                    for (var j = 0, field; field = input.fieldRow[j]; ++j)
+                        if (field.EDITABLE)
+                            if (index == n++)
+                                return field;
+                console.warn("Argument with such index doesn't exist.")
+            },
+
             getDirectChildren_: function(input) {
                 // input - Blockly.Input or string
                 if (!input.sourceBlock_)
