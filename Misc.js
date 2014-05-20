@@ -279,6 +279,11 @@ function isCmdHighlighted(elem) {
 	return $('#' + elem).hasClass('highlighted')
 }
 
+function logError(e) {
+	console.error(e);
+	console.log(e.stack);
+}
+
 function getInternetExplorerVersion()
 {
   var rv = null;

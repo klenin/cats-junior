@@ -243,7 +243,8 @@ function() {
 						eval(finalcode[problem].code);
 						this.updateWatchList();
 					} catch (e) {
-						console.error(e);
+						console.error(e.toString());
+						console.log(e.stack);
 						$('#cons' + problem).append('\n' + e + '\n');
 						return 0;
 
@@ -427,8 +428,8 @@ function() {
 					this.highlightLast();
 				} else this.nextStep(cnt);
 			} catch (e) {
-				console.error(e);
-				$('#cons' + this.tabIndex).append(e);
+				logError(e)
+				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
 			}
 		},
 
@@ -491,8 +492,9 @@ function() {
 			// 			this.Blockly.mainWorkspace);
 			// 		break;
 			// 	case 'FINISH_EXECUTION':
-			// 		this.Blockly.mainWorkspace = this.Blockly.Xml.domToWorkspace(
-			// 			this.xmlWorkspace_);
+			// 		if (!this.xmlWorkspace_)
+			// 			return
+			// 		this.Blockly.Xml.domToWorkspace(this.Blockly.mainWorkspace, this.xmlWorkspace_);
 			// 		break;
 			// }
 		},
@@ -618,7 +620,7 @@ function() {
 				} catch (e) {
 					console.error(e);
 					this.playing = false;
-					$('#cons' + this.tabIndex).append(e);
+					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
 				}
 			} else {
 				try {
@@ -658,7 +660,7 @@ function() {
 				} catch (e) {
 					console.error(e);
 					console.log(e.stack);
-					$('#cons' + this.tabIndex).append(e);
+					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
 				}
 
 			}
@@ -690,7 +692,7 @@ function() {
 				this.play(t);
 			} catch (e) {
 				console.error(e);
-				$('#cons' + this.tabIndex).append(e);
+				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
 			}
 		},
 
