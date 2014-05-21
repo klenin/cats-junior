@@ -152,7 +152,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 var fType = new Blockly.FieldDropdown(condTypes, this.rebuildFields_);
                 this.inputCondition_.appendField(fType, 'arg0');
                 // - logical negation
-                var fNegation = new Blockly.FieldDropdown([['', ''], ['не', 'not']]);
+                var fNegation = new Blockly.FieldDropdown([['да', ''], ['нет', 'not']]);
                 this.inputCondition_.appendField(fNegation, 'arg1');
                 // - fields for each type
                 this.conditionProperties_ = {}
@@ -336,9 +336,9 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             */
             init: function() {
                 this.setColour(290);
-                var name = Blockly.Procedures.findLegalName('Func1', this);
+                var name = Blockly.Procedures.findLegalName('do1', this);
                 this.appendDummyInput()
-                    .appendField('Функция')
+                    .appendField('Подпрограмма')
                     .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME')
                     .appendField('', 'PARAMS');
                 this.appendStatementInput('DO')
@@ -460,7 +460,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             * Main function definition.
             */
             init: function() {
-                this.appendDummyInput().appendField('Главная функция');
+                this.appendDummyInput().appendField('Программа');
                 this.setColour(0);
                 this.appendStatementInput('DO')
                     .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
