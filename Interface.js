@@ -313,6 +313,7 @@ define('Interface', ['jQuery',
 		$('#tdcontainer' + j).show();
 		$('#accordion' + j).show();
 		problems[j].updated();
+		problem.Blockly.mainWorkspace.render();
 	}
 
 	function goToCodeMode(problem) {
