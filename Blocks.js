@@ -112,11 +112,11 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                     cmBlock.pushCommand(cmd);
                 }
                 return cmBlock;
-            }
+            },
 
-            // DEBUG: Pretty print xml representation of workspace.
-            , onchange: function () {
-                if (!this.workspace) {
+            // For debugging purposes. Pretty print xml representation of workspace.
+            onchange__: function () {
+                if (!Blockly.mainWorkspace) {
                     return;
                 }
 
