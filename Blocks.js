@@ -151,38 +151,36 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 this.inputCondition_ = this.appendDummyInput('cond');
                 // Define fields:
                 // - types selector
-                var fType = new Blockly.FieldDropdown(condTypes, this.rebuildFields_);
+                var fType = new Blockly.FieldDropdown(condTypes, this.typeChangeHandler);
                 this.inputCondition_.appendField(fType, 'arg0');
                 // - logical negation
                 var fNegation = new Blockly.FieldDropdown([['да', ''], ['нет', 'not']]);
                 this.inputCondition_.appendField(fNegation, 'arg1');
                 // - fields for each type
-                this.conditionProperties_ = {}
-                for (var i = 0, func; func = conditionProperties[i]; ++i) {
-                    this.conditionProperties_[func.name] = func;
-                }
                 this.rebuildArgumentFields_(this.inputCondition_, conditionProperties[0].args, 2);
                 this.currentCondType_ = this.getFieldValue('arg0');
             },
 
-            mutationToDom: function() {
-                // console.log('mutationToDom')
-                var condType = this.getFieldValue('arg0');
-                if (condType != this.currentCondType_) {
-                    this.currentCondType_ = condType;
-                    var args = this.conditionProperties_[condType].args;
-                    this.rebuildArgumentFields_(this.inputCondition_, args, 2);
-                }
+            getConditionProperties: function() {
+                if (this.cpDict_)
+                    return this.cpDict_;
 
-                // var container = document.createElement('mutation');
-                // NOTE: DONT REMOVE FOR NOW
-                // for (var i = 2, fValue; fValue = this.getFieldValue('arg' + i); ++i) {
-                //     var xmlField = document.createElement('field');
-                //     xmlField.setAttribute('name', 'arg' + i);
-                //     xmlField.setAttribute('value', fValue);
-                //     container.appendChild(xmlField);
-                // }
-                // return container;
+                this.cpDict_ = {}
+                var cpList = this.problem.executionUnit.getConditionProperties()
+                for (var i = 0, func; func = cpList[i]; ++i) {
+                    this.cpDict_[func.name] = func;
+                }
+                return this.cpDict_;
+            },
+
+            typeChangeHandler: function(condType) {
+                var block = this.sourceBlock_;
+                if (condType != block.currentCondType_) {
+                    block.currentCondType_ = condType;
+                    var args = block.getConditionProperties()[condType].args;
+                    block.rebuildArgumentFields_(block.inputCondition_, args, 2);
+                }
+                return condType;
             },
         });
 
