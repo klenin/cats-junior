@@ -13,6 +13,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
         */
         var Blockly = problem.Blockly;
 
+
         var SimpleBlock = $.inherit({
             __constructor: function(problem) {
                 this.problem = problem;
@@ -133,6 +134,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         var ConditionalBlock = $.inherit(SimpleBlock, {
             appendArgs: function() {
                 /**
@@ -184,8 +186,10 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             },
         });
 
+
         var FuncCallBlock = $.inherit(SimpleBlock, {
         });
+
 
         var CommandBlock = $.inherit(FuncCallBlock, {
             init: function(name) {
@@ -224,6 +228,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
 
         var Blocks = {}
 
+
         // Standard blocks
         Blocks['if'] = $.inherit(ConditionalBlock, {
             /**
@@ -248,6 +253,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return cmd;
             }
         });
+
 
         Blocks['ifelse'] = $.inherit(ConditionalBlock, {
             /**
@@ -276,6 +282,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         Blocks['while'] = $.inherit(ConditionalBlock, {
             /**
             * Loop "while".
@@ -298,6 +305,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return cmd;
             }
         });
+
 
         Blocks['for'] = $.inherit(SimpleBlock, {
             /**
@@ -329,6 +337,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return cmd
             }
         });
+
 
         Blocks['funcdef'] = $.inherit(SimpleBlock, $.extend({}, Blockly.Blocks['procedures_defnoreturn'], {
             /**
@@ -367,6 +376,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 return cmFunc;
             }
         }));
+
 
         Blocks['funccall'] = $.inherit(FuncCallBlock, $.extend({}, Blockly.Blocks['procedures_callnoreturn'], {
             init: function() {
@@ -455,6 +465,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         }));
 
+
         Blocks['funcdefmain'] = $.inherit(SimpleBlock, {
             /**
             * Main function definition.
@@ -475,6 +486,7 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         // Pourer blocks
         Blocks['pour'] = $.inherit(CommandBlock, {
             init: function() {
@@ -482,16 +494,20 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         Blocks["pourOut"] = $.inherit(CommandBlock, {
             init: function() {
                 this.__base('pourOut');
             }
         });
+
+
         Blocks["fill"] = $.inherit(CommandBlock, {
             init: function() {
                 this.__base('fill');
             }
         });
+
 
         // ArrowInLabyrinth
         Blocks['isCompleted'] = $.inherit(CommandBlock, {
@@ -500,11 +516,13 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         Blocks['objectPosition'] = $.inherit(CommandBlock, {
             init: function() {
                 this.__base('objectPosition');
             }
         });
+
 
         Blocks['forward'] = $.inherit(CommandBlock, {
             init: function() {
@@ -512,17 +530,20 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
+
         Blocks['left'] = $.inherit(CommandBlock, {
             init: function() {
                 this.__base('left');
             }
         });
 
+
         Blocks['right'] = $.inherit(CommandBlock, {
             init: function() {
                 this.__base('right');
             }
         });
+
 
         Blocks['wait'] = $.inherit(CommandBlock, {
             init: function() {
