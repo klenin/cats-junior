@@ -281,16 +281,19 @@ requirejs([
 		});
 		$('#tabs').tabs();
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
-		Interface.fillTabs();  // Quick fix. Sometimes tabs don't exist at this point and Interface.changeContest() raises error.
 		if ($.cookie('contestId') != undefined && checkNumber($.cookie('contestId'))) {
 			$('#contest_' + $.cookie('contestId')).prop('checked', true);
-			Interface.changeContest();
-			if ($.cookie('userId') != undefined){
-				var userId = $.cookie('userId');
-				var passwd = $.cookie('passwd');
-				$('#' + userId).prop('checked', true);
-				$.cookie('passwd', passwd);
-				Interface.chooseUser();
+			success = Interface.changeContest();
+			if (success) {
+				if ($.cookie('userId') != undefined){
+					var userId = $.cookie('userId');
+					var passwd = $.cookie('passwd');
+					$('#' + userId).prop('checked', true);
+					$.cookie('passwd', passwd);
+					Interface.chooseUser();
+				}
+			} else {
+				Interface.fillTabs();
 			}
 		}
 		else {

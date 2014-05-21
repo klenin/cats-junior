@@ -206,8 +206,8 @@ define('Interface', ['jQuery',
 
 	function changeContest(){
 		var contest = $('#contestsList > input:checked');
-		// if (!contest[0])
-		// 	return
+		if (!contest[0])
+			return false
 
 		name = contest[0].defaultValue;
 		document.title = name;
@@ -215,7 +215,7 @@ define('Interface', ['jQuery',
 			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
 			fillTabs();
 		});
-
+		return true
 	}
 
 	function onAddWatchClick()
@@ -328,7 +328,8 @@ define('Interface', ['jQuery',
 		$('#tdcontainer' + j).hide();
 		$('#btn_clear' + j).hide();
 		$('#tdcode' + j).show();
-		codeareas[j].setValue(problem.convertCommandsToCode());
+		var code = problem.convertCommandsToCode()
+		codeareas[j].setValue(code);
 		codeareas[j].refresh();
 		problem.setDefault();
 		$('#addWatch' + j).show();
