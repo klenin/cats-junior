@@ -37,14 +37,19 @@
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
 	<table width = "100%">
 		<tr>
-			<td colspan = "4">
+			<th width="50%"></th>
+			<th></th>
+			<th width="250px"></th>
+		</tr>
+		<tr>
+			<td colspan = "3">
 				<div id = "title${tab}">
 					<b>{{html $item.data.title}}</b>
 				</div>
 			</td>
 		</tr>
 		<tr>
-			<td colspan = "4">
+			<td colspan = "3">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; min-height:16px">
 					<button id = "hideStatement${tab}" style = "float:right;"></button>
 					<div id = "statement${tab}" style="padding-left:5px;">
@@ -54,9 +59,9 @@
 			</td>
 		</tr>
 		<tr>
-			<td valign = "top" style = "height: 100%; width: 400px; ">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%; min-height: 530px;">
-					<table>
+					<table width="100%">
 						<tr>
 							<td colspan = "2">
 								<form>
@@ -100,7 +105,7 @@
 					</table>
 				</div>
 			</td>
-			<td valign = "top" style = "height: 100%">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%">
 					<table width = "100%">
 						<tr>
@@ -112,7 +117,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td width = "100%">
+							<td>
 								<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px; max-width: 270px">
 									<span>
 										{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
@@ -132,9 +137,9 @@
 					</table>
 				</div>
 			</td>
-			<td valign = "top" style = "width:250px; height: 100%">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%">
-					<table style='width: 250px; float: right'>
+					<table style='width: 100%; float: right'>
 						<tr>
 							<td>
 								<pre id = "cons${tab}" class = "cons">

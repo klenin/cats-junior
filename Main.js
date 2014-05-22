@@ -7,6 +7,7 @@ require.config({
 		'jQueryUITabsPaging': 'import/jquery/ui.tabs.paging',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
 		'jQueryInherit': 'import/jquery/jquery.inherit.min',
+		'jQueryColResizable': 'import/jquery/colResizable-1.3.min',
 		'JsTree': 'import/jquery/jquery.jstree.min',
 		'Env': 'import/skulpt/src/env.min',
 		'BlockUI': 'import/jquery/jquery.blockUI.min',
@@ -63,6 +64,7 @@ require.config({
 		'jQueryUITabsPaging': ['jQueryUI'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
+		'jQueryColResizable': ['jQuery'],
 		'JsTree': ['jQuery'],
 		'Env': ['GoogBase', 'GoogAsserts'],
 		'GoogDeps': ['GoogBase'],
@@ -115,6 +117,7 @@ requirejs([
 	'jQueryUI',
 	'jQueryUITabsPaging',
 	'jQueryCookie',
+	'jQueryColResizable',
 	'Config',
 	'Servers',
 	'Interface',
@@ -196,6 +199,9 @@ requirejs([
 				$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
 				$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );*/
 
+			$(ui.panel).children('table').colResizable({
+				minWidth: 250,
+			});
 		});
 		$('#about').dialog({
 			modal: true,
