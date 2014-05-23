@@ -59,7 +59,7 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
     function initMenu(problem) {
         var Blockly = problem.Blockly;
         var $blocks = $(Blockly.languageTree).find('block');
-        $(Blockly.Toolbox.HtmlDiv).remove();
+        $(Blockly.Toolbox.HtmlDiv).hide();
 
         // Vertical menu. Fix position and metrics.
         verticalMenu = new Blockly.Flyout();
@@ -135,10 +135,11 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             horizontalMenu.listeners_.push(Blockly.bindEvent_(rect, 'mousedown', null,
                 horizontalMenu.createBlockFunc_(type, image)));
         })
-        Blockly.mainWorkspace.getCanvas().insertBefore(group);
+        var $canvas = $(Blockly.mainWorkspace.getCanvas())
+        $(group).appendTo($canvas);
 
         // fix position of main workspace
-        $(Blockly.mainWorkspace.getCanvas()).attr('transform', 'translate(10, 48)')
+        $canvas.attr('transform', 'translate(10, 48)')
 
     }
 
