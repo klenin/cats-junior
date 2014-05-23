@@ -91,7 +91,7 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
                 var xyOld = Blockly.getSvgXY_(image);
                 var svgRootNew = block.getSvgRoot();
                 var xyNew = Blockly.getSvgXY_(svgRootNew);
-                block.moveBy(xyOld.x - xyNew.x, xyOld.y - xyNew.y);
+                block.moveBy(xyOld.x - xyNew.x - 30, xyOld.y - xyNew.y);
                 block.onMouseDown_(e);
             }
         }
