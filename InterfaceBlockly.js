@@ -104,7 +104,10 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             'class': 'blocklyHorizontalMenuItem'}, group);
         text.appendChild(document.createTextNode('Создать'));
         horizontalMenu.listeners_.push(Blockly.bindEvent_(rect, 'mousedown', null, function(e) {
-             Blockly.Toolbox.flyout_.show($blocks);
+            setTimeout(function() {
+                var tree = Blockly.Toolbox.tree_;
+                tree.setSelectedItem(tree.children_[0]);
+            }, 1)
         }));
 
         // render menu items
