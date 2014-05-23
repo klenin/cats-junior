@@ -540,7 +540,7 @@ define('CommandsMode', ['jQuery',
 				}
 			}
 			parameters.push(new ExecutionUnitCommands.CommandArgumentSelect(conditionNames));
-			parameters.push(new ExecutionUnitCommands.CommandArgumentSelect([['', ''], ['not', 'не']]));
+			parameters.push(new ExecutionUnitCommands.CommandArgumentSelect([['', 'да'], ['not', 'нет']]));
 			for (var i = 0; i < this.conditionProperties.args.length; ++i) {
 				parameters.push(this.conditionProperties.args[i].clone());
 			}
@@ -773,7 +773,7 @@ define('CommandsMode', ['jQuery',
 			}
 			var args = [
 				new ExecutionUnitCommands.CommandArgumentSelect(conditionPropertyNames)];
-			args.push(new ExecutionUnitCommands.CommandArgumentSelect([['', ''], ['not', 'не']]));
+			args.push(new ExecutionUnitCommands.CommandArgumentSelect([['', 'да'], ['not', 'нет']]));
 			var conditionProperty = conditionProperties[0];
 			for (var i = 0; i < conditionProperty.args.length; ++i) {
 				args.push(conditionProperty.args[i].clone());
