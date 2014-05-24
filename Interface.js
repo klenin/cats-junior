@@ -251,41 +251,14 @@ define('Interface', ['jQuery',
    function goToCommandsMode(problem) {
         var j = problem.tabIndex;
         var l = codeareas[j].getValue().length;
-        var xmlWSBackup;
+        var xmlWSBackup = problem.resetWorkspace();
         try {
             problem.prepareForExecuting();
             problem.prepareForConversionFromCode();
-            var cmBlock = finalcode[j] ?
-                ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
-                new CommandsMode.Block([], undefined, problem);
+            ModesConversion.pythonTreeToBlocks(problem, finalcode[j].compiled.ast.body);
 
             $('#jstree-container' + j).empty();
             $('#accordion' + j).myAccordion( 'clear' );
-
-            if (cmBlock) {
-                problem.setCurrentStage('CONVERSION_TO_COMMANDS');
-                $.blockUI({
-                    message: '',
-                    fadeIn: 0,
-                    overlayCSS: {
-                        backgroundColor: '#ffffff',
-                        opacity: 0,
-                        cursor: 'progress'
-                    }
-                });
-	            xmlWSBackup = problem.resetWorkspace();
-                cmBlock.generateVisualCommand();
-                $.unblockUI();
-                problem.setCurrentStage('IDLE');
-                problem.updated();
-            }
-            else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-                $("#commandsMode" + j).prop('checked', false);
-                $("#codeMode" + j).prop('checked', true);
-                problem.setCurrentStage('IDLE');
-                problem.updated();
-                return;
-            }
         } catch(e) {
             console.error(e);
             console.log(e.stack)
@@ -312,13 +285,16 @@ define('Interface', ['jQuery',
 		$('#btn_clear' + j).show();
 		$('#tdcontainer' + j).show();
 		$('#accordion' + j).show();
-		problems[j].updated();
+		problem.updated();
 		problem.Blockly.mainWorkspace.render();
+        problem.Blockly.organizeWorkspace();
 	}
 
 	function goToCodeMode(problem) {
+		var Blockly = problem.Blockly;
 		var j = problem.tabIndex;
 		//$('#accordion' + j).empty();
+		problem.setDefault();
 		$('#accordion' + j).hide()
 		$('#ulCommands' + j).hide();
 		$('#ulCommands_' + j).show();
@@ -329,10 +305,9 @@ define('Interface', ['jQuery',
 		$('#tdcontainer' + j).hide();
 		$('#btn_clear' + j).hide();
 		$('#tdcode' + j).show();
-		var code = problem.convertCommandsToCode()
+		var code = Blockly.Python.workspaceToCode(Blockly.mainWorkspace)
 		codeareas[j].setValue(code);
 		codeareas[j].refresh();
-		problem.setDefault();
 		$('#addWatch' + j).show();
 		$('#watchTable' + j).show();
 	}

@@ -4,85 +4,238 @@
 'use strict';
 
 
-define('Blocks', ['Problems', 'CommandsMode'], function() {
+define('Blocks', ['Problems', 'CommandsMode', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], function() {
     var CommandsMode = require('CommandsMode');
+    var Exceptions = require('Exceptions');
+    var IncorrectInput = Exceptions.IncorrectInput;
 
     function generate(problem, requiredBlocks) {
         /**
         *  Generate blocks for problem.
         */
-        var Blockly = problem.Blockly;
 
+        var Blockly = problem.Blockly;
 
         var SimpleBlock = $.inherit({
             __constructor: function(problem) {
                 this.problem = problem;
+
+                // Inherit also from original Blockly.Block if required.
+                if (this.originType) {
+                    this.originBlock = Blockly.Blocks[this.originType];
+                    $.extend(this, $.extend({}, this.originBlock, this));
+                }
             },
 
-            rebuildArgumentFields_: function(input, args, nSkip) {
+            __origin: function(method, args) {
                 /**
-                * Clean 'argX' fields for block and build them again.
-                * @param input - Blockly.Input, fields container.
-                * @param args - list of ExecutionUnitCommands.CommandArgument.
-                * @param nSkip - number of fields to skip (e.g. ConditionalBlock
-                *   has 2 constant Fields).
+                * Execute method of original Blockly.Block.
                 */
-                if (!nSkip) nSkip = 0;
+                if (!args)
+                    args = [];
 
-                // Remove fields.
-                for (var i = nSkip, field; field = this.getField_('arg' + i); ++i) {
-                    input.removeField('arg' + i);
+                if (this.originBlock && this.originBlock[method]) {
+                    return this.originBlock[method].apply(this, args);
                 }
+            },
 
-                for (var i = 0, arg; arg = args[i]; ++i) {
-                    if (arg.options) {
-                        // CommandArgumentSelect
-                        var opts = arg.options.map(function(opt) {
-                            return opt.slice().reverse().map(function(a) {
-                                return a.toString();
-                            });
-                        })
-                        var field = new Blockly.FieldDropdown(opts);
-                    } else {
-                        // CommandArgumentSpin
-                        var field = new Blockly.FieldTextInput('0', Blockly.FieldTextInput.numberValidator);
+            init: function() {
+                this.__origin('init');
+                this.setInputsInline(true);
+
+                // Execution.
+                this.argsDict = {};
+                this.execState = {};
+                // this.originalXY = this.getRelativeToSurfaceXY();
+            },
+
+            execStep: function() {
+                if (!this.execState.argBlocksHandled) {
+                    this.execState.argBlocksHandled = true;
+                    var argBlocks = this.getArgBlocks();
+                    if (argBlocks.length) {
+                        // need to execute arguments first
+                        problem.blocklyExecutor.blocks.push(this);
+                        problem.blocklyExecutor.pushReversedList(argBlocks, this.execCloneArgs)
+                        return
                     }
-                    var value = arg.getValue()
-                    if (value)
-                        field.setValue(value.toString());
-                    input.appendField(field, 'arg' + (nSkip + i));
                 }
+                return this.execStepPrepared();
             },
 
-            getArgNames: function() {
-                var l = [];
-                for (var i = 0, field; field = this.getField_('arg' + i); i++) {
-                    l.push('arg' + i);
-                }
-                return l;
+            execStepPrepared: function() {
             },
 
-            getArgValues: function() {
-                var l = [];
-                for (var i = 0, field; field = this.getField_('arg' + i); i++) {
-                    l.push(field.getValue());
-                }
-                return l;
-            },
-
-            getArgField: function(index) {
+            cloneBeforeExec: function(inheritState, cloneArgsDict) {
                 /**
-                * Return block's field which corresponds to argument's index number.
+                * Replace this block with clone before execution.
                 */
-                for (var i = 0, n = 0, input; input = this.inputList[i]; ++i)
-                    for (var j = 0, field; field = input.fieldRow[j]; ++j)
-                        if (field.EDITABLE)
-                            if (index == n++)
-                                return field;
-                console.warn("Argument with such index doesn't exist.")
+                if (!this.originalXY)
+                    this.originalXY = this.getRelativeToSurfaceXY();
+
+                var newBlock = this.duplicate_()
+                newBlock.savedBlock_ = this;
+                newBlock.moveTo(this.originalXY.x, this.originalXY.y);  // NOTE: hide by moving away. Correct solution would be to dispose svg of the block and restore when needed.
+                this.replace(newBlock);
+
+                newBlock.updateFrom_(this, cloneArgsDict);
+                newBlock.originalXY = this.originalXY;
+                var descendants = newBlock.getDescendants();
+                for (var i = 0, block; block = descendants[i]; ++i) {
+                    block.argsDict = this.argsDict;
+                }
+
+                return newBlock;
             },
 
-            getDirectChildren_: function(input) {
+            restoreAfterExec: function() {
+                if (!this.savedBlock_)
+                    // Block was cloned indirectly. It will be restored when
+                    // parent is restored.
+                    return
+
+                // Restore position.
+                var xy = this.getRelativeToSurfaceXY();
+                var savedBlock = this.savedBlock_;
+                savedBlock.moveTo(xy.x, xy.y);
+                this.replace(this.savedBlock_);
+                this.moveTo(200, 200);  // DEBUG:
+
+                // Restore highlighting.
+                var wasHighlighted = this.getSvgRoot().getAttribute('class').indexOf('blocklyCurrentCommand') > -1;
+                if (wasHighlighted)
+                    Blockly.highlight(savedBlock);
+
+                if (!this.saveAfterRestore__) {  // DEBUG: NOTE: saveAfterRestore__ is not used. Block must be disposed always. Check can be removed.
+                    this.dispose();
+                }
+                return savedBlock;
+            },
+
+            mutationToDom: function() {
+                var container = this.__origin('mutationToDom');
+
+                if (this.execUniqueID) {
+                    if (!container) {
+                        container = document.createElement('mutation');
+                    }
+                    container.setAttribute('execuniqueid', this.execUniqueID);
+                }
+                return container;
+            },
+
+            domToMutation: function(xmlElement) {
+                var execUniqueID = xmlElement.getAttribute('execuniqueid');
+                if (execUniqueID) {
+                    this.execUniqueID = execUniqueID;
+                }
+                xmlElement.removeAttribute('execuniqueid');
+
+                this.__origin('domToMutation', [xmlElement]);
+            },
+
+            getId: function() {
+                return this.execUniqueID;
+            },
+
+            addDelayedRemove_: function(block, reducedBlock) {
+                problem.blocklyExecutor.delayedRemoveBlocks.push(block);
+                if (block.savedBlock_)
+                    reducedBlock.savedBlock_ = block.savedBlock_;
+            },
+
+            addDelayedRestore_: function(block) {
+                problem.blocklyExecutor.delayedRestoreBlocks.push(block);
+            },
+
+            getArgBlocks: function() {
+                var blocks = [];
+
+                for (var i = 0, input; input = this.inputList[i++];) {
+                    if (input.type != Blockly.INPUT_VALUE)
+                        continue
+                    var block = input.connection.targetBlock();
+                    if (block)
+                        blocks.push(block);
+                }
+                return blocks;
+            },
+
+            decreaseCounterNow: function(forced) {
+                if (this.execState.decreased && !forced)
+                    return false
+                problem.blocklyExecutor.blocks.push(this)
+                this.execState.decreased = true
+                return true
+            },
+
+            saveBlock: function(forceUpdate) {
+                // do not update data if already saved and no force flag given
+                if (this.xmlBlock_)
+                    if (!forceUpdate)
+                        return
+
+                this.xmlBlock_ = Blockly.Xml.blockToDom_(this);
+
+            },
+
+            restoreBlock: function() {
+                if (!this.xmlBlock_) {
+                    return
+                }
+                thix.xmlBlock_ = Blockly.Xml.domToBlock_(this);
+            },
+
+            updateFrom_: function(block, cloneArgsDict) {
+                if (cloneArgsDict) {
+                    this.argsDict = $.extend({}, block.argsDict);
+                } else {
+                    if (!block.argsDict)
+                        block.argsDict = {};
+                    this.argsDict = block.argsDict;
+                }
+
+                // Always clone execState;
+                this.execState = $.extend({}, block.execState);
+            },
+
+            replace: function(block) {
+                /**
+                * Disconnect self, connect block.
+                * @arg block - Blockly.Block or xml representation.
+                */
+                if (!block.getFieldValue) {
+                    block = Blockly.Xml.domToBlock(Blockly.mainWorkspace, block);
+                    block.updateFrom_(this);
+                    this.replacingBlock_ = block;
+                }
+
+                if (this.nextConnection && this.nextConnection.targetConnection) {
+                    var c = this.nextConnection.targetConnection;
+                    this.nextConnection.targetBlock().setParent(null);
+                    c.connect(block.nextConnection);
+                }
+                if (this.previousConnection && this.previousConnection.targetConnection) {
+                    var c = this.previousConnection.targetConnection;
+                    this.setParent(null);
+                    c.connect(block.previousConnection);
+                }
+                if (this.outputConnection && this.outputConnection.targetConnection) {
+                    var c = this.outputConnection.targetConnection;
+                    this.setParent(null);
+                    c.connect(block.outputConnection);
+                }
+
+                // hide block (redo)
+                this.moveTo(10000, 10000);
+                // debug
+                // this.dy = ( this.dy ? this.dy + 5 : 0);
+                // this.moveTo(450, this.dy);
+
+                return block;
+            },
+
+            getBlocksList: function(input) {
                 // input - Blockly.Input or string
                 if (!input.sourceBlock_)
                     input = this.getInput(input)
@@ -98,40 +251,6 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 }
                 return children
             },
-
-            inputToCMBlock_: function(input, parent) {
-                // input - Blockly.Input or string
-                if (!input.sourceBlock_)
-                    input = this.getInput(input)
-
-                var cmBlock = new CommandsMode.Block([], parent, problem);
-
-                var children = this.getDirectChildren_(input);
-                for (var i = 0, child; child = children[i]; ++i) {
-                    var cmd = child.toCommand(cmBlock);
-                    cmBlock.pushCommand(cmd);
-                }
-                return cmBlock;
-            },
-
-            // For debugging purposes. Pretty print xml representation of workspace.
-            onchange__: function () {
-                if (!Blockly.mainWorkspace) {
-                    return;
-                }
-
-                // create node if doesn't exist
-                var $table = $('#cons' + problem.tabIndex).parent().closest('table');
-                var $output = $table.find('.pprint')
-                if (!$output.length) {
-                    $output = $('<tr><td><pre class="pprint cons"></pre></td></tr>').appendTo($table).find('.pprint');
-                }
-
-                // workspaceToDom pprint
-                var dom = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace);
-                var text = Blockly.Xml.domToPrettyText(dom);
-                $output.text(text);
-            }
         });
 
 
@@ -152,13 +271,10 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 // Define fields:
                 // - types selector
                 var fType = new Blockly.FieldDropdown(condTypes, this.typeChangeHandler);
-                this.inputCondition_.appendField(fType, 'arg0');
-                // - logical negation
-                var fNegation = new Blockly.FieldDropdown([['да', ''], ['нет', 'not']]);
-                this.inputCondition_.appendField(fNegation, 'arg1');
+                this.inputCondition_.appendField(fType, 'ARG0');
                 // - fields for each type
-                this.rebuildArgumentFields_(this.inputCondition_, conditionProperties[0].args, 2);
-                this.currentCondType_ = this.getFieldValue('arg0');
+                this.rebuildArgumentFields_(this.inputCondition_, conditionProperties[0].name, 1);
+                this.currentCondType_ = this.getFieldValue('ARG0');
             },
 
             getConditionProperties: function() {
@@ -177,10 +293,45 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
                 var block = this.sourceBlock_;
                 if (condType != block.currentCondType_) {
                     block.currentCondType_ = condType;
-                    var args = block.getConditionProperties()[condType].args;
-                    block.rebuildArgumentFields_(block.inputCondition_, args, 2);
+                    block.rebuildArgumentFields_(block.inputCondition_, condType, 1);
                 }
                 return condType;
+            },
+
+            rebuildArgumentFields_: function(input, condType, nSkip) {
+                /**
+                * Clean 'argX' fields for block and build them again.
+                * @param input - Blockly.Input, fields container.
+                * @param args - list of ExecutionUnitCommands.CommandArgument.
+                * @param nSkip - number of fields to skip (e.g. ConditionalBlock
+                *   has 2 constant Fields).
+                */
+                if (!nSkip) nSkip = 0;
+                var args = this.getConditionProperties()[condType].args;
+
+                // Remove fields.
+                for (var i = nSkip, field; field = this.getField_('ARG' + i); ++i) {
+                    input.removeField('ARG' + i);
+                }
+
+                for (var i = 0, arg; arg = args[i]; ++i) {
+                    if (arg.options) {
+                        // CommandArgumentSelect
+                        var opts = arg.options.map(function(opt) {
+                            return opt.slice().reverse().map(function(a) {
+                                return a.toString();
+                            });
+                        })
+                        var field = new Blockly.FieldDropdown(opts);
+                    } else {
+                        // CommandArgumentSpin
+                        var field = new Blockly.FieldTextInput('0', Blockly.FieldTextInput.numberValidator);
+                    }
+                    var value = arg.getValue()
+                    if (value)
+                        field.setValue(value.toString());
+                    input.appendField(field, 'ARG' + (nSkip + i));
+                }
             },
         });
 
@@ -191,13 +342,29 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
 
         var CommandBlock = $.inherit(FuncCallBlock, {
             init: function(name) {
+                this.__base();
+                this.name = name;
                 this.setColour(0);
-                this.appendArgs(name);
+                this.appendArgs_(name);
                 this.setPreviousStatement(true);
                 this.setNextStatement(true);
+                Blockly.Python[name] = Blockly.Python['command_'];
             },
 
-            appendArgs: function(name) {
+            execStepPrepared: function() {
+                // petalty for command;
+                this.problem.recalculatePenalty(this);
+
+                for (var x = 0, values = [], input; input = this.getInput('ARG' + x); x++) {
+                    values.push(input.connection.targetBlock().getValue());
+                }
+                this.problem.oneStep(this.name, 1, values);
+
+                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                return true
+            },
+
+            appendArgs_: function(name) {
                 this.name_ = name;
                 this.text_ = this.problem.executionUnit.executionUnit.__self.cmdClassToName[name]
 
@@ -206,284 +373,385 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
 
                 var args = this.problem.executionUnit.getCommands()[name].getArguments()
                 if (!args) console.log('Wrong command name is provided to block.');
-                this.rebuildArgumentFields_(this.input_, args);
-            },
-
-            toCommand: function(parent) {
-                var type = this.type;
-                var command = problem.executionUnit.getCommands()[type];
-                var args = this.getArgValues();
-                var argsDefinition = command.getArguments();
-                if (command.hasCounter) {
-                    var cmd = new CommandsMode.CommandWithCounter(type, argsDefinition, args, parent, this, problem);
+                for (var i = 0, arg; arg = args[i]; ++i) {
+                    this.appendValueInput('ARG' + i)
                 }
-                else {
-                    var cmd = new CommandsMode.Command(type, argsDefinition, args, parent, this, problem);
-                }
-                return cmd;
             }
         });
 
         var Blocks = {}
 
-
-        // Standard blocks
-        Blocks['if'] = $.inherit(ConditionalBlock, {
-            /**
-            * Condition "if".
-            */
+        Blocks['conditions'] = $.inherit(ConditionalBlock, {
             init: function() {
+                this.__base();
                 this.setColour(210);
-                this.appendDummyInput('IF')
-                    .appendField('Если');
+                this.setOutput(true, "Boolean");
                 this.appendArgs();
-                this.appendStatementInput('DO')
-                    .appendField('то');
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
             },
 
-            toCommand: function(parent) {
-                var args = this.getArgValues();
-                var cmd = new CommandsMode.IfStmt(args[0], args, undefined, undefined, parent, this, problem);
-                var cmBlock = this.inputToCMBlock_('DO', cmd);
-                cmd.setBlocks(cmBlock, undefined);
-                return cmd;
-            }
+            execStepPrepared: function() {
+                // args
+                var args = [''];
+                for (var x = 1, arg; arg = this.getFieldValue('ARG' + x); x++) {
+                    args[x] = arg;
+                }
+                var ret = this.getConditionProperties()[this.currentCondType_].jsFunc(args);
+                var retBlock = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
+                retBlock.initSvg();
+                retBlock.render();
+
+                var value = (ret ? 'TRUE' : 'FALSE');
+                retBlock.setFieldValue(value, 'BOOL')
+                this.replace(retBlock);
+
+                this.addDelayedRemove_(this, retBlock);
+                return false
+            },
         });
 
+        Blocks['if'] = $.inherit(SimpleBlock, {
+            originType: 'controls_if',
 
-        Blocks['ifelse'] = $.inherit(ConditionalBlock, {
-            /**
-            * Condition "if/else".
-            */
             init: function() {
-                this.setColour(210);
-                this.appendDummyInput('IF')
-                    .appendField('Если');
-                this.appendArgs();
-                this.appendStatementInput('DO')
-                    .appendField('то');
-                this.appendStatementInput('ELSE')
-                    .appendField('иначе');
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
+                this.__base();
+                this.setInputsInline(false);
             },
 
-            toCommand: function(parent) {
-                var args = this.getArgValues();
-                var cmd = new CommandsMode.IfStmt(args[0], args, undefined, undefined, parent, this, problem);
-                var cmBlock1 = this.inputToCMBlock_('DO', cmd);
-                var cmBlock2 = this.inputToCMBlock_('ELSE', cmd);
-                cmd.setBlocks(cmBlock1, cmBlock2);
-                return cmd;
-            }
-        });
+            execStepPrepared: function() {
+                if (this.decreaseCounterNow())
+                    // pause before executing body
+                    return true
 
-
-        Blocks['while'] = $.inherit(ConditionalBlock, {
-            /**
-            * Loop "while".
-            */
-            init: function() {
-                this.setColour(210);
-                this.appendDummyInput('WHILE')
-                    .appendField('Пока');
-                this.appendArgs();
-                this.appendStatementInput('DO')
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
-            },
-
-            toCommand: function(parent) {
-                var args = this.getArgValues();
-                var cmd = new CommandsMode.WhileStmt(args[0], args, null, parent, this, problem);
-                var cmBlock = this.inputToCMBlock_('DO', cmd);
-                cmd.setBlocks(cmBlock, undefined);
-                return cmd;
-            }
-        });
-
-
-        Blocks['for'] = $.inherit(SimpleBlock, {
-            /**
-            * N times repeat.
-            */
-            init: function() {
-                this.setColour(120);
-                this.input_ = this.appendDummyInput()
-                    .appendField('Повторить')
-                    .appendField(new Blockly.FieldTextInput('10',
-                        Blockly.FieldTextInput.nonnegativeIntegerValidator), 'arg0')
-                    .appendField('раз', 'TIMES');
-                this.appendStatementInput('DO')
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
-            },
-
-            rebuildArgumentFields_: function(input, args, nSkip) {
-                this.__base(input, args, nSkip);
-                this.input_.removeField('TIMES');
-                this.input_.appendField('раз', 'TIMES');
-            },
-
-            toCommand: function(parent) {
-                var args = this.getArgValues();
-                var cmd = new CommandsMode.ForStmt(null, args, parent, this, problem);
-                var cmBlock = this.inputToCMBlock_('DO', cmd);
-                cmd.setBody(cmBlock);
-                return cmd
-            }
-        });
-
-
-        Blocks['funcdef'] = $.inherit(SimpleBlock, $.extend({}, Blockly.Blocks['procedures_defnoreturn'], {
-            /**
-            * Function definition.
-            */
-            init: function() {
-                this.setColour(290);
-                var name = Blockly.Procedures.findLegalName('do1', this);
-                this.appendDummyInput()
-                    .appendField('Подпрограмма')
-                    .appendField(new Blockly.FieldTextInput(name, Blockly.Procedures.rename), 'NAME')
-                    .appendField('', 'PARAMS');
-                this.appendStatementInput('DO')
-                    .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
-                this.setMutator(new Blockly.Mutator(['procedures_mutatorarg']));
-                this.setTooltip(Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP);
-                this.arguments_ = [];
-            },
-
-            callType_: 'funccall',
-
-            toCommand: function(parent) {
-                var name = this.getFieldValue('NAME');
-                var args = [];
-                // this.arguments_ doesnt have patched prototype from Misc.js somewhy.
-                for (var i = 0, a; a = this.arguments_[i]; ++i)
-                    args.push(a);
-                var cmFunc = new CommandsMode.FuncDef(name, args, [], parent, this, problem);
-                var cmBlock = this.inputToCMBlock_('DO', cmFunc);
-                cmFunc.body = cmBlock;
-                cmFunc.setCommands(cmBlock.commands);
-
-                if (!problem.functions[name])
-                    problem.functions[name] = [];
-                problem.functions[name][args.length] = cmFunc;
-                return cmFunc;
-            }
-        }));
-
-
-        Blocks['funccall'] = $.inherit(FuncCallBlock, $.extend({}, Blockly.Blocks['procedures_callnoreturn'], {
-            init: function() {
-                this.setColour(290);
-                this.appendDummyInput()
-                    .appendField(Blockly.Msg.PROCEDURES_CALLNORETURN_CALL)
-                    .appendField('', 'NAME');
-                this.setPreviousStatement(true);
-                this.setNextStatement(true);
-                this.setInputsInline(true);
-                // Tooltip is set in domToMutation.
-                this.arguments_ = [];
-                this.savedValues = {};
-            },
-
-            getArgsDict_: function() {
-                var argsDict = {};
-                var input = this.getInput('ARG')
-                if (!input)
-                    return argsDict;
-
-                for (var i = 0, field; field = input.fieldRow[i]; i += 2) {
-                    var argName = field.getValue();
-                    var inputValue = input.fieldRow[i + 1];
-                    if (inputValue) {
-                        argsDict[argName] = inputValue.getValue();
+                // find block to execute
+                var bodyInput;
+                for (var i = 0, inputIf; inputIf = this.getInput('IF' + i); i++) {
+                    var checkBlock = inputIf.connection.targetBlock();
+                    if (!checkBlock)
+                        throw new IncorrectInput('Отсутствует условие.')
+                    if (checkBlock.getFieldValue('BOOL') == 'TRUE') {
+                        bodyInput = this.getInput('DO' + i);
+                        break
                     }
                 }
-                return argsDict
-            },
-
-            setProcedureParameters: function(paramNames, paramIds) {
-                if (paramIds && paramIds.length != paramNames.length)
-                {
-                    throw 'Error: paramNames and paramIds must be the same length.';
+                if (!bodyInput) {
+                    bodyInput = this.getInput('ELSE');
+                }
+                if (!bodyInput) {
+                    problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                    return
                 }
 
-                // Switch off rendering while the block is rebuilt.
-                var savedRendered = this.rendered;
-                this.rendered = false;
-
-                // Rebuild the block's arguments.
-                var input = this.getInput('ARG');
-                this.savedValues = $.extend(this.savedValues, this.getArgsDict_());
-
-                if (input)
-                    this.removeInput('ARG');
-
-                this.arguments_ = [].concat(paramNames);
-                var input = this.appendDummyInput('ARG')
-                    .setAlign(Blockly.ALIGN_RIGHT)
-                for (var i = 0; i < this.arguments_.length; i++) {
-                    var argName = this.arguments_[i];
-                    input.appendField(argName);
-
-                    var argValue = this.savedValues[argName]
-                    if (!argValue)
-                        argValue = '0';
-                    input.appendField(new Blockly.FieldTextInput(argValue, Blockly.FieldTextInput.numberValidator), this.arguments_[i])
+                if (!this.execState.bodyExecuted) {
+                    this.execState.bodyExecuted = true;
+                    var blocks = this.getBlocksList(bodyInput);
+                    if (blocks.length) {
+                        // Execute body first
+                        problem.blocklyExecutor.blocks.push(this);
+                        problem.blocklyExecutor.pushReversedList(blocks, true);
+                        return
+                    }
                 }
-                // Restore rendering and show the changes.
-                this.rendered = savedRendered;
-                if (this.rendered) {
-                    this.render();
-                }
-            },
-
-            getArgValues: function() {
-                var l = [];
-                var input = this.getInput('ARG')
-                if (!input)
-                    return l;
-
-                for (var i = 1, field; field = input.fieldRow[i]; i += 2) {
-                    var value = field.getValue();
-                    l.push(value);
-                }
-                return l;
-            },
-
-            toCommand: function(parent) {
-                var args = this.getArgValues();
-                var name = this.getFieldValue('NAME')
-                var cmd = new CommandsMode.FuncCall(name, args, parent, this, problem);
-                return cmd
-            }
-        }));
-
-
-        Blocks['funcdefmain'] = $.inherit(SimpleBlock, {
-            /**
-            * Main function definition.
-            */
-            init: function() {
-                this.appendDummyInput().appendField('Программа');
-                this.setColour(0);
-                this.appendStatementInput('DO')
-                    .appendField(Blockly.Msg.PROCEDURES_DEFNORETURN_DO);
-                this.arguments_ = [];
-                this.setDeletable(false);
-                this.setMovable(false);
-            },
-
-            toCommand: function(parent) {
-                var cmBlock = this.inputToCMBlock_('DO', parent)
-                return cmBlock
+                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                return
             }
         });
 
+        Blocks['ifelse'] = $.inherit(Blocks['if'], {
+            init: function() {
+                this.__base();
+                this.setInputsInline(false);
+
+                var container = document.createElement('mutation');
+                container.setAttribute('else', '1');
+                this.domToMutation(container);
+            }
+        });
+
+        Blocks['while'] = $.inherit(SimpleBlock, {
+            originType: 'controls_whileUntil',
+
+            init: function() {
+                this.__base();
+                this.setInputsInline(false);
+            },
+
+            execCloneArgs: true,  // We need to restore test condition to execute it later.
+            execStepPrepared: function() {
+                if (this.execState.loopStage == 'COND' || !this.execState.loopStage) {
+                    this.execState.loopStage = 'BODY';
+
+                    // check condition
+                    var checkBlock = this.getInput('BOOL').connection.targetBlock();
+                    var stop = checkBlock.getFieldValue('BOOL') == 'FALSE';
+                    var mode = this.getFieldValue('MODE')
+                    if (mode == 'UNTIL') {
+                        stop = !stop;
+                    }
+                    if (stop) {
+                        problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                    } else {
+                        problem.blocklyExecutor.blocks.push(this);
+                    }
+                    return true
+                } else {
+                    this.execState.loopStage = 'COND';
+
+                    // one more cycle
+                    var checkBlock = this.getInput('BOOL').connection.targetBlock();
+                    problem.blocklyExecutor.delayedRestoreBlocks.push(checkBlock);
+
+                    this.execState.argBlocksHandled = false;
+                    var blocks = this.getBlocksList('DO');
+                    if (blocks.length) {
+                        // Execute body first
+                        problem.blocklyExecutor.blocks.push(this);
+                        problem.blocklyExecutor.pushReversedList(blocks, true);
+                    }
+                }
+
+            }
+        });
+
+        Blocks['for'] = $.inherit(SimpleBlock, {
+            originType: 'controls_repeat_ext',
+
+            init: function() {
+                this.__base();
+                this.setInputsInline(false);
+            },
+            // execCloneArgs: true,  // We need to restore test condition to execute it later.
+            execStepPrepared: function() {
+                if (this.execState.loopStage == 'COND' || !this.execState.loopStage) {
+                    this.execState.loopStage = 'BODY';
+
+                    // check condition
+                    var checkBlock = this.getInput('TIMES').connection.targetBlock();
+                    if (this.stopValue == undefined) {
+                        this.stopValue = parseInt(checkBlock.getFieldValue('NUM'));
+                    }
+                    var stop = this.stopValue <= 0;
+                    if (stop) {
+                        problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                    } else {
+                        problem.blocklyExecutor.blocks.push(this);
+                        checkBlock.setFieldValue((this.stopValue--).toString(), 'NUM');
+                    }
+                    return true
+                } else {
+                    this.execState.loopStage = 'COND';
+
+                    // one more cycle
+                    var checkBlock = this.getInput('TIMES').connection.targetBlock();
+                    // problem.blocklyExecutor.delayedRestoreBlocks.push(checkBlock);
+
+                    this.execState.argBlocksHandled = false;
+                    var blocks = this.getBlocksList('DO');
+                    if (blocks.length) {
+                        // Execute body first
+                        problem.blocklyExecutor.blocks.push(this);
+                        problem.blocklyExecutor.pushReversedList(blocks, true);
+                        return
+                    }
+                }
+            }
+        });
+
+        Blocks['math_number'] = $.inherit(SimpleBlock, {
+            originType: 'math_number',
+
+            init: function() {
+                this.__base();
+            },
+
+            getValue: function() {
+                return Number(this.getFieldValue('NUM'));
+            }
+        });
+
+        Blocks['math_arithmetic'] = $.inherit(SimpleBlock, {
+            originType: 'math_arithmetic',
+
+            init: function() {
+                this.__base();
+            },
+
+            execStepPrepared: function() {
+                var blockA = this.getInput('A').connection.targetBlock();
+                var blockB = this.getInput('B').connection.targetBlock();
+                var valueA = parseFloat(blockA.getFieldValue('NUM'));
+                var valueB = parseFloat(blockB.getFieldValue('NUM'));
+                var valueOp = this.getFieldValue('OP');
+
+                if (valueOp == 'ADD') {
+                    var newValue = valueA + valueB;
+                } else if (valueOp == 'MINUS') {
+                    var newValue = valueA - valueB;
+                } else if (valueOp == 'MULTIPLY') {
+                    var newValue = valueA * valueB;
+                } else if (valueOp == 'DIVIDE') {
+                    if (valueB == 0)
+                        throw new IncorrectInput('Деление на ноль.')
+                    var newValue = valueA / valueB;
+                } else if (valueOp == 'POWER') {
+                    var newValue = valueA * valueB;
+                } else {
+                    throw new IncorrectInput('Некорректный операнд сравнения');
+                }
+
+                var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'math_number');
+                block.initSvg();
+                block.render();
+                block.setFieldValue(newValue.toString(), 'NUM');
+                this.replace(block);
+
+                this.addDelayedRemove_(this, block);
+                return false;
+            }
+        });
+
+        Blocks['logic_negate'] = $.inherit(SimpleBlock, {
+            originType: 'logic_negate',
+
+            init: function() {
+                this.__base();
+                this.setInputsInline(false);
+            },
+
+            execStepPrepared: function() {
+                var blockArg = this.getInput('BOOL').connection.targetBlock();
+                var newValue = (blockArg.getFieldValue('BOOL') == 'TRUE' ? 'FALSE' : 'TRUE');
+
+                var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
+                block.initSvg();
+                block.render();
+                block.setFieldValue(newValue, 'BOOL')
+                this.replace(block);
+
+                this.addDelayedRemove_(this, block);
+                return false;
+            }
+        });
+
+        Blocks['logic_boolean'] = $.inherit(SimpleBlock, {
+            originType: 'logic_boolean',
+
+            init: function() {
+                this.__base();
+            }
+        });
+
+
+        Blocks['logic_operation'] = $.inherit(SimpleBlock, {
+            originType: 'logic_operation',
+
+            init: function() {
+                this.__base();
+            },
+
+            execStepPrepared: function() {
+                var blockA = this.getInput('A').connection.targetBlock();
+                var blockB = this.getInput('B').connection.targetBlock();
+                var valueA = blockA.getFieldValue('BOOL') == 'TRUE';
+                var valueB = blockB.getFieldValue('BOOL') == 'TRUE';
+                var valueOp = this.getFieldValue('OP');
+
+                if (valueOp == "AND") {
+                    var newValue = valueA && valueB;
+                } else {
+                    var newValue = valueA || valueB;
+                }
+                newValue = newValue ? 'TRUE' : 'FALSE';
+
+                var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
+                block.initSvg();
+                block.render();
+                block.setFieldValue(newValue, 'BOOL')
+                this.replace(block);
+
+                this.addDelayedRemove_(this, block);
+                return false
+            }
+        });
+
+        Blocks['funcdef'] = $.inherit(SimpleBlock, {
+            originType: 'procedures_defnoreturn',
+            callType_: 'funccall',
+            init: function() {
+                this.__base();
+                this.setInputsInline(false);
+            },
+
+            execStepPrepared: function() {
+                if (!this.execState.bodyExecuted) {
+                    this.execState.bodyExecuted = true;
+                    var blocks = this.getBlocksList('STACK');
+                    if (blocks.length) {
+                        // Execute body first
+                        problem.blocklyExecutor.blocks.push(this);
+                        problem.blocklyExecutor.pushReversedList(blocks, true);
+                        return
+                    }
+                }
+
+                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+            }
+        });
+
+        Blocks['variables_get'] = $.inherit(SimpleBlock, {
+            originType: 'variables_get',
+
+            init: function() {
+                this.__base();
+            },
+
+            execStepPrepared: function() {
+                var name = this.getValue();
+                if (name in this.argsDict) {
+                    var block = this.replace(this.argsDict[name])
+                    this.addDelayedRemove_(this, block);
+                }
+            },
+
+            getValue: function() {
+                return this.getFieldValue('VAR');
+            }
+        });
+
+        Blocks['funccall'] = $.inherit(FuncCallBlock, {
+            originType: 'procedures_callnoreturn',
+
+            init: function() {
+                this.__base();
+            },
+
+            execStepPrepared: function() {
+                var stop = this.decreaseCounterNow();
+                if (stop)
+                    return true
+
+                var funcdef = Blockly.Procedures.getDefinition(this.getProcedureCall(), this.workspace);
+                // funcdef.argsDict = $.extend({}, this.argsDict, this.getArgsDict());
+                funcdef.argsDict = $.extend({}, this.getArgsDict());
+                var block = funcdef.cloneBeforeExec();
+                problem.blocklyExecutor.blocks.push(block);
+
+                //fix name
+                var name = this.getFieldValue('NAME');
+                var field = block.getField_('NAME');
+                $(field.getRootElement()).find('text').text(name)
+
+                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+            },
+
+            getArgsDict: function() {
+                var argsDict = {}
+                for (var i = 0, argName; argName = this.arguments_[i]; ++i) {
+                    var block = this.getInput('ARG' + i).connection.targetBlock();
+                    argsDict[argName] = Blockly.Xml.blockToDom_(block);
+                }
+                return argsDict;
+            }
+        });
 
         // Pourer blocks
         Blocks['pour'] = $.inherit(CommandBlock, {
@@ -549,13 +817,13 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
             }
         });
 
-
         // Generate
         var genBlocks = {};
         for (var name in Blocks) {
-            if (requiredBlocks.indexOf(name) != -1) {
-                genBlocks[name] = new Blocks[name](problem)
-            }
+            genBlocks[name] = new Blocks[name](problem)
+            // if (requiredBlocks.indexOf(name) != -1) {
+            //     genBlocks[name] = new Blocks[name](problem)
+            // }
         }
 
         return genBlocks;
@@ -566,17 +834,3 @@ define('Blocks', ['Problems', 'CommandsMode'], function() {
         generate: generate,
     };
 });
-
-/*
-Blockly.Blocks[''] = {
-    "block": {
-    "if": {
-    "ifelse": {
-    "else": {
-    "while": {
-    "for": {
-    "funccall": {
-    "func-header": {
-    "func-body": {
-}
-*/

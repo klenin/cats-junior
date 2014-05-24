@@ -255,7 +255,7 @@ function checkName(name) {
 }
 
 function checkNumber(number) {
-	var re = /^[0-9]+[0-9]*$/i;
+	var re = /^[0-9.]+[0-9.]*$/i;
 	return re.test(number);
 }
 

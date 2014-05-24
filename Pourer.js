@@ -107,10 +107,10 @@ define('Pourer',
 					result = curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
 					break;
 				case '<=':
-					result = curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+					result = curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) || curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 					break;
 				case '>=':
-					result = curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || curProblem.getExecutionUnit().isEqual(vessel, value);
+					result = curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) || curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 					break;
 				case '==':
 					result = curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
@@ -141,10 +141,10 @@ define('Pourer',
 					return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value);
 				case '<=':
 					return curProblem.executionUnit.getExecutionUnit().isLess(vessel, value) ||
-						curProblem.getExecutionUnit().isEqual(vessel, value);
+						curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 				case '>=':
 					return curProblem.executionUnit.getExecutionUnit().isGreater(vessel, value) ||
-						curProblem.getExecutionUnit().isEqual(vessel, value);
+						curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 				case '==':
 					return curProblem.executionUnit.getExecutionUnit().isEqual(vessel, value);
 				case '!=':
@@ -173,11 +173,11 @@ define('Pourer',
 					break;
 				case '<=':
 					result = curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) ||
-						curProblem.getExecutionUnit().isEqualVessel(first, second);
+						curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 					break;
 				case '>=':
 					result = curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) ||
-						curProblem.getExecutionUnit().isEqualVessel(first, second);
+						curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 					break;
 				case '==':
 					result = curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
@@ -208,10 +208,10 @@ define('Pourer',
 					return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second);
 				case '<=':
 					return curProblem.executionUnit.getExecutionUnit().isLessVessel(first, second) ||
-						curProblem.getExecutionUnit().isEqualVessel(first, second);
+						curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 				case '>=':
 					return curProblem.executionUnit.getExecutionUnit().isGreaterVessel(first, second) ||
-						curProblem.getExecutionUnit().isEqualVessel(first, second);
+						curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 				case '==':
 					return curProblem.executionUnit.getExecutionUnit().isEqualVessel(first, second);
 				case '!=':
@@ -223,7 +223,7 @@ define('Pourer',
 
 		var MessageWon = $.inherit(Message, {
 			__constructor: function(step, points) {
-				this.__base(['Шаг ', step + 1, ': Вы выполнили задание! Количество очков: ', points, '\n' ]);
+				this.__base(['Шаг ', step + 1, ': Вы выполнили задание!\nКоличество очков: ', points, '\n' ]);
 			}
 		});
 

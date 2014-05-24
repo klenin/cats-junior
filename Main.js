@@ -329,5 +329,26 @@ requirejs([
 
 		//QUnit.start(); //Tests loaded, run tests
 		//Tests.RunTests();
+
+        // TEST
+        // function testz() {
+        //     $('#tabs').tabs({selected:2});
+        //     if (!problems[1] || !problems[1].Blockly) {
+        //     	console.log('boo')
+        //     	setTimeout(testz, 200);
+        //     	return
+        //     }
+        // 	var problem = problems[1];
+        // 	var Blockly = problem.Blockly;
+        //     // var code = "def f1(x):\n  fill(x)\n  pour(x, 2)\n  pourOut(2)\n  pour(1, 2)\nf1(1)";
+        //     var code = "def Func1():\n  fill(1)\n  pour(1, 2)\n  pourOut(2)\n  pour(1, 2)\nwhile compare(2, '!=', 45):\n  Func1()";
+        //     require('Interface').goToCodeMode(problem);
+        //     codeareas[1].setValue(code);
+        //     require('Interface').goToCommandsMode(problem);
+        //     // var executor = problem.blocklyExecutor;
+        //     // executor.setDefault();
+        //     // executor.exec(1000000000);
+        // }
+		// testz();
 	});
 });

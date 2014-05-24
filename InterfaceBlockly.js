@@ -2,59 +2,16 @@
  * Blockly interface between user and JSTree.
  */
 
-define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function() {
+define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems',
+    'BlocklyMisc', 'BlocklyMsg', 'BlocklyPython', 'BlocklyExecutor'], function() {
+
     var Problems = require('Problems');
     var Blocks = require('Blocks');
-
-    function patchBlockly_(Blockly) {
-        /**
-        * Extend Blockly's interface with helper functions.
-        */
-
-        Blockly.Field.prototype.saveOriginalValue = function(value) {
-            /**
-            * This method is used to save original value of the field prior to
-            * executing commands. Value can be modified during execution. After
-            * execution is completed, this value should be restored.
-            */
-            if (this.originalValue__) {
-                return
-            }
-            if (value === undefined) {
-                value = this.getValue();
-            }
-            this.originalValue__ = value;
-        };
-
-        Blockly.Field.prototype.restoreOriginalValue = function() {
-            if (this.originalValue__ === undefined) {
-                return
-            }
-            this.setValue(this.originalValue__);
-            delete this.originalValue__;
-        };
-
-        Blockly.Field.prototype.setRawText = function(text) {
-            /**
-            * Set unchanged text (ignore validator).
-            */
-            // Blockly.Field.prototype.setText.call(this, text)
-            // set text
-            if (text === null || text === this.text_) {
-                return;
-            }
-            this.text_ = text.toString();
-            this.updateTextNode_();
-
-            // render
-            if (this.sourceBlock_ && this.sourceBlock_.rendered) {
-                this.sourceBlock_.render();
-                this.sourceBlock_.bumpNeighbours_();
-            }
-        }
-    }
-
-
+    var CommandsMode = require('CommandsMode');
+    var BlocklyPython = require('BlocklyPython');
+    var BlocklyMsg = require('BlocklyMsg');
+    var BlocklyMisc = require('BlocklyMisc');
+    var BlocklyExecutor = require('BlocklyExecutor');
 
     function initMenu(problem) {
         var Blockly = problem.Blockly;
@@ -157,33 +114,28 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             }
 
             var Blockly = $container[0].contentWindow.Blockly;
+            BlocklyMisc.update(Blockly);
+            BlocklyPython.update(Blockly);
+            BlocklyMsg.update(Blockly);
+            BlocklyExecutor.update(Blockly);
+
             Blockly.problem = problem;
             problem.Blockly = Blockly;
-            patchBlockly_(Blockly);
+
 
             // Make list of allowed commands.
-            var allowedCommands = ('controlCommands' in problem ?
-                problem.controlCommands :
-                ['if', 'ifelse', 'while', 'for', 'funcdef']);
+            var allowedCommands = []
             var executionUnitCommands = problem.executionUnit.getCommandsToBeGenerated();
-            var idxBlock = allowedCommands.indexOf("block");
-            if (idxBlock != -1)
-                allowedCommands.splice(idxBlock, 1);
-
             for (var i = 0; i < executionUnitCommands.length; ++i) {
                 allowedCommands.push(executionUnitCommands[i].commandClass)
             }
-
-            // Define toolbox.
-            var toolbox = $('<xml/>', {id: 'toolbox', style: 'display: none'})
-            var category = $('<category/>', {name: 'Создать'});
-            toolbox.append(category)
-            for (var i = 0, cmd; cmd = allowedCommands[i]; i++) {
-                if (cmd == "funcdefmain") {
-                    continue
-                }
-                category.append($('<block/>', {type: cmd}));
-            }
+            var controlCommands = ('controlCommands' in problem ?
+                problem.controlCommands :
+                ['if', 'ifelse', 'while', 'for', 'funcdef', 'math_number']);
+            allowedCommands = allowedCommands.concat(controlCommands);
+            var idxBlock = allowedCommands.indexOf("block");
+            if (idxBlock != -1)
+                allowedCommands.splice(idxBlock, 1);
 
             // Generate blocks.
             var reqBlocks = allowedCommands.slice()
@@ -193,6 +145,18 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
             var blocks = Blocks.generate(problem, reqBlocks);
             $.extend(Blockly.Blocks, blocks);
 
+            // Define toolbox.
+            var toolbox = $('<xml/>', {id: 'toolbox', style: 'display: none'})
+            var category = $('<category/>', {name: 'Создать'});
+            toolbox.append(category)
+            for (var i = 0, cmd; cmd = allowedCommands[i]; i++) {
+            // for (cmd in Blockly.Blocks) {
+                if (cmd == "funcdefmain") {
+                    continue
+                }
+                category.append($('<block/>', {type: cmd}));
+            }
+
             Blockly.inject($container[0].contentDocument.body, {
                 path: 'import/blockly/',
                 toolbox: toolbox[0],
@@ -200,17 +164,19 @@ define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems'], function()
                 scrollbars: false,
                 trashcan: true
             });
-
-            // Create and render block for main function.
-            var block = problem.mainBlock = Blockly.Block.obtain(Blockly.mainWorkspace, 'funcdefmain');
-            block.initSvg();
-            block.render();
-
             initMenu(problem, Blockly);
 
+            // // Blockly.bindEvent_(Blockly.svg, 'mousedown', problem, problem.updated);
+            $container.contents().find("body").on('mousedown mouseup', function(e) {
+                problem.updated();
+            })
+
+            problem.blocklyExecutor = new Blockly.Executor;
+            problem.blocklyExecutor.setDefault();
+
             //Bind 'onchange' event to problem.updated
-            var bindData = Blockly.bindEvent_(Blockly.mainWorkspace.getCanvas(),
-                'blocklyWorkspaceChange', problem, problem.updated);
+            // problem.bindUpdated();
+            // problem.unbindUpdated();
         },
     };
 });

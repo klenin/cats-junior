@@ -94,7 +94,6 @@ function() {
 			/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 			 */
 
-			this.executionUnit.setDefault(f);
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
@@ -122,6 +121,9 @@ function() {
 			}
 			$("#cons" + this.tabIndex).empty();
 			this.cmdList.setDefault();
+			this.blocklyExecutor.restore();
+			this.blocklyExecutor.setDefault();
+			this.executionUnit.setDefault();
 
 			this.enableButtons();
 
@@ -301,25 +303,12 @@ function() {
 			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
 			}
-			this.functions = {};
-			var newCmdList = ModesConversion.blocksToCommands(this);
 
+			this.functions = {};
 			this.changed = true;
-			this.cmdList = newCmdList;
 			this.setDefault();
 			this.updateInterface('FINISH_EXECUTION');
 			this.highlightWrongNames();
-
-			// // DEBUG: conv to jstree for debugging
-			// var j = this.tabIndex;
-			// $('#jstree-container' + j).empty();
-			// $('#accordion' + j).myAccordion( 'clear' );
-			// this.setCurrentStage('CONVERSION_TO_COMMANDS');
-			// this.loadedCnt = 1;
-			// // startWaitForCommandsGeneration(this);
-			// newCmdList.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
-			// this.setCurrentStage('IDLE');
-			// --this.loadedCnt;
 		},
 
 		highlightWrongNames: function() {
@@ -333,10 +322,10 @@ function() {
 				if ($('#codeMode' + this.tabIndex).prop('checked')) {
 					continueExecution = this.tryNextStep();
 				} else {
-					if (!this.cmdList.exec(1))
+					if (!this.blocklyExecutor.exec(1, {}))
 						++this.executedCommandsNum;
 					this.changeProgressBar();
-					if (this.cmdList.isFinished()) {
+					if (this.blocklyExecutor.finished) {
 						this.playing = false;
 						this.enableButtons();
 						this.executionUnit.executionFinished();
@@ -412,12 +401,12 @@ function() {
 						}
 					} else {
 						var c = cnt == MAX_VALUE ? maxStep : cnt;
-						var executed = this.cmdList.exec(c);
+						var executed = this.blocklyExecutor.exec(c, {});
 						this.executedCommandsNum += c - executed;
 						if (cnt == MAX_VALUE && !executed && !this.paused) {
 							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
 						}
-						if (this.cmdList.isFinished()) this.playing = false;
+						if (this.blocklyExecutor.finished) this.playing = false;
 					}
 					this.changeProgressBar();
 					this.executionUnit.draw();
@@ -485,18 +474,20 @@ function() {
 		},
 
 		updateInterface: function(newState) {
-			this.cmdList.updateInterface(newState);
-			// switch (newState) {
-			// 	case 'START_EXECUTION':
-			// 		this.xmlWorkspace_ = this.Blockly.Xml.workspaceToDom(
-			// 			this.Blockly.mainWorkspace);
-			// 		break;
-			// 	case 'FINISH_EXECUTION':
-			// 		if (!this.xmlWorkspace_)
-			// 			return
-			// 		this.Blockly.Xml.domToWorkspace(this.Blockly.mainWorkspace, this.xmlWorkspace_);
-			// 		break;
-			// }
+			this.setCurrentStage('CONVERSION_TO_COMMANDS')
+			switch (newState) {
+				case 'START_EXECUTION':
+					this.xmlWorkspace_ = this.Blockly.Xml.workspaceToDom(
+						this.Blockly.mainWorkspace);
+					break;
+				case 'FINISH_EXECUTION':
+					if (!this.xmlWorkspace_)
+						this.setCurrentStage('IDLE');
+						return
+					this.Blockly.Xml.domToWorkspace(this.Blockly.mainWorkspace, this.xmlWorkspace_);
+					break;
+			}
+			this.setCurrentStage('IDLE')
 		},
 
 		getSubmitStr: function() {
@@ -629,7 +620,7 @@ function() {
 					this.paused = false;
 					if (!this.playing || this.changed) {
 						if (!this.playing) {
-							var needReturn = this.cmdList.isFinished();
+							var needReturn = this.blocklyExecutor.finished;
 							this.setDefault();
 							if (needReturn) return;
 						}
@@ -645,12 +636,12 @@ function() {
 					this.updateInterface('START_EXECUTION');
 					this.lastExecutedCmd = undefined;
 					this.cmdHighlightOff();
-					this.cmdList.exec(1);
+					this.blocklyExecutor.exec(1, {});
 					this.changeProgressBar();
 					++this.executedCommandsNum;
 					this.highlightLast();
 					this.executionUnit.draw();
-					if (this.cmdList.isFinished()) {
+					if (this.blocklyExecutor.finished) {
 						this.playing = false;
 						this.executionUnit.executionFinished();
 					}
@@ -757,13 +748,25 @@ function() {
 			return this.executionUnit.getConditionProperties(condName);
 		},
 
+        bindUpdated: function() {
+        	var problem = this;
+        	// setTimeout(function(){
+            this.bindData_ = problem.Blockly.bindEvent_(
+            	problem.Blockly.mainWorkspace.getCanvas(), 'blocklyWorkspaceChange', problem, problem.updated);
+	        // }, 1000);
+        },
+
+        unbindUpdated: function() {
+            if (!this.bindData_)
+                return
+            this.Blockly.unbindEvent_(this.bindData_);
+            delete this.bindData_;
+        },
+
 		resetWorkspace: function() {
 			var mainWorkspace = this.Blockly.mainWorkspace;
 			var xmlWorkspace = this.Blockly.Xml.workspaceToDom(mainWorkspace);
 			mainWorkspace.clear();
-			this.mainBlock = this.Blockly.Block.obtain(mainWorkspace, 'funcdefmain');
-			this.mainBlock.initSvg();
-			this.mainBlock.render();
 			return xmlWorkspace;
 		},
 
@@ -771,6 +774,7 @@ function() {
 			mainWorkspace = this.Blockly.mainWorkspace;
 			this.Blockly.Xml.domToWorkspace(mainWorkspace, xmlWorkspace);
 		}
+
 	});
 
 	var cmdClassToName = {
