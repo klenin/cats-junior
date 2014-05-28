@@ -532,6 +532,7 @@ define('Blocks', ['Problems', 'CommandsMode', 'BlocklyPython', 'BlocklyMsg', 'Ex
                     var stop = this.stopValue <= 0;
                     if (stop) {
                         problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                        checkBlock.setFieldValue((this.stopValue--).toString(), 'NUM');
                     } else {
                         problem.blocklyExecutor.blocks.push(this);
                         checkBlock.setFieldValue((this.stopValue--).toString(), 'NUM');
