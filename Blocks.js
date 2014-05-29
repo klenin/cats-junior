@@ -4,8 +4,7 @@
 'use strict';
 
 
-define('Blocks', ['Problems', 'CommandsMode', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], function() {
-    var CommandsMode = require('CommandsMode');
+define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], function() {
     var Exceptions = require('Exceptions');
     var IncorrectInput = Exceptions.IncorrectInput;
 

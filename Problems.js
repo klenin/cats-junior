@@ -2,8 +2,6 @@ define('Problems', ['jQuery',
 	'jQueryInherit',
 	'ModesConversion',
 	'ExecutionUnitWrapper',
-	'CommandsMode',
-	'InterfaceJSTree',
 	'CodeMode',
 	'ShowMessages',
 	'Declaration',
@@ -11,8 +9,6 @@ define('Problems', ['jQuery',
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
-	var InterfaceJSTree = require('InterfaceJSTree');
-	var CommandsMode = require('CommandsMode');
 	var ModesConversion = require('ModesConversion');
 	var CodeMode = require('CodeMode');
 	var ShowMessages = require('ShowMessages');
@@ -27,7 +23,6 @@ function() {
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
-			this.cmdList = new CommandsMode.Block([], undefined, this);
 			this.executedCommandsNum = 0;
 			this.lastExecutedCmd = undefined;
 			this.tabIndex = tabIndex;
@@ -120,7 +115,6 @@ function() {
 				this.changeProgressBar();
 			}
 			$("#cons" + this.tabIndex).empty();
-			this.cmdList.setDefault();
 			this.blocklyExecutor.restore();
 			this.blocklyExecutor.setDefault();
 			this.executionUnit.setDefault();
@@ -291,14 +285,6 @@ function() {
 			return this.divIndex;
 		},
 
-		list: function() {
-			return this.cmdList;
-		},
-
-		checkIntegrity: function() {
-			this.cmdList.checkIntegrity();
-		},
-
 		updated: function() {
 			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
@@ -312,7 +298,6 @@ function() {
 		},
 
 		highlightWrongNames: function() {
-			this.cmdList.highlightWrongNames();
 		},
 
 		loop: function(cnt, i) {
@@ -411,9 +396,6 @@ function() {
 					this.changeProgressBar();
 					this.executionUnit.draw();
 					this.enableButtons();
-
-					this.cmdList.highlightOff(); //inefficiency!!!!!!!!
-
 					this.highlightLast();
 				} else this.nextStep(cnt);
 			} catch (e) {
@@ -462,8 +444,8 @@ function() {
 				'name': 'k',
 				'cnt': 0
 			}]
-
-			return this.cmdList.generatePythonCode(0);
+			var Blockly = this.Blockly;
+			return Blockly.Python.workspaceToCode(Blockly.mainWorkspace)
 		},
 
 		die: function() {
@@ -624,7 +606,8 @@ function() {
 							this.setDefault();
 							if (needReturn) return;
 						}
-						codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
+						var code = this.convertCommandsToCode()
+						codeareas[this.tabIndex].setValue(code);
 						if (!this.playing) {
 							this.prepareForExecuting();
 							this.updateInterface('START_EXECUTION');

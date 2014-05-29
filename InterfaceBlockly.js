@@ -2,12 +2,11 @@
  * Blockly interface between user and JSTree.
  */
 
-define('InterfaceBlockly', ['Blocks', 'InterfaceJSTree', 'Problems',
+define('InterfaceBlockly', ['Blocks','Problems',
     'BlocklyMisc', 'BlocklyMsg', 'BlocklyPython', 'BlocklyExecutor'], function() {
 
     var Problems = require('Problems');
     var Blocks = require('Blocks');
-    var CommandsMode = require('CommandsMode');
     var BlocklyPython = require('BlocklyPython');
     var BlocklyMsg = require('BlocklyMsg');
     var BlocklyMisc = require('BlocklyMisc');

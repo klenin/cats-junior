@@ -7,12 +7,10 @@ define('Interface', ['jQuery',
 	'Problems',
 	'jQueryTmpl',
 	'ModesConversion',
-	'Declaration',
-	'CommandsMode'], function(){
+	'Declaration'], function(){
 	var Problems = require('Problems');
 	var ModesConversion = require('ModesConversion');
 	var Servers = require('Servers');
-	var CommandsMode = require('CommandsMode');
 
 	function login(callback, firstTrying){
 		currentServer.setSid(undefined);
@@ -495,7 +493,6 @@ define('Interface', ['jQuery',
 		var problem = curProblem;
 		if (!confirm('Вы уверены, что хотите очистить список команд?'))
 			return;
-		problem.cmdList = new CommandsMode.Block([], undefined, problem);
 		$('#jstree-container' + problem.tabIndex).children().remove();
 		$('#accordion' + problem.tabIndex).myAccordion('clear');
 		$('#accordion' + problem.tabIndex).children().remove();

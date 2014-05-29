@@ -122,7 +122,6 @@ requirejs([
 	'Config',
 	'Servers',
 	'Interface',
-	'InterfaceJSTree',
 	'InterfaceBlockly',
 	'Declaration',
 	'Accordion'
@@ -131,7 +130,6 @@ requirejs([
 		var Servers = require('Servers');
 		var Config = require('Config');
 		var Interface = require('Interface');
-		var InterfaceJSTree = require('InterfaceJSTree');
 		var InterfaceBlockly = require('InterfaceBlockly');
 		//var Tests = require('Tests');
 
@@ -191,7 +189,6 @@ requirejs([
 				}
 			});
 
-			InterfaceJSTree.createJsTreeForFunction('#jstree-container' + problem.tabIndex, problem, false);
 			InterfaceBlockly.injectBlockly(problem)
 
 			$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
