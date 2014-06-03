@@ -747,6 +747,49 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             }
         });
 
+       Blocks['logic_compare'] = $.inherit(SimpleBlock, {
+            originType: 'logic_compare',
+
+            init: function() {
+                this.__base();
+                this.setInputsInline(true);
+            },
+
+            execStepPrepared: function() {
+                var blockA = this.getInput('A').connection.targetBlock();
+                var blockB = this.getInput('B').connection.targetBlock();
+                if (!blockA || !blockB)
+                    throw new IncorrectInput('Некорректный аргумент.');
+                var valueA = blockA.getFieldValue('NUM');
+                var valueB = blockB.getFieldValue('NUM');
+                var valueOp = this.getFieldValue('OP');
+
+                if (valueOp == 'EQ') {
+                    var result = valueA == valueB;
+                } else if (valueOp == 'NEQ') {
+                    var result = valueA != valueB;
+                } else if (valueOp == 'LT') {
+                    var result = valueA < valueB;
+                } else if (valueOp == 'LTE') {
+                    var result = valueA <= valueB;
+                } else if (valueOp == 'GT') {
+                    var result = valueA >= valueB;
+                } else if (valueOp == 'GTE') {
+                    var result = valueA >= valueB;
+                }
+                newValue = newValue ? 'TRUE' : 'FALSE';
+
+                var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
+                block.initSvg();
+                block.render();
+                block.setFieldValue(newValue, 'BOOL')
+                this.replace(block);
+
+                this.addDelayedRemove_(this, block);
+                return false
+            }
+        });
+
         Blocks['funcdef'] = $.inherit(SimpleBlock, {
             originType: 'procedures_defnoreturn',
             callType_: 'funccall',

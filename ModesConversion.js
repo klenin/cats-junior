@@ -14,6 +14,15 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'ExecutionUnitCommands'], funct
         'Pow': 'POWER'
     }
 
+    var COMPARE_OPS = {
+        'Eq': 'EQ',
+        'NotEq': 'NEQ',
+        'Lt': 'LT',
+        'LtE': 'LTE',
+        'Gt': 'GT',
+        'GtE': 'GTE'
+    }
+
     /**
     * Convertor from python to blockly.
     */
@@ -130,6 +139,18 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'ExecutionUnitCommands'], funct
                 field.setValue(value.toString());
             }
             return block;
+        },
+
+        convertCompare_: function(command, connection) {
+            var op = command.ops[0]
+            if (op.name in COMPARE_OPS) {
+                var block = this.initBlock_("logic_compare", connection);
+                block.getField_('OP').setValue(COMPARE_OPS[op.name]);
+                var blockA = this.convert(command.left, block.getInput('A').connection);
+                var blockB = this.convert(command.comparators[0], block.getInput('B').connection);
+                return block;
+            }
+            throw new IncorrectInput('Оператор ' + op.name + ' не разрешен в этой задаче.');
         },
 
         convertFor_: function(command, connection) {
