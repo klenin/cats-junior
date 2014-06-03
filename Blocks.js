@@ -593,7 +593,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                         throw new IncorrectInput('Деление на ноль.')
                     var newValue = valueA / valueB;
                 } else if (valueOp == 'POWER') {
-                    var newValue = valueA * valueB;
+                    var newValue = Math.pow(valueA, valueB);
                 } else {
                     throw new IncorrectInput('Некорректный операнд сравнения');
                 }
