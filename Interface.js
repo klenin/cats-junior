@@ -253,10 +253,11 @@ define('Interface', ['jQuery',
         try {
             problem.prepareForExecuting();
             problem.prepareForConversionFromCode();
-            ModesConversion.pythonTreeToBlocks(problem, finalcode[j].compiled.ast.body);
-
-            $('#jstree-container' + j).empty();
-            $('#accordion' + j).myAccordion( 'clear' );
+            if (finalcode[j]) {
+                ModesConversion.pythonTreeToBlocks(problem, finalcode[j].compiled.ast.body);
+                $('#jstree-container' + j).empty();
+                $('#accordion' + j).myAccordion( 'clear' );
+            }
         } catch(e) {
             console.error(e);
             console.log(e.stack)
