@@ -519,9 +519,9 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.__base();
                 this.setInputsInline(false);
 
-                var container = document.createElement('mutation');
-                container.setAttribute('else', '1');
-                this.domToMutation(container);
+                this.appendStatementInput('ELSE')
+                    .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSE);
+                // this.mutationToDom();
             }
         });
 
