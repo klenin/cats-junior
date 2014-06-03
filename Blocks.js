@@ -306,6 +306,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 *   has 2 constant Fields).
                 */
                 if (!nSkip) nSkip = 0;
+                this.currentCondType_ = condType;
+                this.setFieldValue(condType, 'ARG0');
                 var args = this.getConditionProperties()[condType].args;
 
                 // Remove fields.
