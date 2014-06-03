@@ -323,6 +323,7 @@ function() {
 			} catch (e) {
 				console.error(e);
 				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n')
 			}
 		},
 
@@ -382,14 +383,14 @@ function() {
 					if ($('#codeMode' + this.tabIndex).prop('checked')) {
 						for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i) {};
 						if (i < cnt && i == maxStep && !this.paused) {
-							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов\n');
 						}
 					} else {
 						var c = cnt == MAX_VALUE ? maxStep : cnt;
 						var executed = this.blocklyExecutor.exec(c, {});
 						this.executedCommandsNum += c - executed;
 						if (cnt == MAX_VALUE && !executed && !this.paused) {
-							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов\n');
 						}
 						if (this.blocklyExecutor.finished) this.playing = false;
 					}
@@ -401,6 +402,7 @@ function() {
 			} catch (e) {
 				logError(e)
 				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n');
 			}
 		},
 
@@ -515,10 +517,10 @@ function() {
 			} catch (e) {
 				this.playing = false;
 				if (e.getErrorLine) {
-					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке');
+					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке\n');
 				}
 				else {
-					$('#cons' + this.tabIndex).html('Некорректный код');
+					$('#cons' + this.tabIndex).html('Некорректный код\n');
 				}
 			}
 		},
@@ -594,6 +596,7 @@ function() {
 					console.error(e);
 					this.playing = false;
 					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+					$('#cons' + this.tabIndex).append('\n');
 				}
 			} else {
 				try {
@@ -633,6 +636,7 @@ function() {
 					console.error(e);
 					console.log(e.stack);
 					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+					$('#cons' + this.tabIndex).append('\n');
 				}
 
 			}
@@ -665,6 +669,7 @@ function() {
 			} catch (e) {
 				console.error(e);
 				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n');
 			}
 		},
 

@@ -14,7 +14,7 @@ select{
 	font-size: 12px !important;
 }
 table.field{
-	border-width:0px; 
+	border-width:0px;
 	border-spacing: 0px
 }
 table.results, iframe.results{
@@ -27,54 +27,54 @@ input.pnts{
 	width: 25px;
 }
 input.cnt{
-	width: 30px; 
-	height: 21px; 
-	background-color: rgb(255, 255, 255); 
-	margin-right: 0px; 
-	padding-right: 0px; 
-	padding-top: 0px; 
-	border-width: 1px; 
-	padding-bottom: 0px; 
-	top: 0px; 
-	left: 0px; 
+	width: 30px;
+	height: 21px;
+	background-color: rgb(255, 255, 255);
+	margin-right: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	border-width: 1px;
+	padding-bottom: 0px;
+	top: 0px;
+	left: 0px;
 	z-index: 100;
 }
 span.cnt{
-	width: 60px; 
-	height: 21px; 
-	padding-left: 10px; 
-	top: 0px; 
+	width: 60px;
+	height: 21px;
+	padding-left: 10px;
+	top: 0px;
 	z-index: 2;
 }
 li.invisible{
 	width: 1px;
-	height: 1px; 
+	height: 1px;
 	z-index: 0;
-	list-style-type: none; 
+	list-style-type: none;
 }
 div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
-	list-style-type: none; 
-	width: 32px; 
+	list-style-type: none;
+	width: 32px;
 	height: 32px;
 	border: 1px solid #ffffff;
-	color: #363636; 
+	color: #363636;
 	z-index: 1;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	border-radius: 6px;
 }
 
 div.block, div.if, div.ifelse, div.while, div.for, div.funcdef{
-	list-style-type: none; 
+	list-style-type: none;
 	margin: 5px;
 
-	width: 32px; 
+	width: 32px;
 	height: 32px;
 	border: 1px solid #A9A9A9;
-	color: #363636; 
+	color: #363636;
 	z-index: 1;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	border-radius: 6px;
 }
 
@@ -86,11 +86,11 @@ div.funcdef{ background: url('../images/func.png') 5% 100% no-repeat; background
 
 .func-icon {
 	background-repeat: no-repeat;
-	width: 16px; 
+	width: 16px;
 	height: 16px;
 	background-image: url(images/ui-icons_222222_256x240.png);
 	text-indent: 16px;
-	display: inline-block; 
+	display: inline-block;
 	overflow: hidden;
 }
 
@@ -122,18 +122,20 @@ div.sortable-func{
 	max-height: 500px;
 	height: 100%;
 	overflow: auto;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	border-radius: 6px;
 }
-div.cons{
-	width: 226px;
-	border: 2px #A9A9A9 double;
-	height: 500px;
+pre.cons{
+	/*width: 226px;*/
+	/*border: 2px #A9A9A9 double;
+	/*height: 500px;*/
 	overflow: auto;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	border-radius: 6px;
+	word-wrap: break-word;
+	margin: 0;
 }
 div.recycle-bin{
 	min-width: 270px;
@@ -141,22 +143,22 @@ div.recycle-bin{
 	background: url('../images/recycle-bin.png') #EEEEEE no-repeat;
 	border: 2px #A9A9A9 double;
 	overflow: auto;
-	-moz-border-radius: 4px; 
-	-webkit-border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
 	border-radius: 6px;
 
 }
 input.spinExpression, input.spinValue, input.selectValue, input.inputExpression, input.inputValue{
 	font-family:Verdana;
 	font-size: 0.85em;
-	width: 60px; height: 21px; 
-	background-color: 
-	rgb(255, 255, 255); 
-	margin-right: 0px; 
-	padding-right: 0px; 
-	padding-top: 0px; 
-	padding-bottom: 0px; 
-	top: 0px; left: 0px; 
+	width: 60px; height: 21px;
+	background-color:
+	rgb(255, 255, 255);
+	margin-right: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	top: 0px; left: 0px;
 	position: inherit;
 	z-index: 1;
 }
@@ -167,22 +169,22 @@ span.spinImg {
 	height: 21px;
 }
 
-.tabs:after { 
-   display: block; 
-   clear: both; 
-   content: " "; 
+.tabs:after {
+   display: block;
+   clear: both;
+   content: " ";
 }
-.ui-tabs-paging-next { 
+.ui-tabs-paging-next {
    float: right !important;
 }
-.ui-tabs-hide { 
-	display: none; 
-	background-color: #fff 
+.ui-tabs-hide {
+	display: none;
+	background-color: #fff
 }
 .ui-tabs-paging-disabled {
 	visibility: hidden;
 }
-.ui-tabs-paging-next, 
+.ui-tabs-paging-next,
 .ui-tabs-paging-prev{
 	background: transparent !important;
 	border: 0 !important;
@@ -217,14 +219,14 @@ div.MySplitter1 {
 }
 
 input.funcInput {
-	position: absolute; 
+	position: absolute;
 	height: 25px;
 	width: 70px;
 }
 
 input.argInput {
 	width: 50px;
-	position: absolute; 
+	position: absolute;
 	height: 25px;
 }
 
