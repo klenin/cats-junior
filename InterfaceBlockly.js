@@ -176,6 +176,19 @@ define('InterfaceBlockly', ['Blocks','Problems',
             //Bind 'onchange' event to problem.updated
             // problem.bindUpdated();
             // problem.unbindUpdated();
+
+            // handle height of iframe
+            var minHeight = 500;
+            Blockly.addChangeListener(function(){
+                if (Blockly.problem.playing)
+                    return
+
+                var height = Blockly.mainWorkspace.getMetrics()['contentHeight'];
+                if (height < minHeight)
+                    height = 500;
+                height += 20
+                $container.css({'height': height + 'px'});
+            })
         },
     };
 });
