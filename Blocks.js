@@ -355,7 +355,10 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.problem.recalculatePenalty(this);
 
                 for (var x = 0, values = [], input; input = this.getInput('ARG' + x); x++) {
-                    values.push(input.connection.targetBlock().getValue());
+                    var targetBlock = input.connection.targetBlock()
+                    if (!targetBlock)
+                        throw new IncorrectInput('Некорректный аргумент.');
+                    values.push(targetBlock.getValue());
                 }
 
                 if (this.counterInput_ == undefined) {
@@ -369,6 +372,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                     return true;
                 } else {
                     var targetBlock = this.counterInput_.connection.targetBlock();
+                    if (!targetBlock)
+                        throw new IncorrectInput('Некорректный аргумент.');
                     var counterValue = parseInt(targetBlock.getFieldValue('NUM'));
                     targetBlock.setFieldValue((counterValue - 1).toString(), 'NUM');
                     if (counterValue > 0)  {
@@ -408,6 +413,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 if (!args) console.log('Wrong command name is provided to block.');
                 for (var i = 0, arg; arg = args[i]; ++i) {
                     this.appendValueInput('ARG' + i)
+                        .setCheck("Number");
                 }
             }
         });
@@ -532,6 +538,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
                     // check condition
                     var checkBlock = this.getInput('BOOL').connection.targetBlock();
+                    if (!checkBlock)
+                        throw new IncorrectInput('Отсутствует условие.');
                     var stop = checkBlock.getFieldValue('BOOL') == 'FALSE';
                     var mode = this.getFieldValue('MODE')
                     if (mode == 'UNTIL') {
@@ -548,6 +556,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
                     // one more cycle
                     var checkBlock = this.getInput('BOOL').connection.targetBlock();
+                    if (!checkBlock)
+                        throw new IncorrectInput('Отсутствует условие.');
                     problem.blocklyExecutor.delayedRestoreBlocks.push(checkBlock);
 
                     this.execState.argBlocksHandled = false;
@@ -576,6 +586,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
                     // check condition
                     var checkBlock = this.getInput('TIMES').connection.targetBlock();
+                    if (!checkBlock)
+                        throw new IncorrectInput('Отсутствует счетчик');
                     if (this.stopValue == undefined) {
                         this.stopValue = parseInt(checkBlock.getFieldValue('NUM'));
                     }
@@ -593,6 +605,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
                     // one more cycle
                     var checkBlock = this.getInput('TIMES').connection.targetBlock();
+                    if (!checkBlock)
+                        throw new IncorrectInput('Отсутствует счетчик.');
                     // problem.blocklyExecutor.delayedRestoreBlocks.push(checkBlock);
 
                     this.execState.argBlocksHandled = false;
@@ -629,6 +643,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             execStepPrepared: function() {
                 var blockA = this.getInput('A').connection.targetBlock();
                 var blockB = this.getInput('B').connection.targetBlock();
+                if (!blockA || !blockB)
+                    throw new IncorrectInput('Некорректный аргумент.');
                 var valueA = parseFloat(blockA.getFieldValue('NUM'));
                 var valueB = parseFloat(blockB.getFieldValue('NUM'));
                 var valueOp = this.getFieldValue('OP');
@@ -670,6 +686,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
             execStepPrepared: function() {
                 var blockArg = this.getInput('BOOL').connection.targetBlock();
+                if (!blockArg)
+                    throw new IncorrectInput('Некорректный аргумент.');
                 var newValue = (blockArg.getFieldValue('BOOL') == 'TRUE' ? 'FALSE' : 'TRUE');
 
                 var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
@@ -703,6 +721,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             execStepPrepared: function() {
                 var blockA = this.getInput('A').connection.targetBlock();
                 var blockB = this.getInput('B').connection.targetBlock();
+                if (!blockA || !blockB)
+                    throw new IncorrectInput('Некорректный аргумент.');
                 var valueA = blockA.getFieldValue('BOOL') == 'TRUE';
                 var valueB = blockB.getFieldValue('BOOL') == 'TRUE';
                 var valueOp = this.getFieldValue('OP');
@@ -799,6 +819,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 var argsDict = {}
                 for (var i = 0, argName; argName = this.arguments_[i]; ++i) {
                     var block = this.getInput('ARG' + i).connection.targetBlock();
+                    if (!block)
+                        throw new IncorrectInput('Некорректный аргумент.');
                     argsDict[argName] = Blockly.Xml.blockToDom_(block);
                 }
                 return argsDict;
