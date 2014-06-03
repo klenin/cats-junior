@@ -493,6 +493,8 @@ define('Interface', ['jQuery',
 		var problem = curProblem;
 		if (!confirm('Вы уверены, что хотите очистить список команд?'))
 			return;
+		problem.Blockly.mainWorkspace.clear();
+
 		$('#jstree-container' + problem.tabIndex).children().remove();
 		$('#accordion' + problem.tabIndex).myAccordion('clear');
 		$('#accordion' + problem.tabIndex).children().remove();
