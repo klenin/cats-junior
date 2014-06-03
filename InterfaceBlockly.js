@@ -135,6 +135,12 @@ define('InterfaceBlockly', ['Blocks','Problems',
             var idxBlock = allowedCommands.indexOf("block");
             if (idxBlock != -1)
                 allowedCommands.splice(idxBlock, 1);
+            // add number and negation in any case
+            if (allowedCommands.indexOf("math_number") != -1)
+                allowedCommands.push('math_number');
+            if (allowedCommands.indexOf("logic_negate") != -1)
+                allowedCommands.push("logic_negate");
+            problem.allowedCommands = allowedCommands;
 
             // Generate blocks.
             var reqBlocks = allowedCommands.slice()
@@ -172,10 +178,6 @@ define('InterfaceBlockly', ['Blocks','Problems',
 
             problem.blocklyExecutor = new Blockly.Executor;
             problem.blocklyExecutor.setDefault();
-
-            //Bind 'onchange' event to problem.updated
-            // problem.bindUpdated();
-            // problem.unbindUpdated();
 
             // handle height of iframe
             var minHeight = 500;
