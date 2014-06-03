@@ -357,10 +357,44 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 for (var x = 0, values = [], input; input = this.getInput('ARG' + x); x++) {
                     values.push(input.connection.targetBlock().getValue());
                 }
-                this.problem.oneStep(this.name, 1, values);
 
-                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
-                return true
+                if (this.counterInput_ == undefined) {
+                    this.counterInput_ = this.getCounterInput();
+                }
+
+                if (this.counterInput_ == null) {
+                    // command without counter
+                    this.problem.oneStep(this.name, 1, values);
+                    problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                    return true;
+                } else {
+                    var targetBlock = this.counterInput_.connection.targetBlock();
+                    var counterValue = parseInt(targetBlock.getFieldValue('NUM'));
+                    targetBlock.setFieldValue((counterValue - 1).toString(), 'NUM');
+                    if (counterValue > 0)  {
+                        this.problem.oneStep(this.name, 1, values);
+                        problem.blocklyExecutor.blocks.push(this);
+                        return true;
+                    } else {
+                        problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                        return false;
+                    }
+                }
+            },
+
+            getCounterInput: function() {
+                var euCommands = this.problem.getCommands();
+                for (name in euCommands) {
+                    var func = euCommands[name];
+                    if (func.hasCounter) {
+                        for (var i = 0, arg; arg = func.arguments[i]; ++i) {
+                            if (arg.isCounter) {
+                                return this.getInput('ARG' + i);
+                            }
+                        }
+                    }
+                }
+                return null;
             },
 
             appendArgs_: function(name) {
@@ -622,7 +656,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.replace(block);
 
                 this.addDelayedRemove_(this, block);
-                return false;
+                return true;
             }
         });
 
@@ -663,6 +697,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
 
             init: function() {
                 this.__base();
+                this.setInputsInline(false);
             },
 
             execStepPrepared: function() {
