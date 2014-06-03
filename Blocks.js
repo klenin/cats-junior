@@ -406,6 +406,23 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.addDelayedRemove_(this, retBlock);
                 return false
             },
+
+            mutationToDom: function() {
+                var container = this.__origin('mutationToDom');
+                if (!container) {
+                    container = document.createElement('mutation');
+                }
+                container.setAttribute('type', this.currentCondType_);
+                return container;
+            },
+
+            domToMutation: function(xmlElement) {
+                var type = xmlElement.getAttribute('type');
+                if (!type)
+                    return
+                this.rebuildArgumentFields_(this.inputCondition_, type, 1);
+                this.currentCondType_ = type;
+            }
         });
 
         Blocks['if'] = $.inherit(SimpleBlock, {
