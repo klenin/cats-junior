@@ -197,8 +197,19 @@ requirejs([
 				$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
 				$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );*/
 
+			var $iframe = $('#blockly-container-' + problem.tabIndex)
 			$(ui.panel).children('table').colResizable({
 				minWidth: 250,
+				// liveDrag: true,
+				onDrag: function() {
+					$iframe.css({'pointer-events': 'none'});
+				},
+                onResize: function() {
+					$iframe.css({'pointer-events': 'auto'});
+					if (problem.executionUnit.executionUnit.updateSizes) {
+						problem.executionUnit.executionUnit.updateSizes();
+					}
+                }
 			});
 		});
 		$('#about').dialog({
