@@ -136,10 +136,12 @@ define('InterfaceBlockly', ['Blocks','Problems',
             if (idxBlock != -1)
                 allowedCommands.splice(idxBlock, 1);
             // add number and negation in any case
-            if (allowedCommands.indexOf("math_number") != -1)
+            if (allowedCommands.indexOf("math_number") == -1)
                 allowedCommands.push('math_number');
-            if (allowedCommands.indexOf("logic_negate") != -1)
+            if (allowedCommands.indexOf("logic_negate") == -1)
                 allowedCommands.push("logic_negate");
+            if (allowedCommands.indexOf("conditions") == -1)
+                allowedCommands.push("conditions");
             problem.allowedCommands = allowedCommands;
 
             // Generate blocks.
