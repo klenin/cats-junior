@@ -11,7 +11,7 @@ define('BlocklyExecutor', [], function() {
             this.blocks = [];
             this.finished = false;
             Blockly.setDefault();
-            var topBlocks = Blockly.getMainWorkspace().getTopBlocks().reverse();
+            var topBlocks = Blockly.getMainWorkspace().getTopBlocks(true).reverse();
             var argsDict = {}
             for (var i = 0, block; block = topBlocks[i]; ++i) {
                 if (block.type == 'funcdef' || block.outputConnection)
