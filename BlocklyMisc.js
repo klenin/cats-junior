@@ -90,6 +90,8 @@ define('BlocklyMisc', [], function() {
         Blockly.highlight = function(block) {
             if (!block)
                 return
+            if (block.replacingBlock_)
+                block = block.replacingBlock_
 
             this.highlightOff();
             var svg = block.getSvgRoot();

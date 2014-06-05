@@ -206,8 +206,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 if (!block.getFieldValue) {
                     block = Blockly.Xml.domToBlock(Blockly.mainWorkspace, block);
                     block.updateFrom_(this);
-                    this.replacingBlock_ = block;
                 }
+                this.replacingBlock_ = block;
 
                 if (this.nextConnection && this.nextConnection.targetConnection) {
                     var c = this.nextConnection.targetConnection;
@@ -225,7 +225,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                     c.connect(block.outputConnection);
                 }
 
-                // hide block (redo)
+                // hide block (todo: remake)
                 this.moveTo(10000, 10000);
                 // debug
                 // this.dy = ( this.dy ? this.dy + 5 : 0);
