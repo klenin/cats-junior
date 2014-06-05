@@ -382,6 +382,12 @@ define('Pourer',
 					if (!checkNumber(src) || !checkNumber(dest)) {
 						throw new IncorrectInput('Некорректный аргумент');
 					}
+					if (!this.vessels[src]) {
+						throw new IncorrectInput('Нет сосуда с номером "' + args[0] + '"');
+					}
+					if (!this.vessels[dest]) {
+						throw new IncorrectInput('Нет сосуда с номером "' + args[1] + '"');
+					}
 					if (src == dest) { //is it an error?
 						return;
 					}
