@@ -82,7 +82,9 @@ define('BlocklyExecutor', [], function() {
                     var executed = block.execStep()
                 } catch (e) {
                     logError(e);
+                    Blockly.highlight(block);
                     this.setDefault();
+                    Blockly.problem.playing = false;
                     throw(e)
                 }
 
