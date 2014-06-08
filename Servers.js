@@ -276,7 +276,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		consoleContentRequest: function(callback){
 			if (this.getCid() && this.getSid()){
-				this.sendServerRequestt(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() +
+				this.sendServerRequest(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() +
 					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
 					function(data) {
 						callback(data);
