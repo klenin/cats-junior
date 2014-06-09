@@ -225,7 +225,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 					badSidCallback();
 				}
 				else {
-					this._submitRequest(submitStr, problem_id);
+					self._submitRequest(submitStr, problem_id);
 				}
 			});
 		},
@@ -322,6 +322,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		_submitRequest: function(submitStr, problem_id) {
+			var self = this;
 			CallServer.callSubmitLocally('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', 'source=' + submitStr + '&problem_id=' + this.id + '&de_id=772264', function(data){
 				alert(data.message ? data.message : 'Решение отослано на проверку');
 			},
