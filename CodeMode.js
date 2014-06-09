@@ -133,7 +133,8 @@ define('CodeMode', ['SkulptModule'], function(){
 		outf: outf,
 		compile: compile,
 		getCurBlock: getCurBlock,
-		getScope: getScope
+		getScope: getScope,
+		calculateValue: calculateValue
 	}
 });
 

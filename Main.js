@@ -124,13 +124,15 @@ requirejs([
 	'Interface',
 	'InterfaceBlockly',
 	'Declaration',
-	'Accordion'
+	'Accordion',
+	'CodeMode'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
 		var Config = require('Config');
 		var Interface = require('Interface');
 		var InterfaceBlockly = require('InterfaceBlockly');
+		var CodeMode = require('CodeMode');
 		//var Tests = require('Tests');
 
 	    $(document).ready(function(){
@@ -271,7 +273,7 @@ requirejs([
 						'<td style = "border: 1px solid white; width: 20px"><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '"></button></td>' +
 						'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' +
 						'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' +
-							calculateValue($('#watchName').val()) + '</td>' +
+							CodeMode.calculateValue($('#watchName').val()) + '</td>' +
 						'</tr>' );
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).prop('varId', lastWatchedIndex[problem]);
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button({ text: false, icons: {primary:'ui-icon-close'}}).bind('click', function(){

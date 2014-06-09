@@ -226,7 +226,7 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 }
 
                 // hide block (todo: remake)
-                this.moveTo(10000, 10000);
+                this.moveTo(10000, 0);
                 // debug
                 // this.dy = ( this.dy ? this.dy + 5 : 0);
                 // this.moveTo(450, this.dy);

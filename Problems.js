@@ -218,7 +218,7 @@ function() {
 		updateWatchList: function() {
 			var problem = this.tabIndex;
 			for (var p in watchList[problem]) {
-				var res = calculateValue(watchList[problem][p]);
+				var res = CodeMode.calculateValue(watchList[problem][p]);
 				$('#calcVal_' + problem + '_' + p).html(res == undefined ? 'undefined' : res);
 			}
 		},
