@@ -378,6 +378,7 @@ function() {
 		},
 
 		play: function(cnt) {
+			var maxStep = this.maxStep == 0 ? MAX_STEP_VALUE : this.maxStep;
 			try {
 				if (!this.speed) {
 					if ($('#codeMode' + this.tabIndex).prop('checked')) {
