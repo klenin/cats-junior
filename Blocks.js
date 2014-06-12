@@ -826,6 +826,8 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 if (name in this.argsDict) {
                     var block = this.replace(this.argsDict[name])
                     this.addDelayedRemove_(this, block);
+                } else {
+                    throw new IncorrectInput('Переменная "' + name + '" не объявлена');
                 }
             },
 
