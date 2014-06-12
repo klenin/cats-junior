@@ -777,12 +777,12 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 } else if (valueOp == 'GTE') {
                     var result = valueA >= valueB;
                 }
-                newValue = newValue ? 'TRUE' : 'FALSE';
+                result = result ? 'TRUE' : 'FALSE';
 
                 var block = Blockly.Block.obtain(Blockly.mainWorkspace, 'logic_boolean');
                 block.initSvg();
                 block.render();
-                block.setFieldValue(newValue, 'BOOL')
+                block.setFieldValue(result, 'BOOL')
                 this.replace(block);
 
                 this.addDelayedRemove_(this, block);
