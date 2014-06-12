@@ -41,7 +41,7 @@
 	"locks": [],
 	"movingElements":[],
 	"commands": ["forward", "left", "right"],
-	"controlCommands": ["if", "ifelse", "funcdef", "while", "for", "logic_negate", "logic_operation", "math_arithmetic", "conditions", "math_number", "variables_get", "logic_compare"],
+	"controlCommands": ["if", "ifelse", "funcdef", "while", "for", "logic_negate", "logic_operation", "math_arithmetic", "conditions", "math_number", "variables_get", "variables_set", "logic_compare"],
 	"startLife": 1,
 	"dLife": 0,
 	"startPoints": 0,

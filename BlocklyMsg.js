@@ -10,6 +10,7 @@ define('BlocklyMsg', [], function() {
         Blockly.Msg.PROCEDURES_DEFNORETURN_TITLE = "Подпрограмма";  //"чтобы";
         Blockly.Msg.VARIABLES_DEFAULT_NAME = "x";  //"элемент";
         Blockly.Msg.VARIABLES_GET_ITEM = "x";
+        Blockly.Msg.VARIABLES_SET_ITEM = Blockly.Msg.VARIABLES_DEFAULT_NAME;
     }
 
     return {

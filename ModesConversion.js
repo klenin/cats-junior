@@ -86,6 +86,13 @@ define('ModesConversion', ['jQuery', 'jQueryUI', 'ExecutionUnitCommands'], funct
             return block
         },
 
+        convertAssign_: function(command, connection) {
+            var block = this.initBlock_('variables_set', connection);
+            block.setFieldValue(command.targets[0].id.v, 'VAR');
+            this.convert(command.value, block.getInput('VALUE').connection);
+            return block
+        },
+
         convertBool_: function(command, connection) {
             var block = this.initBlock_('logic_boolean', connection)
             block.setFieldValue(command.id.v.toUpperCase(), 'BOOL');

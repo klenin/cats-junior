@@ -15,6 +15,23 @@ define('BlocklyPython', [], function() {
             var ret = Blockly.Python['procedures_defnoreturn'](block);
             // Do not create global variables;
             Blockly.Python.definitions_.variables = '';
+
+            var funcName = Blockly.Python.variableDB_.getName(block.getFieldValue('NAME'), Blockly.Procedures.NAME_TYPE);
+            var code = Blockly.Python.definitions_[funcName]
+            var lines = code.split('\n');
+            lines = lines.filter(function(line) {
+                var isGlobalDef = Boolean(line.match(/^\s+global/));
+                return !isGlobalDef
+            })
+            Blockly.Python.definitions_[funcName] = lines.join('\n')
+
+            return ret
+        };
+
+        var originalVariablesSet = Blockly.Python['variables_set'];
+        Blockly.Python['variables_set'] = function(block) {
+            var ret = originalVariablesSet(block);
+            Blockly.Python.definitions_.variables = '';
             return ret
         };
 

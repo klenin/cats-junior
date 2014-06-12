@@ -834,6 +834,22 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             }
         });
 
+        Blocks['variables_set'] = $.inherit(SimpleBlock, {
+            originType: 'variables_set',
+
+            execStepPrepared: function() {
+                var blockValue = this.getInput('VALUE').connection.targetBlock();
+                if (!blockValue)
+                    throw new IncorrectInput('Некорректный аргумент.');
+
+                var name = this.getFieldValue('VAR');
+                this.argsDict[name] = Blockly.Xml.blockToDom_(blockValue);
+
+                problem.blocklyExecutor.delayedRestoreBlocks.push(this);
+                return true
+            }
+        });
+
         Blocks['funccall'] = $.inherit(FuncCallBlock, {
             originType: 'procedures_callnoreturn',
 
