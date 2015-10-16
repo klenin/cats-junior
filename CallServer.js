@@ -28,24 +28,24 @@ define('CallServer', ['jQuery'], function(){
 			error: function(jqXHR, textStatus, errorThrown) {
 				if(url.search('rank_table_content') == -1){
 					alert('Ошибка подключения к серверу');
-				}			
+				}
 			}
 		});
 	}
 
 	function callSubmitLocally(serv, path, submitData, callback, scriptPath){
-		$.ajax({  
+		$.ajax({
 			async: false,
 			url: scriptPath,
 			type: 'POST',
-			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,  
+			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,
 			success: function(data){
 				callback(data);
 			},
 			error: function(data){
 				alert(data);
 			}
-		});  
+		});
 	}
 
 	function callSubmit(url, formData, callback){

@@ -14,14 +14,14 @@ define('ShowMessages', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Declaration'], f
 
 		MessageStepFine: $.inherit(Message, {
 			__constructor: function(step, pnts) {
-				this.__base(['Шаг ', step + 1, ': Штраф за шаг \n', 'Текущее количество очков: ', 
+				this.__base(['Шаг ', step + 1, ': Штраф за шаг \n', 'Текущее количество очков: ',
 							pnts, '\n']);
 			}
 		}),
 
 		MessageCommandFine: $.inherit(Message, {
 			__constructor: function(step, pnts) {
-				this.__base(['Шаг ', step + 1, ': Штраф за команду \n', 'Текущее количество очков: ', 
+				this.__base(['Шаг ', step + 1, ': Штраф за команду \n', 'Текущее количество очков: ',
 							pnts, '\n']);
 			}
 		}),

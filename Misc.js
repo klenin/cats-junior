@@ -1,7 +1,7 @@
 Array.prototype.compare = function(testArr) {
     if (this.length != testArr.length) return false;
     for (var i = 0; i < testArr.length; i++) {
-        if (this[i].compare) { 
+        if (this[i].compare) {
             if (!this[i].compare(testArr[i])) return false;
         }
         if (this[i] !== testArr[i]) return false;
@@ -14,7 +14,7 @@ Array.prototype.clone = function() {
   for (i in this) {
     if (i == 'clone') continue;
     newObj[i] = this[i]
-  } 
+  }
   return newObj;
 };
 
@@ -79,11 +79,11 @@ function parseArgs() {
 			if ($scope[problem] != undefined && $loc[problem] != undefined)
 			{
 				var scope = finalcode[problem].compiled.scopes[$scope[problem]].scopename;
-				var t_scope = $scope[problem], 
-					t_scopename = $scopename[problem], 
+				var t_scope = $scope[problem],
+					t_scopename = $scopename[problem],
 					t_scopestack = $scopestack[problem];
 				var name = expression.id.v;
-				//find name 
+				//find name
 				while(eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].loc." + name) == undefined
 					&& eval("$loc[" + problem + "]." + t_scopename + ".stack[" + t_scopestack + "].parentStack") != undefined)
 				{
@@ -160,9 +160,9 @@ function tryNextStep_(){
 			var b = getCurBlock();
 			while(getScope().blocks[b].funcdef)
 				++b;
-			nextline[problem] = getScope().blocks[b].lineno;		
+			nextline[problem] = getScope().blocks[b].lineno;
 		}
-			
+
 		if (nextline[problem] != undefined)
 		{
 			codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
@@ -178,7 +178,7 @@ function tryNextStep_(){
 				codeareas[problem].setLineClass(nextline[problem], null);
 			$('#cons' + problem).append('\nfinished\n');
 			return 0;
-		} 
+		}
 	}
 	else
 	{
@@ -255,7 +255,7 @@ function checkName(name) {
 }
 
 function checkNumber(number) {
-	var re = /^[0-9]+[0-9]*$/i;
+	var re = /^[0-9.]+[0-9.]*$/i;
 	return re.test(number);
 }
 
@@ -269,7 +269,7 @@ function changeCmdHighlight(elem){
 	else {
 		elem.addClass('highlighted');
 	}
-		
+
 	return true;
 }
 
@@ -277,4 +277,29 @@ function isCmdHighlighted(elem) {
 	if (!elem)
 		return false;
 	return $('#' + elem).hasClass('highlighted')
+}
+
+function logError(e) {
+	console.error(e);
+	console.log(e.stack);
+}
+
+function getInternetExplorerVersion()
+{
+  var rv = null;
+  if (navigator.appName == 'Microsoft Internet Explorer')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  else if (navigator.appName == 'Netscape')
+  {
+    var ua = navigator.userAgent;
+    var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+    if (re.exec(ua) != null)
+      rv = parseFloat( RegExp.$1 );
+  }
+  return rv;
 }

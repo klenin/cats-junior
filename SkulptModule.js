@@ -1,6 +1,6 @@
 define('SkulptModule', [
 		'Env',
-		'SkMiscEval', 
+		'SkMiscEval',
 		'SkErrors',
 		'SkType',
 		//'SkObject',
@@ -29,6 +29,6 @@ define('SkulptModule', [
 		'SkSymtable',
 		'SkCompile',
 		'SkImport',
-		'SkBuiltinDict'], 
+		'SkBuiltinDict'],
 		function(){
 		});

@@ -2,8 +2,6 @@ define('Problems', ['jQuery',
 	'jQueryInherit',
 	'ModesConversion',
 	'ExecutionUnitWrapper',
-	'CommandsMode',
-	'InterfaceJSTree',
 	'CodeMode',
 	'ShowMessages',
 	'Declaration',
@@ -11,8 +9,6 @@ define('Problems', ['jQuery',
 
 function() {
 	var ExecutionUnitWrapperModule = require('ExecutionUnitWrapper');
-	var InterfaceJSTree = require('InterfaceJSTree');
-	var CommandsMode = require('CommandsMode');
 	var ModesConversion = require('ModesConversion');
 	var CodeMode = require('CodeMode');
 	var ShowMessages = require('ShowMessages');
@@ -27,7 +23,6 @@ function() {
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
-			this.cmdList = new CommandsMode.Block([], undefined, this);
 			this.executedCommandsNum = 0;
 			this.lastExecutedCmd = undefined;
 			this.tabIndex = tabIndex;
@@ -48,10 +43,9 @@ function() {
 			this.usedCommands = [];
 			this.commandsFine = this.commandsFine ? this.commandsFine : 0;
 			this.stepsFine = this.stepsFine ? this.stepsFine : 0;
-			this.functions = {};
-			this.functionsWithId = [];
-			this.numOfFunctions = 0;
 			this.setCurrentStage('IDLE');
+
+			this.functions = {};
 		},
 
 		initExecutor: function(data) {
@@ -64,50 +58,11 @@ function() {
 		},
 
 		generateCommand: function(className, commandName, container) {
-			$(container).append('<td>' +
-				'<div id="' + className + this.tabIndex + '" class="' + className + '  jstree-draggable" type = "' + className + 
-					'" rel = "' + className + '" title = "' + commandName + '">' + '</div>' + '</td>');
-
-			var self = this;
-
-			$('#' + className + this.tabIndex).bind('dblclick', function(dclass, dname, problem) {
-				return function() {
-					if ($(this).prop('ifLi')) {
-						return;
-					}
-					$("#jstree-container" + problem.tabIndex).jstree("create", false, "last", {
-						'data': (dclass == 'funcdef') ? ('func_' + problem.numOfFunctions) : dname
-					}, function(newNode) {
-						InterfaceJSTree.onCreateItem(this, newNode, $('#' + dclass + problem.tabIndex).attr('rel'), problem);
-					}, dclass != 'funcdef');
-					problem.updated();
-				}
-			}(className, commandName, self));
+			console.log('generateCommand is deprecated. TODO: remove');
 		},
 
 		generateCommands: function() {
-			//this.executionUnit.addTypesInTree(jQuery.jstree._reference('#jstree-container' + this.tabIndex))
-
-			var tr = $('#ulCommands' + this.tabIndex).children('table').children('tbody').children('tr');
-			for (var i = 0; i < classes.length; ++i) {
-				if (classes[i] === 'block') {
-					continue;
-				}
-
-				if (this.controlCommands) {
-					if (this.controlCommands.indexOf(classes[i]) === -1) { //this control command isn't accepted in this problem
-						continue;
-					}
-				}
-
-				this.generateCommand(classes[i], cmdClassToName[classes[i]], tr);				
-			}
-
-			var executionUnitCommands = this.executionUnit.getCommandsToBeGenerated();
-			for (var i = 0; i < executionUnitCommands.length; ++i) {
-				var command = executionUnitCommands[i];
-				this.generateCommand(command.commandClass, command.commandName, tr);
-			}
+			console.log('generateCommands is deprecated. TODO: remove');
 		},
 
 		getCommandName: function(command) {
@@ -134,7 +89,6 @@ function() {
 			/*this.map = jQuery.extend(true, [], this.defaultLabirint);
 			 */
 
-			this.executionUnit.setDefault(f);
 			this.paused = false;
 			this.stopped = false;
 			this.playing = false;
@@ -161,7 +115,9 @@ function() {
 				this.changeProgressBar();
 			}
 			$("#cons" + this.tabIndex).empty();
-			this.cmdList.setDefault();
+			this.blocklyExecutor.restore();
+			this.blocklyExecutor.setDefault();
+			this.executionUnit.setDefault();
 
 			this.enableButtons();
 
@@ -172,7 +128,7 @@ function() {
 			$loc[problem] = $gbl[problem];
 			nextline[problem] = undefined;
 			for (var i = 0; i < codeareas[problem].lineCount(); ++i)
-			codeareas[problem].setLineClass(i, null);
+				codeareas[problem].setLineClass(i, null);
 			this.updateWatchList();
 			this.setCurrentStage('IDLE');
 		},
@@ -191,9 +147,18 @@ function() {
 			}
 		},
 
-		cmdHighlightOff: function() {
-			if (this.cmdList) {
-				this.cmdList.highlightOff();
+		cmdHighlightOff: function(removeSelection) {
+			var Blockly = this.Blockly;
+			if (!Blockly)
+				return
+			blocks = Blockly.mainWorkspace.getAllBlocks();
+			for (var i = 0, block; block = blocks[i]; ++i) {
+				if (block.svg_) {
+					Blockly.removeClass_(block.svg_.svgGroup_, "blocklyCurrentCommand");
+					if (removeSelection) {
+						block.svg_.removeSelect();
+					}
+				}
 			}
 		},
 
@@ -214,7 +179,7 @@ function() {
 		enableButtons: function() {
 			//$('#jstree-container' + this.tabIndex).sortable('enable');
 			for (var i = 0; i < btnsPlay.length; ++i)
-			$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
+				$('#btn_' + btnsPlay[i] + this.tabIndex).removeAttr('disabled');
 			$('#tabs').tabs("option", "disabled", []);
 			$('#divcontainer' + this.tabIndex).unblock();
 			$('#resizable' + this.tabIndex).unblock();
@@ -232,7 +197,7 @@ function() {
 			$('#divcontainer' + this.tabIndex).block({
 				message: null,
 				fadeIn: 0,
-				overlayCSS: { 
+				overlayCSS: {
 					backgroundColor: '#ffffff',
 					opacity: 0,
 					cursor: 'default'
@@ -242,7 +207,7 @@ function() {
 			/*$('#resizable' + this.tabIndex).block({
 				message: null,
 				fadeIn: 0,
-				overlayCSS: { 
+				overlayCSS: {
 					backgroundColor: '#ffffff',
 					opacity: 0,
 					cursor: 'default'
@@ -253,7 +218,7 @@ function() {
 		updateWatchList: function() {
 			var problem = this.tabIndex;
 			for (var p in watchList[problem]) {
-				var res = calculateValue(watchList[problem][p]);
+				var res = CodeMode.calculateValue(watchList[problem][p]);
 				$('#calcVal_' + problem + '_' + p).html(res == undefined ? 'undefined' : res);
 			}
 		},
@@ -264,7 +229,8 @@ function() {
 				return undefined;
 			}
 			if (CodeMode.getCurBlock() >= 0) {
-				if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
+				if (nextline[problem] != undefined && !dontHiglight)
+					codeareas[problem].setLineClass(nextline[problem], null);
 				var e = 1;
 				while (CodeMode.getCurBlock() >= 0 && (e || $expr[problem])) {
 					$expr[problem] = 0;
@@ -273,7 +239,8 @@ function() {
 						eval(finalcode[problem].code);
 						this.updateWatchList();
 					} catch (e) {
-						console.error(e);
+						console.error(e.toString());
+						console.log(e.stack);
 						$('#cons' + problem).append('\n' + e + '\n');
 						return 0;
 
@@ -281,12 +248,14 @@ function() {
 				}++this.executedCommandsNum;
 				if (CodeMode.getCurBlock() >= 0) {
 					var b = CodeMode.getCurBlock();
-					while (CodeMode.getScope().blocks[b].funcdef)++b;
+					while (CodeMode.getScope().blocks[b].funcdef)
+						++b;
 					nextline[problem] = CodeMode.getScope().blocks[b].lineno;
 				}
 
 				if (nextline[problem] != undefined) {
-					if (!dontHiglight) codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
+					if (!dontHiglight)
+						codeareas[problem].setLineClass(nextline[problem], 'cm-curline');
 					if (codeareas[problem].lineInfo(nextline[problem]).markerText) {
 						this.paused = true;
 						//curProblem.playing = false;
@@ -294,16 +263,18 @@ function() {
 					}
 				}
 				if (CodeMode.getCurBlock() < 0) {
-					if (nextline[problem] != undefined && !dontHiglight) codeareas[problem].setLineClass(nextline[problem], null);
+					if (nextline[problem] != undefined && !dontHiglight)
+						codeareas[problem].setLineClass(nextline[problem], null);
 					//$('#cons' + problem).append('\nfinished\n');
 					this.executionUnit.executionFinished();
 					this.playing = false;
 					return 0;
 				}
 			} else {
-				if (nextline[problem] != undefined) codeareas[problem].setLineClass(nextline[problem], null);
+				if (nextline[problem] != undefined)
+					codeareas[problem].setLineClass(nextline[problem], null);
 				//$('#cons' + problem).append('\nfinished\n');
-			this.executionUnit.executionFinished();
+				this.executionUnit.executionFinished();
 				this.playing = false;
 				return 0;
 			}
@@ -314,67 +285,19 @@ function() {
 			return this.divIndex;
 		},
 
-		list: function() {
-			return this.cmdList;
-		},
-
-		checkIntegrity: function() {
-			this.cmdList.checkIntegrity();
-		},
-
 		updated: function() {
 			if (this.getCurrentStage() == 'CONVERSION_TO_COMMANDS') {
 				return;
 			}
-			this.functions = {};
-			this.functionsWithId = [];
-			this.numOfFunctions = 0;
-			var accordion = $('#accordion' + this.tabIndex);
-			var newCmdList = new CommandsMode.Block([], undefined, this);
-			for (var i = 0; i < accordion.children('.funccall').length; ++i) {
-				var div = accordion.children('.funccall:eq(' + i + ')');
-				var name = accordion.myAccordion('getFunctionName', div);
-				var id = $(div).attr('id');
-				var funcId = $(div).attr('funcId');
-				var argumentsList = accordion.myAccordion('getArguments', div);
-				var code = ModesConversion.convert(div.children('.func-body').jstree('get_json', -1), newCmdList, this, name, div, argumentsList, funcId);
-				newCmdList.pushCommand(code);
-			}
 
-			var code = ModesConversion.convert($("#jstree-container" + this.tabIndex).jstree('get_json', -1), newCmdList, this, false);
-			if (newCmdList) {
-				newCmdList.pushCommand(code);
-			} else {
-				newCmdList = code;
-			}
+			this.functions = {};
 			this.changed = true;
-			this.cmdList = newCmdList;
 			this.setDefault();
 			this.updateInterface('FINISH_EXECUTION');
 			this.highlightWrongNames();
 		},
 
-		updateFunctonNames: function(funcId, oldName, newName) {
-			//if (!this.functions[oldName]) {
-			this.cmdList.updateFunctonNames(funcId, oldName, newName);
-			//}
-		},
-
-		removeFunctionCall: function(funcId) {
-			this.cmdList.removeFunctionCall(funcId);
-			this.updated();
-		},
-
-		updateArguments: function(funcId, args) {
-			this.cmdList.updateArguments(funcId, args);
-		},
-
 		highlightWrongNames: function() {
-			this.cmdList.highlightWrongNames();
-		},
-
-		funcCallUpdated: function() {
-			this.cmdList.funcCallUpdated();
 		},
 
 		loop: function(cnt, i) {
@@ -384,9 +307,10 @@ function() {
 				if ($('#codeMode' + this.tabIndex).prop('checked')) {
 					continueExecution = this.tryNextStep();
 				} else {
-					if (!this.cmdList.exec(1))++this.executedCommandsNum;
+					if (!this.blocklyExecutor.exec(1, {}))
+						++this.executedCommandsNum;
 					this.changeProgressBar();
-					if (this.cmdList.isFinished()) {
+					if (this.blocklyExecutor.finished) {
 						this.playing = false;
 						this.enableButtons();
 						this.executionUnit.executionFinished();
@@ -399,26 +323,28 @@ function() {
 			} catch (e) {
 				console.error(e);
 				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n')
 			}
 		},
 
 		heroIsDead: function() {
 			for (var i = 0; i < btns.length; ++i)
-			$('#btn_' + btns[i] + this.tabIndex).button('disable');
+				$('#btn_' + btns[i] + this.tabIndex).button('disable');
 			$('#btn_stop' + this.tabIndex).button('enable');
 			this.playing = false;
 			this.hideFocus();
 		},
 
 		nextCmd: function() {
-			if (this.speed) this.changeProgressBar();
+			if (this.speed)
+				this.changeProgressBar();
 			return true;
 		},
 
 		nextStep: function(cnt, i) {
 			if (this.executionUnit.isGameOver() || this.stopped) {
 				if (this.executionUnit.isGameOver()) //check it!!!
-				this.heroIsDead();
+					this.heroIsDead();
 				if (this.stopped) {
 					this.setDefault();
 					this.cmdHighlightOff();
@@ -452,33 +378,32 @@ function() {
 		},
 
 		play: function(cnt) {
+			var maxStep = this.maxStep == 0 ? MAX_STEP_VALUE : this.maxStep;
 			try {
 				if (!this.speed) {
 					if ($('#codeMode' + this.tabIndex).prop('checked')) {
 						for (var i = 0; i < cnt && i < maxStep && !this.paused && !this.stopped && this.tryNextStep(); ++i) {};
 						if (i < cnt && i == maxStep && !this.paused) {
-							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов\n');
 						}
 					} else {
 						var c = cnt == MAX_VALUE ? maxStep : cnt;
-						var executed = this.cmdList.exec(c);
+						var executed = this.blocklyExecutor.exec(c, {});
 						this.executedCommandsNum += c - executed;
 						if (cnt == MAX_VALUE && !executed && !this.paused) {
-							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов');
+							$('#cons' + this.tabIndex).append('Превышено максимальное число шагов\n');
 						}
-						if (this.cmdList.isFinished()) this.playing = false;
+						if (this.blocklyExecutor.finished) this.playing = false;
 					}
 					this.changeProgressBar();
 					this.executionUnit.draw();
 					this.enableButtons();
-
-					this.cmdList.highlightOff(); //inefficiency!!!!!!!!
-
 					this.highlightLast();
 				} else this.nextStep(cnt);
 			} catch (e) {
-				console.error(e);
-				$('#cons' + this.tabIndex).append(e);
+				logError(e)
+				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n');
 			}
 		},
 
@@ -522,8 +447,8 @@ function() {
 				'name': 'k',
 				'cnt': 0
 			}]
-
-			return this.cmdList.generatePythonCode(0);
+			var Blockly = this.Blockly;
+			return Blockly.Python.workspaceToCode(Blockly.mainWorkspace)
 		},
 
 		die: function() {
@@ -534,7 +459,20 @@ function() {
 		},
 
 		updateInterface: function(newState) {
-			this.cmdList.updateInterface(newState);
+			this.setCurrentStage('CONVERSION_TO_COMMANDS')
+			switch (newState) {
+				case 'START_EXECUTION':
+					this.xmlWorkspace_ = this.Blockly.Xml.workspaceToDom(
+						this.Blockly.mainWorkspace);
+					break;
+				case 'FINISH_EXECUTION':
+					if (!this.xmlWorkspace_)
+						this.setCurrentStage('IDLE');
+						return
+					this.Blockly.Xml.domToWorkspace(this.Blockly.mainWorkspace, this.xmlWorkspace_);
+					break;
+			}
+			this.setCurrentStage('IDLE')
 		},
 
 		getSubmitStr: function() {
@@ -578,12 +516,12 @@ function() {
 					}
 				}(this), s);
 			} catch (e) {
-				this.playing = false;	
+				this.playing = false;
 				if (e.getErrorLine) {
-					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке');
+					$('#cons' + this.tabIndex).html('Ошибка компиляции на ' + e.getErrorLine() + ' строке\n');
 				}
 				else {
-					$('#cons' + this.tabIndex).html('Некорректный код');
+					$('#cons' + this.tabIndex).html('Некорректный код\n');
 				}
 			}
 		},
@@ -592,7 +530,7 @@ function() {
 			var problem = this.tabIndex;
 			this.setDefault();
 			this.playing = false;
-			this.cmdHighlightOff();
+			this.cmdHighlightOff(true);
 			this.compileCode()
 			this.updateWatchList();
 			if (!dontHighlight && nextline[problem] != undefined) {
@@ -658,22 +596,22 @@ function() {
 				} catch (e) {
 					console.error(e);
 					this.playing = false;
-					$('#cons' + this.tabIndex).append(e);
+					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+					$('#cons' + this.tabIndex).append('\n');
 				}
 			} else {
 				try {
 					var s = this.speed;
 					this.speed = 1000;
 					this.paused = false;
-					this.updateInterface('START_EXECUTION');
 					if (!this.playing || this.changed) {
-
 						if (!this.playing) {
-							var needReturn = this.cmdList.isFinished();
-							this.setDefault();	
-							if (needReturn) return;		
+							var needReturn = this.blocklyExecutor.finished;
+							this.setDefault();
+							if (needReturn) return;
 						}
-						codeareas[this.tabIndex].setValue(this.convertCommandsToCode());
+						var code = this.convertCommandsToCode()
+						codeareas[this.tabIndex].setValue(code);
 						if (!this.playing) {
 							this.prepareForExecuting();
 							this.updateInterface('START_EXECUTION');
@@ -681,23 +619,25 @@ function() {
 							this.compileCode();
 						}
 						this.playing = true;
-
 					}
+					this.updateInterface('START_EXECUTION');
 					this.lastExecutedCmd = undefined;
 					this.cmdHighlightOff();
-					this.cmdList.exec(1);
+					this.blocklyExecutor.exec(1, {});
 					this.changeProgressBar();
 					++this.executedCommandsNum;
 					this.highlightLast();
 					this.executionUnit.draw();
-					if (this.cmdList.isFinished()) {
+					if (this.blocklyExecutor.finished) {
 						this.playing = false;
 						this.executionUnit.executionFinished();
-					} 
+					}
 					this.speed = s;
 				} catch (e) {
 					console.error(e);
-					$('#cons' + this.tabIndex).append(e);
+					console.log(e.stack);
+					$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+					$('#cons' + this.tabIndex).append('\n');
 				}
 
 			}
@@ -729,7 +669,8 @@ function() {
 				this.play(t);
 			} catch (e) {
 				console.error(e);
-				$('#cons' + this.tabIndex).append(e);
+				$('#cons' + this.tabIndex).append(e.message ? e.message : e.toString());
+				$('#cons' + this.tabIndex).append('\n');
 			}
 		},
 
@@ -755,11 +696,11 @@ function() {
 		getState: function() {
 			return this.executionUnit.getState();
 		},
-		
+
 		needToContinueExecution: function() {
 			return !(this.stopped || this.paused || this.executionUnit.isGameOver());
 		},
-		
+
 		recalculatePenalty: function(command) {
 			if (!this.usedCommands[command.getId()]){
 				++this.divIndex;
@@ -770,17 +711,9 @@ function() {
 				}
 			}
 		},
-		
+
 		setLastExecutedCommand: function(command) {
 			this.lastExecutedCmd = command;
-		},
-		
-		newCommandGenerationStarted: function() {
-			++this.loadedCnt;
-		},
-		
-		newCommandGenerated: function() {
-			--this.loadedCnt;
 		},
 
 		getCommands: function() {
@@ -802,7 +735,35 @@ function() {
 
 		getConditionProperties: function(condName) {
 			return this.executionUnit.getConditionProperties(condName);
+		},
+
+        bindUpdated: function() {
+        	var problem = this;
+        	// setTimeout(function(){
+            this.bindData_ = problem.Blockly.bindEvent_(
+            	problem.Blockly.mainWorkspace.getCanvas(), 'blocklyWorkspaceChange', problem, problem.updated);
+	        // }, 1000);
+        },
+
+        unbindUpdated: function() {
+            if (!this.bindData_)
+                return
+            this.Blockly.unbindEvent_(this.bindData_);
+            delete this.bindData_;
+        },
+
+		resetWorkspace: function() {
+			var mainWorkspace = this.Blockly.mainWorkspace;
+			var xmlWorkspace = this.Blockly.Xml.workspaceToDom(mainWorkspace);
+			mainWorkspace.clear();
+			return xmlWorkspace;
+		},
+
+		restoreWorkspace: function(xmlWorkspace) {
+			mainWorkspace = this.Blockly.mainWorkspace;
+			this.Blockly.Xml.domToWorkspace(mainWorkspace, xmlWorkspace);
 		}
+
 	});
 
 	var cmdClassToName = {
@@ -819,6 +780,7 @@ function() {
 	var MAX_STEP_VALUE = 10000;
 
 	return {
-		Problem: Problem
+		Problem: Problem,
+		classes: classes
 	}
 });

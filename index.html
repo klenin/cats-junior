@@ -17,6 +17,10 @@
 		.CodeMirror {
 			border: 1px solid #aaa;
 		}
+		.blockly-container {
+		    width: 100%;
+		    height: 500px;
+		}
 	</style>
 
 <script id = "commandsListTemplate" type="text/x-jquery-tmpl">
@@ -29,18 +33,23 @@
 <script id = "toolbarButtonsTemplate" type="text/x-jquery-tmpl">
 	<button id = "btn_${btn}${tab}" name = "${btn}" title = "${title}">${btn}</button>
 </script>
-	
+
 <script id = "tabTemplate" type="text/x-jquery-tmpl">
-	<table width = "100%">	
+	<table width = "100%">
 		<tr>
-			<td colspan = "4">
+			<th width="50%"></th>
+			<th></th>
+			<th width="250px"></th>
+		</tr>
+		<tr>
+			<td colspan = "3">
 				<div id = "title${tab}">
 					<b>{{html $item.data.title}}</b>
 				</div>
 			</td>
 		</tr>
 		<tr>
-			<td colspan = "4">
+			<td colspan = "3">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; min-height:16px">
 					<button id = "hideStatement${tab}" style = "float:right;"></button>
 					<div id = "statement${tab}" style="padding-left:5px;">
@@ -50,11 +59,11 @@
 			</td>
 		</tr>
 		<tr>
-			<td valign = "top" style = "height: 100%; width: 400px; ">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%; min-height: 530px;">
-					<table>
+					<table width="100%">
 						<tr>
-							<td colspan = "2">	
+							<td colspan = "2">
 								<form>
 									<input type = "radio" name = "group${tab}" id = "commandsMode${tab}" checked>Исполнитель
 									<input type = "radio" name = "group${tab}" id = "codeMode${tab}" >Python
@@ -78,29 +87,7 @@
 						</tr>
 						<tr>
 							<td id = "tdcontainer${tab}">
-								<div id = "divcontainer${tab}" style="position: static">
-									<table width = "100%">
-										<tr>
-											<td>
-												<div id = "accordion${tab}" style="display:inline-block; width: 100%">
-												</div>
-											</td>
-										</tr>
-										<tr>
-											<td>
-												<div id = "jstree-container${tab}" class = "sortable-func">
-												</div>
-											</td>
-
-										</tr>
-										<tr>
-											<td>
-												<div class = "jstree-drop recycle-bin">
-												</div>
-											</td>
-										</tr>
-									</table>
-								</div>
+								<iframe class="blockly-container" id="blockly-container-${tab}" src="blockly.html"></iframe>
 							</td>
 							<td>
 								<button id = "addWatch${tab}">Добавить наблюдение</button><br>
@@ -118,7 +105,7 @@
 					</table>
 				</div>
 			</td>
-			<td valign = "top" style = "height: 100%">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%">
 					<table width = "100%">
 						<tr>
@@ -130,7 +117,7 @@
 							</td>
 						</tr>
 						<tr>
-							<td width = "100%">
+							<td>
 								<div class="ui-widget-header ui-corner-all" style = "padding: 10px 4px; max-width: 270px">
 									<span>
 										{{tmpl($item.data.btns) "#toolbarButtonsTemplate"}}
@@ -150,24 +137,17 @@
 					</table>
 				</div>
 			</td>
-			<td valign = "top" style = "width:250px; height: 100%">
+			<td valign = "top">
 				<div style = "border-style: dotted; border-color: #5F8EAD; border-width: 2px; height: 100%">
-					<table style='width: 250px; float: right'>
-						<tr>
-							<td> 
-								<pre id = "cons${tab}" class = "cons">
-								</pre>
-							</td>
-						</tr>
-					</table>
+					<pre id="cons${tab}" class="cons">
 				</div>
 			</td>
 		</tr>
-	</table>				
+	</table>
 </script>
 </head>
 <body>
-	<p id = "ver"></p>	
+	<p id = "ver"></p>
 	<div id = "tabs">
 		<ul>
 		</ul>
@@ -178,14 +158,14 @@
 			<div>
 				<p>
 				Система разработана для проведения соревнований по информатике среди школьников младших классов.<br>
-				Перед участниками стоит задача набрать наибольшее количество очков, управляя передвижением 
+				Перед участниками стоит задача набрать наибольшее количество очков, управляя передвижением
 				стрелочки по лабиринту и собирая бонусы на поле. <br>
 				</p>
 			</div>
 			<h3><a href="#">Редактирование списка команд</a></h3>
 			<div>
 				<p>
-				Для добавления выбранной команды, нужно перетащить ее из списка допустимых команд в поле 
+				Для добавления выбранной команды, нужно перетащить ее из списка допустимых команд в поле
 				ввода команд на желаемую позицию.<br>
 				Двойной щелчок левой кнопки мыши по команде добавляет ее в конец списка команд.<br>
 				Количество повторений команды меняется нажатием на кнопку увеличения/уменьшения счетчика.<br>
@@ -196,7 +176,7 @@
 			<h3><a href="#">Проигрывание команд</a></h3>
 			<div>
 				<p>
-				Кнопки проигрывания, паузы, остановки, перехода к следующей/предыдущей команде, перехода к 
+				Кнопки проигрывания, паузы, остановки, перехода к следующей/предыдущей команде, перехода к
 				последней команде делают то, что непосредственно соедует из названия.
 				</p>
 			</div>
@@ -205,21 +185,21 @@
 				<ul>
 					<li><b>Стрелочка</b> - бегает по лабиринту и собирает бонусы</li>
 					<li><b>Звездочка</b> - бонус, за него участник получает очки</li>
-					<li><b>Ящик</b> может быть перемещен в лабиринте по направленю движения героя, если этому 
+					<li><b>Ящик</b> может быть перемещен в лабиринте по направленю движения героя, если этому
 					не мешают другие объекты (стена, монстр, дверь)</li>
 					<li><b>Дверь</b> - элемент, через который не может пройти ни один элемент лабиринта</li>
 					<li><b>Ключ</b> открывает ближайшую дверь </li>
-					<li><b>Монстр</b> перемещается в лабиринте по заданной траектории, его передвижение может 
-					быть блокировано ящиком. Если стрелочка попадает в одну клетку с монстром, считается, 
+					<li><b>Монстр</b> перемещается в лабиринте по заданной траектории, его передвижение может
+					быть блокировано ящиком. Если стрелочка попадает в одну клетку с монстром, считается,
 					что игрок проиграл. Продолжить решение задачи можно, нажав на кнопку остановки решения </li>
 				</ul>
 			</div>
 			<h3><a href="#">Отправка решения</a></h3>
 			<div>
 				<p>
-				Если участник считает, что решил задачу, он должен выбрать свое имя из списка пользователей 
-				на первой вкладке, после этого нажать на кнопку отправки решения. Результаты тестирования 
-				через некоторое время будут доступны во вкладке "Результаты". Таблица не обновляется автоматически, 
+				Если участник считает, что решил задачу, он должен выбрать свое имя из списка пользователей
+				на первой вкладке, после этого нажать на кнопку отправки решения. Результаты тестирования
+				через некоторое время будут доступны во вкладке "Результаты". Таблица не обновляется автоматически,
 				для ее обновления нужно нажать соответсвующую кнопку на вкладке с результатами.
 				Количество попыток не ограничено.
 				</p>

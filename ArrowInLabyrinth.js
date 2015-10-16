@@ -6,7 +6,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 	var InternalError = Exceptions.InternalError;
 
 	var Message = ShowMessages.Message;
-	
+
 	var Coord = $.inherit({
 		__constructor: function(x, y) {
 			this.x = x;
@@ -34,7 +34,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		},
 		draw: function() {
 			var s = this.getElement();
-			$(s).empty();			
+			$(s).empty();
 			$(s).removeClass('floor');
 			$(s).removeClass('highlightFloor');
 			$(s).removeClass('wall');
@@ -199,13 +199,13 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			var dx = this.executionUnit.__self.changeDir[d][this.dir].dx;
 			var dy = this.executionUnit.__self.changeDir[d][this.dir].dy;
 			this.dir = this.executionUnit.__self.changeDir[d][this.dir].curDir;
-			this.coord = new Coord(this.coord.x + dx, this.coord.y + dy); 
+			this.coord = new Coord(this.coord.x + dx, this.coord.y + dy);
 		}
 	});
 
 	var Prize = $.inherit(Cell,{
 		__constructor : function(executionUnit, coord, prize) {
-			this.__base(executionUnit, coord, $.extend(prize, 
+			this.__base(executionUnit, coord, $.extend(prize,
 				{id: executionUnit.maxPrizeId++, zIndex: prize.zIndex ? prize.zIndex : 1}));
 			this.eaten = false;
 		},
@@ -224,7 +224,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 	var Box = $.inherit(Cell,{
 		__constructor : function(executionUnit, coord, box) {
-			this.__base(executionUnit, coord, $.extend(box, 
+			this.__base(executionUnit, coord, $.extend(box,
 				{id: executionUnit.maxBoxId++, zIndex: box.zIndex ? box.zIndex : 2}));
 			this.initCoord = coord;
 		},
@@ -239,7 +239,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 	var Monster = $.inherit(Cell,{
 		__constructor : function(executionUnit, coord, monster) {
-			this.__base(executionUnit, coord, $.extend(true, monster, 
+			this.__base(executionUnit, coord, $.extend(true, monster,
 				{id: executionUnit.maxMonsterId++, zIndex: monster.zIndex ? monster.zIndex : 3}));
 			for (var i = 0; i < this.path.length; ++i)
 				this.path[i] = $.extend(this.path[i], {startX: this.path[i].x, startY: this.path[i].y, cnt: 0});
@@ -257,7 +257,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		},
 		tryNextStep: function() {
 			var x = this.coord.x, y = this.coord.y, dir = this.path[this.pathIndex].dir;
-			if (/*(this.pathIndex >= this.path.length || */this.pathIndex == this.path.length - 1 && 
+			if (/*(this.pathIndex >= this.path.length || */this.pathIndex == this.path.length - 1 &&
 					this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt){
 				if (!this.looped)
 					return;
@@ -268,7 +268,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			else
 				if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 					dir = this.path[this.pathIndex + 1].dir;
-				
+
 			if (dir && dir.length && !this.executionUnit.map[y + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dy][x + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dx].isWall){
 				x = x + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dx;
 				y = y + this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[dir]].dy;
@@ -276,7 +276,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			return new Coord(x, y);
 		},
 		nextStep: function() {
-			if /*(this.pathIndex >= this.path.length || */(this.pathIndex == this.path.length - 1 && 
+			if /*(this.pathIndex >= this.path.length || */(this.pathIndex == this.path.length - 1 &&
 					this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt){
 				if (!this.looped)
 					return;
@@ -285,9 +285,9 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			else
 				if (this.path[this.pathIndex].cnt == this.path[this.pathIndex].initCnt)
 					++this.pathIndex;
-			if (this.path[this.pathIndex].dir && this.path[this.pathIndex].dir.length && 
-				!this.executionUnit.map[this.path[this.pathIndex].y + 
-				this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x + 
+			if (this.path[this.pathIndex].dir && this.path[this.pathIndex].dir.length &&
+				!this.executionUnit.map[this.path[this.pathIndex].y +
+				this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dy][this.path[this.pathIndex].x +
 				this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dx].isWall){
 				this.path[this.pathIndex].x += this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dx;
 				this.path[this.pathIndex].y += this.executionUnit.__self.changeDir.forward[this.executionUnit.__self.dirs[this.path[this.pathIndex].dir]].dy;
@@ -335,14 +335,14 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 
 	var MessagePrizeFound = $.inherit(Message, {
 		__constructor: function(step, name, pnts, all) {
-			this.__base(['Шаг ', step + 1, ': Нашли бонус ', name, ' \n', 'Текущее количество очков: ', 
+			this.__base(['Шаг ', step + 1, ': Нашли бонус ', name, ' \n', 'Текущее количество очков: ',
 						pnts, '\n', all? 'Вы собрали все бонусы! \n' : '']);
 		}
 	});
 
 	var MessageInvalidDirectionFine = $.inherit(Message, {
 		__constructor: function(step, pnts) {
-			this.__base(['Шаг ', step + 1, ': Штраф за неправильное направление \n', 'Текущее количество очков: ', 
+			this.__base(['Шаг ', step + 1, ': Штраф за неправильное направление \n', 'Текущее количество очков: ',
 						pnts, '\n']);
 		}
 	});
@@ -363,7 +363,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		var result = true;
 		var dir = '';
 		switch(direction){
-			case 'atTheLeft': 
+			case 'atTheLeft':
 			case 'слева':
 				dir = 'left';
 				break;
@@ -414,9 +414,9 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				break;
 			case 'cell':
 			case 'Пустое место':
-				result = !(cell.isWall || 
-					cell.findCell(Prize) != undefined || 
-					cell.findCell(Box) != undefined || 
+				result = !(cell.isWall ||
+					cell.findCell(Prize) != undefined ||
+					cell.findCell(Box) != undefined ||
 					cell.findCell(Monster) != undefined ||
 					cell.findCell(Lock) != undefined ||
 					cell.findCell(Key) != undefined ||
@@ -434,7 +434,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 		var result = true;
 		var dir = '';
 		switch(direction.v){
-			case 'atTheLeft': 
+			case 'atTheLeft':
 			case 'слева':
 				dir = 'left';
 				break;
@@ -485,9 +485,9 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				break;
 			case 'cell':
 			case 'Пустое место':
-				result = !(cell.isWall || 
-					cell.findCell(Prize) != undefined || 
-					cell.findCell(Box) != undefined || 
+				result = !(cell.isWall ||
+					cell.findCell(Prize) != undefined ||
+					cell.findCell(Box) != undefined ||
 					cell.findCell(Monster) != undefined ||
 					cell.findCell(Lock) != undefined ||
 					cell.findCell(Key) != undefined ||
@@ -502,13 +502,13 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 	function isCompleted_handler() {
 		return curProblem.executionUnit.getExecutionUnit().isCompleted();
 	}
-	
+
 	function isCompleted(args) {
 		var condition = args[0];
 		var result = curProblem.executionUnit.getExecutionUnit().isCompleted();
 
 		if (condition == 'not') {
-			result = !result; 
+			result = !result;
 		}
 
 		return result;
@@ -541,7 +541,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			getCommandName: function(command) {
 				return this.__self.cmdClassToName[command];
 			},
-			
+
 			getAllowedCommands: function() {
 				return this.data.commands;
 			},
@@ -553,16 +553,16 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			initLabyrinth: function() {
 				this.life = this.data.startLife;
 				this.points = this.data.startPoints;
-				this.mapFromTest = this.data.map.slice(); 
+				this.mapFromTest = this.data.map.slice();
 				this.map = [];
-				this.maxBoxId = 0; 
+				this.maxBoxId = 0;
 				this.maxMonsterId = 0;
-				this.maxPrizeId = 0; 
+				this.maxPrizeId = 0;
 				this.maxCellId = 0;
 				this.monsters = [];
 				this.numOfPrizes = 0;
-				this.curNumOfPrizes = 0; 
-				this.visited = false; 
+				this.curNumOfPrizes = 0;
+				this.visited = false;
 				this.dx = 0;
 				this.dy = 0;
 				this.specSymbols = this.data.specSymbols;
@@ -587,7 +587,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						for (var k = 0; k < arr.length; ++k){
 							this.map[arr[k].coord.y][arr[k].coord.x].pushCell(arr[k]);
 							switch(arr[k].__self){
-								case Arrow: 
+								case Arrow:
 									this.arrow = arr[k];
 									break;
 								case Monster:
@@ -608,7 +608,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					this.drawLabyrint();
 				}
 			},
-			
+
 			setLabyrinth: function(specSymbols) {
 				var obj = undefined;
 				this.numOfPrizes = 0;
@@ -618,14 +618,14 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						this.map[i][j] = [];
 						var c = new Coord(j, i);
 						this.map[i][j] = new FieldElem(this, c,this.mapFromTest[i][j] == "#")
-						if (this.mapFromTest[i][j] == "R" || this.mapFromTest[i][j] == "U" || 
+						if (this.mapFromTest[i][j] == "R" || this.mapFromTest[i][j] == "U" ||
 							this.mapFromTest[i][j] == "D" ||this.mapFromTest[i][j] == "L" ){
 							obj = this.arrow = new Arrow(this, c, this.__self.dirs[this.mapFromTest[i][j]]);
 						}
 						for (var k = 0; k < specSymbols.length; ++k)
 							if (specSymbols[k].symbol == this.mapFromTest[i][j]){
-								obj = specSymbols[k].action == "eat" ? 
-									new Prize(this, c, specSymbols[k]) : 
+								obj = specSymbols[k].action == "eat" ?
+									new Prize(this, c, specSymbols[k]) :
 									new Box(this, c,specSymbols[k]) ;
 								if (obj.__self == Prize)
 									++this.numOfPrizes;
@@ -637,7 +637,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					}
 				}
 			},
-			
+
 			setMonsters: function(monsters) {
 				this.monsters = [];
 				var obj = undefined;
@@ -648,7 +648,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					this.monsters.push({'x': c.x, 'y': c.y});
 				}
 			},
-			
+
 			setKeysAndLocks: function(keys, locks) {
 				var obj = undefined;
 				for (var k = 0; k < keys.length; ++k){
@@ -662,7 +662,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					}
 				}
 			},
-			
+
 			fillLabyrinth: function() {
 				this.highlightOn();
 				$(this.table).empty();
@@ -674,7 +674,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						this.map[i][j].draw();
 					}
 				}
-			
+
 				this.updateSizes();
 
 				$(window).resize(function(self){
@@ -690,20 +690,20 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				for (var i = 0; i < this.map[0].length; ++i)
 					this.map[this.arrow.coord.y][i].highlightOn();
 			},
-			
+
 			highlightOff: function() {
 				for (var i = 0; i < this.map.length; ++i)
 					this.map[i][this.arrow.coord.x].highlightOff();
 				for (var i = 0; i < this.map[0].length; ++i)
 					this.map[this.arrow.coord.y][i].highlightOff();
 			},
-			
+
 			updateSizes: function() {
 				var width = $(this.table).children('tbody').children('tr').children('td').css('width');
 				if (width == '0px') {
 					width = 32;
 				}
-				$(this.table).children('tbody').children('tr').children('td').css('height', width);	
+				$(this.table).children('tbody').children('tr').children('td').css('height', width);
 			},
 
 			drawLabyrint: function() {
@@ -789,7 +789,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						}
 						if (cells[j].__self == Prize && !cells[j].eaten){
 							cells[j].eaten = true;
-							var mes = new MessagePrizeFound(i, cells[j].name, (this.points + cells[j].points), 
+							var mes = new MessagePrizeFound(i, cells[j].name, (this.points + cells[j].points),
 								++this.curNumOfPrizes == this.numOfPrizes);
 							this.life += cells[j].dLife;
 							this.points += cells[j].points;
@@ -809,10 +809,10 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 								changedElems.push(new Coord(x, y));
 							}
 							cells[j].found = true;
-							this.map[cY][cX].deleteElement(cells[j]);					
+							this.map[cY][cX].deleteElement(cells[j]);
 							--j;
 							continue;
-						}						
+						}
 					}
 				}
 				return result;
@@ -886,7 +886,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 						this.map[changedElems[j].y][changedElems[j].x].draw();
 				}
 			},
-			
+
 			getFieldElem: function(dir) {
 				var newDir = this.__self.changeDir[dir][this.arrow.dir];
 				var cX = this.arrow.coord.x + newDir.dx;
@@ -898,7 +898,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				}
 				return this.labirintOverrun(cX, cY) ? new FieldElem(this, new Coord(cX, cY), false) : this.map[cY][cX];
 			},
-			
+
 			isGameOver: function() {
 				return this.arrow.dead;
 			},
@@ -911,7 +911,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			gameOver: function() {
 				this.arrow.dead = true;
 			},
-			
+
 			draw: function() {
 				this.drawLabyrint();
 			},
@@ -943,7 +943,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			getState: function() {
 				return {
 					'arrow': {
-						'dir': this.arrow.dir, 
+						'dir': this.arrow.dir,
 						'coord': this.arrow.coord,
 						'dead': this.arrow.dead
 					},
@@ -960,7 +960,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			onTabSelect: function() {
 				this.updateSizes();
 			}
-		}, 
+		},
 		{ //static methods and properties
 			cmdClassToName: {
 				'forward': 'Прямо',
@@ -968,7 +968,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 				'right': 'Направо',
 				'wait': 'Ждать',
 			},
-			
+
 			changeDir: {
 				'forward':{
 					'up': {dx: 0, dy: -1, curDir: 'up'},
@@ -987,7 +987,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					'down': {dx: 0, dy: 0, curDir: 'left'},
 					'left':{dx: 0, dy: 0, curDir: 'up'},
 					'right': {dx: 0, dy: 0, curDir: 'down'}
-				}, 
+				},
 				'wait':{
 					'up': {dx: 0, dy: 0, curDir: 'up'},
 					'down': {dx: 0, dy: 0, curDir: 'down'},
@@ -1001,11 +1001,11 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 					'right': {dx: -1, dy: 0, curDir: 'right'}
 				}
 			},
-			
+
 			dirs: {
-				'R': 'right', 
-				'L': 'left', 
-				'U': 'up', 
+				'R': 'right',
+				'L': 'left',
+				'U': 'up',
 				'D': 'down'
 			},
 

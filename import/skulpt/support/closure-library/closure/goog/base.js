@@ -269,9 +269,9 @@ goog.require = function(rule) {
         goog.global.console['error'](errorMessage);
       }
 
-      
+
         throw Error(errorMessage);
-        
+
     }
   }
 };
@@ -296,7 +296,7 @@ goog.global.CLOSURE_BASE_PATH;
  * the deps are written.
  * @type {boolean|undefined}
  */
-goog.global.CLOSURE_NO_DEPS;
+goog.global.CLOSURE_NO_DEPS = true;
 
 
 /**
