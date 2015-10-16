@@ -1,10 +1,14 @@
 require.config({
+    waitSeconds: 180,
     baseUrl: '',
     paths: {
-        'jQuery': 'import/jquery/jquery-1.8.2.min',
-		'jQueryUI': 'import/jquery/jquery-ui-1.8.24.custom.min',
+        'jQuery': 'import/jquery/jquery-1.11.1.min',
+        'jquery': 'import/jquery/jquery-1.11.1.min',
+		'jQueryUI': 'import/jquery/jquery-ui-1.9.2.min',
+		'jQueryUITabsPaging': 'import/jquery/ui.tabs.paging',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
-		'jQueryInherit': 'import/jquery/jquery.inherit-1.3.2.M.min',
+		'jQueryInherit': 'import/jquery/jquery.inherit.min',
+		'jQueryColResizable': 'import/jquery/colResizable-1.3.min',
 		'JsTree': 'import/jquery/jquery.jstree.min',
 		'Env': 'import/skulpt/src/env.min',
 		'BlockUI': 'import/jquery/jquery.blockUI.min',
@@ -50,15 +54,18 @@ require.config({
 		'SkFunc': 'import/skulpt/src/function.min',
 		//'Svg': 'import/jquery/jquery.svg',
 		'Cylinder': 'import/jquery/cylinder.min',
-		'Raphael': 'import/jquery/raphael.min', 
+		'Raphael': 'import/jquery/raphael.min',
 		'QUnit': 'import/jquery/qunit-1.11.0.min'
-    },
+		// NOTE: load this extra Blockly instance is for global usage of static methods
+	},
     shim: {
     	'jQuery': [],
     	'jQueryCookie': ['jQuery'],
 		'jQueryUI': ['jQuery'],
+		'jQueryUITabsPaging': ['jQueryUI'],
 		'jQueryInherit': ['jQuery'],
 		'jQueryTmpl': ['jQuery'],
+		'jQueryColResizable': ['jQuery'],
 		'JsTree': ['jQuery'],
 		'Env': ['GoogBase', 'GoogAsserts'],
 		'GoogDeps': ['GoogBase'],
@@ -106,26 +113,30 @@ require.config({
 
 	//QUnit.config.autostart = false;
 
-requirejs([ 
-	'jQuery', 
-	'jQueryUI', 
+requirejs([
+	'jQuery',
+	'jQueryUI',
+	'jQueryUITabsPaging',
 	'jQueryCookie',
+	'jQueryColResizable',
 	'Config',
-	'Servers', 
-	'Interface', 
-	'InterfaceJSTree', 
+	'Servers',
+	'Interface',
+	'InterfaceBlockly',
 	'Declaration',
-	'Accordion'
+	'Accordion',
+	'CodeMode'
 	/*'Tests'*/],
 	function   () {
 		var Servers = require('Servers');
 		var Config = require('Config');
 		var Interface = require('Interface');
-		var InterfaceJSTree = require('InterfaceJSTree');
+		var InterfaceBlockly = require('InterfaceBlockly');
+		var CodeMode = require('CodeMode');
 		//var Tests = require('Tests');
 
 	    $(document).ready(function(){
-		if ($.browser.msie){
+		if (getInternetExplorerVersion()){
 			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 			return;
 		}
@@ -136,7 +147,7 @@ requirejs([
 		$('#funcName').hide();
 		$('#tabs').tabs({
 			select: function(event, ui) {
-				curProblemIndex = ui.index - 1;
+				curProblemIndex = ui.index - 2;
 				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
 					if (curProblem) {
@@ -179,15 +190,29 @@ requirejs([
 					codeareas[problem.tabIndex].refresh();
 				}
 			});
-			
-			InterfaceJSTree.createJsTreeForFunction('#jstree-container' + problem.tabIndex, problem, false);
-			
+
+			InterfaceBlockly.injectBlockly(problem)
+
 			$('#accordion' + problem.tabIndex).myAccordion( {'problem': problem } );
 				/*$('#accordion' + problem.tabIndex).accordion();
 				$('#accordion' + problem.tabIndex).accordion( "enable" );
 				$('#accordion' + problem.tabIndex).accordion({ collapsible: true });
 				$('#accordion' + problem.tabIndex).accordion( "option", "autoHeight", false );*/
 
+			var $iframe = $('#blockly-container-' + problem.tabIndex)
+			$(ui.panel).children('table').colResizable({
+				minWidth: 250,
+				// liveDrag: true,
+				onDrag: function() {
+					$iframe.css({'pointer-events': 'none'});
+				},
+                onResize: function() {
+					$iframe.css({'pointer-events': 'auto'});
+					if (problem.executionUnit.executionUnit.updateSizes) {
+						problem.executionUnit.executionUnit.updateSizes();
+					}
+                }
+			});
 		});
 		$('#about').dialog({
 			modal: true,
@@ -205,32 +230,32 @@ requirejs([
 				Ok: function() {
 					currentServer.user.setPasswd($('#password').prop('value')) ;
 					Interface.login();
-					$('#enterPassword').dialog('close');					
+					$('#enterPassword').dialog('close');
 				},
 				Cancel: function(){
 					$.cookie('userId', undefined);
 					$.cookie('passwd', undefined);
-					$('#enterPassword').dialog('close');	
+					$('#enterPassword').dialog('close');
 				}
-			}, 
+			},
 			autoOpen: false,
 			close: function(){this.title = 'Введите пароль';}
 		});
-		$('#enterPassword').live('keyup', function(e){
+		$('#enterPassword').on('keyup', function(e){
 		  if (e.keyCode == 13) {
-		    $(this).dialog( "option", "buttons" )['Ok']();
+			$(this).dialog( "option", "buttons" )['Ok']();
 		  }});
 		$('#changeContest').dialog({
 			modal: true,
 			buttons: {
 				Ok: function() {
 					Interface.changeContest();
-					$(this).dialog('close');					
+					$(this).dialog('close');
 				},
 				Cancel: function(){
-					$(this).dialog('close');	
+					$(this).dialog('close');
 				}
-			}, 
+			},
 			autoOpen: false
 		});
 		for (var i = 0; i < problems.length; ++i){
@@ -246,10 +271,10 @@ requirejs([
 					var problem = $('#tabs').tabs('option', 'selected') - 1;
 					$( '#watchTable' + problem).append( '<tr id = watchTr_' + problem + '_' + lastWatchedIndex[problem] + ' style = "border: 1px">' +
 						'<td style = "border: 1px solid white; width: 20px"><button id = "deleteWatch_' + problem + '_' + lastWatchedIndex[problem] + '"></button></td>' +
-						'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' + 
-						'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' + 
-							calculateValue($('#watchName').val()) + '</td>' + 
-						'</tr>' ); 
+						'<td style = "border: 1px solid white">' + $('#watchName').val() + '</td>' +
+						'<td style = "border: 1px solid white" id = "calcVal_' + problem + '_' + lastWatchedIndex[problem] + '">' +
+							CodeMode.calculateValue($('#watchName').val()) + '</td>' +
+						'</tr>' );
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).prop('varId', lastWatchedIndex[problem]);
 					$('#deleteWatch_' + problem + '_' + lastWatchedIndex[problem]).button({ text: false, icons: {primary:'ui-icon-close'}}).bind('click', function(){
 						delete watchList[problem][$(this).prop('varId')];
@@ -275,19 +300,23 @@ requirejs([
 		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
 		if ($.cookie('contestId') != undefined && checkNumber($.cookie('contestId'))) {
 			$('#contest_' + $.cookie('contestId')).prop('checked', true);
-			Interface.changeContest();
-			if ($.cookie('userId') != undefined){
-				var userId = $.cookie('userId');
-				var passwd = $.cookie('passwd');
-				$('#' + userId).prop('checked', true);
-				$.cookie('passwd', passwd);
-				Interface.chooseUser();	
+			success = Interface.changeContest();
+			if (success) {
+				if ($.cookie('userId') != undefined){
+					var userId = $.cookie('userId');
+					var passwd = $.cookie('passwd');
+					$('#' + userId).prop('checked', true);
+					$.cookie('passwd', passwd);
+					Interface.chooseUser();
+				}
+			} else {
+				Interface.fillTabs();
 			}
 		}
 		else {
 			Interface.fillTabs();
 		}
-			
+
 
 		if (parseInt(tabIndex)) {
 			$('#tabs').tabs("select" , tabIndex);
@@ -310,5 +339,26 @@ requirejs([
 
 		//QUnit.start(); //Tests loaded, run tests
 		//Tests.RunTests();
+
+        // TEST
+        // function testz() {
+        //     $('#tabs').tabs({selected:2});
+        //     if (!problems[1] || !problems[1].Blockly) {
+        //     	console.log('boo')
+        //     	setTimeout(testz, 200);
+        //     	return
+        //     }
+        // 	var problem = problems[1];
+        // 	var Blockly = problem.Blockly;
+        //     // var code = "def f1(x):\n  fill(x)\n  pour(x, 2)\n  pourOut(2)\n  pour(1, 2)\nf1(1)";
+        //     var code = "def Func1():\n  fill(1)\n  pour(1, 2)\n  pourOut(2)\n  pour(1, 2)\nwhile compare(2, '!=', 45):\n  Func1()";
+        //     require('Interface').goToCodeMode(problem);
+        //     codeareas[1].setValue(code);
+        //     require('Interface').goToCommandsMode(problem);
+        //     // var executor = problem.blocklyExecutor;
+        //     // executor.setDefault();
+        //     // executor.exec(1000000000);
+        // }
+		// testz();
 	});
-});	
+});

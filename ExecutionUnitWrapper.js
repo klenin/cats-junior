@@ -1,5 +1,5 @@
-define('ExecutionUnitWrapper', ['jQuery', 
-	'jQueryUI', 
+define('ExecutionUnitWrapper', ['jQuery',
+	'jQueryUI',
 	'jQueryInherit',
 	'Pourer',
 	'ArrowInLabyrinth'], function(){
@@ -8,7 +8,7 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 	var ArrowInLabyrinth = ArrowInLabyrinthModule.ArrowInLabyrinth;
 	var Pourer = PourerModule.Pourer;
-	
+
 	var Exceptions = require('Exceptions');
 	var IncorrectInput = Exceptions.IncorrectInput;
 	var InternalError = Exceptions.InternalError;
@@ -57,17 +57,17 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			draw: function() {
 				this.checkExecutionUnit();
-				this.executionUnit.draw();	
+				this.executionUnit.draw();
 			},
 
 			isGameOver: function() {
 				this.checkExecutionUnit();
-				return this.executionUnit.isGameOver();	
+				return this.executionUnit.isGameOver();
 			},
 
 			executeCommand: function(command, args) {
 				this.checkExecutionUnit();
-				this.executionUnit.executeCommand(command, args);	
+				this.executionUnit.executeCommand(command, args);
 			},
 
 			gameOver: function() {
@@ -91,7 +91,7 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			getConditionProperties: function(name) {
 				this.checkExecutionUnit();
-				
+
 				var conditionProperties = this.executionUnit.getConditionProperties();
 				if (!name) {
 					return conditionProperties;
@@ -116,7 +116,7 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 			addTypesInTree: function(tree) {
 				this.checkExecutionUnit();
-				
+
 				for (var i = 0; i < this.executionUnit.__self.jsTreeTypes.length; ++i) {
 					tree.add_type(this.executionUnit.__self.jsTreeTypes[i][0], this.executionUnit.__self.jsTreeTypes[i][1]);
 				}

@@ -1,5 +1,5 @@
-define('Interface', ['jQuery', 
-	'jQueryUI', 
+define('Interface', ['jQuery',
+	'jQueryUI',
 	'BlockUI',
 	'jQueryCookie',
 	'CodeMirrorModule',
@@ -7,12 +7,10 @@ define('Interface', ['jQuery',
 	'Problems',
 	'jQueryTmpl',
 	'ModesConversion',
-	'Declaration',
-	'CommandsMode'], function(){
+	'Declaration'], function(){
 	var Problems = require('Problems');
 	var ModesConversion = require('ModesConversion');
 	var Servers = require('Servers');
-	var CommandsMode = require('CommandsMode');
 
 	function login(callback, firstTrying){
 		currentServer.setSid(undefined);
@@ -91,16 +89,16 @@ define('Interface', ['jQuery',
 				$('#userListDiv').append('<p>Выберите свое имя из списка</p>');
 				for (var i = 0; i < users.length; ++i){
 					$('#userListDiv').append(
-					'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' + 
-					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">' 
+					'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' +
+					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">'
 					+ users[i].name + '</label><br>');
 				}
 				$('#userListDiv').append('<br><button id = "userNameSubmit" >Выбрать пользователя</button>');
 				$('#userNameSubmit').button({icons: {primary: 'ui-icon-check'}});
 				$('#userNameSubmit').click(chooseUser);
 			}
-			else 
-				$('#userListDiv').append('<p>На данный момент нет доступных пользователей</p>');	
+			else
+				$('#userListDiv').append('<p>На данный момент нет доступных пользователей</p>');
 		});
 	}
 
@@ -116,7 +114,7 @@ define('Interface', ['jQuery',
 		if (!currentServer.getSid()) {
 			alert('Невозможно отослать решение, так как не выбран пользователь');
 			return false;
-		}		
+		}
 		if (!currentServer.getSid())
 			(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 		submit(curProblem.getSubmitStr(), curProblem.id);
@@ -136,7 +134,7 @@ define('Interface', ['jQuery',
 				catch(e) {
 					$('#cons' + i).html('Невозможно сконвертировать полученный код в команды');
 				}
-				
+
 		   	}
 		});
 	}
@@ -151,8 +149,8 @@ define('Interface', ['jQuery',
 			var div = $('<div></div>');
 			for (var i = 0; i < data.length; ++i) {
 				if (data[i].type == 'submit' && data[i].problem_title == curProblem.title) {
-					$(div).append('<input type="radio" name="attempts" id="attempts_' + i + '" value="'+ data[i].id + '"' + 
-						(i == 0 ? 'checked': '') +'/>' + 
+					$(div).append('<input type="radio" name="attempts" id="attempts_' + i + '" value="'+ data[i].id + '"' +
+						(i == 0 ? 'checked': '') +'/>' +
 						'<label for="attempts_' +  i + '">' + data[i].time + '</label><br>');
 				}
 			}
@@ -168,12 +166,12 @@ define('Interface', ['jQuery',
 						if ($(this).children('input').length) {
 							loadCode($(this).children(':checked').val());
 						}
-						$(this).dialog('close');					
+						$(this).dialog('close');
 					},
 					Cancel: function(){
-						$(this).dialog('close');	
+						$(this).dialog('close');
 					}
-				}, 
+				},
 				autoOpen: false
 			});
 
@@ -189,8 +187,8 @@ define('Interface', ['jQuery',
 			var contests = currentServer.getContests();
 			for (var i = 0; i < contests.length; ++i){
 					$('#contestsList').append(
-					'<input type="radio" name="contest_name" id="contest_' + contests[i].getCid() + '" value="' + contests[i].getName() + '" ' + 
-					(i == 0 ? 'checked': '') + ' class="radioinput" cid="' + contests[i].getCid() + '"/><label for="contest_name_' + i + '">' 
+					'<input type="radio" name="contest_name" id="contest_' + contests[i].getCid() + '" value="' + contests[i].getName() + '" ' +
+					(i == 0 ? 'checked': '') + ' class="radioinput" cid="' + contests[i].getCid() + '"/><label for="contest_name_' + i + '">'
 					+ contests[i].getName()  + '</label><br>');
 			}
 			document.title = currentServer.getContest().getName();
@@ -206,13 +204,16 @@ define('Interface', ['jQuery',
 
 	function changeContest(){
 		var contest = $('#contestsList > input:checked');
+		if (!contest[0])
+			return false
+
 		name = contest[0].defaultValue;
 		document.title = name;
 		currentServer.setContestByName(name, function(contest){
 			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
 			fillTabs();
 		});
-		
+		return true
 	}
 
 	function onAddWatchClick()
@@ -222,10 +223,10 @@ define('Interface', ['jQuery',
 
 	function startWaitForCommandsGeneration(problem) {
 		if (problem.loadedCnt > 0) {
-			$.blockUI({ 
+			$.blockUI({
 				message: '',
 				fadeIn: 0,
-				overlayCSS: { 
+				overlayCSS: {
 					backgroundColor: '#ffffff',
 					opacity: 0,
 					cursor: 'progress'
@@ -245,50 +246,33 @@ define('Interface', ['jQuery',
 			problem.updated();
 		}
 	}
-
-	function goToCommandsMode(problem) {
-		var j = problem.tabIndex;
-		var l = codeareas[j].getValue().length;
-		try {
-			problem.prepareForExecuting();
-			problem.prepareForConversionFromCode();
-			var block = finalcode[j] ?
-				ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problem, true):
-				new CommandsMode.Block([], undefined, problem);
-
-			$('#jstree-container' + j).empty();	
-			$('#accordion' + j).myAccordion( 'clear' );
-			
-			if (block) {
-				//problems[j].cmdList = block;//??
-				problem.setCurrentStage('CONVERSION_TO_COMMANDS');
-				problem.loadedCnt = 1;
-				startWaitForCommandsGeneration(problem);
-				block.generateVisualCommand(jQuery.jstree._reference('#jstree-container' + j));
-				--problem.loadedCnt;
-				
-				//setTimeout(function() {problems[j].updated()}, 20000);
-				//block.generateCommand(jQuery.jstree._reference('#jstree-container' + j))
-			}
-			else if (!confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-				$("#commandsMode" + j).prop('checked', false);
-				$("#codeMode" + j).prop('checked', true);
-				problem.setCurrentStage('IDLE');
-				problem.updated();
-				return;
-			}
-		}
-		catch(e){
-			console.error(e);
-			problem.setCurrentStage('IDLE');
-			$.unblockUI();
-			++cmdId;
-			if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
-				$("#commandsMode" + j).prop('checked', false);
-				$("#codeMode" + j).prop('checked', true);
-				return;
-			}
-			problem.updated();
+   function goToCommandsMode(problem) {
+        var j = problem.tabIndex;
+        var l = codeareas[j].getValue().length;
+        var xmlWSBackup = problem.resetWorkspace();
+        try {
+            problem.prepareForExecuting();
+            problem.prepareForConversionFromCode();
+            if (finalcode[j]) {
+                ModesConversion.pythonTreeToBlocks(problem, finalcode[j].compiled.ast.body);
+                $('#jstree-container' + j).empty();
+                $('#accordion' + j).myAccordion( 'clear' );
+            }
+        } catch(e) {
+            console.error(e);
+            console.log(e.stack)
+            problem.setCurrentStage('IDLE');
+            $.unblockUI();
+            ++cmdId;
+            if (l && !confirm('Невозможно сконвертировать код в команды. Все изменения будут потеряны')){
+                $("#commandsMode" + j).prop('checked', false);
+                $("#codeMode" + j).prop('checked', true);
+                return;
+            }
+            if (xmlWSBackup) {
+                problem.restoreWorkspace(xmlWSBackup);
+            }
+            problem.updated();
 		}
 		$('#ulCommands' + j).show();
 		$('#jstree-container' + j).show();
@@ -300,12 +284,16 @@ define('Interface', ['jQuery',
 		$('#btn_clear' + j).show();
 		$('#tdcontainer' + j).show();
 		$('#accordion' + j).show();
-		problems[j].updated();
+		problem.updated();
+		problem.Blockly.mainWorkspace.render();
+        problem.Blockly.organizeWorkspace();
 	}
 
 	function goToCodeMode(problem) {
+		var Blockly = problem.Blockly;
 		var j = problem.tabIndex;
 		//$('#accordion' + j).empty();
+		problem.setDefault();
 		$('#accordion' + j).hide()
 		$('#ulCommands' + j).hide();
 		$('#ulCommands_' + j).show();
@@ -316,9 +304,9 @@ define('Interface', ['jQuery',
 		$('#tdcontainer' + j).hide();
 		$('#btn_clear' + j).hide();
 		$('#tdcode' + j).show();
-		codeareas[j].setValue(problem.convertCommandsToCode());
+		var code = Blockly.Python.workspaceToCode(Blockly.mainWorkspace)
+		codeareas[j].setValue(code);
 		codeareas[j].refresh();
-		problem.setDefault();
 		$('#addWatch' + j).show();
 		$('#watchTable' + j).show();
 	}
@@ -334,10 +322,10 @@ define('Interface', ['jQuery',
 		$('#ui-tabs-0').append('</table>');
 		$('#changeContestBtn').button();
 		$('#changeContestBtn').click(function(){
-			$('#contestsList').show(); 
-			$('#changeContest').dialog('open'); 
-			return false; 
-		}); 
+			$('#contestsList').show();
+			$('#changeContest').dialog('open');
+			return false;
+		});
 		changeUser();
 		problems = [];
 		codeareas = [];
@@ -354,8 +342,8 @@ define('Interface', ['jQuery',
 				for (var j = 0; j < btns.length; ++j) {
 					buttons.push({'tab': i, 'btn': btns[j], 'title': btnTitles[j]});
 				}
-				$('#tabTemplate').tmpl({'tab': i, 
-					'statement': problems[i].statement, 
+				$('#tabTemplate').tmpl({'tab': i,
+					'statement': problems[i].statement,
 					'maxCmdNum': problems[i].maxCmdNum,
 					'maxStep': problems[i].maxStep,
 					//'commands': divs,
@@ -412,7 +400,7 @@ define('Interface', ['jQuery',
 			        matchBrackets: true,
 			        onChange: function(instance, obj) {
 			        	curProblem.stop();
-			        } 
+			        }
 				});
 				codeareas.push(CM);
 				var groupBox = "input[name='group" + i + "']";
@@ -429,13 +417,13 @@ define('Interface', ['jQuery',
 				problems[i].initExecutor(data[i]);
 				updateStyleSheet(i, problems[i].executionUnit.getCssFileName());
 				problems[i].generateCommands();
-			
+
 				$('#forJury' + i).hide();
 				for (var j = 0; j < btns.length; ++j){
 					$('#btn_'+ btns[j] + i).button({text: false, icons: {primary: buttonIconClasses[j]}});
 					$('#btn_'+ btns[j] + i).bind('click', function() {
 						curProblem.hideFocus();
-						eval( $(this).prop('name') + 'Click()'); 		
+						eval( $(this).prop('name') + 'Click()');
 						return false;
 					});
 				}
@@ -457,7 +445,7 @@ define('Interface', ['jQuery',
 			$('#tabs').tabs('add', '#ui-tabs-' + (problems.length + 1), 'Результаты', (problems.length + 1));
 			$('#ui-tabs-' + (problems.length + 1)).append('<button id = "refreshTable">Обновить таблицу</button>');
 			$('#refreshTable').button({text:false, icons: {primary: 'ui-icon-refresh'}});
-			$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' + 
+			$('#ui-tabs-' + (problems.length + 1)).append('<table class = "results"><tr><td>' +
 				'<iframe id = "results" src = "' + currentServer.getResultsUrl()+  '" class = "results"></iframe></td></tr></table>');
 			$('#refreshTable').click(function() {$('#results').prop('src', currentServer.getResultsUrl())});
 				$('#tabs').tabs('select', 0);
@@ -506,11 +494,12 @@ define('Interface', ['jQuery',
 		var problem = curProblem;
 		if (!confirm('Вы уверены, что хотите очистить список команд?'))
 			return;
-		problem.cmdList = new CommandsMode.Block([], undefined, problem);
+		problem.Blockly.mainWorkspace.clear();
+
 		$('#jstree-container' + problem.tabIndex).children().remove();
 		$('#accordion' + problem.tabIndex).myAccordion('clear');
 		$('#accordion' + problem.tabIndex).children().remove();
-		
+
 		$('.funcInput').attr('funcid', undefined).hide();
 		problem.setDefault();
 		problem.updated();
@@ -532,7 +521,7 @@ define('Interface', ['jQuery',
 		curProblem.prev();
 	}
 
-	function updateStyleSheet(index, filename) 
+	function updateStyleSheet(index, filename)
 	{
 	    if ($("#dynamic_css_" + index).length == 0) {
 	        $("head").append("<link>");
@@ -543,12 +532,12 @@ define('Interface', ['jQuery',
 	          type: "text/css",
 	          href: filename
 	        });
-	    } 
-		else 
+	    }
+		else
 	    {
 	        $("#dynamic_css_" + index).attr("href",filename);
 	    }
-	 
+
 	}
 
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
@@ -556,8 +545,8 @@ define('Interface', ['jQuery',
 	var buttonIconClasses = ['ui-icon-play', 'ui-icon-pause', 'ui-icon-stop', 'ui-icon-seek-prev', 'ui-icon-seek-next', 'ui-icon-seek-end'];
 
 	return {
-		login: login, 
-		chooseUser: chooseUser, 
+		login: login,
+		chooseUser: chooseUser,
 		getContests: getContests,
 		changeContest: changeContest,
 		fillTabs: fillTabs,

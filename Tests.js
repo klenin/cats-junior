@@ -1,26 +1,8 @@
 define('Tests',
-	['jQuery', 'jQueryUI', 'jQueryInherit', 'InterfaceJSTree', 'ModesConversion', 'CommandsMode', 'Interface'],
+	['jQuery', 'jQueryUI', 'jQueryInherit', 'ModesConversion', 'Interface'],
 	function(){
-		var InterfaceJSTree = require('InterfaceJSTree');
 		var ModesConversion = require('ModesConversion');
-		var CommandsMode = require('CommandsMode');
 		var Interface = require('Interface');
-
-		function getJsTree(problem) {
-			return $('#jstree-container' + problem.tabIndex);
-		}
-
-		function addCommand(tree, type, problem){
-			if (type == 'funcdef') {
-				$('#accordion' + problem.tabIndex).myAccordion('push', problem.getAvaliableFunctionName());
-			}
-			else {
-				tree.jstree("create", false,  "last", 
-						{'data' : type}, function(newNode){
-						InterfaceJSTree.onCreateItem(this, newNode, $('#' + type + problem.tabIndex).attr('rel'), problem);
-				}, true); 
-			} 
-		}
 
 		function convertCommandsToCode(problem) {
 			return problem.convertCommandsToCode();
@@ -31,7 +13,6 @@ define('Tests',
 			var j = problem.tabIndex;
 			var block = finalcode[j] ?
 				ModesConversion.convertTreeToCommands(finalcode[j].compiled.ast.body, undefined, problems[j], true):
-				new CommandsMode.Block([], undefined, problems[j]);
 			return block;
 		}
 
