@@ -522,6 +522,9 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.appendStatementInput('ELSE')
                     .appendField(Blockly.Msg.CONTROLS_IF_MSG_ELSE);
                 // this.mutationToDom();
+
+                this.elseCount_ = 1;
+                this.elseifCount_ = 0;
             }
         });
 
