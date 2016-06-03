@@ -11,7 +11,7 @@ define('Tortoise',
 		var InternalError = Exceptions.InternalError;
 		var singleStep = 10;
 		
-		var Vessel = $.inherit({
+		var Tortoise = $.inherit({
 			__constructor: function(capacity, initFilled, div, maxCapacity, index) {
 				this.capacity = capacity;
 				this.initFilled = initFilled;
@@ -19,22 +19,6 @@ define('Tortoise',
 				this.div = div;
 				this.maxCapacity = maxCapacity;
 				this.init(index);
-			},
-
-			getCell: function(row) {
-				return $(this.vesselBg);
-			},
-
-			init: function(index) {
-				var table = $('<table></table>').appendTo(this.div);
-
-				var con = $('<canvas>').appendTo(this.con);
-				this.vesselDiv = $('<div></div>').appendTo(td);
-
-				$(this.vesselDiv).cylinder({
-					  height: 300 * (this.capacity + 0.0)/ this.maxCapacity,
-					  value: (this.initFilled + 0.0) / this.maxCapacity
-				});
 			},
 
 			setDefault: function(dontDraw) {
@@ -55,31 +39,26 @@ define('Tortoise',
 					$(this.div).empty();
 					this.problem = problem;
 					this.constructCommands();
-					this.vessels = [];
-					this.init();
 				},
 
 				constructCommands: function() {
 					this.commands = {};
 					var args = [
-						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false),
-						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false),
-						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.vessels.length, false)];
+						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.coordinates.length, false),
+						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.coordinates.length, false),
+						new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.coordinates.length, false)];
 					this.commands['GoLineLeft'] = new ExecutionUnitCommands.ExecutionUnitCommand('GoLineLeft', GoLineLeft, args);
 					this.commands['GoLineRight'] = new ExecutionUnitCommands.ExecutionUnitCommand('GoLineRight', GoLineRight, args);
 					this.commands['GoLineUp'] = new ExecutionUnitCommands.ExecutionUnitCommand('GoLineUp', GoLineUp, args);
 					this.commands['GoLineDown'] = new ExecutionUnitCommands.ExecutionUnitCommand('GoLineDown', GoLineDown, args);
 					var vesselsList = [];
-					for (var i = 0; i < this.data.vessels.length; ++i) {
+					for (var i = 0; i < this.data.coordinates.length; ++i) {
 						vesselsList.push([i + 1, i + 1]);
 					}
-
 				},
 
 				init: function() {
 					$(this.div).append('<canvas>');
-					//this.row = $(this.div).children('canvas');
-
 					var maxCapacity = 0;
 
 					this.life = this.data.startLife;
@@ -100,8 +79,8 @@ define('Tortoise',
 				},
 
 				setDefault: function(dontDraw) {
-					for (var i = 0; i < this.vessels.length; ++i) {
-						this.vessels[i].setDefault();
+					for (var i = 0; i < this.coordinates.length; ++i) {
+						this.coordinates[i].setDefault();
 					}
 
 					this.life = this.data.startLife;
@@ -114,8 +93,8 @@ define('Tortoise',
 				},
 
 				draw: function() {
-					for (var i = 0; i < this.vessels.length; ++i) {
-						this.vessels[i].draw();
+					for (var i = 0; i < this.coordinates.length; ++i) {
+						this.coordinates[i].draw();
 					}
 				},
 
@@ -202,8 +181,8 @@ define('Tortoise',
 						throw new IncorrectInput('Некорректный аргумент');
 					}
 					else{
-							for (i = Ycords;i > Ycords ; i = i-singleStep) {
-								context.strokeRect(Xcords, i, singleStep, singleStep);
+							for (i = Ycords;i > Ycords - move * singleStep ; i = i-singleStep) {
+								context.strokeRect(Xcords, i, c, singleStep);
 								context.fillRect(Xcords, i, singleStep, singleStep);
 							} 					
 					}
@@ -248,54 +227,7 @@ define('Tortoise',
 				getCssFileName: function() {
 					return this.__self.cssFileName;
 				},
-
-				isLess: function(vessel, value) {
-					return this.vessels[vessel].filled < value;
-				},
-
-				isEqual: function(vessel, value) {
-					return this.vessels[vessel].filled == value;
-				},
-
-				isGreater: function(vessel, value) {
-					return this.vessels[vessel].filled > value;
-				},
-
-				isLessVessel: function(first, second) {
-					return this.vessels[first].filled < this.vessels[second].filled;
-				},
-
-				isEqualVessel: function(first, second) {
-					return this.vessels[first].filled == this.vessels[second].filled;
-				},
-
-				isGreaterVessel: function(first, second) {
-					return this.vessels[first].filled > this.vessels[second].filled;
-				},
-
-				isSolved: function() {
-					for (var i = 0; i < this.data.finishState.length; ++i) {
-						var vessel = this.data.finishState[i].vessel;
-						if (this.vessels[vessel].filled != this.data.finishState[i].filled) {
-							return false;
-						}
-					}
-					return true;
-				},
-
-				getState: function() {
-					var result = {};
-					result.vessels = [];
-
-					for (var i = 0; i < this.vessels.length; ++i){
-						results.push(this.vessels[i].filled);
-					}
-					result.isSolved = this.isSolved();
-					result.points = this.points;
-
-					return result;
-				},
-
+				
 				onTabSelect: function() {
 					return;
 				}
@@ -306,10 +238,7 @@ define('Tortoise',
 					'GoLineRight': 'Вправо',
 					'GoLineUp': 'Вверх',
 					'GoLineDown': 'Вниз',
-				},
-
-				cssFileName: "styles/Tortoise.css",
-
+				}
 			})
 		};
 	});
