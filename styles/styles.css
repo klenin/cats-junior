@@ -247,3 +247,7 @@ a.wrongName {
 	color: red;
 	font-weight: bold;
 }
+
+.login-form fieldset {
+	border: none;
+}
