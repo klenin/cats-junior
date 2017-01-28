@@ -206,7 +206,14 @@
 			</div>
 		</div>
 	</div>
-	<div id="enterPassword" title="Введите пароль" style="display: none">
+	<div id="login-dialog" class="login-form" style="display: none">
+		<div id="login-error-message" style="display: none;" class="ui-state-error-text">
+			Ошибка авторизации. Проверьте корректность введенных данных.
+		</div>
+		<fieldset>
+			<label for="login">Имя пользователя</label>
+			<input type="text" name="login" id="login" class="text ui-widget-content ui-corner-all" />
+		</fieldset>
 		<fieldset>
 			<label for="password">Пароль</label>
 			<input type="password" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />

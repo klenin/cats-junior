@@ -7,116 +7,115 @@ define('Interface', ['jQuery',
 	'Problems',
 	'jQueryTmpl',
 	'ModesConversion',
-	'Declaration'], function(){
+	'Declaration',
+	'Misc'
+], function () {
 	var Problems = require('Problems');
 	var ModesConversion = require('ModesConversion');
 	var Servers = require('Servers');
 
-	function login(callback, firstTrying){
-		currentServer.setSid(undefined);
-		currentServer.loginRequest(currentServer.user.login, currentServer.user.passwd, function(data) {
-			if (data.status == 'ok') {
-				currentServer.setSid(data.sid);
-			}
-			else if(firstTrying){
-				$("#enterPassword").bind("dialogbeforeclose", function(event, ui) {
-					if (currentServer.getSid())
-						showNewUser();
-					$("#enterPassword").bind("dialogbeforeclose", function(event, ui){});
-				});
-				$('#enterPassword').dialog('open') ;
-				return;
-			}
-			else{
-				alert(data.message);
-				return false;
-			}
-			$.cookie('passwd', currentServer.user.passwd);
-			if(currentServer.user.jury){
-				currentServer.user.passwd = '';
-				$('#password').prop('value', '');
-				for (var i = 0; i < problems.length; ++i)
-					$('#forJury' + i).show();
-			}
-			//logined = true;
-			if (callback)
+	function updateCallbackFactory(callback) {
+		return function (cb) {
+			getContests(changeContest);
+			if ($.isFunction(callback)) {
 				callback();
-			return true;
-		});
-	}
-
-	function showNewUser(){
-		$('#userListDiv').empty();
-		$('#userListDiv').append('<p>Текущий пользователь:</p>');
-		$('#userListDiv').append('<p>' + currentServer.user.name +'</p>');
-		$('#userListDiv').append('<button name="changeUser" id = "changeUser">Сменить пользователя</button>');
-		$('#changeUser').button();
-		$('#changeUser').click(changeUser);
-	}
-
-	function chooseUser(){
-		currentServer.setSid(undefined);
-		currentServer.setUserByName($('#userListDiv > input:checked').first()[0].defaultValue, function(newUser){
-			if ($.cookie('passwd')) {
-				newUser.passwd = $.cookie('passwd');
 			}
-			login(showNewUser, true);
-			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
-			$.cookie('userId', $('#userListDiv > input:checked').prop('id'));
-		});
+			if ($.isFunction(cb)) {
+				cb();
+			}
+		};
 	}
 
-	function changeUser(){
-		for (var i = 0; i < problems.length; ++i)
-			$('#forJury' + i).hide();
-		try{ //temporary wa
-			currentServer.logoutRequest(function(data){
+	function login(login, passwd, success, error) {
+		var updateCallback = updateCallbackFactory(success);
+		currentServer.loginRequest(login, passwd, function (data) {
+			if (data.status != 'ok') {
+				return error();
+			}
+			$.cookie('sid', data.sid);
+			currentServer.authenticateBySid(data.sid, function () {
+				updateCallback(fillTabs);
 			});
-		}catch(e){
-			console.error(e);
-		}
-		currentServer.setSid(undefined);
-		$.cookie('userId', undefined);
-		$.cookie('passwd', undefined);
-
-		currentServer.usersListRequest(function(data) {
-			if (!data)
-				return;
-			currentServer.setUser(undefined);
-			var users = currentServer.getUsers();
-			$('#userListDiv').empty();
-			if (users.length > 0){
-				$('#userListDiv').append('<p>Выберите свое имя из списка</p>');
-				for (var i = 0; i < users.length; ++i){
-					$('#userListDiv').append(
-					'<input type="radio" name="user_name" id="user_name_' + i + '" value="' + users[i].name + '" ' +
-					(i == 0 ? 'checked': '') + ' class="radioinput" /><label for="user_name_' + i + '">'
-					+ users[i].name + '</label><br>');
-				}
-				$('#userListDiv').append('<br><button id = "userNameSubmit" >Выбрать пользователя</button>');
-				$('#userNameSubmit').button({icons: {primary: 'ui-icon-check'}});
-				$('#userNameSubmit').click(chooseUser);
-			}
-			else
-				$('#userListDiv').append('<p>На данный момент нет доступных пользователей</p>');
 		});
 	}
 
-	function submit(submitStr, problem_id){
-		currentServer.submitRequest(submitStr, problem_id, function(){
-			login(function() {
-				submit(submitStr, problem_id);
-			}, true);
+	function loginBySessionId(sid, callback, initial) {
+		if (callback === undefined && $.isFunction(sid)) {
+			callback = sid;
+			sid = null;
+		}
+		sid = sid || currentServer.getSid();
+
+		var updateCallback = updateCallbackFactory(callback);
+
+		if (!sid) {
+			if (initial) {
+				return;
+			}
+			return showLoginForm(callback);
+		}
+
+		currentServer.authenticateBySid(sid, function (data) {
+			if (data.error == 'bad sid') {
+				return logoutUser(showLoginForm.bind(null, callback));
+			}
+			$.cookie('sid', sid);
+			updateCallback(fillTabs);
+		});
+	}
+
+	function showLoginForm(callback) {
+		$('#login-dialog').dialog({
+			title: 'Авторизация',
+			height: 200,
+			width: 350,
+			modal: true,
+			buttons: [{
+				text: 'Войти',
+				click: function () {
+					var $self = $(this);
+					var $loginError = $('#login-error-message', $self).hide();
+
+					var username = $('#login', this).val();
+					var passwd = $('#password', this).val();
+
+					login(username, passwd, function () {
+						$self.dialog('close');
+						if ($.isFunction(callback)) {
+							callback();
+						}
+					}, function () {
+						$loginError.show();
+					});
+				}
+			}, {
+				text: 'Отмена',
+				click: function() {
+					$(this).dialog('close')
+				}
+			}]
 		})
 	}
 
-	var submitClick = function(){
+	function logoutUser(callback) {
+		var updateCallback = updateCallbackFactory(callback);
+		$.cookie('sid', '');
+		currentServer.setUser(undefined);
+		currentServer.setSid(undefined);
+		currentServer.logoutRequest(updateCallback.bind(null, fillTabs));
+	}
+
+	function submit(submitStr, problem_id) {
+		currentServer.submitRequest(submitStr, problem_id, function () {
+			loginBySessionId(submit.bind(null, submitStr, problem_id));
+		})
+	}
+
+	function submitClick() {
 		if (!currentServer.getSid()) {
 			alert('Невозможно отослать решение, так как не выбран пользователь');
 			return false;
 		}
-		if (!currentServer.getSid())
-			(currentServer.user.jury) ? $('#enterPassword').dialog('open') : login();
 		submit(curProblem.getSubmitStr(), curProblem.id);
 		return true;
 	}
@@ -151,7 +150,7 @@ define('Interface', ['jQuery',
 				if (data[i].type == 'submit' && data[i].problem_title == curProblem.title) {
 					$(div).append('<input type="radio" name="attempts" id="attempts_' + i + '" value="'+ data[i].id + '"' +
 						(i == 0 ? 'checked': '') +'/>' +
-						'<label for="attempts_' +  i + '">' + data[i].time + '</label><br>');
+						'<label for="attempts_' + i + '">' + data[i].time + '</label><br>');
 				}
 			}
 
@@ -180,18 +179,27 @@ define('Interface', ['jQuery',
 		});
 	};
 
-	function getContests(){
-		currentServer.contestsListRequest(function(data) { ////
+	function getContests(callback) {
+		currentServer.contestsListRequest(function(data) {
 			if (!data)
 				return;
 			var contests = currentServer.getContests();
-			for (var i = 0; i < contests.length; ++i){
-					$('#contestsList').append(
-					'<input type="radio" name="contest_name" id="contest_' + contests[i].getCid() + '" value="' + contests[i].getName() + '" ' +
-					(i == 0 ? 'checked': '') + ' class="radioinput" cid="' + contests[i].getCid() + '"/><label for="contest_name_' + i + '">'
-					+ contests[i].getName()  + '</label><br>');
-			}
+			$(contests).map(function (idx, contest) {
+				var cid = contest.getCid();
+				var name = contest.getName();
+
+				return (
+					'<input type="radio" name="contest_name" id="contest_name_' + idx + '"' + ' value="' + name + '" ' + (idx == 0 ? 'checked': '') + ' class="radioinput" cid="' + cid + '"/>' +
+					'<label for="contest_name_' + idx + '">' + name  + '</label>' +
+					'<br>'
+				);
+			}).appendTo($('#contestsList').empty());
+
 			document.title = currentServer.getContest().getName();
+
+			if (callback) {
+				callback();
+			}
 		});
 	}
 
@@ -246,6 +254,88 @@ define('Interface', ['jQuery',
 			problem.updated();
 		}
 	}
+
+	function showUser() {
+		var $tabs = $('#tabs');
+		var $userTab = $('#ui-tabs-0');
+		if ($userTab.length){
+			$userTab.empty();
+			$tabs.tabs('remove', 0);
+		}
+
+		$tabs.tabs('add', '#ui-tabs-0', "Выбор пользователя", 0);
+		$userTab = $('#ui-tabs-0');
+
+		$userTab.append(
+			'<table width = "100%">' +
+			'<tr id = "tab0">' +
+			'<td><div id="user-info"></div></td>' +
+			'<td valign="top" id="user-buttons" align="right"></td>' +
+			'</tr>' +
+			'</table>');
+
+		var $userInfo = $('#user-info', $userTab).empty();
+		var $userBtns = $('#user-buttons', $userTab).empty();
+		var user = currentServer.getUser();
+
+		$('<button />')
+			.text('Выбрать турнир')
+			.button()
+			.on('click', function(){
+				$('#contestsList').show();
+				$('#changeContest').dialog('open');
+				return false;
+			})
+			.appendTo($userBtns);
+
+		if (user) {
+			$userInfo
+				.append('<strong>Текущий пользователь: </strong>')
+				.append('<span>' + user.name + '</span>')
+				.append('<br />');
+
+			$('<button />')
+				.text('Выход')
+				.button()
+				.on('click', logoutUser)
+				.appendTo($userBtns);
+		}
+		else {
+			$userInfo.append('<strong>Вход не выполнен</strong>').append('<br />');
+			currentServer.usersListRequest(function(data) {
+				if (!data) {
+					return;
+				}
+
+				var users = currentServer.getUsers();
+				if (users.length > 0) {
+					var $loginField = $('#login');
+					$userInfo.append('<p>Выберите свое имя из списка</p>');
+
+					var $userList = $('<ul />').appendTo($userInfo);
+					$(users).map(function (idx, user) {
+						return (
+						'<input type="radio" name="user_name" id="user_name_' + idx + '" value="' + user.login + '" class="radioinput" />' +
+						'<label for="user_name_' + idx + '">' + user.name + '</label>' +
+						'<br>'
+						);
+					}).appendTo($userList);
+
+					$userList.on('change', 'input', function () {
+						$loginField.val($(this).val());
+						showLoginForm();
+					});
+				}
+			});
+
+			$('<button />')
+				.text('Вход')
+				.button()
+				.on('click', function () { loginBySessionId() })
+				.appendTo($userBtns);
+		}
+	}
+
    function goToCommandsMode(problem) {
         var j = problem.tabIndex;
         var l = codeareas[j].getValue().length;
@@ -311,22 +401,9 @@ define('Interface', ['jQuery',
 		$('#watchTable' + j).show();
 	}
 
-	function fillTabs(){
-		if ($('#ui-tabs-0').length){
-			$('#ui-tabs-0').empty();
-			$('#tabs').tabs('remove', 0);
-		}
-		$('#tabs').tabs('add', '#ui-tabs-0', "Выбор пользователя", 0);
-		$('#ui-tabs-0').append('<table width = "100%"><tr id = "tab0"><td><div id = "userListDiv"></div></td>');
-		$('#tab0').append('<td valign = "top" align = "right"><button id = "changeContestBtn">Выбрать турнир</button></td></tr>');
-		$('#ui-tabs-0').append('</table>');
-		$('#changeContestBtn').button();
-		$('#changeContestBtn').click(function(){
-			$('#contestsList').show();
-			$('#changeContest').dialog('open');
-			return false;
-		});
-		changeUser();
+	function fillTabs(callback) {
+		showUser();
+
 		problems = [];
 		codeareas = [];
 		currentServer.problemsListRequest(function(data){
@@ -456,6 +533,8 @@ define('Interface', ['jQuery',
 				}
 			}
 			cmdId = problems.length;
+			if (callback)
+				callback();
 		});
 	}
 
@@ -546,7 +625,7 @@ define('Interface', ['jQuery',
 
 	return {
 		login: login,
-		chooseUser: chooseUser,
+		loginBySessionId: loginBySessionId,
 		getContests: getContests,
 		changeContest: changeContest,
 		fillTabs: fillTabs,

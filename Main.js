@@ -223,28 +223,7 @@ requirejs([
 				$('#accordion').accordion();
 			}
 		});
-		//$("#accordion").accordion();
-		$('#enterPassword').dialog({
-			modal: true,
-			buttons: {
-				Ok: function() {
-					currentServer.user.setPasswd($('#password').prop('value')) ;
-					Interface.login();
-					$('#enterPassword').dialog('close');
-				},
-				Cancel: function(){
-					$.cookie('userId', undefined);
-					$.cookie('passwd', undefined);
-					$('#enterPassword').dialog('close');
-				}
-			},
-			autoOpen: false,
-			close: function(){this.title = 'Введите пароль';}
-		});
-		$('#enterPassword').on('keyup', function(e){
-		  if (e.keyCode == 13) {
-			$(this).dialog( "option", "buttons" )['Ok']();
-		  }});
+
 		$('#changeContest').dialog({
 			modal: true,
 			buttons: {
@@ -296,30 +275,12 @@ requirejs([
 			$('#about').dialog('open');
 			return false;
 		});
-		$('#tabs').tabs();
-		var tabIndex = $.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0;
-		if ($.cookie('contestId') != undefined && checkNumber($.cookie('contestId'))) {
-			$('#contest_' + $.cookie('contestId')).prop('checked', true);
-			success = Interface.changeContest();
-			if (success) {
-				if ($.cookie('userId') != undefined){
-					var userId = $.cookie('userId');
-					var passwd = $.cookie('passwd');
-					$('#' + userId).prop('checked', true);
-					$.cookie('passwd', passwd);
-					Interface.chooseUser();
-				}
-			} else {
-				Interface.fillTabs();
-			}
-		}
-		else {
-			Interface.fillTabs();
-		}
 
+		Interface.fillTabs();
 
-		if (parseInt(tabIndex)) {
-			$('#tabs').tabs("select" , tabIndex);
+		var tabIndex = parseInt($.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0) || 0;
+		Interface.loginBySessionId(parseArgs()['sid'] || $.cookie('sid'), function () {
+			$('#tabs').tabs({ active: tabIndex });
 			//sometimes this event is fired earlier than current labyrinth cell width is calculated
 			//it happens only on loading of the last loaded tab
 			//wait for 200ms to correctly update height of the cells -- WA!!!!!!!!
@@ -328,8 +289,7 @@ requirejs([
 					curProblem.onTabSelect();
 				}
 			}, 200);
-		}
-
+		}, true);
 		cmdId = problems.length;
 
 		/*$('#startTests').button().click(function(){

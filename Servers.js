@@ -169,6 +169,10 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			return false;
 		},
 
+		authenticateBySid: function (sid, callback) {
+			console.warn('authenticateBySid is not implemented');
+		},
+
 		onContestsListRequest: function(data) {
 			this.contests = [];
 			for (var i = 0; i < data.contests.length; ++i) {
@@ -246,6 +250,28 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 				this.dataType);
 		},
 
+		authenticateBySid: function (sid, success, error) {
+			var self = this;
+			this.sendServerRequest(
+				this.url + 'f=profile;sid=' + sid + ';json=1',
+				function (data) {
+					if (data.status == 'bad sid') {
+						if (error) {
+							error(data);
+						}
+					}
+					else {
+						self.setSid(sid);
+						self.setUser(new User(data.login, undefined, false, data.name, data.id));
+
+						if (success)
+							success(data);
+					}
+				},
+				this.dataType
+			);
+		},
+
 		usersListRequest: function(callback) {
 			var self = this;
 			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;',
@@ -258,20 +284,30 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		contestsListRequest: function(callback) {
 			var self = this;
-			this.sendServerRequest(this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;',
-				function(data) {
-					self.onContestsListRequest(data);
+
+			var requestUrl = this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;';
+			var sid = this.getSid();
+			if (sid) {
+				requestUrl += 'sid=' + sid;
+			}
+
+			this.sendServerRequest(requestUrl, function(data) {
+				self.onContestsListRequest(data);
+				if (callback)
 					callback(data);
-				},
-				this.dataType);
+			}, this.dataType);
 		},
 
 		problemsListRequest: function(callback) {
-			this.sendServerRequest(this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1',
-				function(data) {
+			var requestUrl = this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1';
+			var sid = this.getSid();
+			if (sid) {
+				requestUrl += ';sid=' + sid;
+			}
+			this.sendServerRequest(requestUrl, function(data) {
+				if (callback)
 					callback(data);
-				},
-				this.dataType);
+			}, this.dataType);
 		},
 
 		consoleContentRequest: function(callback){
@@ -302,10 +338,10 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		getResultsUrl: function() {
-			result = this._getResultsUrl();
-			result += this.getCid();
-			if (this.getSid()) {
-				result += ';sid=' + this.getSid();
+			var result = this._getResultsUrl() + this.getCid();
+			var sid = this.getSid();
+			if (sid) {
+				result += ';sid=' + sid;
 			}
 			return result;
 		}
