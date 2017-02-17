@@ -16,7 +16,7 @@ define('Interface', ['jQuery',
 
 	function updateCallbackFactory(callback) {
 		return function (cb) {
-			getContests(changeContest);
+			getContests(selectContest);
 			if ($.isFunction(callback)) {
 				callback();
 			}
@@ -189,7 +189,7 @@ define('Interface', ['jQuery',
 				var name = contest.getName();
 
 				return (
-					'<input type="radio" name="contest_name" id="contest_name_' + idx + '"' + ' value="' + name + '" ' + (idx == 0 ? 'checked': '') + ' class="radioinput" cid="' + cid + '"/>' +
+					'<input type="radio" name="contest_name" id="contest_name_' + idx + '"' + ' value="' + cid + '" ' + (idx == 0 ? 'checked': '') + ' class="radioinput" />' +
 					'<label for="contest_name_' + idx + '">' + name  + '</label>' +
 					'<br>'
 				);
@@ -210,22 +210,27 @@ define('Interface', ['jQuery',
 		});
 	}
 
-	function changeContest(){
-		var contest = $('#contestsList > input:checked');
-		if (!contest[0])
-			return false
 
-		name = contest[0].defaultValue;
-		document.title = name;
-		currentServer.setContestByName(name, function(contest){
-			$.cookie('contestId', $('#contestsList > input:checked').attr('cid'));
-			fillTabs();
-		});
-		return true
+	function selectContest() {
+		var contest = $('#contestsList > input:checked');
+		if (!contest.length)
+			return false;
+		return changeContest(contest.val());
 	}
 
-	function onAddWatchClick()
-	{
+	function changeContest(cid, callback) {
+		return currentServer.setContestById(parseInt(cid), function (contest) {
+			document.title = contest.name;
+			$.cookie('contestId', contest.cid);
+			fillTabs();
+
+			if ($.isFunction(callback)) {
+				callback();
+			}
+		});
+	}
+
+	function onAddWatchClick() {
 		$('#addWatchDialog').dialog('open');
 	}
 
@@ -283,7 +288,7 @@ define('Interface', ['jQuery',
 			.button()
 			.on('click', function(){
 				$('#contestsList').show();
-				$('#changeContest').dialog('open');
+				$('#selectContest').dialog('open');
 				return false;
 			})
 			.appendTo($userBtns);
@@ -627,6 +632,7 @@ define('Interface', ['jQuery',
 		login: login,
 		loginBySessionId: loginBySessionId,
 		getContests: getContests,
+		selectContest: selectContest,
 		changeContest: changeContest,
 		fillTabs: fillTabs,
 		onFinishExecuting: onFinishExecuting,

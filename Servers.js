@@ -185,11 +185,22 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			return this.contests;
 		},
 
+		setContestById: function(cid, callback) {
+			for (var i = 0; i < this.contests.length; ++i) {
+				if (cid === this.contests[i].cid) {
+					this.setContest(this.contests[i]);
+					callback(this.getContest());
+					return true;
+				}
+			}
+			return false;
+		},
+
 		setContestByName: function(name, callback) {
 			for (var i = 0; i < this.contests.length; ++i){
 				if (name == this.contests[i].name){
 					this.setContest(this.contests[i]);
-					callback(this.contest);
+					callback(this.getContest());
 					return true;
 				}
 			}

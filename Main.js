@@ -167,7 +167,7 @@ requirejs([
 				}
 			}
 		});
-		$('#changeContest').hide();
+		$('#selectContest').hide();
 		$('#enterPassword').hide();
 		$('#contestsList').hide();
 		$('#about').hide();
@@ -224,11 +224,11 @@ requirejs([
 			}
 		});
 
-		$('#changeContest').dialog({
+		$('#selectContest').dialog({
 			modal: true,
 			buttons: {
 				Ok: function() {
-					Interface.changeContest();
+					Interface.selectContest();
 					$(this).dialog('close');
 				},
 				Cancel: function(){
@@ -276,10 +276,17 @@ requirejs([
 			return false;
 		});
 
-		Interface.fillTabs();
 
 		var tabIndex = parseInt($.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0) || 0;
-		Interface.loginBySessionId(parseArgs()['sid'] || $.cookie('sid'), function () {
+		var urlArgs = $.extend({
+			sid: $.cookie('sid'),
+			cid: $.cookie('contestId')
+		}, parseArgs());
+
+		Interface.loginBySessionId(urlArgs.sid, function () {
+			if (urlArgs.cid) {
+				Interface.changeContest(urlArgs.cid)
+			}
 			$('#tabs').tabs({ active: tabIndex });
 			//sometimes this event is fired earlier than current labyrinth cell width is calculated
 			//it happens only on loading of the last loaded tab
