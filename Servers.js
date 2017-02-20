@@ -223,7 +223,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			formData.append('problem_id', problem_id);//
 			formData.append('de_id',772264);
 			formData.append('source_text', submitStr);
-			formData.append('submitRequest', 'Send');
+			formData.append('submit', '');
 			CallServer.callSubmit(this.url + 'f=problems;json=1;sid=' + this.getSid() + ';cid=' + this.getCid(), formData, function(data){
 				alert(data.message ? data.message :'Решение отослано на проверку');
 			});
@@ -368,7 +368,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 				problem_id: problemId,
 				de_id: 772264,
 				source_text: submitStr,
-				submitRequest: 'Send',
+				submit: '',
 				sid: this.getSid(),
 				cid: this.getCid()
 			};
