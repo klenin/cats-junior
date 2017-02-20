@@ -224,18 +224,18 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			formData.append('de_id',772264);
 			formData.append('source_text', submitStr);
 			formData.append('submitRequest', 'Send');
-			CallServer.callSubmit(self.url + 'f=problems;sid=' + self.getSid() + ';cid=' + self.getCid()+ ';json=1;', formData, function(data){
+			CallServer.callSubmit(this.url + 'f=problems;json=1;sid=' + this.getSid() + ';cid=' + this.getCid(), formData, function(data){
 				alert(data.message ? data.message :'Решение отослано на проверку');
 			});
 		},
 
 		sendServerRequest: function(url, callback, dtype) {
-			CallServer.callScript(url, callback, dtype);
+			CallServer.callScript(url.replace(/;$/, '') + ';json=1', callback, dtype);
 		},
 
 		submitRequest: function(submitStr, problem_id, badSidCallback) {
 			var self = this;
-			this.sendServerRequest(this.url + 'f=contests;filter=json;sid=' + self.getSid() + ';json=1;', function(data){
+			this.sendServerRequest(this.url + 'f=contests;filter=json;sid=' + this.getSid(), function(data){
 				if (data.error == 'bad sid'){
 					badSidCallback();
 				}
@@ -246,7 +246,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		loginRequest: function(userLogin, userPass, callback) {
-			this.sendServerRequest(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass +';json=1;',
+			this.sendServerRequest(this.url + 'f=login;login=' + userLogin + ';passwd=' + userPass,
 				function(data) {
 					callback(data);
 				},
@@ -254,7 +254,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		logoutRequest: function(callback) {
-			this.sendServerRequest(this.url +'f=logout;sid=' + this.getSid() + ';json=1;',
+			this.sendServerRequest(this.url +'f=logout;sid=' + this.getSid(),
 				function(data) {
 					callback(data);
 				},
@@ -264,7 +264,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		authenticateBySid: function (sid, success, error) {
 			var self = this;
 			this.sendServerRequest(
-				this.url + 'f=profile;sid=' + sid + ';json=1',
+				this.url + 'f=profile;sid=' + sid,
 				function (data) {
 					if (data.status == 'bad sid') {
 						if (error) {
@@ -285,7 +285,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		usersListRequest: function(callback) {
 			var self = this;
-			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;json=1;sort=0;sort_dir=0;',
+			this.sendServerRequest(this.url +'f=users;cid=' + this.getCid() + ';rows=300;sort=0;sort_dir=0',
 				function(data) {
 					self.onUsersListRequest(data);
 					callback(data);
@@ -296,7 +296,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		contestsListRequest: function(callback) {
 			var self = this;
 
-			var requestUrl = this.url + 'f=contests;filter=json;sort=1;sort_dir=1;json=1;';
+			var requestUrl = this.url + 'f=contests;filter=json;sort=1;sort_dir=1;';
 			var sid = this.getSid();
 			if (sid) {
 				requestUrl += 'sid=' + sid;
@@ -310,7 +310,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		},
 
 		problemsListRequest: function(callback) {
-			var requestUrl = this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1;json=1';
+			var requestUrl = this.url + 'f=problem_text;notime=1;nospell=1;noformal=1;cid=' + this.getCid() + ';nokw=1';
 			var sid = this.getSid();
 			if (sid) {
 				requestUrl += ';sid=' + sid;
@@ -324,7 +324,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		consoleContentRequest: function(callback){
 			if (this.getCid() && this.getSid()){
 				this.sendServerRequest(this.url + 'f=console_content;cid=' + this.getCid() + ';sid=' + this.getSid() +
-					';uf=' + this.getUserId() +  ';i_value=-1;json=1',
+					';uf=' + this.getUserId() +  ';i_value=-1',
 					function(data) {
 						callback(data);
 					},
@@ -344,12 +344,9 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			}
 		},
 
-		_getResultsUrl: function() {
-			return '/cats/main.pl?f=rank_table_content;cid=';
-		},
 
 		getResultsUrl: function() {
-			var result = this._getResultsUrl() + this.getCid();
+			var result = this.url + 'f=rank_table_content;cid=' + this.getCid();
 			var sid = this.getSid();
 			if (sid) {
 				result += ';sid=' + sid;
@@ -357,6 +354,36 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			return result;
 		}
 	});
+
+	var CATSJsonp = $.inherit(CATS, {
+		__constructor: function() {
+			this.url = 'https://imcs.dvfu.ru/cats/main.pl?';
+			this.dataType = 'jsonp';
+		},
+
+		_submitRequest: function(submitStr, problemId) {
+			var requestData = {
+				f: 'problems',
+				search: '',
+				rows: 20,
+				problem_id: problemId,
+				de_id: 772264,
+				source_text: submitStr,
+				submitRequest: 'Send',
+				sid: this.getSid(),
+				cid: this.getCid()
+			};
+
+			CallServer.callSubmitJsonp(this.url, requestData, function(data) {
+				alert(data.message ? data.message :'Решение отослано на проверку');
+			});
+		},
+
+		sendServerRequest: function(url, callback, dtype) {
+			CallServer.callScriptJsonp(url, callback, dtype);
+		}
+	});
+
 
 	var LocalServerConnectedToCats = $.inherit(CATS, {
 		__constructor: function() {
@@ -466,6 +493,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		Session: Session,
 		Server: Server,
 		CATS: CATS,
+		CATSJsonp: CATSJsonp,
 		LocalServer: LocalServer,
 		LocalServerConnectedToCats: LocalServerConnectedToCats
 	};

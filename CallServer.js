@@ -48,6 +48,19 @@ define('CallServer', ['jQuery'], function(){
 		});
 	}
 
+	function callScriptJsonp(url, callback, dtype) {
+		$.ajax({
+			url: url + '&json=?',
+			jsonp: 'json',
+			dataType: dtype,
+			success: callback,
+			error: function(xhr, status, error) {
+				console.log(error);
+				alert('Ошибка подключения к серверу');
+			}
+		});
+	}
+
 	function callSubmit(url, formData, callback){
         $.ajax({
                 async: false,
@@ -63,11 +76,27 @@ define('CallServer', ['jQuery'], function(){
         });
 	}
 
+	function callSubmitJsonp(url, params, callback) {
+		$.ajax({
+			url: url + 'json=?',
+			jsonp: 'json',
+			dataType: 'jsonp',
+			data: params,
+			success: callback,
+			error: function(xhr, status, error) {
+				console.log(error);
+				alert('Ошибка подключения к серверу');
+			}
+		});
+	}
+
 	return {
 		callScript: callScript,
 		callSubmitLocally: callSubmitLocally,
 		callSubmit: callSubmit,
-		callScriptLocally: callScriptLocally
+		callScriptLocally: callScriptLocally,
+		callScriptJsonp: callScriptJsonp,
+		callSubmitJsonp: callSubmitJsonp
 	}
 });
 
