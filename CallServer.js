@@ -1,24 +1,4 @@
 define('CallServer', ['jQuery'], function(){
-	function callScriptLocally(url, callback, dtype, scriptPath) {
-		$.ajax({
-			async: false,
-			url: scriptPath,
-			data: 'url='+ url,
-			dataType: dtype,
-			success: function(data){
-				//data = data.replace(new RegExp( "\t", "g" ), ' ');
-				//var d = $.evalJSON(data);
-				callback(data);
-			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				if(url.search('rank_table_content') == -1){
-					alert('Ошибка подключения к серверу');
-				}
-				console.error(jqXHR, textStatus, errorThrown);
-			}
-		});
-	}
-
 	function callScript(url, callback, dtype){
 		$.ajax({
 			async: false,
@@ -29,21 +9,6 @@ define('CallServer', ['jQuery'], function(){
 				if(url.search('rank_table_content') == -1){
 					alert('Ошибка подключения к серверу');
 				}
-			}
-		});
-	}
-
-	function callSubmitLocally(serv, path, submitData, callback, scriptPath){
-		$.ajax({
-			async: false,
-			url: scriptPath,
-			type: 'POST',
-			data: 'serv='+ serv + '&' + 'path=' + path + '&' + submitData,
-			success: function(data){
-				callback(data);
-			},
-			error: function(data){
-				alert(data);
 			}
 		});
 	}
@@ -92,9 +57,7 @@ define('CallServer', ['jQuery'], function(){
 
 	return {
 		callScript: callScript,
-		callSubmitLocally: callSubmitLocally,
 		callSubmit: callSubmit,
-		callScriptLocally: callScriptLocally,
 		callScriptJsonp: callScriptJsonp,
 		callSubmitJsonp: callSubmitJsonp
 	}

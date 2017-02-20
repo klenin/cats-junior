@@ -344,7 +344,6 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 			}
 		},
 
-
 		getResultsUrl: function() {
 			var result = this.url + 'f=rank_table_content;cid=' + this.getCid();
 			var sid = this.getSid();
@@ -381,30 +380,6 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		sendServerRequest: function(url, callback, dtype) {
 			CallServer.callScriptJsonp(url, callback, dtype);
-		}
-	});
-
-
-	var LocalServerConnectedToCats = $.inherit(CATS, {
-		__constructor: function() {
-			this.__base();
-			this.url = 'http://imcs.dvgu.ru/cats/main.pl?';
-		},
-
-		sendServerRequest: function(url, callback, dtype) {
-				CallServer.callScriptLocally(url, callback, dtype, 'LocalServerFiles/script.php');
-		},
-
-		_submitRequest: function(submitStr, problem_id) {
-			var self = this;
-			CallServer.callSubmitLocally('imcs.dvgu.ru', '/cats/main.pl?f=problems;sid=' + self.getSid() + ';cid=' + self.getCid() +';', 'source=' + submitStr + '&problem_id=' + this.id + '&de_id=772264', function(data){
-				alert(data.message ? data.message : 'Решение отослано на проверку');
-			},
-			'LocalServerFiles/submit.php');
-		},
-
-		_getResultsUrl: function() {
-			return 'http://imcs.dvgu.ru/cats/main.pl?f=rank_table_content;cid=';
 		}
 	});
 
@@ -494,7 +469,6 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		Server: Server,
 		CATS: CATS,
 		CATSJsonp: CATSJsonp,
-		LocalServer: LocalServer,
-		LocalServerConnectedToCats: LocalServerConnectedToCats
+		LocalServer: LocalServer
 	};
 });
