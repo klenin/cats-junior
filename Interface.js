@@ -203,14 +203,6 @@ define('Interface', ['jQuery',
 		});
 	}
 
-	function clearTabs(){
-		$('#tabs > div').each(function(index, elem){
-			$(elem.id).empty();
-			$('#tabs').tabs('remove', index);
-		});
-	}
-
-
 	function selectContest() {
 		var contest = $('#contestsList > input:checked');
 		if (!contest.length)
@@ -228,36 +220,6 @@ define('Interface', ['jQuery',
 				callback();
 			}
 		});
-	}
-
-	function onAddWatchClick() {
-		$('#addWatchDialog').dialog('open');
-	}
-
-	function startWaitForCommandsGeneration(problem) {
-		if (problem.loadedCnt > 0) {
-			$.blockUI({
-				message: '',
-				fadeIn: 0,
-				overlayCSS: {
-					backgroundColor: '#ffffff',
-					opacity: 0,
-					cursor: 'progress'
-				}
-			});
-			waitForCommandsGeneration(problem);
-		}
-	}
-
-	function waitForCommandsGeneration(problem) {
-		if (problem.loadedCnt > 0) {
-			setTimeout(function(){waitForCommandsGeneration(problem)}, 200);
-		}
-		else {
-			$.unblockUI();
-			problem.setCurrentStage('IDLE');
-			problem.updated();
-		}
 	}
 
 	function showUser() {
@@ -543,30 +505,6 @@ define('Interface', ['jQuery',
 		});
 	}
 
-	function setSpin(problem){
-		$('#spinDiv' + cmdId).append('<input id = "spinCnt' + cmdId + '" class = "spinCnt" type="text">')
-		$('#spin' + cmdId).spin({
-			min: 1
-		});
-		$('#spin' + cmdId++).change(function(p){
-			return function(){
-				p.updated();
-			}
-		}(problem));
-	}
-
-	function onFinishExecuting(problem)
-	{
-		/*finalcode[problem] = undefined;
-		$scope[problem] = undefined,
-		$gbl[problem] = undefined,
-		$loc[problem] = $gbl[problem];
-		nextline[problem] = undefined;
-		for (var i = 0; i < codeareas[problem].lineCount(); ++i)
-			codeareas[problem].setLineClass(i, null);
-		updateWatchList();*/
-	}
-
 	function playClick(){
 		var problem = curProblem;
 		problem.speed = Math.max(1, $('#slider' + problem.tabIndex).slider('option', 'max') - $('#slider' + problem.tabIndex).slider('value'));
@@ -574,7 +512,7 @@ define('Interface', ['jQuery',
 		$('#btn_play'+ problem.tabIndex).addClass('ui-state-focus');
 	}
 
-	function clearClick(){
+	function clearClick() {
 		var problem = curProblem;
 		if (!confirm('Вы уверены, что хотите очистить список команд?'))
 			return;
@@ -605,23 +543,19 @@ define('Interface', ['jQuery',
 		curProblem.prev();
 	}
 
-	function updateStyleSheet(index, filename)
-	{
-	    if ($("#dynamic_css_" + index).length == 0) {
-	        $("head").append("<link>");
-	        var css = $("head").children(":last");
-	        css.attr({
-	          id: "dynamic_css_" + index,
-	          rel:  "stylesheet",
-	          type: "text/css",
-	          href: filename
-	        });
-	    }
-		else
-	    {
-	        $("#dynamic_css_" + index).attr("href",filename);
-	    }
-
+	function updateStyleSheet(index, filename) {
+		if ($("#dynamic_css_" + index).length == 0) {
+			$("head").append("<link>");
+			var css = $("head").children(":last");
+			css.attr({
+				id: "dynamic_css_" + index,
+				rel:  "stylesheet",
+				type: "text/css",
+				href: filename
+			});
+		} else {
+			$("#dynamic_css_" + index).attr("href",filename);
+		}
 	}
 
 	var btnFunctions = [playClick, pauseClick, stopClick, prevClick, nextClick];
@@ -635,7 +569,6 @@ define('Interface', ['jQuery',
 		selectContest: selectContest,
 		changeContest: changeContest,
 		fillTabs: fillTabs,
-		onFinishExecuting: onFinishExecuting,
 		goToCodeMode: goToCodeMode,
 		goToCommandsMode: goToCommandsMode
 	};
