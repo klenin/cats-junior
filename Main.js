@@ -147,7 +147,7 @@ requirejs([
 		$('#funcName').hide();
 		$('#tabs').tabs({
 			select: function(event, ui) {
-				curProblemIndex = ui.index - 2;
+				var curProblemIndex = ui.index - 2;
 				if (curProblemIndex >= 0) {
 					curProblem = problems[curProblemIndex];
 					if (curProblem) {
@@ -276,18 +276,18 @@ requirejs([
 			return false;
 		});
 
-
 		var tabIndex = parseInt($.cookie('tabIndex') != undefined ? $.cookie('tabIndex') : 0) || 0;
 		var urlArgs = $.extend({
 			sid: $.cookie('sid'),
 			cid: $.cookie('contestId')
 		}, parseArgs());
 
+		Interface.getContests(Interface.selectContest);
 		Interface.loginBySessionId(urlArgs.sid, function () {
 			if (urlArgs.cid) {
 				Interface.changeContest(urlArgs.cid)
 			}
-			$('#tabs').tabs({ active: tabIndex });
+			$('#tabs').tabs('select', tabIndex);
 			//sometimes this event is fired earlier than current labyrinth cell width is calculated
 			//it happens only on loading of the last loaded tab
 			//wait for 200ms to correctly update height of the cells -- WA!!!!!!!!
