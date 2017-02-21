@@ -371,8 +371,9 @@ define('Interface', ['jQuery',
 	function fillTabs(callback) {
 		showUser();
 
-		problems = [];
-		codeareas = [];
+		var problems = [];
+		var codeareas = [];
+
 		currentServer.problemsListRequest(function(data){
 			for (var i = 0; i < data.length; ++i){
 				problems[i] = new Problems.Problem(data[i], i);
@@ -500,6 +501,9 @@ define('Interface', ['jQuery',
 				}
 			}
 			cmdId = problems.length;
+			window.problems = problems;
+			window.codeareas = codeareas;
+
 			if (callback)
 				callback();
 		});
