@@ -402,11 +402,10 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		sendRequest: function(url, callback) {
 			$.ajax({
 				url: url,
-
 				dataType: 'json',
+				beforeSend: function(req) { req.overrideMimeType('application/json'); },
 				success: function(data){
 					callback(data);
-
 				},
 				error: function(jqXHR, textStatus, errorThrown) {
 					if(url.search('rank_table_content') == -1){
