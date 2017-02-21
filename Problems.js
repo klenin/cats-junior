@@ -367,7 +367,6 @@ function() {
 				this.executionUnit.draw();
 				this.changeProgressBar();
 				this.enableButtons();
-				//if (!this.playing && $('#codeMode' + this.tabIndex).prop('checked')) Interface.onFinishExecuting(getCurProblem());
 			}
 		},
 
