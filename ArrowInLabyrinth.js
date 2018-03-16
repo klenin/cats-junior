@@ -553,6 +553,7 @@ define('ArrowInLabyrinth', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUni
 			initLabyrinth: function() {
 				this.life = this.data.startLife;
 				this.points = this.data.startPoints;
+				this.stepsFine = this.data.stepsFine;
 				this.mapFromTest = this.data.map.slice();
 				this.map = [];
 				this.maxBoxId = 0;
