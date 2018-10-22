@@ -295,7 +295,7 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 		contestsListRequest: function(callback) {
 			var self = this;
 
-			var requestUrl = this.url + 'f=contests;filter=json;sort=1;sort_dir=1;';
+			var requestUrl = this.url + 'f=contests;filter=json;sort=Sd;sort_dir=1;';
 			var sid = this.getSid();
 			if (sid) {
 				requestUrl += 'sid=' + sid;
