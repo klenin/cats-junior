@@ -218,12 +218,11 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 
 		_submitRequest: function(submitStr, problem_id) {
 			var formData = new FormData();
-			formData.append('search', '');
 			formData.append('rows', 20);
 			formData.append('problem_id', problem_id);//
 			formData.append('de_id',772264);
 			formData.append('source_text', submitStr);
-			formData.append('submit', '');
+			formData.append('submit', 1);
 			CallServer.callSubmit(this.url + 'f=problems;json=1;sid=' + this.getSid() + ';cid=' + this.getCid(), formData, function(data){
 				alert(data.message ? data.message :'Решение отослано на проверку');
 			});
