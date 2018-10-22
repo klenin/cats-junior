@@ -282,7 +282,7 @@ requirejs([
 			cid: $.cookie('contestId')
 		}, parseArgs());
 
-		Interface.getContests(Interface.selectContest);
+		//Interface.getContests(Interface.selectContest);
 		Interface.loginBySessionId(urlArgs.sid, function () {
 			if (urlArgs.cid) {
 				Interface.changeContest(urlArgs.cid)
