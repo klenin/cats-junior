@@ -8,7 +8,7 @@ require.config({
 		'jQueryUITabsPaging': 'import/jquery/ui.tabs.paging',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
 		'jQueryInherit': 'import/jquery/jquery.inherit.min',
-		'jQueryColResizable': 'import/jquery/colResizable-1.3.min',
+		'jQueryColResizable': 'import/jquery/colResizable-1.6.min',
 		'JsTree': 'import/jquery/jquery.jstree.min',
 		'Env': 'import/skulpt/src/env.min',
 		'BlockUI': 'import/jquery/jquery.blockUI.min',
