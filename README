@@ -1,4 +1,0 @@
-Browser application to train students in programming based on the concept of "execution units".
-Online version -- http://imcs.dvgu.ru/cats/ev/CourseWork/index.html
-
-To launch on local PC, clone the repo, start any local file server to serve static files and open 'index.html' in your browser
