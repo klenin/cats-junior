@@ -11,9 +11,10 @@ Array.prototype.compare = function(testArr) {
 
 Array.prototype.clone = function() {
   var newObj = [];
-  for (i in this) {
-    if (i == 'clone') continue;
-    newObj[i] = this[i]
+  for (var i in this) {
+      if (this.hasOwnProperty(i)) {
+          newObj[i] = this[i]
+      }
   }
   return newObj;
 };

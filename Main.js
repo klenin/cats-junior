@@ -137,7 +137,7 @@ requirejs([
 
 	    $(document).ready(function(){
 		if (getInternetExplorerVersion()){
-			$("#ver").html( 'Microsoft Interner Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
+			$("#ver").html( 'Microsoft Internet Explorer не поддерживается данной системой. Пожалуйста, воспользуйтесь, другим браузером, например, <a href = "http://www.mozilla.org/ru/firefox/fx/">Mozilla Firefox</a>' );
 			return;
 		}
 
