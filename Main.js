@@ -299,6 +299,7 @@ requirejs([
 		}, true);
 		cmdId = problems.length;
 
+		Interface.fillTabs()
 		/*$('#startTests').button().click(function(){
 			QUnit.start();
 			Tests.RunTests();
