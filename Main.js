@@ -2,6 +2,10 @@ require.config({
     waitSeconds: 180,
     baseUrl: '',
     paths: {
+        'Config': [
+            'Config',
+            'Config.default'
+        ],
         'jQuery': 'import/jquery/jquery-1.11.1.min',
         'jquery': 'import/jquery/jquery-1.11.1.min',
 		'jQueryUI': 'import/jquery/jquery-ui-1.9.2.min',
