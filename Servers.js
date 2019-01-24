@@ -209,8 +209,9 @@ define('Servers', ['jQuery', 'jQueryInherit', 'CallServer'], function(){
 	});
 
 	var CATS = $.inherit(Server, {
-		__constructor: function() {
-			this.url = '/cats/main.pl?';
+		__constructor: function(options = {}) {
+			this.baseUrl = options.baseUrl ? options.baseUrl : '';
+			this.url = this.baseUrl + '/cats/main.pl?';
 			this.dataType = 'json';
 			this.defaultPass = '12345';
 			this.defaultCid = 791634;

@@ -141,7 +141,7 @@ requirejs([
 			return;
 		}
 
-		currentServer = new Servers[Config.ServerName]();
+		currentServer = new Servers[Config.ServerName]({ baseUrl: Config.BaseUrl });
 		currentServer.setSession(new Servers.Session(undefined, currentServer.defaultCid));
 
 		$('#funcName').hide();

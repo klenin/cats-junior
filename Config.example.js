@@ -1,5 +1,6 @@
 define('Config', [], function(){
 	return {
-		'ServerName': 'CATS'
+		'ServerName': 'CATS',
+		'BaseUrl': ''
 	}
 });

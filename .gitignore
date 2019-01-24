@@ -10,3 +10,6 @@ import/CodeMirror/css/*
 !import/skulpt/support/closure-library/closure/goog/*.js
 /import/jquery/jquery-spin.js
 /import/jquery/jquery-spin.js
+/.idea
+
+/Config.js
