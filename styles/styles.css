@@ -251,3 +251,7 @@ a.wrongName {
 .login-form fieldset {
 	border: none;
 }
+
+button.help span.ui-button-text {
+	line-height: 1.2;
+}

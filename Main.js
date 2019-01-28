@@ -268,8 +268,8 @@ requirejs([
 			}
 		});
 		$('.ui-tabs-nav').append('<li class = "ui-state-default ui-corner-top" style = "float: right">' +
-			'<button id = "aboutBtn" style = "border-color:-moz-use-text-color -moz-use-text-color #D3D3D3; ' +
-			'border-style:none none solid; border-width:0 0 1px;">?</button></li>');
+			'<button id = "aboutBtn" class="help" style = "border-color:-moz-use-text-color -moz-use-text-color #D3D3D3; ' +
+			'border-style:none none solid; border-width:0 0 1px; line-height: inherit;">?</button></li>');
 		$('#aboutBtn').button();
 		$('#aboutBtn').click(function() {
 			$('#about').dialog('open');
@@ -299,6 +299,7 @@ requirejs([
 		}, true);
 		cmdId = problems.length;
 
+		Interface.fillTabs()
 		/*$('#startTests').button().click(function(){
 			QUnit.start();
 			Tests.RunTests();
