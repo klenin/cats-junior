@@ -56,10 +56,11 @@ define('InterfaceBlockly', ['Blocks','Problems',
             'style': 'background-color: #ddd'}, null);
         var text = Blockly.createSvgElement('text', {'class': 'blocklyText',
             'style': 'fill: #000;', 'x': 22, 'y': 21}, group);
-        var rect = Blockly.createSvgElement('rect', { 'width': 100,'height': 32,
+        var btnCreateWidth = 100;
+        var btnCreate = Blockly.createSvgElement('rect', { 'width': btnCreateWidth, 'height': 32,
             'class': 'blocklyHorizontalMenuItem'}, group);
         text.appendChild(document.createTextNode('Создать'));
-        horizontalMenu.listeners_.push(Blockly.bindEvent_(rect, 'mousedown', null, function(e) {
+        horizontalMenu.listeners_.push(Blockly.bindEvent_(btnCreate, 'mousedown', null, function(e) {
             setTimeout(function() {
                 var tree = Blockly.Toolbox.tree_;
                 tree.setSelectedItem(tree.children_[0]);
@@ -67,26 +68,39 @@ define('InterfaceBlockly', ['Blocks','Problems',
         }));
 
         // render menu items
+        var itemSize = 32;
+        var cellSize = itemSize + 8;
+        var row = 0;
+        var workspaceMetrics = Blockly.mainWorkspace.getMetrics();
+        var btnCreateWidthWithPadding = btnCreateWidth + 10;
+        var colsPerRow = Math.ceil((workspaceMetrics.viewWidth - btnCreateWidthWithPadding) / cellSize) + 1;
         $blocks.each(function(index, value) {
             var type = $(value).attr('type');
-            var x = 100 + 10 +index * 40
+
+            var x = btnCreateWidthWithPadding + (index - row * colsPerRow) * cellSize;
+            if (x - cellSize > workspaceMetrics.viewWidth) {
+                row++;
+                x -= row * colsPerRow * cellSize;
+            }
+            var y = row * cellSize;
 
             var image = document.createElementNS('http://www.w3.org/2000/svg','image');
-            image.setAttribute('height','32');
-            image.setAttribute('width','32');
+            image.setAttribute('height', "" + itemSize);
+            image.setAttribute('width',"" + itemSize);
             image.setAttributeNS('http://www.w3.org/1999/xlink','href','images/' + type + '.png');
-            image.setAttribute('x', x);
-            image.setAttribute('y', 0);
-            group.appendChild(image)
+            image.setAttribute('x', "" + x);
+            image.setAttribute('y', "" + y);
+            group.appendChild(image);
 
             var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-            rect.setAttribute('class', 'blocklyHorizontalMenuItem')
-            rect.setAttribute('height','32');
-            rect.setAttribute('width','32');
-            rect.setAttribute('rx', 4);
-            rect.setAttribute('ry', 4);
-            rect.setAttribute('x', x);
-            group.appendChild(rect)
+            rect.setAttribute('class', 'blocklyHorizontalMenuItem');
+            rect.setAttribute('height',"" + itemSize);
+            rect.setAttribute('width',"" + itemSize);
+            rect.setAttribute('rx', "4");
+            rect.setAttribute('ry', "4");
+            rect.setAttribute('x', "" + x);
+            rect.setAttribute('y', "" + y);
+            group.appendChild(rect);
 
             horizontalMenu.listeners_.push(Blockly.bindEvent_(rect, 'mousedown', null,
                 horizontalMenu.createBlockFunc_(type, image)));
