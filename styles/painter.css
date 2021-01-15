@@ -1,0 +1,60 @@
+.tdPoint {
+  background-color: black;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.tdFiller {
+  background-color: white;
+  width: 16px;
+  height: 16px;
+}
+
+.trFiller {
+  display: flex;
+  background-color: white;
+}
+.trMain {
+  display: flex;
+}
+
+#penDown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#penUp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#penDown .penDown {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+
+  margin: auto;
+  
+  background-color: red;
+  border-radius: 50%;
+
+  z-index: 100;
+}
+
+#penUp .penUp {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+
+  margin: auto;
+  
+  background-color: blue;
+  border-radius: 50%;
+
+  z-index: 100;
+}
+
+.highlightedCell {
+  background-color: rgba(53, 183, 223, 0.2);
+}
