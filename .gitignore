@@ -15,3 +15,5 @@ import/CodeMirror/css/*
 /problems
 
 /Config.js
+problems/*
+*.zip
