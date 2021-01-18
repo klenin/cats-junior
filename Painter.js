@@ -13,12 +13,26 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 	});
 	*/
 
-	function movePenTo(args) {
-		curProblem.oneStep('movePenTo', undefined, [args[0], args[1], args[2]]);
+	function movePenTo(x, y, mode) {
+		curProblem.oneStep('movePenTo', undefined, [x, y, mode]);
 	}
-	function vectorTo(args) {
-		curProblem.oneStep('vectorTo', undefined, [args[0], args[1]]);
+	function vectorTo(x, y) {
+		console.log('UP vector2');
+		curProblem.oneStep('vectorTo', undefined, [x, y]);
 	}
+	function compare(args) {
+		return true;
+	}
+
+	function compare_handler() {
+		return true;
+	}
+
+	var MessageWon = $.inherit(Message, {
+		__constructor: function(step, points) {
+			this.__base(['Шаг ', step + 1, ': Вы выполнили задание!\nКоличество очков: ', points, '\n' ]);
+		}
+	});
 	
 	return {
 		Painter: $.inherit({
@@ -39,27 +53,50 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 				*/
 				this.table = $('<table style="border-spacing: 0px; width: 100%; padding: 32px"></table>').appendTo(this.div);
 
-				this.initPainter();
 				this.constructCommands();
+
+				this.init();
 			},
 
 			constructCommands: function() {
-				const {CommandArgumentSpin, CommandArgumentSelect, ExecutionUnitCommand} = ExecutionUnitCommands;
 				this.commands = {};
 
-				let args = [ 
-					new CommandArgumentSpin(0, this.data.width),
-					new CommandArgumentSpin(0, this.data.height),
-					new CommandArgumentSelect([['Пишет', true], ['Не пишет', false]])
+				let argsM = [ 
+					new ExecutionUnitCommands.CommandArgumentSpin(0, this.data.width),
+					new ExecutionUnitCommands.CommandArgumentSpin(0, this.data.height),
+					new ExecutionUnitCommands.CommandArgumentSpin(0, 1)
 				];
 
-				this.commands['movePenTo'] = new ExecutionUnitCommand("movePenTo", movePenTo, args);
-				this.commands['vectorTo'] = new ExecutionUnitCommand("vectorTo", vectorTo, args);
+				let argsV = [
+					new ExecutionUnitCommands.CommandArgumentSpin(0, this.data.width),
+					new ExecutionUnitCommands.CommandArgumentSpin(0, this.data.height)
+				];
+
+				this.commands['movePenTo'] = new ExecutionUnitCommands.ExecutionUnitCommand("movePenTo", movePenTo, argsM);
+				this.commands['vectorTo'] = new ExecutionUnitCommands.ExecutionUnitCommand("vectorTo", vectorTo, argsV);
+			
+				this.testFunction = [
+					{
+						'name': 'compare',
+						'title': 'Test',
+						'args': [
+							new ExecutionUnitCommands.CommandArgumentSpin(0, undefined)
+						],
+						'jsFunc': compare,
+						'handlerFunc': compare_handler,
+					},
+				]
 			},
 
-			initPainter: function() {
+			init: function() {
 				this.width = this.data.width;
 				this.height = this.data.height;
+
+			  // 
+				this.points = this.data.startPoints;
+				this.dead = false;
+				this.life = this.data.startLife;
+				// 
 
 				this.blank = this.data.blankSpace !== undefined ? this.data.blankSpace : 3;
 
@@ -181,7 +218,11 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 				color !== "highlight" ?  this.trace.push([c1,c2]) : null;
 			},
 
-			movePenTo: function([x, y, mode]) {
+			movePenTo: function(args) {
+				let x = args[0];
+				let y = args[1];
+				let mode = args[2] === 1 ? true : false;
+
 				let oldC = this.pen.coord;
 				this.drawPen(this.getCoord(x, y), mode);
 
@@ -191,7 +232,10 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 					this.drawTrace(oldC, this.pen.coord, vertical,'green');
 				}
 			},
-			vectorTo: function([x, y]) {
+			vectorTo: function(args) {
+				let x = args[0];
+				let y = args[1];
+
 				let oldC = this.pen.coord;
 				let newCoord = oldC + (x*this.blank+x) + ((y*this.blank+y)*this.mapW);
 
@@ -239,22 +283,82 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 				let array = [...this.traceLines].map((item) => {
 					return [this.getCoord(item[0], item[1]), this.getCoord(item[2], item[3])];
 				});
+
+				console.log("Trace lInes",this.traceLines);
+				console.log(this.trace);
 				
 				if (this.trace.length >= this.traceLines.length) {
 					for (let i = 0; i < this.traceLines.length; i++) {
 						if (this.trace.indexOf(array[i]) == -1) {
-							return false;
+							return true;
 						};
 					}
 				}
 
-				return true;
+				return false;
 			},
 
 			updateSizes: function() {},
 			getCoord: function(x, y) {
 				return (x * this.blank + x) + (y * this.mapW * (this.blank + 1));
 			},
+
+			/* */
+
+			getCommandNames: function() {
+				return this.__self.cmdClassToName;
+			},
+
+			getCommandName: function(command) {
+				return this.__self.cmdClassToName[command];
+			},
+
+			getAllowedCommands: function() {
+				return this.data.commands;
+			},
+
+			setDefault: function(dontDraw) {
+				this.init();
+			},
+
+			isGameOver: function() {
+				return false;
+			},
+
+			gameOver: function() {
+				this.dead = true;
+			},
+
+			getPoints: function() {
+				return this.points;
+			},
+
+			isCommandSupported: function() {
+				return this.data.commands.indexOf(command) !== -1;
+			},
+
+			getConditionProperties: function() {
+				return this.testFunction;
+			},
+
+			getCommands: function() {
+				return this.commands;
+			},
+
+			getState: function() {
+				return null;
+			},
+
+			draw: function() {return},
+
+			getState: function() {
+				return {
+					'points': this.points,
+					'completed': this.checkSolve()
+				}
+			},
+			
+			/* */
 
 			getCssFileName: function() { return this.__self.cssFileName },
 			onTabSelect: function() {this.updateSizes()}
@@ -263,9 +367,14 @@ define('Painter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 			cssFileName: 'styles/painter.css',
 
 			cmdClassToName: {
-				'movePenTo': 'Передвинуть ручку к координате',
-				'vectorTo': 'Передвинуть ручку по вектору'
-			}
+				'movePenTo': 'Переместить ручку',
+				'vectorTo': 'Переместить ручку вектор'
+			},
+
+			jsTreeTypes: [
+				['movePenTo', 'images/pour_small.png'],
+				['vectorTo', 'images/fill_small.png']
+			]
 		})
 	};
 });

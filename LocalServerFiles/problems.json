@@ -995,12 +995,12 @@
 	},
 	{
 		"id": 839284,
-		"code": "SS",
+		"code": "S",
 		"title": "Test",
 		"data": {
 			"executionUnitName": "Painter",
 
-			"commands": ["penUp", "penDown", "movePenTo", "vectorTo", "field"],
+			"commands": ["movePenTo", "vectorTo"],
 			"controlCommands": [],
 
 			"startLife": 1,
@@ -1014,6 +1014,7 @@
 			"commandsFine": 10,
 			"width": 8,
 			"height": 8,
+			"blankSpace": 3,
 			"penStartPoint": [2,0],
 			"lines": [
 				[2,0,6,0],
