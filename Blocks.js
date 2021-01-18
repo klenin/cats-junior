@@ -914,6 +914,18 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             }
         });
 
+        //Painter blocks
+        Blocks['movePenTo'] = $.inherit(CommandBlock, {
+            init: function() {
+                this.__base('movePenTo');
+            }
+        })
+
+        Blocks['vectorTo'] = $.inherit(CommandBlock, {
+            init: function() {
+                this.__base('vectorTo');
+            }
+        })
 
         // ArrowInLabyrinth
         Blocks['isCompleted'] = $.inherit(CommandBlock, {
