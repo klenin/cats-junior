@@ -3,6 +3,15 @@
 "contests": [
 
 {
+    "id": 897579,
+    "name": "STest",
+    "start_date": "15.01.2021 00:00",
+    "finish_date": "16.01.2021 23:59",
+    "registration": "none",
+    "is_official": 1
+},
+
+{
     "id": 897578,
     "name": "Весенний турнир 2013, основы алгоритмизации ",
     "start_date": "26.04.2013 13:30",

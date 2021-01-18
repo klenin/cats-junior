@@ -11,5 +11,9 @@ import/CodeMirror/css/*
 /import/jquery/jquery-spin.js
 /import/jquery/jquery-spin.js
 /.idea
+/tests
+/problems
 
 /Config.js
+problems/*
+*.zip
