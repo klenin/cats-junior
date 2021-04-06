@@ -2,12 +2,16 @@ define('ExecutionUnitWrapper', ['jQuery',
 	'jQueryUI',
 	'jQueryInherit',
 	'Pourer',
+	'Painter',
+	'Shifter',
 	'ArrowInLabyrinth'], function(){
 	var ArrowInLabyrinthModule = require('ArrowInLabyrinth');
 	var PourerModule = require('Pourer');
 
 	var ArrowInLabyrinth = ArrowInLabyrinthModule.ArrowInLabyrinth;
 	var Pourer = PourerModule.Pourer;
+	let Painter = require('Painter').Painter;
+	var Shifter = require('Shifter').Shifter;
 
 	var Exceptions = require('Exceptions');
 	var IncorrectInput = Exceptions.IncorrectInput;
@@ -15,7 +19,9 @@ define('ExecutionUnitWrapper', ['jQuery',
 
 	var executionUnits = {
 		'ArrowInLabyrinth': ArrowInLabyrinth,
-		'Pourer': Pourer
+		'Pourer': Pourer,
+		'Painter': Painter,
+		'Shifter': Shifter
 	};
 
 	return {
