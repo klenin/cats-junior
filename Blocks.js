@@ -913,7 +913,14 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
                 this.__base('fill');
             }
         });
-
+		
+		//Shifter block
+		
+		Blocks["shift"] = $.inherit(CommandBlock, {
+			init: function() {
+				this.__base('shift');
+			}
+		});
 
         // ArrowInLabyrinth
         Blocks['isCompleted'] = $.inherit(CommandBlock, {
