@@ -1298,23 +1298,56 @@
 			
 			"pyramids": [
 				{
-					"rings": 4
+					"rings": [
+					
+						{"width":120},
+						{"width":105},
+						{"width":90 },
+						{"width":75 }
+					
+					],
+					"color": "red"
+				},
+				{
+					"rings": [],
+					"color": "green"
+				},
+				{
+					"rings": [
+						{"width":75}
+					],
+					"color": "blue"
+				},
+				{
+					"rings": [
+						{"width":105}
+					],
+					"color": "green"
+				},
+				{
+					"rings": [],
+					"color": "green"
 					
 				},
 				{
-					"rings": 0
-				},
-				{
-					"rings": 0
-					
+					"rings": [
+					{"width":120}
+					],
+					"color": "yellow"
 				}
-				
+								
 			],
 
 			"finishState": [
 				{
 					"pyramid": 1,
-					"rings": 4
+					"rings": 4,
+					"color": "rgb(255, 0, 0)"
+				},
+				{
+					"pyramid": 4,
+					"rings": 1,
+					"color": "rgb(0, 0, 255)"
 				}
 			],
 
