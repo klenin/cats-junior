@@ -26,13 +26,15 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 			
 			let num_ring = 0;
 			
-			let td = $('<td class="base" align="center"></td>');
+			let td = $('<td class="base" align="center" style = "width:33%; height:100%"></td>');
 
-			for (let j = 0; j < 8; j++) td.append('<tr style = "height:21px"; width = "100%"></tr>');
+			for (let j = 0; j < 8; j++) td.append('<p style = "height:25px; width:100%; margin:0"></p>');
+			
+			td.find("p").eq(0).append('<h3>' + String(this.index + 1) + '</h3>');
 			
 			for (let i = 5; i > (5 - this.rings); i--){
 				
-				td.children("tr").eq(i).append('<div style="height:20px; width:' + String(this.size[num_ring].width) + 'px; background-color:' + this.color + '; border:'+ this.color + ' solid 0.1px; border-radius:75px"</div>');
+				td.find("p").eq(i).append('<div style="height:80%; width:' +  String(this.size[num_ring].width) + '%; background-color:' + this.color + '; border:'+ this.color + ' solid 0.1px; border-radius:75px"</div>');
 				num_ring++;
 				
 			};   
@@ -63,7 +65,7 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 			
 			if (sup_bool){
 				 
-			$('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").eq(this.index - (3 * Math.floor((sup_y + 1) / 3))).find("tr").eq(6 - this.rings).append($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").eq(0));
+			$('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").eq(this.index - (3 * Math.floor((sup_y + 1) / 3))).find("p").eq(6 - this.rings).append($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").eq(0));
 
 			} else throw new IncorrectInput('Кольцо на ' + String(x + 1) + ' пирамидке больше,\nчем кольцо на ' + String(this.index + 1) + ' пирамидке');
 			
@@ -182,9 +184,12 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 				init: function() {
 					
 					let num_lines = Math.ceil(this.data.pyramids.length / 3);
-										
-					let table = $('<table id = "TableShift" style = "width:100%; height: 170px"></table>').appendTo(this.div);
-					for (let i = 0; i < num_lines;i++) $('<tr id="FieldPyr' + String(i) + '" style = "height: 170px"></tr>').appendTo(table);
+					
+					/* this.div.parent().parent().css({"position":"relative",
+								  "width":"100%",
+								  "height":"100%"});	 */	
+					let table = $('<table id = "TableShift" style = "height: 170px; width: 100%"></table>').appendTo(this.div);
+					for (let i = 0; i < num_lines;i++) $('<tr id="FieldPyr' + String(i) + '" style = "height: 170px; width = 100%"></tr>').appendTo(table);
 					
 					for (var i = 0; i < this.data.pyramids.length; ++i)	this.pyramids.push(new Pyramid(this.data.pyramids[i].rings.length, i, this.div, Math.ceil((i + 1)/3), this.data.pyramids[i].color, this.data.pyramids[i].rings));
 					
