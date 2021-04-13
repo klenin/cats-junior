@@ -914,11 +914,11 @@ define('Blocks', ['Problems', 'BlocklyPython', 'BlocklyMsg', 'Exceptions'], func
             }
         });
 		
-		//Shifter block
+		//Hanoi block
 		
-		Blocks["shift"] = $.inherit(CommandBlock, {
+		Blocks['move'] = $.inherit(CommandBlock, {
 			init: function() {
-				this.__base('shift');
+				this.__base('move');
 			}
 		});
 

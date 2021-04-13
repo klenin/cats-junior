@@ -1,4 +1,4 @@
-define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', 'Exceptions'], function(){
+define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands', 'ShowMessages', 'Declaration', 'Exceptions'], function(){
 	var ShowMessages = require('ShowMessages');
 	var ExecutionUnitCommands = require('ExecutionUnitCommands');
 	var Exceptions = require('Exceptions');
@@ -73,18 +73,18 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 			
 		
 		
-		shiftTo: function(delta) {
+		moveTo: function(delta) {
 			this.rings--;
 		},
 
-		shiftFrom: function(delta) {
+		moveFrom: function(delta) {
 			this.rings++;
 		},
 		
 		
 	});
-	function shift(x, y) {
-			curProblem.oneStep('shift', undefined, [x, y]);
+	function move(x, y) {
+			curProblem.oneStep('move', undefined, [x, y]);
 		}
 	
 
@@ -139,7 +139,7 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 	});
 	
 	return {
-		Shifter: $.inherit({
+		Hanoi: $.inherit({
 			__constructor: function(problem, problemData, div) {
 				this.data = {};
 				$.extend(true, this.data, problemData.data);
@@ -159,7 +159,7 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 					new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.pyramids.length)
 				];
 					
-					this.commands['shift'] = new ExecutionUnitCommands.ExecutionUnitCommand('shift', shift,argP);
+					this.commands['move'] = new ExecutionUnitCommands.ExecutionUnitCommand('move', move, argP);
 
 					var pyramidsList = [];
 					for (var i = 0; i < this.data.pyramids.length; ++i) {
@@ -228,8 +228,8 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 					}
 
 					switch (command) {
-						case 'shift':
-							this.shift(args);
+						case 'move':
+							this.move(args);
 							break;
 						default:
 							throw new IncorrectInput('Команда ' + command + ' не поддерживается');
@@ -248,7 +248,7 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 					}
 				},
 
-				shift: function(args) {
+				move: function(args) {
 					var x = args[0] - 1;
 					var y = args[1] - 1;
 					if (!checkNumber(x) || !checkNumber(y)) {
@@ -279,8 +279,8 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 					
 					if (x == y) throw new IncorrectInput('Некорректный аргумент');
 					
-					this.pyramids[x].shiftTo();
-					this.pyramids[y].shiftFrom();
+					this.pyramids[x].moveTo();
+					this.pyramids[y].moveFrom();
 					this.pyramids[y].draw(x);
 				},
 				
@@ -298,7 +298,7 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 						}
 						
 					}
-					console.log(String(result));
+					//console.log(String(result));
 					return result;
 				},
 				
@@ -384,13 +384,13 @@ define('Shifter', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands
 		
 		{
 			cmdClassToName: {
-				'shift': 'Переместить'
+				'move': 'Переместить'
 				},
 
-				cssFileName: "styles/shifter.css",
+				cssFileName: "styles/hanoi.css",
 
 				jsTreeTypes: [
-				['shift', 'images/shift.png']
+				['move', 'images/hanoi_move.png']
 				]
 		})
 	};

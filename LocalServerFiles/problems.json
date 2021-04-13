@@ -1291,8 +1291,8 @@
 		"code": "T",
 		"title": "Ханойские башни",
 		"data": {
-			"executionUnitName": "Shifter",
-			"commands": ["shift"],
+			"executionUnitName": "Hanoi",
+			"commands": ["move"],
 			"maxCmdNum": 50,
 			"commandsFine": 10,
 			
@@ -1352,7 +1352,7 @@
 			],
 
 			"startPoints": 150,
-			"controlCommands": ["if", "ifelse"],
+			"controlCommands": ["if", "ifelse","while"],
 			"pointsWon": 1000
 		},
 		"statement": "\n<p>\nВаша задача - переложить все кольца на вторую пирамидку, за один раз можно перемещать только одно кольцо, нельзя класть большее кольцо на меньшее, а также кольцо одного цвета на кольцо другого цвета.<\/p><p>\n<\/p>\n",
