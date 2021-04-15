@@ -9,87 +9,62 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
 
     var Pyramid = $.inherit({
 
-        __constructor: function(rings, index, div, num_lines, color, size){
+        __constructor: function(rings, index, div, row, color){
             this.rings = rings;
-            this.initRings = rings;
+            this.initRings = rings.clone();
             this.div = div;
             this.index = index;
-            this.color = color;
-            this.size = size;
 
-            this.init(num_lines);
+            this.init(row);
         },
 
-        init: function(num_lines) {
-
-            num_lines--;
-
-            let num_ring = 0;
-
+        init: function(row) {
             let td = $('<td class="base" align="center" style = "width:33%; height:100%"></td>');
 
             for (let j = 0; j < 8; j++) td.append('<p style = "height:25px; width:100%; margin:0"></p>');
 
-            td.find("p").eq(0).append('<h3>' + String(this.index + 1) + '</h3>');
+            td.find("p").eq(0).append('<h3>' + (this.index + 1) + '</h3>');
 
-            for (let i = 5; i > (5 - this.rings); i--){
-                td.find("p").eq(i).append(
-                    '<div style="height:80%; width:' +  String(this.size[num_ring].width) + '%; background-color:' + this.color +
-                    '; border:'+ this.color + ' solid 0.1px; border-radius:75px"</div>');
-                num_ring++;
+            for (let i = 0; i < this.rings.length; i++){
+                let r = this.rings[i];
+                if (!r.color) r.color = color;
+                td.find("p").eq(5 - i).append(
+                    '<div style="height:80%; width:' +  r.width + '%; background-color:' + r.color +
+                    '; border:'+ r.color + ' solid 0.1px; border-radius:75px"></div>');
+            }
 
-            };
-
-            $('#FieldPyr' + String(num_lines)).append(td);
-
-
+            row.append(td);
         },
 
         setDefault: function(dontDraw) {
-                this.rings = this.initRings;
+            this.rings = this.initRings.clone();
         },
 
-        draw: function(x) {
-            let sup_x = x;
-            let sup_y = this.index;
-            if (x % 3 == 2) sup_x = x - 1;
-            if (this.index % 3 == 2) sup_y = this.index - 1;
-
-
-            let sup_str1 = $('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").eq(0).css('width');
-            let sup_str2 = $('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").eq(this.index - (3 * Math.floor((sup_y + 1) / 3))).find("div").eq(0).css('width');
-
-            let sup_bool = false;
-
-            if (String(sup_str1).length < String(sup_str2).length) sup_bool = true;
-            else if ((sup_str1 <= sup_str2) && (String(sup_str1).length == String(sup_str2).length)) sup_bool = true;
-
-            if (sup_bool){
-
-                $('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").
-                    eq(this.index - (3 * Math.floor((sup_y + 1) / 3))).find("p").eq(6 - this.rings).
-                    append($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").eq(0));
-
+        pushRing: function(ring, sourceIndex) {
+            if (this.rings.length > 0) {
+                let top = this.rings[this.rings.length - 1];
+                if (top.width < ring.width)
+                    throw new IncorrectInput('Кольцо на пирамидке ' + (sourceIndex + 1) + ' больше,\nчем кольцо на пирамидке ' + (this.index + 1));
+                if (top.color != ring.color)
+                    throw new IncorrectInput('Цвета колец различны!');
             }
-            else
-                throw new IncorrectInput('Кольцо на ' + String(x + 1) + ' пирамидке больше,\nчем кольцо на ' + String(this.index + 1) + ' пирамидке');
+            this.rings.push(ring);
 
+            let row = $('#FieldPyr' + Math.floor(this.index / 3));
+            let sourceRow = $('#FieldPyr' + Math.floor(sourceIndex / 3));
+            row.find('td').eq(this.index % 3).find('p').eq(6 - this.rings.length).
+                append(sourceRow.find('td').eq(sourceIndex % 3).find('div').eq(0));
         },
 
-
-
-        moveTo: function(delta) {
-            this.rings--;
+        popRing: function() {
+            if (this.rings.length == 0)
+                throw new IncorrectInput('На пирамидке "' + (this.index + 1) + '" нет колец');
+            return this.rings.pop();
         },
-
-        moveFrom: function(delta) {
-            this.rings++;
-        },
-
-
     });
+
     function move(x, y) {
-            curProblem.oneStep('move', undefined, [x, y]);
+        curProblem.oneStep('move', undefined, [x, y]);
     }
 
     function compareRings(args){
@@ -169,7 +144,6 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 }
 
                 this.testFunction = [
-
                 {
                     'name': 'compareRings',
                     'title': 'Cравнение:',
@@ -184,17 +158,13 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             },
 
             init: function() {
-
-                let num_lines = Math.ceil(this.data.pyramids.length / 3);
-
-                /* this.div.parent().parent().css({"position":"relative",
-                              "width":"100%",
-                              "height":"100%"});     */
-                let table = $('<table id = "TableShift" style = "height: 170px; width: 100%"></table>').appendTo(this.div);
-                for (let i = 0; i < num_lines;i++) $('<tr id="FieldPyr' + String(i) + '" style = "height: 170px; width = 100%"></tr>').appendTo(table);
-
-                for (var i = 0; i < this.data.pyramids.length; ++i)
-                    this.pyramids.push(new Pyramid(this.data.pyramids[i].rings.length, i, this.div, Math.ceil((i + 1)/3), this.data.pyramids[i].color, this.data.pyramids[i].rings));
+                let table = $('<table id="TableShift" style="height: 170px; width: 100%"></table>').appendTo(this.div);
+                let row;
+                for (var i = 0; i < this.data.pyramids.length; ++i) {
+                    if (i % 3 == 0)
+                        row = $('<tr id="FieldPyr' + (i / 3) + '" style = "height: 170px; width: 100%;"></tr>').appendTo(table)
+                    this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, this.div, row, this.data.pyramids[i].color));
+                }
 
                 this.points = this.data.startPoints;
             },
@@ -242,7 +212,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             },
 
             executionFinished: function(){
-                if (this.isSolved() == this.data.finishState.length) {
+                if (this.isSolved()) {
                     this.points += this.data.pointsWon;
                     var mes = new MessageWon(this.problem.step, this.points);
                 }
@@ -261,51 +231,22 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                     throw new IncorrectInput('Нет пирамидки с номером "' + args[1] + '"');
                 }
 
-                let sup_x = x;
-                let sup_y = y;
-
-                if (x % 3 == 2) sup_x = x - 1;
-                if (y % 3 == 2) sup_y = y - 1;
-
-                if ((!($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").length))) {
-                    throw new IncorrectInput('На пирамидке "' + args[0] + '" нет колец');
-                }
-
-                if (($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).
-                    find("div").length > 0) && ($('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").eq(y - (3 * Math.floor((sup_y + 1) / 3))).find("div").length > 0)
-                ) {
-                    if ($('#FieldPyr' + String(Math.floor((sup_x + 1) / 3))).find("td").eq(x - (3 * Math.floor((sup_x + 1) / 3))).find("div").eq(0).css('background-color') !=
-                        $('#FieldPyr' + String(Math.floor((sup_y + 1) / 3))).find("td").eq(y - (3 * Math.floor((sup_y + 1) / 3))).find("div").eq(0).css('background-color')
-                    ) {
-                        throw new IncorrectInput('Цвета колец различны!');
-                    }
-                }
-
                 if (x == y) throw new IncorrectInput('Некорректный аргумент');
 
-                this.pyramids[x].moveTo();
-                this.pyramids[y].moveFrom();
-                this.pyramids[y].draw(x);
+                let ring = this.pyramids[x].popRing();
+                this.pyramids[y].pushRing(ring, x);
             },
 
             isSolved: function() {
-                let result = 2;
                 for (var i = 0; i < this.data.finishState.length; ++i) {
-
-                    var pyramid = this.data.finishState[i].pyramid;
-                    let sup_pyr = pyramid;
-                    if (pyramid % 3 == 2) sup_pyr = pyramid - 1;
-
-                    if ((this.pyramids[pyramid].rings != this.data.finishState[i].rings) ||
-                        ($('#FieldPyr' + String(Math.floor((sup_pyr + 1) / 3))).find("td").eq(pyramid - (3 * Math.floor((sup_pyr + 1) / 3))).
-                        find("div").eq(0).css('background-color') != this.data.finishState[i].color)
-                    ) {
-                        result--;
-                    }
-
+                    var state = this.data.finishState[i];
+                    var pyramid = this.pyramids[state.pyramid - 1];
+                    if (pyramid.rings.length != state.rings) return false;
+                    for (let j = 0; j < pyramid.rings.length; ++j)
+                        if (pyramid.rings[j].color != state.color)
+                            return false;
                 }
-                //console.log(String(result));
-                return result;
+                return true;
             },
 
             draw: function() {
@@ -314,47 +255,12 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 } */
             },
 
-            isLessPyramid: function(first,second) {
-
-                first--;
-                second--;
-                let sup_first = first;
-                let sup_second = second;
-                if (first % 3 == 2) sup_first = first - 1;
-                if (second % 3 == 2) sup_second = second - 1;
-
-                let sup_str1 = $('#FieldPyr' + String(Math.floor((sup_first+1) / 3))).find("td").eq(first - (3 * Math.floor((sup_first+1) / 3))).find("div").eq(0).css('width');
-                let sup_str2 = $('#FieldPyr' + String(Math.floor((sup_second+1) / 3))).find("td").eq(second - (3 * Math.floor((sup_second+1) / 3))).find("div").eq(0).css('width');
-                let result = false;
-
-                if ((!($('#FieldPyr' + String(Math.floor((sup_first+1) / 3))).find("td").eq(first - (3 * Math.floor((sup_first+1) / 3))).find("div").length)) ||
-                    (!($('#FieldPyr' + String(Math.floor((sup_second+1) / 3))).find("td").eq(second - (3 * Math.floor((sup_second+1) / 3))).find("div").length)))
-                    return false;
-
-                if (String(sup_str1).length < String(sup_str2).length) result = true;
-                else if ((sup_str1 < sup_str2) && (String(sup_str1).length == String(sup_str2).length)) result = true;
-
-                return  result;
+            isLessPyramid: function(first, second) {
+                return this.pyramids[first - 1].rings.length < this.pyramids[second - 1].rings.length;
             },
 
             isGreaterPyramid: function(first,second) {
-                first--;
-                second--;
-                let sup_first = first;
-                let sup_second = second;
-                if (first % 3 == 2) sup_first = first - 1;
-                if (second % 3 == 2) sup_second = second - 1;
-
-                let sup_str1 = $('#FieldPyr' + String(Math.floor((sup_first+1) / 3))).find("td").eq(first - (3 * Math.floor((sup_first+1) / 3))).find("div").eq(0).css('width');
-                let sup_str2 = $('#FieldPyr' + String(Math.floor((sup_second+1) / 3))).find("td").eq(second - (3 * Math.floor((sup_second+1) / 3))).find("div").eq(0).css('width');
-                let result = false;
-
-                if ((!(String(sup_str1).length)) || (!(String(sup_str2).length))) return false;
-
-                if (String(sup_str1).length > String(sup_str2).length) result = true;
-                else if ((sup_str1 > sup_str2) && (String(sup_str1).length == String(sup_str2).length)) result = true;
-
-                return  result;
+                return this.pyramids[first - 1].rings.length > this.pyramids[second - 1].rings.length;
             },
 
             isGameOver: function() {

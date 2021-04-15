@@ -1342,12 +1342,12 @@
 				{
 					"pyramid": 1,
 					"rings": 4,
-					"color": "rgb(255, 0, 0)"
+					"color": "red"
 				},
 				{
 					"pyramid": 4,
 					"rings": 1,
-					"color": "rgb(0, 0, 255)"
+					"color": "blue"
 				}
 			],
 
