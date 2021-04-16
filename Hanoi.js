@@ -111,7 +111,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                     new ExecutionUnitCommands.CommandArgumentSpin(1, this.data.pyramids.length)
                 ];
 
-                this.commands['move'] = new ExecutionUnitCommands.ExecutionUnitCommand('move', move, argP);
+                this.commands.move = new ExecutionUnitCommands.ExecutionUnitCommand('move', move, argP);
 
                 let pyramidsList = [];
                 for (let i = 0; i < this.data.pyramids.length; ++i)
@@ -119,17 +119,18 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 let comparisons = [ '<', '>', '<=', '>=', '==', '!=' ].map(c => [c, c]);
 
                 this.testFunction = [
-                {
-                    'name': 'compareRings',
-                    'title': 'Cравнение:',
-                    'args': [
-                        new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
-                        new ExecutionUnitCommands.CommandArgumentSelect(comparisons),
-                        new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
-                    ]  ,
-                    'jsFunc': compareRings,
-                    'handlerFunc': compareRingsHandler,
-                }]
+                    {
+                        name: 'compareRings',
+                        title: 'Cравнение:',
+                        args: [
+                            new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
+                            new ExecutionUnitCommands.CommandArgumentSelect(comparisons),
+                            new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
+                        ]  ,
+                        jsFunc: compareRings,
+                        handlerFunc: compareRingsHandler,
+                    }
+                ];
             },
 
             init: function() {
@@ -144,23 +145,16 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 this.points = this.data.startPoints;
             },
 
-            getAllowedCommands: function() {
-                return this.data.commands;
-            },
+            getAllowedCommands: function() { return this.data.commands; },
 
-            getCommandNames: function() {
-                return this.__self.cmdClassToName;
-            },
+            getCommandNames: function() { return this.__self.cmdClassToName; },
 
-            getCommandName: function(command) {
-                return this.__self.cmdClassToName[command];
-            },
+            getCommandName: function(command) { return this.__self.cmdClassToName[command]; },
 
             setDefault: function(dontDraw) {
-
                 for (var i = 0; i < this.pyramids.length; ++i) {
                     this.pyramids[i].setDefault();
-                };
+                }
                 $('#TableShift').remove();
                 this.init();
 
@@ -168,9 +162,8 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             },
 
             executeCommand: function(command, args) {
-                if (this.data.commands.indexOf(command) === -1) {
+                if (!this.isCommandSupported(command))
                     throw new IncorrectInput('Команда ' + command + ' не поддерживается');
-                }
 
                 switch (command) {
                     case 'move':
@@ -248,37 +241,23 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 }
             },
 
-            isGameOver: function() {
-                return this.dead;
-            },
+            isGameOver: function() { return this.dead;},
 
-            gameOver: function() {
-                this.dead = true;
-            },
+            gameOver: function() { this.dead = true; },
 
-            getPoints: function() {
-                return this.points;
-            },
+            getPoints: function() { return this.points; },
 
             isCommandSupported: function(command) {
                 return this.data.commands.indexOf(command) !== -1
             },
 
-            getConditionProperties: function(name) {
-                return this.testFunction;
-            },
+            getConditionProperties: function(name) { return this.testFunction; },
 
-            getCommands: function() {
-                return this.commands;
-            },
+            getCommands: function() { return this.commands; },
 
-            getCssFileName: function() {
-                return this.__self.cssFileName;
-            },
+            getCssFileName: function() { return this.__self.cssFileName; },
 
-            onTabSelect: function() {
-                return;
-            }
+            onTabSelect: function() {}
         },
 
         {
