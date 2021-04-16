@@ -15,10 +15,10 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             this.div = div;
             this.index = index;
 
-            this.init(row);
+            this.init(row, color);
         },
 
-        init: function(row) {
+        init: function(row, color) {
             let td = $('<td class="base" align="center" style = "width:33%; height:100%"></td>');
 
             for (let j = 0; j < 8; j++) td.append('<p style = "height:25px; width:100%; margin:0"></p>');
@@ -56,10 +56,14 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 append(sourceRow.find('td').eq(sourceIndex % 3).find('div').eq(0));
         },
 
-        popRing: function() {
+        checkHasRing: function() {
             if (this.rings.length == 0)
                 throw new IncorrectInput('На пирамидке "' + (this.index + 1) + '" нет колец');
-            return this.rings.pop();
+            return this;
+        },
+
+        popRing: function() {
+            return this.checkHasRing().rings.pop();
         },
     });
 
@@ -67,46 +71,17 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
         curProblem.oneStep('move', undefined, [x, y]);
     }
 
-    function compareRings(args){
-
-        if (args.length != 4 || !checkNumber(args[1]) || !checkNumber(args[3])) {
+    function compareRings(args) {
+        if (args.length != 4) {
             throw new IncorrectInput('Некорректный список аргументов');
         }
-
         var comparator = args[2];
-        var result = false;
-
-        switch(comparator) {
-            case '<':
-                result = curProblem.executionUnit.getExecutionUnit().isLessPyramid(args[1], args[3]);
-                break;
-            case '>':
-                result = curProblem.executionUnit.getExecutionUnit().isGreaterPyramid(args[1], args[3]);
-                break;
-            }
-
-            if (args[0] == 'not')
-                result = !result;
-
-            return result;
+        var result = curProblem.executionUnit.getExecutionUnit().compare(args[1], args[3], comparator);
+        return result != (args[0] == 'not');
         }
 
-    function compareRingsHandler(first, comparator, second){
-
-        if (!checkNumber(first) || !checkNumber(second)) {
-            throw new IncorrectInput('Некорректный аргумент');
-        }
-
-        comparator = comparator.v;
-
-        switch(comparator) {
-            case '<':
-                return curProblem.executionUnit.getExecutionUnit().isLessPyramid(first, second);
-            case '>':
-                return curProblem.executionUnit.getExecutionUnit().isGreaterPyramid(first, second);
-        }
-
-        return false;
+    function compareRingsHandler(first, comparator, second) {
+        return curProblem.executionUnit.getExecutionUnit().compare(first, second, comparator.v)
     }
 
     var MessageWon = $.inherit(Message, {
@@ -138,10 +113,10 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
 
                 this.commands['move'] = new ExecutionUnitCommands.ExecutionUnitCommand('move', move, argP);
 
-                var pyramidsList = [];
-                for (var i = 0; i < this.data.pyramids.length; ++i) {
-                    pyramidsList.push([i + 1, i + 1]);
-                }
+                let pyramidsList = [];
+                for (let i = 0; i < this.data.pyramids.length; ++i)
+                    pyramidsList.push([ i + 1, i + 1 ]);
+                let comparisons = [ '<', '>', '<=', '>=', '==', '!=' ].map(c => [c, c]);
 
                 this.testFunction = [
                 {
@@ -149,7 +124,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                     'title': 'Cравнение:',
                     'args': [
                         new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
-                        new ExecutionUnitCommands.CommandArgumentSelect([['<', '<'], ['>', '>']]),
+                        new ExecutionUnitCommands.CommandArgumentSelect(comparisons),
                         new ExecutionUnitCommands.CommandArgumentSelect(pyramidsList),
                     ]  ,
                     'jsFunc': compareRings,
@@ -218,23 +193,23 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 }
             },
 
+            checkPyramidNumber: function (arg) {
+                if (!checkNumber(arg))
+                    throw new IncorrectInput('Некорректный номер пирамидки "' + arg + '"');
+                if (!this.pyramids[arg - 1])
+                    throw new IncorrectInput('Нет пирамидки с номером "' + arg + '"');
+            },
+
             move: function(args) {
-                var x = args[0] - 1;
-                var y = args[1] - 1;
-                if (!checkNumber(x) || !checkNumber(y)) {
-                    throw new IncorrectInput('Некорректный аргумент');
-                }
-                if (!this.pyramids[x]) {
-                    throw new IncorrectInput('Нет пирамидки с номером "' + args[0] + '"');
-                }
-                if (!this.pyramids[y]) {
-                    throw new IncorrectInput('Нет пирамидки с номером "' + args[1] + '"');
-                }
+                this.checkPyramidNumber(args[0]);
+                this.checkPyramidNumber(args[1]);
+                var src = args[0] - 1;
+                var dst = args[1] - 1;
 
-                if (x == y) throw new IncorrectInput('Некорректный аргумент');
+                if (src == dst) throw new IncorrectInput('Нельзя переместить на ту же самую пирамидку');
 
-                let ring = this.pyramids[x].popRing();
-                this.pyramids[y].pushRing(ring, x);
+                let ring = this.pyramids[src].popRing();
+                this.pyramids[dst].pushRing(ring, src);
             },
 
             isSolved: function() {
@@ -255,12 +230,22 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 } */
             },
 
-            isLessPyramid: function(first, second) {
-                return this.pyramids[first - 1].rings.length < this.pyramids[second - 1].rings.length;
-            },
-
-            isGreaterPyramid: function(first,second) {
-                return this.pyramids[first - 1].rings.length > this.pyramids[second - 1].rings.length;
+            compare: function (first, second, comparator) {
+                this.checkPyramidNumber(first);
+                this.checkPyramidNumber(second);
+                let p1 = this.pyramids[first - 1].checkHasRing();
+                let p2 = this.pyramids[second - 1].checkHasRing();
+                let a = p1.rings[p1.rings.length - 1].width;
+                let b = p2.rings[p2.rings.length - 1].width;
+                switch (comparator) {
+                    case '<': return a < b;
+                    case '>': return a > b;
+                    case '<=': return a <= b;
+                    case '>=': return a >= b;
+                    case '==': return a == b;
+                    case '!=': return a != b;
+                    default: throw new IncorrectInput('Неизвестная операция сравнения "' + comparator + '"');
+                }
             },
 
             isGameOver: function() {
