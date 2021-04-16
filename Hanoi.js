@@ -9,19 +9,17 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
 
     var Pyramid = $.inherit({
 
-        __constructor: function(rings, index, div, row, color){
+        __constructor: function(rings, index, row, color){
             this.rings = rings;
             this.initRings = rings.clone();
-            this.div = div;
             this.index = index;
-
             this.init(row, color);
         },
 
         init: function(row, color) {
-            let td = $('<td class="base" align="center" style = "width:33%; height:100%"></td>');
+            let td = $('<td class="base" style="width: 33%;"></td>');
 
-            for (let j = 0; j < 8; j++) td.append('<p style = "height:25px; width:100%; margin:0"></p>');
+            for (let j = 0; j < 8; j++) td.append('<p style="height: 25px;"></p>');
 
             td.find("p").eq(0).append('<h3>' + (this.index + 1) + '</h3>');
 
@@ -29,8 +27,8 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 let r = this.rings[i];
                 if (!r.color) r.color = color;
                 td.find("p").eq(5 - i).append(
-                    '<div style="height:80%; width:' +  r.width + '%; background-color:' + r.color +
-                    '; border:'+ r.color + ' solid 0.1px; border-radius:75px"></div>');
+                    '<div style="width: ' +  r.width + '%; background-color: ' + r.color +
+                    '; border-radius: 75px;"></div>');
             }
 
             row.append(td);
@@ -134,12 +132,12 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             },
 
             init: function() {
-                let table = $('<table id="TableShift" style="height: 170px; width: 100%"></table>').appendTo(this.div);
+                let table = $('<table id="TableHanoi"></table>').appendTo(this.div);
                 let row;
                 for (var i = 0; i < this.data.pyramids.length; ++i) {
                     if (i % 3 == 0)
-                        row = $('<tr id="FieldPyr' + (i / 3) + '" style = "height: 170px; width: 100%;"></tr>').appendTo(table)
-                    this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, this.div, row, this.data.pyramids[i].color));
+                        row = $('<tr id="FieldPyr' + (i / 3) + '" style = "height: 170px;"></tr>').appendTo(table)
+                    this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, row, this.data.pyramids[i].color));
                 }
 
                 this.points = this.data.startPoints;
@@ -155,7 +153,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 for (var i = 0; i < this.pyramids.length; ++i) {
                     this.pyramids[i].setDefault();
                 }
-                $('#TableShift').remove();
+                $('#TableHanoi').remove();
                 this.init();
 
                 this.points = this.data.startPoints;

@@ -1,7 +1,19 @@
-.base {
-	background: #FFFFFF url('../images/base.png') 5% 100% no-repeat;
-	background-position: 50% 50%;
+#TableHanoi { width: 100%; }
 
-	
+.base {
+    background: #FFFFFF url('../images/base.png') 5% 100% no-repeat;
+    background-position: 50% 50%;
+    text-align: center;
+}
+
+.base p {
+    width: 100%;
+    margin: 0;
+}
+
+.base div {
+    margin: 0 auto;
+    height: 90%;
+    border: none;
 }
 
