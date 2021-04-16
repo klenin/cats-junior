@@ -7,6 +7,10 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
 
     var Message = ShowMessages.Message;
 
+    const COL_COUNT = 3;
+
+    let _row_id = function(index) { return '#FieldPyr' + Math.floor(index / COL_COUNT); };
+
     var Pyramid = $.inherit({
 
         __constructor: function(rings, index, row, color){
@@ -17,7 +21,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
         },
 
         init: function(row, color) {
-            let td = $('<td class="base" style="width: 33%;"></td>');
+            let td = $('<td class="base"></td>');
 
             for (let j = 0; j < 8; j++) td.append('<p style="height: 25px;"></p>');
 
@@ -48,10 +52,8 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             }
             this.rings.push(ring);
 
-            let row = $('#FieldPyr' + Math.floor(this.index / 3));
-            let sourceRow = $('#FieldPyr' + Math.floor(sourceIndex / 3));
-            row.find('td').eq(this.index % 3).find('p').eq(6 - this.rings.length).
-                append(sourceRow.find('td').eq(sourceIndex % 3).find('div').eq(0));
+            $(_row_id(this_index)).find('td').eq(this.index % COL_COUNT).find('p').eq(6 - this.rings.length).
+                append($(_row_id(sourceIndex)).find('td').eq(sourceIndex % COL_COUNT).find('div').eq(0));
         },
 
         checkHasRing: function() {
@@ -135,8 +137,8 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 let table = $('<table id="TableHanoi"></table>').appendTo(this.div);
                 let row;
                 for (var i = 0; i < this.data.pyramids.length; ++i) {
-                    if (i % 3 == 0)
-                        row = $('<tr id="FieldPyr' + (i / 3) + '" style = "height: 170px;"></tr>').appendTo(table)
+                    if (i % COL_COUNT == 0)
+                        row = $('<tr id="' + _row_id(i) + '" style = "height: 170px;"></tr>').appendTo(table)
                     this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, row, this.data.pyramids[i].color));
                 }
 
