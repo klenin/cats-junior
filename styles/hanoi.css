@@ -1,19 +1,17 @@
 #TableHanoi { width: 100%; }
 
-.base {
-    background: #FFFFFF url('../images/base.png') 5% 100% no-repeat;
-    background-position: 50% 50%;
-    text-align: center;
-}
+#TableHanoi p { margin: 0; height: 25px; }
 
-.base p {
-    width: 100%;
-    margin: 0;
-}
+#TableHanoi .name { text-align: center; font-weight: bold; padding-bottom: 3px; }
 
-.base div {
+#TableHanoi .pole {
+    background: linear-gradient(to right, white 42%, #ffa500 42%, #ffa500 58%, white 58%, white);
+}
+#TableHanoi .pole-top {
+    background: radial-gradient(16% 50% at 50% 100%, #ffa500 50%, transparent 51%);
     margin: 0 auto;
-    height: 90%;
-    border: none;
 }
 
+#TableHanoi .pole div { margin: 0 auto; height: 95%; border-radius: 25px; }
+
+#TableHanoi .base { background: #ffa500; height: 20px; }

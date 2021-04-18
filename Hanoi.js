@@ -22,17 +22,20 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
         },
 
         init: function(row, color) {
-            let td = $('<td class="base"></td>');
+            let td = $('<td>').width(100 / COL_COUNT + '%');
 
-            td.append($('<p>').append($('<h3>').append(this.index + 1)));
-            for (let j = 0; j < MAX_RINGS + 2; j++) td.append('<p style="height: 25px;"></p>');
+            let add_p = function(cls) { return $('<p>').addClass(cls).appendTo(td) };
+            add_p('name pole-top').text(this.index + 1);
+            let pole = [];
+            for (let j = 0; j < MAX_RINGS; j++)
+                pole.push(add_p('pole'));
+            add_p('base');
 
-            for (let i = 0; i < this.rings.length; i++){
+            for (let i = 0; i < this.rings.length; i++) {
                 let r = this.rings[i];
                 if (!r.color) r.color = color;
-                td.find("p").eq(MAX_RINGS - i).append(
-                    '<div style="width: ' +  r.width + '%; background-color: ' + r.color +
-                    '; border-radius: 75px;"></div>');
+                $('<div>').width(r.width).appendTo(pole[MAX_RINGS - i - 1]).
+                    css({ borderRadius: h, backgroundColor: r.color });
             }
 
             row.append(td);
@@ -53,7 +56,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                     throw new IncorrectInput('Цвета колец различны!');
             }
             this.rings.push(ring);
-            $('#' + _row_id(this.index)).find('td').eq(this.index % COL_COUNT).find('p').eq(MAX_RINGS + 1 - this.rings.length).
+            $('#' + _row_id(this.index)).find('td').eq(this.index % COL_COUNT).find('p.pole').eq(MAX_RINGS - this.rings.length).
                 append($('#' + _row_id(sourceIndex)).find('td').eq(sourceIndex % COL_COUNT).find('div').eq(0));
         },
 
@@ -139,7 +142,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 let row;
                 for (var i = 0; i < this.data.pyramids.length; ++i) {
                     if (i % COL_COUNT == 0)
-                        row = $('<tr id="' + _row_id(i) + '" style = "height: 170px;"></tr>').appendTo(table)
+                        row = $('<tr id="' + _row_id(i) + '"></tr>').appendTo(table)
                     this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, row, this.data.pyramids[i].color));
                 }
 
