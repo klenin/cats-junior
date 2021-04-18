@@ -1,4 +1,4 @@
-define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc'], function(){
+define('ExecutionUnitCommands', ['jQuery', 'jQueryUI', 'jQueryInherit', 'Misc', 'Exceptions'], function() {
 	var Exceptions = require('Exceptions');
 	var IncorrectInput = Exceptions.IncorrectInput;
 	var InternalError = Exceptions.InternalError;
