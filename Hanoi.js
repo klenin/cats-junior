@@ -8,8 +8,9 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
     var Message = ShowMessages.Message;
 
     const COL_COUNT = 3;
+    const MAX_RINGS = 5;
 
-    let _row_id = function(index) { return '#FieldPyr' + Math.floor(index / COL_COUNT); };
+    let _row_id = function(index) { return 'FieldPyr' + Math.floor(index / COL_COUNT); };
 
     var Pyramid = $.inherit({
 
@@ -23,14 +24,13 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
         init: function(row, color) {
             let td = $('<td class="base"></td>');
 
-            for (let j = 0; j < 8; j++) td.append('<p style="height: 25px;"></p>');
-
-            td.find("p").eq(0).append('<h3>' + (this.index + 1) + '</h3>');
+            td.append($('<p>').append($('<h3>').append(this.index + 1)));
+            for (let j = 0; j < MAX_RINGS + 2; j++) td.append('<p style="height: 25px;"></p>');
 
             for (let i = 0; i < this.rings.length; i++){
                 let r = this.rings[i];
                 if (!r.color) r.color = color;
-                td.find("p").eq(5 - i).append(
+                td.find("p").eq(MAX_RINGS - i).append(
                     '<div style="width: ' +  r.width + '%; background-color: ' + r.color +
                     '; border-radius: 75px;"></div>');
             }
@@ -46,14 +46,15 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             if (this.rings.length > 0) {
                 let top = this.rings[this.rings.length - 1];
                 if (top.width < ring.width)
-                    throw new IncorrectInput('Кольцо на пирамидке ' + (sourceIndex + 1) + ' больше,\nчем кольцо на пирамидке ' + (this.index + 1));
+                    throw new IncorrectInput(
+                        'Кольцо на пирамидке "' + (sourceIndex + 1) +
+                        '" больше,\nчем кольцо на пирамидке "' + (this.index + 1) + '"');
                 if (top.color != ring.color)
                     throw new IncorrectInput('Цвета колец различны!');
             }
             this.rings.push(ring);
-
-            $(_row_id(this_index)).find('td').eq(this.index % COL_COUNT).find('p').eq(6 - this.rings.length).
-                append($(_row_id(sourceIndex)).find('td').eq(sourceIndex % COL_COUNT).find('div').eq(0));
+            $('#' + _row_id(this.index)).find('td').eq(this.index % COL_COUNT).find('p').eq(MAX_RINGS + 1 - this.rings.length).
+                append($('#' + _row_id(sourceIndex)).find('td').eq(sourceIndex % COL_COUNT).find('div').eq(0));
         },
 
         checkHasRing: function() {
