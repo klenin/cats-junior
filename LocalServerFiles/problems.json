@@ -1296,6 +1296,8 @@
 			"maxCmdNum": 50,
 			"commandsFine": 10,
 			
+            "maxRings": 5,
+            "colCount": 3,
 			"pyramids": [
 				{
 					"rings": [

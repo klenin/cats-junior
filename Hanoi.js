@@ -7,57 +7,52 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
 
     var Message = ShowMessages.Message;
 
-    const COL_COUNT = 3;
-    const MAX_RINGS = 5;
-
-    let _row_id = function(index) { return 'FieldPyr' + Math.floor(index / COL_COUNT); };
-
     var Pyramid = $.inherit({
 
-        __constructor: function(rings, index, row, color){
+        __constructor: function(rings, index, row, color, problem){
             this.rings = rings;
             this.initRings = rings.clone();
             this.index = index;
+            this.problem = problem;
             this.init(row, color);
         },
 
+        pole_idx: function(i) { return 'Pole_' + this.index + '_' + i; },
+
         init: function(row, color) {
-            let td = $('<td>').width(100 / COL_COUNT + '%');
+            let td = $('<td>').appendTo(row);
 
             let add_p = function(cls) { return $('<p>').addClass(cls).appendTo(td) };
             add_p('name pole-top').text(this.index + 1);
-            let pole = [];
-            for (let j = 0; j < MAX_RINGS; j++)
-                pole.push(add_p('pole'));
-            add_p('base');
-
-            for (let i = 0; i < this.rings.length; i++) {
-                let r = this.rings[i];
-                if (!r.color) r.color = color;
-                $('<div>').width(r.width).appendTo(pole[MAX_RINGS - i - 1]).
-                    css({ borderRadius: h, backgroundColor: r.color });
+            for (let i = 0; i < this.problem.maxRings; ++i) {
+                let j = this.problem.maxRings - i - 1;
+                pole = add_p('pole').attr({ id: this.pole_idx(j) });
+                if (j < this.rings.length) {
+                    let r = this.rings[j];
+                    if (!r.color) r.color = color;
+                    $('<div>').width(r.width).css({ backgroundColor: r.color }).appendTo(pole);
+                }
             }
-
-            row.append(td);
+            add_p('base');
         },
 
         setDefault: function(dontDraw) {
             this.rings = this.initRings.clone();
         },
 
-        pushRing: function(ring, sourceIndex) {
+        pushRing: function(ring, source) {
             if (this.rings.length > 0) {
                 let top = this.rings[this.rings.length - 1];
                 if (top.width < ring.width)
                     throw new IncorrectInput(
-                        'Кольцо на пирамидке "' + (sourceIndex + 1) +
+                        'Кольцо на пирамидке "' + (source.index + 1) +
                         '" больше,\nчем кольцо на пирамидке "' + (this.index + 1) + '"');
                 if (top.color != ring.color)
                     throw new IncorrectInput('Цвета колец различны!');
             }
+            let ringDiv = $('#' + source.pole_idx(source.rings.length) + '>div')
+            $('#' + this.pole_idx(this.rings.length)).append(ringDiv);
             this.rings.push(ring);
-            $('#' + _row_id(this.index)).find('td').eq(this.index % COL_COUNT).find('p.pole').eq(MAX_RINGS - this.rings.length).
-                append($('#' + _row_id(sourceIndex)).find('td').eq(sourceIndex % COL_COUNT).find('div').eq(0));
         },
 
         checkHasRing: function() {
@@ -138,13 +133,21 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
             },
 
             init: function() {
+                this.colCount = this.data.colCount || 3;
+                this.maxRings = this.data.maxRings || 5;
+
                 let table = $('<table id="TableHanoi"></table>').appendTo(this.div);
+                for (let i = 0; i < this.colCount; ++i)
+                    $('<col>').prop({ width: 100 / this.colCount + '%' }).appendTo(table);
                 let row;
-                for (var i = 0; i < this.data.pyramids.length; ++i) {
-                    if (i % COL_COUNT == 0)
-                        row = $('<tr id="' + _row_id(i) + '"></tr>').appendTo(table)
-                    this.pyramids.push(new Pyramid(this.data.pyramids[i].rings, i, row, this.data.pyramids[i].color));
+                for (let i = 0; i < this.data.pyramids.length; ++i) {
+                    if (i % this.colCount == 0)
+                        row = $('<tr>').appendTo(table);
+                    let p = this.data.pyramids[i];
+                    this.pyramids.push(new Pyramid(p.rings, i, row, p.color, this));
                 }
+                while (row && row.children().length < this.colCount)
+                    $('<td>').appendTo(row);
 
                 this.points = this.data.startPoints;
             },
@@ -206,7 +209,7 @@ define('Hanoi', ['jQuery', 'jQueryUI', 'jQueryInherit', 'ExecutionUnitCommands',
                 if (src == dst) throw new IncorrectInput('Нельзя переместить на ту же самую пирамидку');
 
                 let ring = this.pyramids[src].popRing();
-                this.pyramids[dst].pushRing(ring, src);
+                this.pyramids[dst].pushRing(ring, this.pyramids[src]);
             },
 
             isSolved: function() {
