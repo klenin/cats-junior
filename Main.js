@@ -6,8 +6,8 @@ require.config({
             'Config',
             'Config.default'
         ],
-        'jQuery': 'import/jquery/jquery-1.11.1.min',
-        'jquery': 'import/jquery/jquery-1.11.1.min',
+        'jQuery': 'import/jquery/jquery-1.12.4.min',
+        'jquery': 'import/jquery/jquery-1.12.4.min',
 		'jQueryUI': 'import/jquery/jquery-ui-1.9.2.min',
 		'jQueryUITabsPaging': 'import/jquery/ui.tabs.paging',
 		'jQueryCookie': 'import/jquery/jquery.cookie.min',
